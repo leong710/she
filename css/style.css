@@ -1,0 +1,313 @@
+
+.center {
+    text-align: center;
+}
+/* .container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content:space-around;
+    align-items: center;
+    background-image: linear-gradient(to top left,#fffc4a,#47ffe6);
+} */
+* {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+    font-family: 'ubuntu' , '微軟正黑體';
+    /* background-image: linear-gradient(to top left,#fffc4a,#47ffe6); */
+    /* font-size: 16px; */
+}
+/* html {
+        background-color: rgba(0,0,0,.8);
+        background-image: linear-gradient(to top left,#4C0085,#000080);
+    } */
+body {
+    /* background-color: rgb(#00273b); */
+    /* background-image: linear-gradient(to top left,#4A0080,#000000); */
+        /* 背景全部推開=螢幕高度滿版 */
+    /* height: 80vh; */
+    /* 背景顏色-原本的漸層 */
+    /* background-image: linear-gradient(to top left,#4A0080,#000000); */
+    background-image: linear-gradient(to top left,#00273b,#00273b);
+    /* 背景固定不移動 */
+    background-attachment: fixed;
+}
+table, td, th {
+    border: 0px solid #aaa;
+    border-collapse: collapse;
+    padding: 5px;
+    position: relative;
+    font-size: 14px;
+    text-align: center;
+    margin: auto;         /*置中對齊*/
+}
+
+table, tr {
+    width: 100%;
+}
+table thead, th {
+    /* font-size: 16px; */
+    /* text-align: center; */
+    /* 原本的淡色系 */
+    /* background-color: rgb(122, 162, 238); */
+    color:White;
+    background-color:#5D7B9D;
+    font-weight:bold;
+
+    /* table凍結表頭 */
+    position: sticky;
+    z-index: 1;
+    top: 0;
+}
+td textarea {
+    height: 100%; /*高度填充*/
+    width: 100%;
+    padding: 1; /*防止textarea超過td邊框*/
+    vertical-align: bottom; /*chrome的td有margin-top情況 用此CSS調整*/
+    border: none; /*border用td的*/
+}
+/* 欄位漸層設定 */
+tr:nth-of-type(even) {
+    background-color: #ddd;
+}
+tr:nth-of-type(odd) {
+    background-color: #f3f3f3;
+}
+a {
+    text-decoration: none;
+    color:#0000CC;
+}
+a:hover {
+    /* font-size: 1.05rem; */
+    font-weight: bold;
+    text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+}
+/* .btn {
+    font-size: 12px;
+    padding: 2px 2px;
+    margin: 5px;
+} */
+.box {
+    box-sizing: border-box; /*老師推薦用法，寬度自動算，完全不用自己算*/
+    /* width: calc(100%/2);    老師推薦用法，總長除以等份，完全不用自己算 */
+    text-align: center;
+    /* display: inline-block; */
+    display: inline-flex;
+    /* background-color: #fffc4a; */
+    /* font-size: 16px; */
+    vertical-align: top;        /*div框向上對齊*/
+    /* top, middle, bottom, baseline */
+    margin: 5px;
+    padding: 5px;               /*div框的內距，為了不讓兩框文字相連*/
+}
+.submit {
+    vertical-align: bottom;        /*div框向上對齊*/
+}
+
+/* @import './reset.css'; */
+/* reset先不要 */
+.menu {
+    /* height: 100vh; */
+    /* width: 300px; */
+    /* width: 20%; */
+    /* background-color: #7C7C7C; */
+    background-color: #ECECFF;
+    float: left;
+}
+.menu_li {
+    line-height: 35px;
+    /* height: 100px; */
+}
+.content {
+    /* height: 100vh; */
+    /* width: 100%; */
+    width: 100vw;
+    /* background-color: rgb(226, 129, 129); */
+    /* background-color: #ECECFF; */
+}
+/* 上面是新引入的 */
+
+.article {
+    background-color: white;
+}
+
+#gotop {
+    width: 30px;
+    height: 30px;
+    /* background-color: #222; */
+    background-color: #0DCAF0;
+    color: #fff;
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999; /* 把top設在最高層 */
+    /* opacity: .6;
+    /* transition: .3s; */ /*       透明度影響美觀，所以老師關掉 */
+}
+
+/* footer {
+    background-color: var(--dark);
+    color: var(--light);
+} */
+
+/* 20231206_整合加入 */
+    .unblock{
+        display: none;
+    }
+    .unblock_a{
+        display: none;
+        opacity: 0;
+        /* transition: 3s; */
+        transition: opacity 1s;
+        animation: none;
+    }
+    .word_bk {
+        text-align: left; 
+        vertical-align: top; 
+        word-break: break-all;
+    }
+    /* 密碼的眼睛*/
+    #checkEye , #omager_badge , #in_sign_badge {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        z-index: 999;
+    }
+
+    .op_tab_btn {
+        /* 將圖示的背景色設置為透明並添加陰影 */
+        background-color: transparent; 
+        text-shadow: 0px 0px 1px #fff;
+        color: blue;
+        /* 將圖示的背景色設置為按鈕的背景色 */
+        /* background-color: inherit; */
+    }
+
+    .tag{
+        display: inline-block;
+        /* 粉紅 */
+        /* background-color: #fa0e7e; */
+        /* 粉藍 */
+        background-color: #0e7efa;
+        font: 14px;
+        color: white;
+        border-radius: 5px;
+        padding: 0px 3px 0px 7px;
+        margin-right: 5px;
+        margin-bottom:5px;
+        /* 粉紅 */
+        /* box-shadow: 0 5px 15px -2px rgba(250 , 14 , 126 , .7); */
+        /* 粉藍 */
+        box-shadow: 0 5px 15px -2px rgba(3 , 65 , 134 , .7);
+    }
+    .tag .remove {
+        margin: 0 7px 3px;
+        display: inline-block;
+        cursor: pointer;
+    }
+    .badge {  /* 標籤增加陰影辨識度 */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .rounded-pill { /* 膠囊球增加陰影辨識度 */
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #catalog_list img ,#stock_list img ,#tab_0_table img {
+        max-width: 100px;
+        /* max-height: 100px; */
+        max-height: 100px;
+    }
+    .cata_info_btn , .add_btn{
+        /* 將圖示的背景色設置為透明並添加陰影 */
+        background-color: transparent; 
+        text-shadow: 0px 0px 1px #fff;
+        /* color: blue; */
+        /* 將圖示的背景色設置為按鈕的背景色 */
+        /* background-color: inherit; */
+    }
+    .cata_info_btn:hover , .add_btn:hover{
+        /* color: red; */
+        transition: .5s;
+        font-weight: bold;
+        text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+    }
+
+    tr > th {
+        color: blue;
+        text-align: center;
+        vertical-align: top; 
+        word-break: break-all; 
+        /* background-color: rgb(255, 255, 255); */
+        background-color: lightgrey;
+        font-size: 16px;
+    }
+    tr > td {
+        vertical-align: middle; 
+    }
+
+    #logs_div tr > td , #logs_div tr > th{
+        text-align: left;
+    }
+
+    .table-dark > th{
+        color: white;
+    }
+
+    .collect{
+        color: #fa0e7e;
+        font-weight: bold;
+        font-size: 20px;
+        text-shadow: 0px 0px 1px #fff;
+    }
+
+    /* 上傳/下載 Excel */
+    #excelFile{    
+        margin-bottom: 0px;
+        /* text-align: center; */
+    }
+    #excel_iframe{
+        height: 320px;
+    }
+    
+    .autoinput {
+        /* background-color: greenyellow; */
+        border: 2px solid greenyellow;
+        padding: 5px;
+    }
+
+    .alert_it{
+        color: #fa0e7e;
+        font-weight: bold;
+        text-shadow: 0px 0px 1px #fff;
+    }
+
+    /* 新增與編輯 module表頭顏色 */
+    .add_mode_bgc {          
+        background-color: #ADD8E6;
+    }
+    .edit_mode_bgc {
+        background-color: #FFFACD;
+    }
+    /* 解決所有 input-group 上下分離 */
+    .amount, .add_btn{
+        max-height: 100%;
+        margin-bottom: 0px;
+        vertical-align: middle; 
+        /* padding: 0px; */
+    }
+    .tran_btn {
+        /* 將圖示的背景色設置為透明並添加陰影 */
+        background-color: transparent;
+    } 
+    .tran_btn:hover {
+        color: blue;
+        text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+    } 
