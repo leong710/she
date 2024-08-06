@@ -9,7 +9,7 @@
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?php echo $webroot;?>/">tnESH-she特殊健檢系統</a>
+        <a class="navbar-brand" href="<?php echo $webroot;?>/">tnESH-SHE特殊健檢系統</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -26,7 +26,7 @@
                                     <i class="fa-solid fa-map-location-dot"></i>&nbsp危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/caseList/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/ns_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/analyze/"><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>

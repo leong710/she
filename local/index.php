@@ -175,6 +175,7 @@
                                             <th>ai</th>
                                             <th>site_id</th>
                                             <th>fab_title (remark)</th>
+                                            <th>osha_id</th>
                                             <th>sign_code</th>
                                             <th style="width: 25%;">pm_emp_id</th>
                                             <th>flag</th>
@@ -189,6 +190,7 @@
                                                 <td style="font-size: 12px;"><?php echo $fab['id']; ?></td>
                                                 <td class="text-start"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
                                                 <td class="text-start"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
+                                                <td class="text-center"><?php echo $fab['osha_id']; ?></td>
                                                 <td class="text-center"><?php echo $fab['sign_code']; ?></td>
                                                 <td class="word_bk"><?php echo $fab['pm_emp_id']; ?></td>
                                                 <td><?php if($sys_role <= 1){
@@ -426,7 +428,7 @@
                                     <label for="edit_fab_title" class="form-label">fab_title/廠級分類名稱：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-
+                            
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="fab_remark" class="form-control" id="edit_fab_remark" required placeholder="註解說明">
@@ -437,7 +439,10 @@
                         <!-- Line 3 -->
                         <div class="row">
                             <div class="col-12 col-md-6 py-1">
-
+                                <div class="form-floating">
+                                    <input type="text" name="osha_id" class="form-control" id="edit_osha_id" required placeholder="職安署事業單位編號" maxlength="12" oninput="if(value.length>12)value=value.slice(0,12)">
+                                    <label for="edit_osha_id" class="form-label">osha_id/職安署事業單位編號：<sup class="text-danger"> * (12碼)</sup></label>
+                                </div>
                             </div>
 
                             <div class="col-12 col-md-6 py-1">
@@ -587,7 +592,7 @@
     var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
     var local       = <?=json_encode($locals)?>;                                                // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
-    var fab_item    = ['id','site_id','fab_title','fab_remark','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
+    var fab_item    = ['id','site_id','fab_title','fab_remark','osha_id','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     var sortFab_id  = '<?=$sortFab_id?>';
 

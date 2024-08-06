@@ -292,6 +292,6 @@
     })
     
 </script>
-<!-- <script src="caseList.js?v=<=time()?>"></script> -->
+<!-- <script src="ns_local.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

@@ -4,15 +4,15 @@
     function show_caseList($request){
         $pdo = pdo();
         extract($request);
-        $stmt_arr = array();    // 初始查詢陣列
         $sql = "SELECT _d.id, _d.uuid, _d.idty, _d.anis_no, _d.local_id, _d.case_title, _d.a_dept, _d.meeting_time, _d.meeting_local, _odd
-                    , _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
-                    , _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
-                FROM _document _d
-                LEFT JOIN _local _l     ON _d.local_id = _l.id 
-                LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
-                LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no ";
+                    --, _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
+                    --, _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
+                FROM ns_local ns
+                -- LEFT JOIN _local _l     ON _d.local_id = _l.id 
+                -- LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
+                -- LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no ";
         // tidy query condition：
+            $stmt_arr   = [];    // 初始查詢陣列
             $conditions = [];
 
             if($_year != 'All'){
