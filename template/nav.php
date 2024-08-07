@@ -26,7 +26,7 @@
                                     <i class="fa-solid fa-map-location-dot"></i>&nbsp危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/ns_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sn_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/analyze/"><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>
