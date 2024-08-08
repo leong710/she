@@ -29,11 +29,12 @@
             'sfab_id'       => $sfab_id_str,
         );
     // get mainData = shLocal
-        $shLocals       = show_shLocal($query_arr);   // get case清單
+        $shLocals       = show_shLocal($query_arr);     // get case清單
+        $per_total      = count($shLocals);             //計算總筆數
     // for select item
-        $fab_lists       = show_fab_lists();            // get 廠區清單
-        $year_lists      = show_GB_year();              // get 立案year清單
-        $OSHORT_lists    = show_OSHORT();               // get 部門代號
+        $fab_lists      = show_fab_lists();             // get 廠區清單
+        $year_lists     = show_GB_year();               // get 立案year清單
+        $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
                 $icon_s = '<i class="';
                 $icon_e = ' fa-2x"></i>&nbsp&nbsp';
@@ -81,6 +82,9 @@
             .inf {
                 display: inline-flex;
             }
+        .h6 {
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -96,10 +100,10 @@
                 </div>
                 <!-- 內頁 -->
                 <div class="col-12 bg-white">
-                    <!-- by各snLocal： -->
+                    <!-- by各shLocal： -->
                     <div class="row">
                         <!-- sort/groupBy function -->
-                        <div class="col-md-10 pb-0 ">
+                        <div class="col-md-9 pb-0 ">
                             <form action="" method="GET">
                                 <div class="input-group">
                                     <span class="input-group-text">篩選</span>
@@ -152,8 +156,18 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-md-2 pb-0 text-end">
-                            <button type="button" id="load_excel_btn" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳Excel檔</button>
+                        <div class="col-md-3 pb-0 text-end">
+                            <?php if($per_total != 0){ ?>
+                                <!-- 下載EXCEL的觸發 -->
+                                <div class="inb">
+                                    <form id="shLocal_myForm" method="post" action="../_Format/download_excel.php">
+                                        <input  type="hidden" name="htmlTable" id="shLocal_htmlTable" value="">
+                                        <button type="submit" name="submit" class="btn btn-outline-success add_btn" value="shLocal" onclick="downloadExcel(this.value)" ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                                    </form>
+                                </div>
+                            <?php } ?>
+                            <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
+                            <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
                         </div>
                         <!-- Bootstrap Alarm -->
                         <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 pb-0"></div>
@@ -161,17 +175,17 @@
                     <table id="shLocal" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th>OSTEXT_30<br>廠區</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="操作">OSHORT<br>部門代碼</th>
-                                <th>OSTEXT<br>部門名稱</th>
-                                <th>HE_CATE<br>類別</th>
-                                <th>AVG_VOL<br>均能音量</th>
-                                <th>AVG_8HR<br>工作日8小時平均音壓值</th>
-                                <th>MONIT_NO<br>監測編號</th>
-                                <th>MONIT_LOCAL<br>監測處所</th>
-                                <th>WORK_DESC<br>作業描述</th>
-                                <th>flag<br>開關</th>
-                                <th>created/updated<br>建檔/更新</th>
+                                <th title="OSTEXT_30">廠區</th>
+                                <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
+                                <th title="OSTEXT">部門名稱</th>
+                                <th title="HE_CATE">類別</th>
+                                <th title="AVG_VOL">均能音量</th>
+                                <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
+                                <th title="MONIT_NO">監測編號</th>
+                                <th title="MONIT_LOCAL">監測處所</th>
+                                <th title="WORK_DESC">作業描述</th>
+                                <th title="flag">開關</th>
+                                <th title="updated">最後更新</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -185,20 +199,19 @@
 
                                     <td><?php echo $shLocal['AVG_VOL'];?></td>
                                     <td><?php echo $shLocal['AVG_8HR'];?></td>
-                                    <td title="aid_<?php echo $shLocal['id'];?>"><?php 
-                                            if($sys_role <= 1){ 
-                                                echo "<button type='button' value='{$shLocal["id"]}' class='tran_btn' 
-                                                    onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'>{$shLocal["MONIT_NO"]}</button>";
-                                            }else{
-                                                echo $shLocal["MONIT_NO"];
-                                            } 
-                                        ?>
-                                    </td>
+                                    <td><?php echo $shLocal["MONIT_NO"];?></td>
                                     <td><?php echo $shLocal['MONIT_LOCAL'];?></td>
 
                                     <td class="word_bk"><?php echo $shLocal['WORK_DESC'];?></td>
                                     <td><?php echo $shLocal['flag'];?></td>
-                                    <td><?php echo substr($shLocal["created_at"],0,10)."</br>".substr($shLocal["updated_at"],0,10)." / ".$shLocal['updated_cname'];?></td>
+                                    <td class="h6"><?php 
+                                            // echo substr($shLocal["created_at"],0,10);
+                                            echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
+                                            if($sys_role <= 1){ 
+                                                echo "&nbsp;<button type='button' value='../interView/form.php?action=edit&uuid={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
+                                                echo " onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'><i class='fa-solid fa-pen-to-square'></i></button>";
+                                            } 
+                                        ?></td>
                                 </tr>
                             <?php } ?>
                         </tbody>
@@ -228,15 +241,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return restockExcelForm()">
-                    <div class="modal-body px-4">
+                <div class="modal-body px-4">
+                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return shLocalExcelForm()">
                         <div class="row">
                             <div class="col-6 col-md-8 py-0">
-                                <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/snLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/shLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
                                     <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="snLocal">上傳</button>
+                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shLocal">上傳</button>
                                 </div>
                             </div>
                             <div class="col-6 col-md-4 py-0">
@@ -246,14 +259,18 @@
                         </div>
                             
                         <div class="row" id="excel_iframe">
-                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="restockExcelForm()"></iframe>
+                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="shLocalExcelForm()"></iframe>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" id="import_excel_btn" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
-                        <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <form action="import_excel.php" method="POST">
+                        <input  type="hidden" name="excelTable"    id="excelTable"       value="">
+                        <input  type="hidden" name="updated_cname" id="updated_cname"    value="<?php echo $auth_cname;?>">
+                        <button type="submit" name="import_excel"  id="import_excel_btn" value="shLocal" class="btn btn-success unblock" data-bs-dismiss="modal">載入</button>
+                    </form>
+                    <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
             </div>
         </div>
     </div> 
@@ -283,7 +300,7 @@
 // 20231128 以下為上傳後"iframe"的部分
     // 阻止檔案未上傳導致的錯誤。
     // 請注意設置時的"onsubmit"與"onclick"。
-    function restockExcelForm() {
+    function shLocalExcelForm() {
         // 如果檔案長度等於"0"。
         if (excelFile.files.length === 0) {
             // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
@@ -327,6 +344,37 @@
         }
     };
 
+    // 20231128_下載Excel
+    function downloadExcel(to_module) {
+        console.log('to_module...', to_module);
+        // 定義要抓的key=>value
+        const item_keys = {
+            "id"            : "aid",
+            "OSHORT"        : "部門代碼",
+            "OSTEXT_30"     : "廠區",
+            "OSTEXT"        : "部門名稱",
+            "HE_CATE"       : "類別",
+            "AVG_VOL"       : "均能音量",
+            "AVG_8HR"       : "工作日8小時平均音壓值",
+            "MONIT_NO"      : "監測編號",
+            "MONIT_LOCAL"   : "監測處所",
+            "WORK_DESC"     : "作業描述",
+            "flag"          : "開關",
+            "created_at"    : "建檔日期",
+            "updated_at"    : "最後更新",
+            "updated_cname" : "最後編輯",
+        };
+        let sort_listData = [];                 // 建立整理陣列
+        const shLocal = <?=json_encode($shLocals)?>;  // 引入shLocal資料
+        for(let i=0; i < shLocal.length; i++){
+            sort_listData[i] = {};              // 建立物件
+            Object.keys(item_keys).forEach(function(i_key){
+                sort_listData[i][item_keys[i_key]] = shLocal[i][i_key];
+            })
+        }
+        let htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+    }
 
 // // // 開局導入設定檔
     $(document).ready(function () {
@@ -349,7 +397,7 @@
             // 監控按下送出鍵後，打開"iframe"
             excelUpload.addEventListener('click', function() {
                 iframeLoadAction();
-                restockExcelForm();
+                shLocalExcelForm();
             });
             // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
             iframe.addEventListener('load', function(){
@@ -364,6 +412,7 @@
                 if (excel_json) {
                     // uploadExcel_toCart(excel_json.value);
                     console.log(excel_json.value);
+                    document.getElementById('excelTable').value = excel_json.value;
 
                 } else if(stopUpload) {
                     console.log('請確認資料是否正確');

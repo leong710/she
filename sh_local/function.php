@@ -7,7 +7,7 @@
                     -- _d.id, _d.uuid, _d.idty, _d.anis_no, _d.local_id, _d.case_title, _d.a_dept, _d.meeting_time, _d.meeting_local, _odd
                     -- , _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
                     -- , _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
-                FROM sh_local sh
+                FROM _shlocal sh
                 -- LEFT JOIN _local _l     ON _d.local_id = _l.id 
                 -- LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
                 -- LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no 
@@ -151,7 +151,7 @@
     function show_GB_year(){
         $pdo = pdo();
         $sql = "SELECT DISTINCT year(sh.created_at) AS _year
-                FROM sh_local sh
+                FROM _shlocal sh
                 GROUP BY sh.created_at
                 ORDER BY sh.created_at DESC ";
         $stmt = $pdo->prepare($sql);
@@ -168,7 +168,7 @@
     function show_OSHORT(){
         $pdo = pdo();
         $sql = "SELECT DISTINCT sh.OSHORT
-                FROM sh_local sh
+                FROM _shlocal sh
                 GROUP BY sh.OSHORT
                 ORDER BY sh.OSHORT ASC ";
         $stmt = $pdo->prepare($sql);
@@ -180,6 +180,131 @@
             echo $e->getMessage();
         }
     }
+
+// shLocal
+    // shLocal料號項目--新增 230703
+    function store_shLocal($request){
+        $pdo = pdo();
+        extract($request);
+        $OSHORT = trim($OSHORT);
+
+        $sql = "INSERT INTO _shlocal( OSHORT, OSTEXT_30, OSTEXT, HE_CATE, AVG_VOL,   AVG_8HR, MONIT_NO, MONIT_LOCAL, WORK_DESC, flag,   updated_cname, updated_at, created_at )
+                VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,now(),now())";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$OSHORT, $OSTEXT_30, $OSTEXT, $HE_CATE, $AVG_VOL,   $AVG_8HR, $MONIT_NO, $MONIT_LOCAL, $WORK_DESC, $flag,   $updated_cname ]);
+            $result = TRUE;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $result = FALSE;
+        }
+        return $result;
+    }
+    // from edit_shLocal.php 依ID找出要修改的shLocal內容
+    function edit_shLocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "SELECT * FROM _shlocal WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $shLocal = $stmt->fetch();
+            return $shLocal;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    //from edit_shLocal.php call update_shLocal 修改完成的edit_shLocal 進行Update
+    function update_shLocal($request){
+        $pdo = pdo();
+        extract($request);
+        $OSHORT = trim($OSHORT);
+        $sql = "UPDATE _shlocal
+                SET OSHORT=?, OSTEXT_30=?, OSTEXT=?, HE_CATE=?, AVG_VOL=?,   AVG_8HR=?, MONIT_NO=?, MONIT_LOCAL=?, WORK_DESC=?, flag=?,   updated_cname=?, updated_at=now()
+                WHERE id=? ";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$OSHORT, $OSTEXT_30, $OSTEXT, $HE_CATE, $AVG_VOL,   $AVG_8HR, $MONIT_NO, $MONIT_LOCAL, $WORK_DESC, $flag,   $updated_cname, $id]);
+            $result = TRUE;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $result = FALSE;
+        }
+        return $result;
+    }
+
+    function delete_shLocal($request){
+        $pdo = pdo();
+        extract($request);
+        $sql = "DELETE FROM _shlocal WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$id]);
+            $result = TRUE;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+            $result = FALSE;
+        }
+        return $result;
+    }
+    // API隱藏或開啟
+    function changeShLocal_flag($request){
+        $pdo = pdo();
+        extract($request);
+
+        $sql_check = "SELECT sh.id, sh.flag FROM _shLocal sh WHERE id=?";
+        $stmt_check = $pdo -> prepare($sql_check);
+        $stmt_check -> execute([$id]);
+        $row = $stmt_check -> fetch();
+
+        if($row['flag'] == "Off" || $row['flag'] == "chk"){
+            $flag = "On";
+        }else{
+            $flag = "Off";
+        }
+
+        $sql = "UPDATE _shlocal SET flag=? WHERE id=?";
+        $stmt = $pdo->prepare($sql);
+        try {
+            $stmt->execute([$flag, $id]);
+            $Result = array(
+                'table' => $table, 
+                'id'    => $id,
+                'flag'  => $flag
+            );
+            return $Result;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+                // API更新報價
+                function update_price($request){
+                    $pdo = pdo();
+                    extract($request);
+
+                // 把舊紀錄讀進來取price
+                    $row_shLocal = edit_shLocal($request);
+                    $row_shLocal_price_arr = (array) json_decode($row_shLocal["price"]);
+                // 組合price單價 = _quoteYear/報價年度 : _price/單價
+                    $row_shLocal_price_arr[$_quoteYear] = $_price;
+                    $row_shLocal_price_enc = json_encode($row_shLocal_price_arr);
+
+                    $sql = "UPDATE _shLocal
+                            SET price=?, updated_at=now()
+                            WHERE id=? ";
+                    $stmt = $pdo->prepare($sql);
+                    try {
+                        $stmt->execute([$row_shLocal_price_enc, $id]);
+                        return "mySQL寫入 - 成功";
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                        return "mySQL寫入 - 失敗";
+                    }
+                }
+
+// shLocal
+
+
 
 // // // ----
 

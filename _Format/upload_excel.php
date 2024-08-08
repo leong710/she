@@ -1,5 +1,6 @@
 <?php
     require_once("../pdo.php");
+    // require_once("../user_info.php");
     // 以下為EXCEL檔案上傳
     // 引入PhpSpreadsheet库
     require '../../libs/vendor/autoload.php';
@@ -18,7 +19,7 @@
 
                 // 其他按钮被点击时执行的操作
                 $submit = $_POST['excelUpload'];                // "上傳"按钮被点击时执行的操作
-                if ($submit === 'snLocal') {                    // 240807_特殊危害健康作業管理
+                if ($submit === 'shLocal') {                    // 240807_特殊危害健康作業管理
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
                     $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '均能音量', '8小時平均', '監測編號', '監測處所', '作業描述');  //工作日8小時平均音壓值
@@ -81,7 +82,15 @@
                                 echo '<td class="word_bk">' . htmlspecialchars($row[8]) . '</td>';
 
                                 $process = [
-                                    $SN_replace => $amount_replace
+                                    "OSTEXT_30"     => $row[0],
+                                    "OSHORT"        => $row[1],
+                                    "OSTEXT"        => $row[2],
+                                    "HE_CATE"       => $row[3],
+                                    "AVG_VOL"       => $row[4],
+                                    "AVG_8HR"       => $row[5],
+                                    "MONIT_NO"      => $row[6],
+                                    "MONIT_LOCAL"   => $row[7],
+                                    "WORK_DESC"     => $row[8],
                                 ];
                                 $result[] = $process;
                             }else {
@@ -101,7 +110,7 @@
                             $cart_dec = (array) json_decode($jsonString);
 
                             // 以下是回傳給form購物車使用。
-                            echo '<textarea name="" id="excel_json" class="form-control" style="display: block;">'.$jsonString.'</textarea>';
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
                             echo '</div>';
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
@@ -121,7 +130,7 @@
     function check_something($submit, $query_item){
         $pdo = pdo();
         switch($submit){
-            case "snLocal":              
+            case "shLocal":              
                 $sql_check = "SELECT * FROM _cata WHERE SN = ?";
                 break;
 
@@ -138,7 +147,7 @@
                 $result = $stmt_check->fetch();
                 // 如果有值，則返回找到的資料。
                 switch($submit){
-                    case "snLocal":
+                    case "shLocal":
                         $resultRecall = [
                             "state"         => "OK",
                             "query_item"    => $query_item,
@@ -155,7 +164,7 @@
             }else{
                 // 返回"NA"值
                 switch($submit){
-                    case "snLocal":
+                    case "shLocal":
                         $resultRecall = [
                             "state"         => "NA",
                             "query_item"    => $query_item,

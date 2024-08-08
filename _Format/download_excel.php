@@ -61,8 +61,8 @@
 
     // 設定檔案名稱
         switch($to_module){
-            case "interView":
-                $filename_head = "事故訪談查詢_";
+            case "shLocal":
+                $filename_head = "特殊危害健康作業管理_";
                 $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];   // 定義調整蘭寬 
                 break;
             default:

@@ -7,12 +7,68 @@
     // init
 
 ?>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <style>
+        .app-header {
+            position: relative;
+            -ms-flex-direction: row;
+            flex-direction: row;
+            height: 55px;
+            padding: 0;
+            margin: 0;
+            background-color: #fff;
+            border-bottom: 1px solid #c8ced3;
+        }
+        .app-header .nav-item {
+            position: relative;
+            min-width: 50px;
+            margin: 0;
+            text-align: center;
+            color: #7d7d7d;
+        }
+        .app-header .nav-item .nav-link {
+            padding-top: 1;
+            padding-bottom: 0;
+            background: 0;
+            border: 0;
+        }
+        .navbar-nav .nav-link {
+            padding-right: 0;
+            padding-left: 0;
+            color: #73818f;
+        }
+        .sysTitle {
+            font-weight: bold;
+            font-size: 20px;
+            margin-top: -5px;
+        }
+        .h6, h6 {
+            margin-bottom: .5rem;
+            font-family: inherit;
+            font-weight: 500;
+            line-height: 1.2;
+            color: inherit;
+            font-size: .875rem;
+        }
+    </style>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light app-header ">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?php echo $webroot;?>/">tnESH-SHE特殊健檢系統</a>
+
+        <a class="navbar-brand" href="<?php echo $webroot;?>/">
+            <img class="navbar-brand-full pl-3" src="../template/tnesh_logo.png" height="40" width="100" alt="tnESH Logo">
+        </a>
+
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
+        <ul class="navbar-nav me-auto sysTitle">
+            <li class="nav-item px-1">
+                <a class="nav-link" href="<?php echo $webroot;?>/" class="p-0">特殊健檢系統(SHE)</a>
+                <h6 id="hFullName">Special Health Examination</h6>
+            </li>
+        </ul>
+
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if($sys_auth){ ?>
@@ -26,7 +82,7 @@
                                     <i class="fa-solid fa-map-location-dot"></i>&nbsp危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sn_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/analyze/"><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>

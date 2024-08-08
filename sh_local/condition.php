@@ -184,19 +184,19 @@
                                         <div class="form-check px-3">
                                             <input type="checkbox" name="idty[]" id="idty_1" value="1" class="form-check-input" checked>
                                             <label for="idty_1" class="form-check-label">立案/簽核中</label>
-                                        </div>&nbsp
+                                        </div>&nbsp;
                                         <div class="form-check px-3">
                                             <input type="checkbox" name="idty[]" id="idty_10" value="10" class="form-check-input" checked>
                                             <label for="idty_10" class="form-check-label">完成訪談</label>
-                                        </div>&nbsp
+                                        </div>&nbsp;
                                         <div class="form-check px-3">
                                             <input type="checkbox" name="idty[]" id="idty_6" value="6" class="form-check-input">
                                             <label for="idty_6" class="form-check-label">暫存</label>
-                                        </div>&nbsp
+                                        </div>&nbsp;
                                         <div class="form-check px-3">
                                             <input type="checkbox" name="idty[]" id="idty_3" value="3" class="form-check-input">
                                             <label for="idty_3" class="form-check-label">取消</label>
-                                        </div>&nbsp
+                                        </div>&nbsp;
                                         <!-- <div class="form-check px-3">
                                             <input type="checkbox" name="idty[]" id="idty_All" value="All" class="form-check-input"  >
                                             <label for="idty_All" class="form-check-label">All</label>
