@@ -56,7 +56,7 @@
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
-                            $row[3] = str_replace('、', ', ', $row[3]);  // 類別 符號轉逗號
+                            $row[3] = str_replace('、', ',', $row[3]);  // 類別 符號轉逗號
 
                             // 檢查OSHORT是否空值
                                 $OSHORT_check = !empty($row[1]);

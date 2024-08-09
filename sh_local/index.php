@@ -208,7 +208,7 @@
                                             // echo substr($shLocal["created_at"],0,10);
                                             echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
                                             if($sys_role <= 1){ 
-                                                echo "&nbsp;<button type='button' value='../interView/form.php?action=edit&uuid={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
+                                                echo "&nbsp;<button type='button' value='../sh_local/form.php?action=edit&id={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
                                                 echo " onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'><i class='fa-solid fa-pen-to-square'></i></button>";
                                             } 
                                         ?></td>
