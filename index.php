@@ -5,6 +5,6 @@
 		$uri = 'http://';
 	}
 	$uri .= $_SERVER['HTTP_HOST'];
-	header('Location: '.$uri.'/she/autolog/');
+	header('Location: '.$uri.'/she/dashBoard/');
 	exit;
 ?>
