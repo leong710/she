@@ -37,7 +37,6 @@
     // fun_1.search Key_word
     function search_fun(fun){
         mloading("show");                                           // 啟用mLoading
-        const uuid = '39aad298-a041-11ed-8ed4-2cfda183ef4f';        // hrdb
 
         if(fun=='search'){
             var search = $('#user').val().trim();                       // search keyword取自user欄位
@@ -52,19 +51,6 @@
                 search       : search                                   // 查詢對象key_word
             }
 
-        }else if(fun=='showStaff'){
-            var search = $('#recheck_user').val().trim();               // search keyword取自user欄位
-            if(!search || (search.length < 2)){
-                $("body").mLoading("hide");
-                alert("查詢字數最少 2 個字以上!!");
-                return false;
-            } 
-            var request = {
-                functionname : 'showStaff',                             // 操作功能
-                uuid         : uuid,                                    // ppe
-                emp_id       : search                                   // 查詢對象key_word
-            }
-
         }else if(fun=='showSignCode'){
             var search = $('#OSHORT').val().trim();               // search keyword取自user欄位
             if(!search || (search.length < 5)){
@@ -77,13 +63,13 @@
                 uuid         : uuid,                                // ppe
                 sign_code    : search                               // 查詢對象key_word
             }
+
         }else{
             return false;
         }
 
         $.ajax({
-            // url: 'http://tneship.cminl.oa/api/hrdb/index.php',      // 正式2024新版
-            url: 'http://localhost/api/hrdb/index.php',      // 正式2024新版
+            url: 'http://tneship.cminl.oa/api/hrdb/index.php',      // 正式2024新版
             method: 'post',
             dataType: 'json',
             data: request,
@@ -105,9 +91,7 @@
         $("#result").addClass("bg-white");
         // 定義表格頭段
         let div_result_table = document.querySelector('.result table');
-        let Rinner = "<thead><tr>"+
-                        "<th>部門代號</th>"+"<th>部門名稱</th>"+"<th>OSTEXT_20</th>"+"<th>OFTEXT</th>"+"<th>select</th>"+
-                    "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
+        let Rinner = "<thead><tr>"+"<th>部門代號</th>" + "<th>部門名稱</th>"+"<th>OSTEXT_20</th>"+"<th>OFTEXT</th>"+"<th>select</th>" + "</tr></thead>" + "<tbody id='tbody'>"+"</tbody>";
         // 鋪設表格頭段thead
         div_result_table.innerHTML += Rinner;
         // 定義表格中段tbody
@@ -239,7 +223,6 @@
                     });
                 }
             // 240809 監聽'噪音'checkbox 
-
             // 文件載入成功，resolve
             resolve();
         });
@@ -259,7 +242,6 @@
                             he_cate_input.forEach((he_cate_i)=>{
                                 // he_cate_i.checked = (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)); // 有bug
                                 if (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)) {
-                                    console.log(item_value, he_cate_i.value)
                                     he_cate_i.checked = true;
                                 }
                             })
@@ -270,7 +252,6 @@
                         })
                     }else if(sh_key == "flag"){                // 特例處理3.for flag 開關
                         document.querySelector('#flag_'+sh_value).checked = true;
-                        console.log('flag...', sh_value);
                     }else{                                      // 非combo選項，直接帶入value
                         $('#'+sh_key).val(sh_value); 
                     }
@@ -330,7 +311,7 @@
             let rtn_btns = document.querySelectorAll('.rtn_btn');   // 獲取所有帶有 'rtn_btn' class 的按鈕
             rtn_btns.forEach(function(btn) {                        // 遍歷這些按鈕，並設置 onclick 事件
                 btn.onclick = function() {
-                    closeWindow();                                  // true=更新 / false=不更新
+                    closeWindow(true);                                  // true=更新 / false=不更新
                 };
             });
         }
@@ -339,6 +320,5 @@
     $(function () {
         // 確認是主頁面或popup
         checkPopup();   
-        // 20240502 -- 調用 loadData 函數來載入數據 await 依序執行step 1 2 3
         loadData();
     })

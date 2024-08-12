@@ -6,7 +6,10 @@
     if(!isset($_SESSION)){                                                          // 確認session是否啟動
         session_start();
     }
-
+    if(!empty($_SESSION["AUTH"]["pass"]) && !isset($_SESSION[$sys_id])){
+		accessDenied_sys($sys_id);                  // 套用sys_id權限
+    }
+    
     $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : "";      // 取出$_session引用
 
     // 編輯功能

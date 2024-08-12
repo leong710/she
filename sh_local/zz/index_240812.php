@@ -11,17 +11,21 @@
     // default fab_scope
         $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";               // All :allMy
     // tidy query condition：
+        $_year       = (isset($_REQUEST["_year"]))       ? $_REQUEST["_year"]       : date('Y');    // 建置年度
+        $_month      = (isset($_REQUEST["_month"]))      ? $_REQUEST["_month"]      : date('m');    // 建置月份
         $OSHORT      = (isset($_REQUEST["OSHORT"]))      ? $_REQUEST["OSHORT"]      : "All";        // 部門代碼
         $flag        = (isset($_REQUEST["flag"]))        ? $_REQUEST["flag"]        : "All";        // 開關狀態
-        $fab_title   = (isset($_REQUEST["fab_title"]))   ? $_REQUEST["fab_title"]   : $fab_scope;   // 問卷fab
+        $_fab_id     = (isset($_REQUEST["_fab_id"]))     ? $_REQUEST["_fab_id"]     : $fab_scope;   // 問卷fab
     // tidy sign_code scope 
         $sfab_id_str     = get_coverFab_lists("str");   // get signCode的管理轄區
         $sfab_id_arr     = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
     // merge quesy array
         $query_arr = array(
+            '_year'         => $_year,
+            '_month'        => $_month,
             'OSHORT'        => $OSHORT,
             'flag'          => $flag,
-            'fab_title'     => $fab_title,
+            'fab_id'        => $_fab_id,
             'sfab_id'       => $sfab_id_str,
         );
     // get mainData = shLocal
@@ -29,10 +33,11 @@
         $per_total      = count($shLocals);             //計算總筆數
     // for select item
         $fab_lists      = show_fab_lists();             // get 廠區清單
+        $year_lists     = show_GB_year();               // get 立案year清單
         $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
-            $icon_s = '<i class="';
-            $icon_e = ' fa-2x"></i>&nbsp&nbsp';
+                $icon_s = '<i class="';
+                $icon_e = ' fa-2x"></i>&nbsp&nbsp';
             
 ?>
 
@@ -90,7 +95,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link active"     href="index.php">特殊危害健康作業管理</span></a></li>
-                        <?php echo ($sys_role <= 2.5) ? "<li class='nav-item' ><a class='nav-link disabled'   href='#'>預留功能</span></a></li>":"";?>
+                        <?php echo ($sys_role <= 2.5) ? "<li class='nav-item'><a class='nav-link '   href='condition.php'>條件化搜尋</span></a></li>":"";?>
                     </ul>
                 </div>
                 <!-- 內頁 -->
@@ -98,43 +103,60 @@
                     <!-- by各shLocal： -->
                     <div class="row">
                         <!-- sort/groupBy function -->
-                        <div class="col-md-8 pb-0 ">
+                        <div class="col-md-9 pb-0 ">
                             <form action="" method="GET">
                                 <div class="input-group">
                                     <span class="input-group-text">篩選</span>
-                                    <select name="fab_title" id="fab_title" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 Fab --</option>
+                                    <select name="_year" id="_year" class="form-select" >
+                                        <option value="" hidden selected >-- 請選擇 建構年度 --</option>
                                         <?php 
-                                            echo '<option for="fab_title" value="All" '.($fab_title == "All" ? "selected":"").' >-- All 所有棟別 --</option>';
-                                            echo '<option for="fab_title" value="allMy" '.($fab_title == "allMy" ? "selected":"").' >-- allMy 部門轄下 '.($sfab_id_str ? " (".$sfab_id_str.")":"").' --</option>';
-                                            foreach($fab_lists as $fab){
-                                                echo "<option for='fab_title' value='{$fab["fab_title"]}' ".($fab["fab_title"] == $fab_title ? "selected" : "" ) ." >";
-                                                echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]." ( ".$fab["fab_remark"]." )"; 
-                                                echo ($fab["flag"] == "Off") ? " - (已關閉)":"" ."</option>";
+                                            echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' >-- All 所有年度 --</option>';
+                                            foreach($year_lists as $list_year){
+                                                echo "<option for='_year' value='{$list_year["_year"]}' ";
+                                                echo ($list_year["_year"] == $_year ? "selected" : "" )." >".$list_year["_year"]."y</option>";
+                                            } ?>
+                                    </select>
+                                    <select name="_month" id="_month" class="form-select">
+                                        <?php 
+                                            echo "<option for='_month' value='All' ".(($_month == "All") ? "selected":"" )." >-- 全月份 / All --</option>";
+                                            foreach (range(1, 12) as $month_lists) {
+                                                $month_str = str_pad($month_lists, 2, '0', STR_PAD_LEFT);
+                                                echo "<option for='_month' value='{$month_str}' ".(($month_str == $_month ) ? "selected":"" )." >{$month_str}m</option>";
                                             } ?>
                                     </select>
                                     <select name="OSHORT" id="OSHORT" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 部門代號 --</option>
+                                        <option value="" hidden selected >-- 請選擇 問卷類型 --</option>
                                         <?php 
                                             echo '<option for="OSHORT" value="All" '.($OSHORT == "All" ? "selected":"" ).' >-- All 所有類型 --</option>';
                                             foreach($OSHORT_lists as $OSHORTs){
                                                 echo "<option for='OSHORT' value='{$OSHORTs["OSHORT"]}' ";
-                                                echo ($OSHORTs["OSHORT"] == $OSHORT ? "selected" : "" )." >".$OSHORTs["OSHORT"]." (".$OSHORTs["OSTEXT"].")</option>";
+                                                echo ($OSHORTs["OSHORT"] == $OSHORT ? "selected" : "" )." >".$OSHORTs["OSHORT"]."</option>";
                                             } ?>
                                     </select>
-                                    <select name="flag" id="flag" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 開關狀態 --</option>
+                                    <select name="_fab_id" id="_fab_id" class="form-select" >
+                                        <option value="" hidden selected >-- 請選擇 問卷Fab --</option>
                                         <?php 
-                                            echo '<option for="flag" value="All" '.($flag == "All" ? "selected":"").' >-- All 所有狀態 --</option>';
-                                            echo '<option for="flag" value="On"  '.($flag == "On"  ? "selected":"").' >On</option>';
-                                            echo '<option for="flag" value="Off" '.($flag == "Off" ? "selected":"").' >Off</option>';
+                                            echo '<option for="_fab_id" value="All" '.($_fab_id == "All" ? "selected":"").' >-- All 所有棟別 --</option>';
+                                            echo '<option for="_fab_id" value="allMy" '.($_fab_id == "allMy" ? "selected":"").' >-- allMy 部門轄下 '.($sfab_id_str ? "(".$sfab_id_str.")":"").' --</option>';
+                                            foreach($fab_lists as $fab){
+                                                echo "<option for='_fab_id' value='{$fab["id"]}' ".($fab["id"] == $_fab_id ? "selected" : "" ) ." >";
+                                                echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]."( ".$fab["fab_remark"]." )"; 
+                                                echo ($fab["flag"] == "Off") ? " - (已關閉)":"" ."</option>";
+                                            } ?>
+                                    </select>
+                                    <select name="idty" id="idty" class="form-select" >
+                                        <option value="" hidden selected >-- 請選擇 問卷狀態 --</option>
+                                        <?php 
+                                            echo '<option for="idty" value="All" '.($idty == "All" ? "selected":"").' >-- All 所有狀態 --</option>';
+                                            echo '<option for="idty" value="On"  '.($idty == "On"  ? "selected":"").' >On</option>';
+                                            echo '<option for="idty" value="Off" '.($idty == "Off" ? "selected":"").' >Off</option>';
                                         ?>
                                     </select>
                                     <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
                                 </div>
                             </form>
                         </div>
-                        <div class="col-md-4 pb-0 text-end">
+                        <div class="col-md-3 pb-0 text-end">
                             <?php if($per_total != 0){ ?>
                                 <!-- 下載EXCEL的觸發 -->
                                 <div class="inb">
@@ -167,6 +189,7 @@
                             </tr>
                         </thead>
                         <tbody>
+
                             <?php foreach($shLocals as $shLocal){ ?>
                                 <tr>
                                     <td><?php echo $shLocal['OSTEXT_30'];?></td>
@@ -180,12 +203,9 @@
                                     <td><?php echo $shLocal['MONIT_LOCAL'];?></td>
 
                                     <td class="word_bk"><?php echo $shLocal['WORK_DESC'];?></td>
-                                    <td><?php 
-                                            echo "<span class='badge rounded-pill ";
-                                            echo ($shLocal['flag'] == "On") ? "bg-success ":" bg-secondary ";
-                                            echo "'>".$shLocal['flag']."</span>"
-                                        ?></td>
+                                    <td><?php echo $shLocal['flag'];?></td>
                                     <td class="h6"><?php 
+                                            // echo substr($shLocal["created_at"],0,10);
                                             echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
                                             if($sys_role <= 1){ 
                                                 echo "&nbsp;<button type='button' value='../sh_local/form.php?action=edit&id={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
@@ -267,7 +287,6 @@
 
 <script>
 
-// // // 開局導入設定檔
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
     var iframe           = document.getElementById('api');                // 清冊的iframe介面
@@ -278,9 +297,133 @@
     var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
 
-    const shLocal        = <?=json_encode($shLocals)?>;    // 引入shLocal資料
+// 20231128 以下為上傳後"iframe"的部分
+    // 阻止檔案未上傳導致的錯誤。
+    // 請注意設置時的"onsubmit"與"onclick"。
+    function shLocalExcelForm() {
+        // 如果檔案長度等於"0"。
+        if (excelFile.files.length === 0) {
+            // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
+            warningText_1.style.display = "block";
+            return false;
+        }
+        // 如果已選擇文件，允許表單提交
+        iframe.style.display = 'block'; 
+        // 以下為編輯特有
+        // showTrainList.style.display = 'none';
+        return true;
+    }
 
+    function iframeLoadAction() {
+        iframe.style.height = '0px';
+        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+        var iframeContent = iframeDocument.documentElement;
+        var newHeight = iframeContent.scrollHeight + 'px';
+        iframe.style.height = newHeight;
+
+        var excel_json = iframeDocument.getElementById('excel_json');
+        var stopUpload = iframeDocument.getElementById('stopUpload');
+        // 在此處對找到的 <textarea> 元素進行相應的操作
+        if (excel_json) {
+            // 手动触发input事件
+            var inputEvent = new Event('input', { bubbles: true });
+            // console.log('inputEvent...', inputEvent);
+            warningText_1.style.display = "none";           // 警告文字--隱藏
+            warningText_2.style.display = "none";
+            import_excel_btn.style.display = "block";       // 載入按鈕--顯示
+            
+        } else if(stopUpload) {
+            // 沒有找到 <textarea> 元素
+            console.log('請確認資料是否正確');
+            warningText_1.style.display = "block";          // 警告文字--顯示
+            warningText_2.style.display = "block";
+            import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
+
+        }else{
+            // console.log('找不到 < ? > 元素');
+        }
+    };
+
+    // 20231128_下載Excel
+    function downloadExcel(to_module) {
+        console.log('to_module...', to_module);
+        // 定義要抓的key=>value
+        const item_keys = {
+            "id"            : "aid",
+            "OSHORT"        : "部門代碼",
+            "OSTEXT_30"     : "廠區",
+            "OSTEXT"        : "部門名稱",
+            "HE_CATE"       : "類別",
+            "AVG_VOL"       : "均能音量",
+            "AVG_8HR"       : "工作日8小時平均音壓值",
+            "MONIT_NO"      : "監測編號",
+            "MONIT_LOCAL"   : "監測處所",
+            "WORK_DESC"     : "作業描述",
+            "flag"          : "開關",
+            "created_at"    : "建檔日期",
+            "updated_at"    : "最後更新",
+            "updated_cname" : "最後編輯",
+        };
+        let sort_listData = [];                 // 建立整理陣列
+        const shLocal = <?=json_encode($shLocals)?>;  // 引入shLocal資料
+        for(let i=0; i < shLocal.length; i++){
+            sort_listData[i] = {};              // 建立物件
+            Object.keys(item_keys).forEach(function(i_key){
+                sort_listData[i][item_keys[i_key]] = shLocal[i][i_key];
+            })
+        }
+        let htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+    }
+
+// // // 開局導入設定檔
+    $(document).ready(function () {
+        // 在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
+        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
+        $('#shLocal').DataTable({
+            "autoWidth": false,
+            // 排序
+            "order": [[ 8, "desc" ]],
+            // 顯示長度
+            "pageLength": 25,
+            // 中文化
+            "language":{
+                url: "../../libs/dataTables/dataTable_zh.json"
+            }
+        });
+    
+        // 20231128 以下為上傳後"iframe"的部分
+            // 監控按下送出鍵後，打開"iframe"
+            excelUpload.addEventListener('click', function() {
+                iframeLoadAction();
+                shLocalExcelForm();
+            });
+            // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+            iframe.addEventListener('load', function(){
+                iframeLoadAction();
+            });
+            // 監控按下[載入]鍵後----呼叫Excel載入購物車
+            import_excel_btn.addEventListener('click', function() {
+                var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                var excel_json = iframeDocument.getElementById('excel_json');
+                var stopUpload = iframeDocument.getElementById('stopUpload');
+
+                if (excel_json) {
+                    // uploadExcel_toCart(excel_json.value);
+                    console.log(excel_json.value);
+                    document.getElementById('excelTable').value = excel_json.value;
+
+                } else if(stopUpload) {
+                    console.log('請確認資料是否正確');
+                }else{
+                    console.log('找不到 ? 元素');
+                }
+            });
+        
+        
+    })
 </script>
-<script src="sn_local.js?v=<=time()?>"></script>
+<!-- <script src="sn_local.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

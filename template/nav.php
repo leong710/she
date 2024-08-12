@@ -1,5 +1,5 @@
 <?php
-    require_once("..\user_info.php");
+    require_once("../user_info.php");
     require_once("function.php");
 
     $webroot = "..";
@@ -85,7 +85,7 @@
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/analyze/"><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>
+                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>
                                     <?php } ?>
                                 </ul>
                             </li>
@@ -98,7 +98,7 @@
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_3">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp<i class="fas fa-th-large"></i>&nbsp表單管理</a></li>
+                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp<i class="fas fa-th-large"></i>&nbsp表單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbsp發報記錄管理</a></li>
                                     <?php if($sys_role == 0 ){ ?>

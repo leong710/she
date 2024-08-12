@@ -17,7 +17,7 @@
         if(!isset($_SESSION)){                                              // 確認session是否啟動
             session_start();
         }
-        if(!empty($_SESSION["AUTH"]["pass"])){                              // 確認是否完成AUTH/pass => True
+        if(isset($_SESSION["AUTH"]) && !empty($_SESSION["AUTH"]["pass"])){                              // 確認是否完成AUTH/pass => True
             if(!empty($_SESSION[$sys_id])){                                  // 如果sys_id已經建立，就返回
                 return;
                 

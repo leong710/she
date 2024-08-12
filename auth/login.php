@@ -2,7 +2,6 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("function.php");
-    global $sys_id;
     accessDenied_sys($sys_id);
 
     header("refresh:0;url=../");

@@ -23,7 +23,6 @@
     }
 
     $fabs   = show_fab_lists();                     // load fab list for select item 
-    // $locals = show_local_lists();                   // load local list for select item 
     // load 作業類別json
     $he_cate_file = "../sh_local/he_cate.json";
     if(file_exists($he_cate_file)){
@@ -75,7 +74,7 @@
         .inf {
             display: inline-flex;
             align-items: center;
-            width: 100%; /* 让父容器占满整个单元格 */
+            width: 100%; 
         }
     </style>
 </head>
@@ -315,9 +314,9 @@
     var action = '<?=$action?>';
     var id     = '<?=$id?>';
     var searchModal = new bootstrap.Modal(document.getElementById('searchModal'), { keyboard: false });
+    const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';        // nurse
                                                 
 </script>
-
 <script src="form.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

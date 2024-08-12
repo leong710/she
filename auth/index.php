@@ -371,13 +371,14 @@
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <script>    
     // modal
-    var user_modal  = new bootstrap.Modal(document.getElementById('user_modal'), { keyboard: false });
-    var searchUser_modal = new bootstrap.Modal(document.getElementById('searchUser'), { keyboard: false });
     var user        = <?=json_encode($showAllUsers)?>;
     var user_item   = ['id','user','cname','emp_id','idty','role','sign_code'];                 // 交給其他功能帶入
     var tags        = [];                                                                       // fun3-1：search Key_word
     var swal_json   = <?=json_encode($sw_json)?>;
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
+    var user_modal  = new bootstrap.Modal(document.getElementById('user_modal'), { keyboard: false });
+    var searchUser_modal = new bootstrap.Modal(document.getElementById('searchUser'), { keyboard: false });
+    const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';        // nurse
 
 </script>
 

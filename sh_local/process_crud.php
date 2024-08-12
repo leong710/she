@@ -7,13 +7,13 @@
     $swal_json = array();
 
     switch($_REQUEST["action"]){
-        case "create":           // 開新表單
+        case "create":              // 開新表單
             $swal_json = store_shLocal($_REQUEST);  break;
 
-        case "edit":             // 編輯更新
+        case "edit":                // 編輯更新
             $swal_json = update_shLocal($_REQUEST); break;
 
-        case "delete":          // 刪除
+        case "delete":              // 刪除
             $swal_json = delete_shLocal($_REQUEST); break;
 
         default:                    // 預定失效 
@@ -39,12 +39,6 @@
 
 <body>
     <div class="col-12" id="process">prccess post...<br></div>
-    
-    <?php 
-        echo "<pre>";
-        print_r($_REQUEST);
-        echo "</pre>";
-    ?>
 
 </body>
 
@@ -59,8 +53,8 @@
             $("body").mLoading("hide");
             if(swal_json['action'] == 'success'){
                 // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});     // n秒后回首頁
-                // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow()});           // 秒自動關閉畫面
-                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{closeWindow(true)});        // 秒自動關閉畫面
+                // swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{closeWindow(true)});        // 秒自動關閉畫面
+                swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true)});           // 秒自動關閉畫面
             } else { // warning、error
                 swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action']).then(()=>{history.back()});     // 手動回上頁
             }

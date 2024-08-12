@@ -45,12 +45,10 @@
     function resetMain(){
         $("#result").removeClass("border rounded bg-white");
         $('#result_table').empty();
-        // document.querySelector('#key_word').value = '';
     }
     // 第一-階段：search Key_word
     function search_fun(fun){
         mloading("show");                                               // 啟用mLoading
-        const uuid = '752382f7-207b-11ee-a45f-2cfda183ef4f';            // ppe
 
         if(fun=='search'){
             var search = $('#user').val().trim();                       // search keyword取自user欄位
@@ -83,7 +81,6 @@
         }
 
         $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
             url: 'http://tneship.cminl.oa/api/hrdb/index.php',          // 正式2024新版
             method: 'post',
             dataType: 'json',
@@ -110,7 +107,6 @@
     function postList(res_r){
         // 清除表頭
         $('#result_table').empty();
-        // $("#result").addClass("border rounded bg-white");
         $("#result").addClass("bg-white");
         // 定義表格頭段
         var div_result_table = document.querySelector('.result table');
@@ -146,7 +142,6 @@
                 '</tr>';
         }
         $("body").mLoading("hide");                                 // 關閉mLoading
-        // document.getElementById("searchUser_btn").click();       // 切到searchUser頁面
         user_modal.hide();
         searchUser_modal.show();                                    // 切到searchUser頁面
 
@@ -260,7 +255,7 @@
     }
 
     function show_swal(swal_json){
-        swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:3000});         // 3秒
+        swal(swal_json['fun'] ,swal_json['content'] ,swal_json['action'], {buttons: false, timer:2000});         // 2秒
     }
 
     // 空值遮蔽：On、Off
@@ -269,7 +264,7 @@
         const arr_role = role_value.split(',').map(item => parseInt(item));
         var table_tr = document.querySelectorAll('#user_table > tbody > tr');
         table_tr.forEach(function(row){
-            var row_role = parseInt(row.children[1].innerText); // 將字串轉換為數字
+            var row_role = parseInt(row.children[1].innerText);         // 將字串轉換為數字
             if(arr_role.includes(row_role)){
                 row.classList.remove('unblock');
             } else {
@@ -286,7 +281,7 @@
             "pause" : 0
         };
         Object(user).forEach(function(row){
-            var row_role = parseInt(row['role']); // 將字串轉換為數字
+            var row_role = parseInt(row['role']);                       // 將字串轉換為數字
             if(row_role >= 0 && row_role <= 2 ){
                 count_role_arr["none"]++;
             }else if(row_role == 3){
@@ -317,16 +312,11 @@
     }
 
     $(document).ready(function(){
-        // show swal
         if(swal_json.length != 0){ show_swal(swal_json); }
-        // recheck user
         recheck_user();
         // user分類算人頭
         count_role();
-        // NAV select 1
-        // groupBy_role('0,1,2');
-        // 切換指定NAV分頁btn
-        // document.querySelector(".head > ul > li > button.active").classList.remove('active');       // 移除激活
+
         document.querySelector("#"+activeTab).classList.add('active');                              // 激活选项卡
         $("#"+activeTab).click();                                                                   // 點選選項卡以便套用groupBy_role(...)
         show_activeTab(activeTab);                                                                  // 呼叫fun竄改user_modal activeTab按鈕+數值
