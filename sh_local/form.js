@@ -157,22 +157,48 @@
                     } 
                 } 
             };
-            // 監聽表單內 autoinput 變更事件
-            $('#OSHORT, #OSTEXT').change(function() {
-                // 當有變更時，對該input加上指定的class
-                $(this).removeClass('autoinput');
-            });
-            // 監聽表單內 噪音 checkbox 變更事件
-            document.querySelectorAll('[name="OSHORT"], [name="OSTEXT"]').forEach((element) => {
-                element.addEventListener('change', function() {
-                    const parentId = (this.parentElement).parentElement;        // 查詢 target_element 上一層的 ID
-                    parentId.classList.add('border');
-                    parentId.classList.remove('autoinput');
-                })
-            })
+            // 監聽表單內的 OSHORT 和 OSTEXT 變更事件--外框提示
+                $('#OSHORT, #OSTEXT').on('change', function() {
+                    updateParentBorder(this);
+                });
+            // 監聽所有 name="OSHORT" 和 name="OSTEXT" 的元素變更事件--外框提示
+                document.querySelectorAll('[name="OSHORT"], [name="OSTEXT"]').forEach((element) => {
+                    element.addEventListener('change', function() {
+                        updateParentBorder(this);
+                    });
+                });
+            // 共用的更新函數--外框提示
+                function updateParentBorder(element) {
+                    $(element).removeClass('autoinput');  // 移除自身的 autoinput 類
+                    const parentElement = element.closest('.some-parent-class'); // 查找最近的父元素 (需要替換 .some-parent-class 為實際的 class)
+                    if (parentElement) {
+                        parentElement.classList.add('border');  // 父元素添加 border 類
+                        parentElement.classList.remove('autoinput');  // 父元素移除 autoinput 類
+                    }
+                }
+
+            // 240813 監聽 checkbox 是否有值
+                const heCateContainer = document.getElementById('HE_CATE');
+                const heCates = Array.from(heCateContainer.querySelectorAll('input[type="checkbox"]'));
+                heCates.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const selectedValues = heCates.filter(cb => cb.checked).map(cb => cb.value);
+                        console.log('he_cate...', this.value, this.checked);
+                        if (selectedValues.length > 0) { // 有選
+                            heCateContainer.classList.remove('is-invalid');
+                            heCateContainer.classList.add('is-valid');
+                            heCates.forEach(cb => cb.required = false);
+                        } else { // 沒選
+                            heCateContainer.classList.remove('is-valid');
+                            heCateContainer.classList.add('is-invalid');
+                            heCates.forEach(cb => cb.required = true);
+                        }
+                    });
+                });
+            // 240813 監聽 checkbox 是否有值
             // 240809 監聽'噪音'checkbox 
                 // 选择 noiseCheckbox、AVG_VOL 和 AVG_8HR 元素
-                var noiseCheckbox = document.querySelector('#HE_CATE input[type="checkbox"][value="噪音"]');
+                const noiseCheckbox = document.querySelector('#HE_CATE input[type="checkbox"][value="噪音"]');
                 // 定义一个函数来检查输入框的状态
                 function checkInputs() {
                     if (avgVolInput.value.trim() !== "" || avg8HrInput.value.trim() !== "") {
@@ -243,6 +269,9 @@
                                 // he_cate_i.checked = (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)); // 有bug
                                 if (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)) {
                                     he_cate_i.checked = true;
+                                    const heCateDiv = document.getElementById('HE_CATE');
+                                    heCateDiv.classList.remove('is-invalid');
+                                    heCateDiv.classList.add('is-valid');
                                 }
                             })
                         })

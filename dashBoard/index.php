@@ -122,8 +122,6 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -140,6 +138,7 @@
 <script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
 
 <script>
+    
 </script>
 
 <script src="dashboard.js?v=<?=time()?>"></script>

@@ -172,15 +172,17 @@
                                 <div class="col-12 p-3 border rounded bg-white">
                                     <div class="row">
                                         <!-- line b1 -->
-                                        <div class="col-12 pt-1 pb-2">
+                                        <div class="col-12 pt-1 pb-4">
                                             <label for="HE_CATE" class="form-label">HE_CATE/類別：<sup class="text-danger"> *</sup></label>
-                                            <snap id="HE_CATE" class="border rounded p-3 inf" >
+                                            <snap id="HE_CATE" class="border rounded p-3 inf form-control is-invalid" >
                                                 <?php foreach($he_cate_json as $key => $he_cate){
                                                         echo "<div class='form-check px-3'>";
-                                                        echo "<input type='checkbox' name='HE_CATE[]' id='HE_CATE_{$key}' value='{$he_cate}' class='form-check-input'>";
+                                                        echo "<input type='checkbox' name='HE_CATE[]' id='HE_CATE_{$key}' value='{$he_cate}' class='form-check-input' required>";
                                                         echo "<label for='HE_CATE_{$key}' class='form-check-label'>{$he_cate}</label></div>&nbsp;";
-                                                } ?>
+                                                    }
+                                                ?>
                                             </snap>
+                                            <div class='invalid-feedback pt-0' id='HE_CATE_feedback'>* 危害類別至少需勾選一項 !! </div>
                                         </div>
     
                                         <!-- line b2 -->
@@ -202,13 +204,13 @@
                                         <!-- line b3 -->
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
-                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder require >
+                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder required >
                                                 <label for="MONIT_NO" class="form-label">MONIT_NO/監測編號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
-                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" placeholder require >
+                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" placeholder required >
                                                 <label for="MONIT_LOCAL" class="form-label">MONIT_LOCAL/監測處所：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -216,7 +218,7 @@
                                         <!-- line b4 -->
                                         <div class="col-12 py-1">
                                             <div class="form-floating">
-                                                <textarea name="WORK_DESC" id="WORK_DESC" class="form-control" style="height: 150px;" placeholder require></textarea>
+                                                <textarea name="WORK_DESC" id="WORK_DESC" class="form-control" style="height: 150px;" placeholder required></textarea>
                                                 <label for="WORK_DESC" class="form-label">WORK_DESC/作業描述：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
@@ -315,7 +317,7 @@
     var id     = '<?=$id?>';
     var searchModal = new bootstrap.Modal(document.getElementById('searchModal'), { keyboard: false });
     const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';        // nurse
-                                                
+                
 </script>
 <script src="form.js?v=<?=time()?>"></script>
 

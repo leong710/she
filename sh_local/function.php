@@ -187,13 +187,6 @@
         $OSHORT = trim($OSHORT);
         $HE_CATE_str = implode(",", $HE_CATE);
 
-        $query_arr = [                          // 打包問項
-            "OSHORT"      => $OSHORT,           // 部門代號
-            "HE_CATE_str" => $HE_CATE_str       // 特作
-        ];
-
-        check_HE_CATE($query_arr);              // 比對提醒~
-
         $sql = "INSERT INTO _shlocal( OSHORT, OSTEXT_30, OSTEXT, HE_CATE, AVG_VOL,   AVG_8HR, MONIT_NO, MONIT_LOCAL, WORK_DESC, flag,   updated_cname, updated_at, created_at )
                 VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,now(),now())";
         $stmt = $pdo->prepare($sql);
@@ -300,27 +293,38 @@
         $sql_check = "SELECT _sh.id, _sh.OSHORT, _sh.HE_CATE FROM _shlocal _sh WHERE _sh.OSHORT LIKE ?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$LIKE_OSHORT]);
-        $row = $stmt_check->fetchAll(PDO::FETCH_ASSOC);         // no index
 
         // 初始化找到的項目集合
         $found_items = [];
         $loss_item = [];
-
-        foreach($row as $r){                                    // 第一層迴圈：資料庫
-            $r_HE_CATE_arr = explode(",", $r['HE_CATE']);       // 炸開成array
-            foreach($HE_CATE_arr as $key_i){                    // 第二層迴圈：來源比對key_word
-                if(in_array($key_i, $r_HE_CATE_arr)) {
-                    $found_items[] = $key_i;
+        if($stmt_check -> rowCount() >0){     
+            $row = $stmt_check->fetchAll(PDO::FETCH_ASSOC);         // no index
+            foreach($row as $r){                                    // 第一層迴圈：資料庫
+                $r_HE_CATE_arr = explode(",", $r['HE_CATE']);       // 炸開成array
+                foreach($HE_CATE_arr as $key_i){                    // 第二層迴圈：來源比對key_word
+                    if(in_array($key_i, $r_HE_CATE_arr)) {          // 注意：大小寫、字數需完全一致
+                        $found_items[] = $key_i;
+                        echo "<br>Find... ".$key_i;
+                    }
                 }
             }
         }
+        
         // 計算未找到的項目
         $loss_item = array_diff($HE_CATE_arr, $found_items);
-        
         if(!empty($loss_item)){
             $loss_item_str = implode('、', $loss_item);
-            echo "<script>alert('請確認 {$OSHORT} 其[ {$loss_item_str} ]是否已完成環測 !!')</script>";
+            // echo "<script>alert('請確認 {$OSHORT} 其[ {$loss_item_str} ]是否已完成環測 !!')</script>";
+            // echo "<script>swal('請確認 {$OSHORT}' ,'其[ {$loss_item_str} ]是否已完成環測 !!' ,'warning').then(()=>{history.back()});     // 手動回上頁</script>";
+            $swal_json = array(                                 // for swal_json
+                "fun"       => "請確認 {$OSHORT}",
+                "content"   => "其[ {$loss_item_str} ]是否已完成環測 !!",
+                "action"    => "warning"
+            );
+        }else{
+            $swal_json = [];
         }
+        return $swal_json;
     }
 
     // API隱藏或開啟

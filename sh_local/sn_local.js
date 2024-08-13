@@ -65,10 +65,9 @@
 
     // 20231128_下載Excel
     function downloadExcel(to_module) {
-        console.log('to_module...', to_module);
         // 定義要抓的key=>value
         const item_keys = {
-            "id"            : "aid",
+            // "id"            : "aid",
             "OSHORT"        : "部門代碼",
             "OSTEXT_30"     : "廠區",
             "OSTEXT"        : "部門名稱",
@@ -91,6 +90,21 @@
                 sort_listData[i][item_keys[i_key]] = shLocal[i][i_key];
             })
         }
+        // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~
+            // const table = document.getElementById(to_module);
+            // const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
+            // const rows = Array.from(table.querySelectorAll('tbody tr'));
+        
+            // const sort_listData = rows.map(row => {
+            //     const cells = Array.from(row.querySelectorAll('td'));
+            //     let rowData = {};
+            //     cells.forEach((cell, index) => {
+            //         rowData[headers[index]] = cell.textContent.trim();
+            //     });
+            //     return rowData;
+            // });
+            // console.log(sort_listData);
+
         let htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
     }
