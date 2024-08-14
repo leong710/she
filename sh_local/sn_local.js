@@ -83,11 +83,11 @@
             "updated_cname" : "最後編輯",
         };
         let sort_listData = [];                         // 建立整理陣列
-        // const shLocal = <?=json_encode($shLocals)?>;    // 引入shLocal資料
-        for(let i=0; i < shLocal.length; i++){
+        // const shLocals = <?=json_encode($shLocals)?>;    // 引入shLocal資料
+        for(let i=0; i < shLocals.length; i++){
             sort_listData[i] = {};                      // 建立物件
             Object.keys(item_keys).forEach(function(i_key){
-                sort_listData[i][item_keys[i_key]] = shLocal[i][i_key];
+                sort_listData[i][item_keys[i_key]] = shLocals[i][i_key];
             })
         }
         // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~
@@ -114,7 +114,7 @@
             // 在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
             // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
-                $('#stock_list').DataTable({
+                $('#shLocal').DataTable({
                     "autoWidth": false,
                     // 排序
                     "order": [[ 0, "asc" ], [ 1, "asc" ]],

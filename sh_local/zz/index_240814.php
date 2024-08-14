@@ -90,7 +90,7 @@
                 <div class="col-12 pb-0 px-0">
                     <ul class="nav nav-tabs">
                         <li class="nav-item"><a class="nav-link active"     href="index.php">特殊危害健康作業管理</span></a></li>
-                        <li class="nav-item" ><button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)">危害類別管理</span></button></li>
+                        <?php echo ($sys_role <= 2.5) ? "<li class='nav-item' ><a class='nav-link disabled'   href='#'>預留功能</span></a></li>":"";?>
                     </ul>
                 </div>
                 <!-- 內頁 -->
