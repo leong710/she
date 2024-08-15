@@ -72,20 +72,33 @@
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav me-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if($sys_auth){ ?>
-                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i class="fa-regular fa-square-plus"></i>&nbsp外層Link</a></li> -->
-                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="<php echo $webroot;?>/interView/"><i class="fa fa-edit"></i>&nbsp</a></li> -->
+                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i class="fa-regular fa-square-plus"></i>&nbsp;外層Link</a></li> -->
+                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="<php echo $webroot;?>/interView/"><i class="fa fa-edit"></i>&nbsp;</a></li> -->
                     <!-- 下拉式選單 -->
                     <?php if($sys_role >= 0){ 
                         if($sys_role <= 2.5 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-map-location-dot"></i>&nbsp危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
+                                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp<b>特殊危害健康作業管理</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp<b>統計(試作版)</b></a></li>
+                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp;<b>統計(試作版)</b></a></li>
+                                    <?php } ?>
+                                </ul>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
+                                    <i class="fa-solid fa-users"></i>&nbsp;特危作業人員管理<span class="badge rounded-pill bg-danger"></span></a>
+                                              
+                                <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>人員清單下載</b></a></li>
+                                    <?php if($sys_role <= 2 ){ ?>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp;<b>統計(試作版)</b></a></li>
                                     <?php } ?>
                                 </ul>
                             </li>
@@ -94,15 +107,15 @@
                         if($sys_role <= 1 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-gear"></i>&nbsp管理員專區</a>
+                                    <i class="fa-solid fa-gear"></i>&nbsp;管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_3">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp廠區清單管理</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp<i class="fas fa-th-large"></i>&nbsp表單管理</a></li>
+                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp;<i class="fas fa-th-large"></i>&nbsp;表單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbsp發報記錄管理</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbsp;發報記錄管理</a></li>
                                     <?php if($sys_role == 0 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp待通報清單統計</a></li>
+                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;待通報清單統計</a></li>
                                     <?php } ?>
                                 </ul>
                             </li>
@@ -121,7 +134,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link active dropdown-toggle" href="#" id="navbarDD_reg" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <?php echo (isset($auth_pass) && $auth_pass == "ldap") ? "<i class='fa fa-user' aria-hidden='true'></i>" : "<i class='fa fa-user-secret' aria-hidden='true'></i>";
-                                  echo "&nbsp".$auth_cname .($sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':'').'&nbsp你好'; 
+                                  echo "&nbsp;".$auth_cname .($sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':'').'&nbsp;你好'; 
                             ?>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_reg">

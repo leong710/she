@@ -97,8 +97,10 @@
                 <div class="col-12 bg-white">
                     <!-- by各shLocal： -->
                     <div class="row">
+                        <!-- Bootstrap Alarm -->
+                        <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 py-0"></div>
                         <!-- sort/groupBy function -->
-                        <div class="col-md-8 pb-0 ">
+                        <div class="col-md-8 py-0 ">
                             <form action="" method="GET">
                                 <div class="input-group">
                                     <span class="input-group-text">篩選</span>
@@ -134,7 +136,7 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-md-4 pb-0 text-end">
+                        <div class="col-md-4 py-0 text-end">
                             <?php if($per_total != 0){ ?>
                                 <!-- 下載EXCEL的觸發 -->
                                 <div class="inb">
@@ -147,9 +149,8 @@
                             <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
                             <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
                         </div>
-                        <!-- Bootstrap Alarm -->
-                        <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 pb-0"></div>
                     </div>
+                    <hr>
                     <table id="shLocal" class="table table-striped table-hover">
                         <thead>
                             <tr>
