@@ -43,6 +43,7 @@
                         // 設定一個"result"陣列
                         $result = array();
                         $stopUpload = 0;
+                        $errLog = [];
 
                         // 繞出每一個Data的值
                         foreach ($data as $rowIndex => $row) {
@@ -56,17 +57,13 @@
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
-                            $row[3] = str_replace('、', ',', $row[3]);  // 類別 符號轉逗號
+                            $row[3] = str_replace('、', ',', $row[3]);   // 類別 符號轉逗號
 
-                            // 檢查OSHORT是否空值
-                                $OSHORT_check = !empty($row[1]);
+                            // 檢查OSHORT $row[1]是否空值
+                                $OSHORT_check = (!empty($row[1])) ? true : false;
 
-                            // 檢查HE_CATE是否含"噪音作業"，必須填AVG_VAL或AVG_8HR
-                                if(preg_match("/噪音/i",$row[3])){
-                                    $noise_check = ($row[4] || $row[5]) ? true : false ;
-                                }else{
-                                    $noise_check = true;
-                                }
+                            // 檢查HE_CATE $row[3]是否含"噪音作業"，必須填AVG_VAL或AVG_8HR
+                                $noise_check = (preg_match("/噪音/i",$row[3])) ? ($row[4] || $row[5]) : true ;
 
                                 $row_result = array_merge($row, [
                                     "OSHORT_check" => $OSHORT_check,
@@ -106,14 +103,17 @@
                             // 將資料打包成JSON
                             $jsonString = json_encode($result, JSON_UNESCAPED_UNICODE );
 
-                        // cata購物車鋪設前處理 
+                        // 鋪設前處理 
                             $cart_dec = (array) json_decode($jsonString);
 
-                            // 以下是回傳給form購物車使用。
+                            // 以下是回傳給form使用。
                             echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
                             echo '</div>';
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
+                            echo '<div><pre>';
+                            print_r($errLog);
+                            echo '</pre></div>';
                             echo '</div>';
                         }
                     }
@@ -205,6 +205,9 @@
         // 更新错误计数
         global $stopUpload;
         $stopUpload += 1;
+        global $errLog;
+        $errLog[] = $row_result;
+
     }
     // 构建错误消息
     function generateErrorMessage($submit, $row_result, $item_check) {

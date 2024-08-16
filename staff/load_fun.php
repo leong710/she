@@ -2,27 +2,65 @@
     if(isset($_REQUEST['fun'])) {
         require_once("../pdo.php");
         extract($_REQUEST);
+
         $result = [];
-        switch ($_REQUEST['fun']){
-            case 'edit_shLocal':                   // 帶入查詢條件
+        switch ($fun){
+            case 'load_hrdb':                   // 帶入查詢條件
                 if(isset($parm)){
-                    $pdo = pdo();
-                    $sql = "SELECT _sh.id,_sh.OSHORT, _sh.OSTEXT_30, _sh.OSTEXT, _sh.HE_CATE, _sh.AVG_VOL, _sh.AVG_8HR, _sh.MONIT_NO, _sh.MONIT_LOCAL, _sh.WORK_DESC, _sh.flag
-                            FROM _shlocal _sh ";
+                    $pdo = pdo_hrdb();
+                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                    
+                    $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
+                            FROM STAFF s 
+                            WHERE s.dept_no IN ({$parm_re}) 
+                            ";
+
+                    // 後段-堆疊查詢語法：加入排序
+                    $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
+
+                    $stmt = $pdo->prepare($sql);
+                    try {
+
+                        $stmt->execute();                                   //處理 byAll
+                        $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $shStaffs,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.',
+                            'parm'       => $parm_re
+                        ];
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                        $result['error'] = 'Load '.$fun.' failed...(e)';
+                    }
+
+                }else{
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+            break;
+            case 'load_sample':                   // 帶入查詢條件
+                if(isset($parm)){
+                    $pdo = pdo_hrdb();
+                    $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
+                            FROM STAFF s ";
+
                     // 初始查詢陣列
                         $conditions = [];
                         $stmt_arr   = [];    
 
                     if (!empty($parm)) {
-                        $conditions[] = "_sh.id = ?";
-                        $stmt_arr[] = $parm;
+                        $conditions[] = "s.dept_no IN ( ? )";
+                        // $stmt_arr[] = $parm;
+                        $stmt_arr[] = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                     }
                     
                     if (!empty($conditions)) {
                         $sql .= ' WHERE ' . implode(' AND ', $conditions);
                     }
                     // 後段-堆疊查詢語法：加入排序
-                    // $sql .= " ORDER BY _sh.OSHORT, _sh.created_at DESC ";
+                    $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
 
                     $stmt = $pdo->prepare($sql);
                     try {
@@ -31,13 +69,11 @@
                         }else{
                             $stmt->execute();                                   //處理 byAll
                         }
-                        $shLocal = $stmt->fetch(PDO::FETCH_ASSOC);
-                        // 把特定json轉物件
-                        $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
+                        $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         // 製作返回文件
                         $result = [
-                            'result_obj' => $shLocal,
+                            'result_obj' => $shStaffs,
                             'fun'        => $fun,
                             'success'    => 'Load '.$fun.' success.'
                         ];

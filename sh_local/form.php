@@ -204,13 +204,13 @@
                                         <!-- line b3 -->
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
-                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder required >
+                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder  >
                                                 <label for="MONIT_NO" class="form-label">MONIT_NO/監測編號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
-                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" placeholder required >
+                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" placeholder  >
                                                 <label for="MONIT_LOCAL" class="form-label">MONIT_LOCAL/監測處所：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
