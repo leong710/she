@@ -496,7 +496,7 @@
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
 
         }else{
-            // await Object(hrdb_arr).forEach((emp_i)=>{
+            // await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
             //     // console.log(emp_i);
             //     let tr = '<tr>';
             //     Object.entries(emp_i).forEach(([e_key, e_value]) => {
@@ -507,7 +507,7 @@
             //     $('#hrdb_table tbody').append(tr);
             // })
 
-            reload_dataTable(hrdb_arr);
+            reload_dataTable(hrdb_arr);             // 到參數(陣列)，直接由dataTable渲染
         }
 
         $("body").mLoading("hide");
@@ -522,24 +522,24 @@
         // 重新初始化 DataTable
         $('#hrdb_table').DataTable({
             "data": hrdb_data,
-                "columns": [
-                                { data: 'emp_sub_scope' }, 
-                                { data: 'dept_no' }, 
-                                { data: 'emp_dept' }, 
-                                { data: 'emp_id' }, 
-                                { data: 'cname' }, 
-                                { data: 'cstext' }, 
-                                { data: 'gesch' }, 
-                                { data: 'emp_group' }, 
-                                { data: 'natiotxt' }, 
-                                { data: 'schkztxt' }, 
-                                { data: 'updated_at' },
-                                { data: null , title: "勾選功能",  // 這邊是欄位
-                                    render: function (data, type, row) {
-                                        return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" checked></div>`
-                                    } 
-                                },
-                            ],
+            "columns": [
+                            { data: 'emp_sub_scope' }, 
+                            { data: 'dept_no' }, 
+                            { data: 'emp_dept' }, 
+                            { data: 'emp_id' }, 
+                            { data: 'cname' }, 
+                            { data: 'cstext' }, 
+                            { data: 'gesch' }, 
+                            { data: 'emp_group' }, 
+                            { data: 'natiotxt' }, 
+                            { data: 'schkztxt' }, 
+                            { data: 'updated_at' },
+                            { data: null , title: "勾選功能",  // 這邊是欄位
+                                render: function (data, type, row) {
+                                    return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" checked></div>`
+                                } 
+                            },
+                        ],
                 // "paging": false,     // 分頁
                 // "searching": false,  // 搜尋
                 // "destroy": true,
