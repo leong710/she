@@ -50,6 +50,51 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
             break;
+            case 'truncate_shLocal':               // 清空_shLocal
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "truncate_shLocal",
+                    "content"   => "特危作業--"
+                );
+                
+                if(isset($parm)){
+                    $pdo = pdo();
+                    // $sql = "TRUNCATE TABLE `_shlocal` ";
+                    $sql = "DELETE FROM `_shlocal`;
+                            ALTER TABLE `_shlocal` AUTO_INCREMENT = 1";
+                    $stmt = $pdo->prepare($sql);
+                    try {
+                        $stmt->execute();
+
+                        $swal_json["action"]   = "success";
+                        $swal_json["content"] .= '清除成功';
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+
+                        $swal_json["action"]   = "error";
+                        $swal_json["content"] .= '清除失敗';
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e)'
+                        ];
+                    }
+
+                }else{
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(no parm)'
+                    ];
+                }
+            break;
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",

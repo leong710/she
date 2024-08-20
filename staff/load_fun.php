@@ -5,18 +5,56 @@
 
         $result = [];
         switch ($fun){
-            case 'load_hrdb':                   // 帶入查詢條件
+            case 'load_hrdb':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 if(isset($parm)){
                     $pdo = pdo_hrdb();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                     
-                    $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
-                            FROM STAFF s 
-                            WHERE s.dept_no IN ({$parm_re}) 
-                            ";
+                    $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.updated_at, _E.HIRED
+                            FROM STAFF _S 
+                            LEFT JOIN HCM_VW_EMP01_hiring _E ON _S.emp_id = _E.PERNR
+                            WHERE _S.dept_no IN ({$parm_re}) ";
 
                     // 後段-堆疊查詢語法：加入排序
-                    $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
+                    $sql .= " ORDER BY _S.dept_no ASC, _S.emp_id ASC ";
+
+                    $stmt = $pdo->prepare($sql);
+                    try {
+
+                        $stmt->execute();                                   //處理 byAll
+                        $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $shStaffs,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.',
+                            'parm'       => $parm_re
+                        ];
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                        $result['error'] = 'Load '.$fun.' failed...(e)';
+                    }
+
+                }else{
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+            break;
+            case 'load_shLocal':                   // _shLocal撈取唯一清單，帶入查詢條件OSHORT
+                if(isset($parm)){
+                    $pdo = pdo();
+                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                    
+                    $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
+                                , GROUP_CONCAT(DISTINCT _S.AVG_VOL ORDER BY _S.AVG_VOL SEPARATOR ',') AS gb_AVG_VOL 
+                                , GROUP_CONCAT(DISTINCT _S.AVG_8HR ORDER BY _S.AVG_8HR SEPARATOR ',') AS gb_AVG_8HR 
+                                , GROUP_CONCAT(DISTINCT _S.HE_CATE ORDER BY _S.HE_CATE SEPARATOR ',') AS gb_HE_CATE 
+                            FROM `_shlocal` _S
+                            WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re})
+                            GROUP BY _S.OSHORT ";
+
+                    // 後段-堆疊查詢語法：加入排序
+                    $sql .= " ORDER BY _S.OSHORT ASC ";
 
                     $stmt = $pdo->prepare($sql);
                     try {

@@ -93,6 +93,31 @@
         }
     }
 
+    // 取得特作列管的部門代號
+    function load_shLocal_OSHORTs(){
+        $pdo = pdo();
+        $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT ,COUNT(_sh.OSHORT) AS OSHORT_count 
+                FROM `_shlocal` _sh
+                WHERE _sh.flag = 'On'
+                GROUP BY _sh.OSHORT
+                ORDER BY _sh.OSHORT ";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();
+            $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $shLocal_OSHORTs_arr = [];
+            foreach($shLocal_OSHORTs as $OSHORT_i){
+                // array_push($shLocal_OSHORTs_arr, $OSHORT_i["OSHORT"]);
+                // $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]] = $OSHORT_i["OSTEXT"];
+                $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["OSTEXT"] = $OSHORT_i["OSTEXT"];
+                $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["_count"] = $OSHORT_i["OSHORT_count"];
+            }
+            return $shLocal_OSHORTs_arr;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
     // 20240125 4.組合我的sign_code所涵蓋的廠區
     function get_coverFab_lists($type){
         $sfab_id = [];

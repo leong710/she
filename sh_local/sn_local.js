@@ -16,7 +16,30 @@
         toast_body.innerHTML = sinn;
         toast.show();
     }
-
+    // 20240314 配合await將swal外移
+    function show_swal_fun(swal_value){
+        return new Promise((resolve) => {  
+            $("body").mLoading("hide");
+            if(swal_value && swal_value['fun'] && swal_value['content'] && swal_value['action']){
+                if(swal_value['action'] == 'success'){
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});          // n秒后回首頁
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                          // 手動關閉畫面
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
+                
+                } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
+                
+                } else {                                        // error
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
+                }
+            }else{
+                console.error("Invalid swal_value:", swal_value);
+                location.href = url;
+                resolve(); // 異常情況下也需要resolve
+            }
+        });
+    }
 // 20231128 以下為上傳後"iframe"的部分
     // 阻止檔案未上傳導致的錯誤。
     // 請注意設置時的"onsubmit"與"onclick"。
@@ -109,13 +132,47 @@
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
     }
 
+    // [p1 函數-1-1] 動態生成步驟2的所有按鈕，並重新綁定事件監聽器
+    function mk_OSHORTs_btn(selectedOSHORTs) {
+        $('#OSHORTs_opts_inside').empty();
+        if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
+            Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
+                let ostext_btns = `
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">${ohtext_30}</div>
+                            <div class="card-body p-2">
+                                ${Object.entries(oh_value).map(([o_key, o_value]) =>
+                                    `<div class="form-check px-1">
+                                        <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
+                                    </div>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>`;
+                $('#OSHORTs_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<OSHORTs_opts_inside>元素中
+            });
+        }else{
+            let ostext_btns = `
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header">!! 空值注意 !!</div>
+                        <div class="card-body">
+                            ~ 目前沒有任何特危健康場所資料 ~
+                        </div>
+                    </div>
+                </div>`;
+            $('#OSHORTs_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<OSHORTs_opts_inside>元素中
+        }
+    }
+
     async function eventListener(){
         return new Promise((resolve) => { 
             // 在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
             // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
                 $('#shLocal').DataTable({
-                    "autoWidth": false,
+                    "autoWidth": true,
                     // 排序
                     "order": [[ 0, "asc" ], [ 1, "asc" ]],
                     // 顯示長度
@@ -127,16 +184,16 @@
                 });
             // 20231128 以下為上傳後"iframe"的部分
                 // 監控按下送出鍵後，打開"iframe"
-                excelUpload.addEventListener('click', function() {
+                excelUpload.addEventListener('click', ()=> {
                     iframeLoadAction();
                     shLocalExcelForm();
                 });
                 // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
-                iframe.addEventListener('load', function(){
+                iframe.addEventListener('load', ()=> {
                     iframeLoadAction();
                 });
                 // 監控按下[載入]鍵後----呼叫Excel載入
-                import_excel_btn.addEventListener('click', function() {
+                import_excel_btn.addEventListener('click', ()=> {
                     var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                     var excel_json = iframeDocument.getElementById('excel_json');
                     var stopUpload = iframeDocument.getElementById('stopUpload');
@@ -149,20 +206,65 @@
                         console.log('找不到 ? 元素');
                     }
                 });
+                truncate_shLocal_btn.addEventListener('click', ()=> {
+                    if(confirm(`確認徹底刪除此清單？`)){
+                        load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);
+                    }
+                });
+                const shLocal_table = $('#shLocal').DataTable();
+                const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
+                OSHORTs_btns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // console.log(this.value)
+                        shLocal_table.search(this.value).draw();
+                        $('#nav-p2-tab').tab('show');
+                    })
+                })
             // 文件載入成功，resolve
             resolve();
         });
+    }
+    // 0-0.多功能擷取fun 新版改用fetch
+    async function load_fun(fun, parm, myCallback) {        // parm = 參數
+        mloading(); 
+        try {
+            let formData = new FormData();
+                formData.append('fun', fun);
+                formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
+
+            let response = await fetch('load_fun.php', {
+                method : 'POST',
+                body   : formData
+            });
+
+            if (!response.ok) {
+                throw new Error('fun load ' + fun + ' failed. Please try again.');
+            }
+
+            let responseData = await response.json();
+            let result_obj = responseData['result_obj'];    // 擷取主要物件
+
+            return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
+                                                            // myCallback：form = bring_form() 、document = edit_show() 、locals = ? 還沒寫好
+        } catch (error) {
+            $("body").mLoading("hide");
+            throw error;                                    // 載入失敗，reject
+        }
     }
 
     async function loadData() {
         try {
             mloading(); 
+            
+            mk_OSHORTs_btn(OSHORTsObj);                 // 呼叫函數-P-1
+
+
             await eventListener();                      // step_1-2 eventListener();
         } catch (error) {
             console.error(error);
         }
 
-        let message  = '*** <b>請注意</b> 後續維護對象須釐清：<b><u>護理師大PM</u></b>&nbsp;或&nbsp;<b><u>現場工安幹事、廠助理</u></b>&nbsp;需要特別注意權限設定範圍&nbsp;~&nbsp;';
+        let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site護理師</u></b>&nbsp;和&nbsp;<b><u>site工安</u></b>&nbsp;~&nbsp;';
         alert( message, 'warning')
 
         $("body").mLoading("hide");

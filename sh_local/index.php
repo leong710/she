@@ -33,6 +33,19 @@
 
             $icon_s = '<i class="';
             $icon_e = ' fa-2x"></i>&nbsp&nbsp';
+
+    $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號
+    if(count($shLocal_OSHORTs) >0 ){
+        $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
+        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');    // step3.去掉括號forMysql查詢
+    }else{
+        $shLocal_OSHORTs_str = "";
+    }
+
+
+    // echo "<pre>";
+    // print_r($shLocal_OSHORTs);
+    // echo "</pre>";
             
 ?>
 
@@ -86,117 +99,114 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
+                <!-- Bootstrap Alarm -->
+                <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 pb-0"></div>
                 <!-- NAV分頁標籤與統計 -->
-                <div class="col-12 pb-0 px-0">
-                    <ul class="nav nav-tabs">
-                        <li class="nav-item"><a class="nav-link active"     href="index.php">特殊危害健康作業管理</span></a></li>
-                        <li class="nav-item" ><button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)">危害類別管理</span></button></li>
-                    </ul>
+                <div class="col-12 p-0">
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">特危作業管理</button>
+                            <button type="button" class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false">特危作業清單</button>
+                            <button type="button" class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false">p3</button>
+                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;危害類別管理</button>
+                        </div>
+                    </nav>
                 </div>
                 <!-- 內頁 -->
-                <div class="col-12 bg-white">
-                    <!-- by各shLocal： -->
-                    <div class="row">
-                        <!-- Bootstrap Alarm -->
-                        <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 py-0"></div>
-                        <!-- sort/groupBy function -->
-                        <div class="col-md-8 py-0 ">
-                            <form action="" method="GET">
-                                <div class="input-group">
-                                    <span class="input-group-text">篩選</span>
-                                    <select name="fab_title" id="fab_title" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 Fab --</option>
-                                        <?php 
-                                            echo '<option for="fab_title" value="All" '.($fab_title == "All" ? "selected":"").' >-- All 所有棟別 --</option>';
-                                            echo '<option for="fab_title" value="allMy" '.($fab_title == "allMy" ? "selected":"").' >-- allMy 部門轄下 '.($sfab_id_str ? " (".$sfab_id_str.")":"").' --</option>';
-                                            foreach($fab_lists as $fab){
-                                                echo "<option for='fab_title' value='{$fab["fab_title"]}' ".($fab["fab_title"] == $fab_title ? "selected" : "" ) ." >";
-                                                echo $fab["id"]."：".$fab["site_title"]."&nbsp".$fab["fab_title"]." ( ".$fab["fab_remark"]." )"; 
-                                                echo ($fab["flag"] == "Off") ? " - (已關閉)":"" ."</option>";
-                                            } ?>
-                                    </select>
-                                    <select name="OSHORT" id="OSHORT" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 部門代號 --</option>
-                                        <?php 
-                                            echo '<option for="OSHORT" value="All" '.($OSHORT == "All" ? "selected":"" ).' >-- All 所有類型 --</option>';
-                                            foreach($OSHORT_lists as $OSHORTs){
-                                                echo "<option for='OSHORT' value='{$OSHORTs["OSHORT"]}' ";
-                                                echo ($OSHORTs["OSHORT"] == $OSHORT ? "selected" : "" )." >".$OSHORTs["OSHORT"]." (".$OSHORTs["OSTEXT"].")</option>";
-                                            } ?>
-                                    </select>
-                                    <select name="flag" id="flag" class="form-select" >
-                                        <option value="" hidden selected >-- 請選擇 開關狀態 --</option>
-                                        <?php 
-                                            echo '<option for="flag" value="All" '.($flag == "All" ? "selected":"").' >-- All 所有狀態 --</option>';
-                                            echo '<option for="flag" value="On"  '.($flag == "On"  ? "selected":"").' >On</option>';
-                                            echo '<option for="flag" value="Off" '.($flag == "Off" ? "selected":"").' >Off</option>';
-                                        ?>
-                                    </select>
-                                    <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
+                <div class="tab-content" id="nav-tabContent">
+                    <!-- p1 -->
+                    <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
+                        <div class="col-12 bg-white">
+                            <!-- step-0 資料交換 -->
+                            <div class="unblock" id="row_OSTEXT_30">
+                                <!-- 1-1.放原始 shLocal_str -->
+                                <?php echo $shLocal_OSHORTs_str;?>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0">
+                                    <snap for="OSHORTs_opts" class="form-label">特危健康場所部門代號：</snap>
                                 </div>
-                            </form>
-                        </div>
-                        <div class="col-md-4 py-0 text-end">
-                            <?php if($per_total != 0){ ?>
-                                <!-- 下載EXCEL的觸發 -->
-                                <div class="inb">
-                                    <form id="shLocal_myForm" method="post" action="../_Format/download_excel.php">
-                                        <input  type="hidden" name="htmlTable" id="shLocal_htmlTable" value="">
-                                        <button type="submit" name="submit" class="btn btn-outline-success add_btn" value="shLocal" onclick="downloadExcel(this.value)" ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
-                                    </form>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                    <div class="<?php echo ($per_total != 0) ? "inb":"unblock";?>">
+                                        <button type="button" id="truncate_shLocal_btn" class="btn btn-outline-danger add_btn" <?php echo ($sys_role <= 1) ? "":"disabled";?> ><i class="fa-solid fa-trash-can"></i> 清空</button>
+                                    </div>
+                                    <!-- 下載EXCEL的觸發 -->
+                                    <div class="<?php echo ($per_total != 0) ? "inb":"unblock";?>">
+                                        <form id="shLocal_myForm" method="post" action="../_Format/download_excel.php">
+                                            <input  type="hidden" name="htmlTable" id="shLocal_htmlTable" value="">
+                                            <button type="submit" name="submit" class="btn btn-outline-success add_btn" value="shLocal" onclick="downloadExcel(this.value)" ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                                        </form>
+                                    </div>
+                                    <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
+                                    <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
-                            <?php } ?>
-                            <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
-                            <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
+                            </div>
+                            <div class="col-12 px-1 py-0">
+                                <div id="OSHORTs_opts" class="col-12 px-2 py-1">
+                                    <div id="OSHORTs_opts_inside" class="row">
+                                        <!-- 放checkbox按鈕的地方 -->
+                                    </div> 
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <hr>
-                    <table id="shLocal" class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th title="OSTEXT_30">廠區</th>
-                                <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
-                                <th title="OSTEXT">部門名稱</th>
-                                <th title="HE_CATE">類別</th>
-                                <th title="AVG_VOL">均能音量</th>
-                                <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
-                                <th title="MONIT_NO">監測編號</th>
-                                <th title="MONIT_LOCAL">監測處所</th>
-                                <th title="WORK_DESC">作業描述</th>
-                                <th title="flag">開關</th>
-                                <th title="updated">最後更新</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach($shLocals as $shLocal){ ?>
-                                <tr>
-                                    <td><?php echo $shLocal['OSTEXT_30'];?></td>
-                                    <td><?php echo $shLocal['OSHORT'];?></td>
-                                    <td><?php echo $shLocal['OSTEXT'];?></td>
-                                    <td><?php echo $shLocal['HE_CATE'];?></td>
 
-                                    <td><?php echo $shLocal['AVG_VOL'];?></td>
-                                    <td><?php echo $shLocal['AVG_8HR'];?></td>
-                                    <td><?php echo $shLocal["MONIT_NO"];?></td>
-                                    <td><?php echo $shLocal['MONIT_LOCAL'];?></td>
+                    <!-- p2 -->
+                    <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
+                        <div class="col-12 bg-white">
+                            <!-- by各shLocal： -->
+                             <table id="shLocal" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th title="OSTEXT_30">廠區</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
+                                        <th title="OSTEXT">部門名稱</th>
+                                        <th title="HE_CATE">類別</th>
+                                        <th title="AVG_VOL">均能音量</th>
+                                        <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
+                                        <th title="MONIT_NO">監測編號</th>
+                                        <th title="MONIT_LOCAL">監測處所</th>
+                                        <th title="WORK_DESC">作業描述</th>
+                                        <th title="flag">開關</th>
+                                        <th title="updated">最後更新</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($shLocals as $shLocal){ ?>
+                                        <tr>
+                                            <td><?php echo $shLocal['OSTEXT_30'];?></td>
+                                            <td><?php echo $shLocal['OSHORT'];?></td>
+                                            <td><?php echo $shLocal['OSTEXT'];?></td>
+                                            <td><?php echo $shLocal['HE_CATE'];?></td>
 
-                                    <td class="word_bk"><?php echo $shLocal['WORK_DESC'];?></td>
-                                    <td><?php 
-                                            echo "<span class='badge rounded-pill ";
-                                            echo ($shLocal['flag'] == "On") ? "bg-success ":" bg-danger ";
-                                            echo "'>".$shLocal['flag']."</span>"
-                                        ?></td>
-                                    <td class="h6"><?php 
-                                            echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
-                                            if($sys_role <= 1){ 
-                                                echo "&nbsp;<button type='button' value='../sh_local/form.php?action=edit&id={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
-                                                echo " onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'><i class='fa-solid fa-pen-to-square'></i></button>";
-                                            } 
-                                        ?></td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
+                                            <td><?php echo $shLocal['AVG_VOL'];?></td>
+                                            <td><?php echo $shLocal['AVG_8HR'];?></td>
+                                            <td><?php echo $shLocal["MONIT_NO"];?></td>
+                                            <td><?php echo $shLocal['MONIT_LOCAL'];?></td>
+
+                                            <td class="word_bk"><?php echo $shLocal['WORK_DESC'];?></td>
+                                            <td><?php 
+                                                    echo "<span class='badge rounded-pill ";
+                                                    echo ($shLocal['flag'] == "On") ? "bg-success ":" bg-danger ";
+                                                    echo "'>".$shLocal['flag']."</span>"
+                                                ?></td>
+                                            <td class="h6"><?php 
+                                                    echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
+                                                    if($sys_role <= 1){ 
+                                                        echo "&nbsp;<button type='button' value='../sh_local/form.php?action=edit&id={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
+                                                        echo " onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'><i class='fa-solid fa-pen-to-square'></i></button>";
+                                                    } 
+                                                ?></td>
+                                        </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- p3 -->
+                    <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
+                    </div>
                 </div>
                 </br>
             </div>
@@ -280,6 +290,9 @@
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
 
     const shLocals       = <?=json_encode($shLocals)?>;    // 引入shLocal資料
+
+    const OSHORTsTXT = (document.getElementById('row_OSTEXT_30').innerText).trim();
+    const OSHORTsObj = OSHORTsTXT ? JSON.parse(OSHORTsTXT) : OSHORTsTXT; // 將row_OSTEXT_30的字串轉換為物件
 
 </script>
 <script src="sn_local.js?v=<?=time()?>"></script>

@@ -27,15 +27,17 @@
     $to_module = (!empty($import_excel)) ? $import_excel : "";
 
     $swal_json = array(
-        "fun" => "store_".$to_module
+        "content" => "特危健康作業管理",
+        "fun"     => "store_".$to_module
     );
-    switch($to_module){
-        case "snLocal":
-            $swal_json["content"] = "(特殊危害健康作業管理)";
-            break;
-        default:            // 預定失效 
-            $swal_json["content"] = "(-有毛病-)";
-    }
+
+    // switch($to_module){
+    //     case "snLocal":
+    //         $swal_json["content"] = "(特殊危害健康作業管理)";
+    //         break;
+    //     default:            // 預定失效 
+    //         $swal_json["content"] = "(-有毛病-)";
+    // }
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -68,10 +70,10 @@
 
         if($result){
             $swal_json["action"] = "success";
-            $swal_json["content"] .= "_成功";
+            $swal_json["content"] .= "_上傳成功";
         }else{
             $swal_json["action"] = "error";
-            $swal_json["content"] .= "_失敗";
+            $swal_json["content"] .= "_上傳失敗";
         }
             
     ?>

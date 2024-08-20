@@ -452,11 +452,11 @@
                                             <span class="form-label">flag/顯示開關：</span>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" >&nbsp
+                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" >&nbsp;
                                             <label for="edit_fab_On" class="form-check-label">On</label>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="Off" id="edit_fab_Off" class="form-check-input">&nbsp
+                                            <input type="radio" name="flag" value="Off" id="edit_fab_Off" class="form-check-input">&nbsp;
                                             <label for="edit_fab_Off" class="form-check-label">Off</label>
                                         </td>
                                     </tr>

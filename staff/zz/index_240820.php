@@ -212,21 +212,18 @@
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="">驗證資格</th>
                                         <th title="emp_sub_scope">廠區</th>
                                         <th title="dept_no" data-toggle="tooltip" data-placement="bottom">部門代碼</th>
                                         <th title="emp_dept">部門名稱</th>
                                         <th title="emp_id">工號</th>
                                         <th title="cname">姓名</th>
-                                        <th title="">工作場所</th>
-                                        <th title="">工作內容</th>
-                                        <th title="">均能音量</th>
-                                        <th title="工作日8小時">平均音壓</th>
-                                        <th title="">每日曝露時數</th>
-                                        <th title="">檢查類別代號</th>
-                                        <th title="">噪音作業判斷</th>
-                                        <th title="">特殊健檢資格驗證</th>
-                                        <th title="HIRED">到職日</th>
+                                        <th title="cstext">職稱</th>
+                                        <th title="gesch">性別</th>
+                                        <th title="emp_group">員工群組</th>
+                                        <th title="natiotxt">國籍</th>
+                                        <th title="schkztxt">班別</th>
+                                        <th title="updated_at">最後更新</th>
+                                        <th title="flag">勾選</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -500,8 +497,8 @@
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
 
         }else{
-            await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                console.log(emp_i);
+            // await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+            //     // console.log(emp_i);
             //     let tr = '<tr>';
             //     Object.entries(emp_i).forEach(([e_key, e_value]) => {
             //         tr += '<td>' + e_value + '</td>';
@@ -509,7 +506,7 @@
             //     tr += `<td class="text-center"><input type="checkbox" name="emp_ids[]" id="${emp_i.emp_id}" value="${emp_i.emp_id}" class="form-check-input" checked></td>`;
             //     tr += '</tr>';
             //     $('#hrdb_table tbody').append(tr);
-            })
+            // })
 
             reload_dataTable(hrdb_arr);             // 到參數(陣列)，直接由dataTable渲染
         }
@@ -527,49 +524,22 @@
         $('#hrdb_table').DataTable({
             "data": hrdb_data,
             "columns": [
-                            { data: null , title: "驗證資格",  // 這邊是欄位
-                                render: function (data, type, row) {
-                                    return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" checked></div>`
-                                } 
-                            },
                             { data: 'emp_sub_scope' }, 
                             { data: 'dept_no' }, 
                             { data: 'emp_dept' }, 
                             { data: 'emp_id' }, 
                             { data: 'cname' }, 
-                            { data: null , title: '工作場所', 
+                            { data: 'cstext' }, 
+                            { data: 'gesch' }, 
+                            { data: 'emp_group' }, 
+                            { data: 'natiotxt' }, 
+                            { data: 'schkztxt' }, 
+                            { data: 'updated_at' },
+                            { data: null , title: "勾選功能",  // 這邊是欄位
                                 render: function (data, type, row) {
-                                    return ``
-                                } }, 
-                            { data: null , title: '工作內容', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } }, 
-                            { data: null , title: '均能音量', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } }, 
-                            { data: null , title: '平均音壓', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } }, 
-                            { data: null , title: '每日曝露時數', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } }, 
-                            { data: null , title: '檢查類別代號', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } },
-                            { data: null , title: '噪音作業判斷', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } },
-                            { data: null , title: '特殊健檢資格驗證', 
-                                render: function (data, type, row) {
-                                    return ``
-                                } },
-                            { data: 'HIRED' , title: '到職日'},
+                                    return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" checked></div>`
+                                } 
+                            },
                         ],
                 // "paging": false,     // 分頁
                 // "searching": false,  // 搜尋
