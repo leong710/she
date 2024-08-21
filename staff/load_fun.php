@@ -45,13 +45,17 @@
                     $pdo = pdo();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                     
-                    $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
-                                , GROUP_CONCAT(DISTINCT _S.AVG_VOL ORDER BY _S.AVG_VOL SEPARATOR ',') AS gb_AVG_VOL 
-                                , GROUP_CONCAT(DISTINCT _S.AVG_8HR ORDER BY _S.AVG_8HR SEPARATOR ',') AS gb_AVG_8HR 
-                                , GROUP_CONCAT(DISTINCT _S.HE_CATE ORDER BY _S.HE_CATE SEPARATOR ',') AS gb_HE_CATE 
+                    // $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
+                    //             , GROUP_CONCAT(DISTINCT _S.AVG_VOL ORDER BY _S.AVG_VOL SEPARATOR ',') AS gb_AVG_VOL 
+                    //             , GROUP_CONCAT(DISTINCT _S.AVG_8HR ORDER BY _S.AVG_8HR SEPARATOR ',') AS gb_AVG_8HR 
+                    //             , GROUP_CONCAT(DISTINCT _S.HE_CATE ORDER BY _S.HE_CATE SEPARATOR ',') AS gb_HE_CATE 
+                    //         FROM `_shlocal` _S
+                    //         WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re})
+                    //         GROUP BY _S.OSHORT ";
+                    $sql = "SELECT _S.id, _S.OSTEXT_30, _S.OSHORT, _S.OSTEXT, _S.HE_CATE, _S.AVG_VOL, _S.AVG_8HR, _S.MONIT_NO, _S.MONIT_LOCAL, _S.WORK_DESC
                             FROM `_shlocal` _S
                             WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re})
-                            GROUP BY _S.OSHORT ";
+                            ";
 
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY _S.OSHORT ASC ";

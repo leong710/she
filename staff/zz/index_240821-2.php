@@ -225,17 +225,17 @@
                                     <tr>
                                         <!-- <th title="">驗證資格</th> -->
                                         <th title="emp_sub_scope">廠區</th>
-                                        <th title="dept_no">部門代碼</th>
+                                        <th title="dept_no" data-toggle="tooltip" data-placement="bottom">部門代碼</th>
                                         <th title="emp_dept">部門名稱</th>
                                         <th title="emp_id">工號</th>
-                                        <th title="cname" data-toggle="tooltip" data-placement="bottom">姓名</th>
-                                        <!-- <th title="">特危作業</th> -->
+                                        <th title="cname">姓名</th>
+                                        <th title="">特危作業</th>
                                         <th title="">工作場所</th>
                                         <th title="">工作內容</th>
-                                        <th title="">檢查類別代號</th>
                                         <th title="">均能音量</th>
                                         <th title="工作日8小時">平均音壓</th>
-                                        <th title="" style="width: 50px;">每日曝露時數</th>
+                                        <th title="">每日曝露時數</th>
+                                        <th title="">檢查類別代號</th>
                                         <th title="">噪音作業判斷</th>
                                         <th title="">特殊健檢資格驗證</th>
                                         <th title="HIRED">到職日</th>
@@ -380,47 +380,6 @@
     const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out'); // 取得步驟1篩選後的特危健康場所
     const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]')); // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
-
-    // Bootstrap Alarm function
-    function Balert(message, type) {
-        var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
-        var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
-                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-        alertPlaceholder.append(wrapper)
-    }
-    // fun3-3：吐司顯示字條 // init toast
-    function inside_toast(sinn){
-        var toastLiveExample = document.getElementById('liveToast');
-        var toast = new bootstrap.Toast(toastLiveExample);
-        var toast_body = document.getElementById('toast-body');
-        toast_body.innerHTML = sinn;
-        toast.show();
-    }
-    // 20240314 配合await將swal外移
-    function show_swal_fun(swal_value){
-        return new Promise((resolve) => {  
-            $("body").mLoading("hide");
-            if(swal_value && swal_value['fun'] && swal_value['content'] && swal_value['action']){
-                if(swal_value['action'] == 'success'){
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});          // n秒后回首頁
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                          // 手動關閉畫面
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
-                
-                } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
-                
-                } else {                                        // error
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
-                }
-            }else{
-                console.error("Invalid swal_value:", swal_value);
-                location.href = url;
-                resolve(); // 異常情況下也需要resolve
-            }
-        });
-    }
 
     // [p1 函數-1] 動態生成部門代號字串並貼在#OSHORTs位置
     function mk_OSHORTs(selectedValues) {
@@ -596,28 +555,23 @@
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
 
         }else{
-            staff_inf = hrdb_arr;                           // 把staff_arr建立起來
-            await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    console.log(emp_i);
-                    let tr = '<tr>';
-                        // // Object.entries(emp_i).forEach(([e_key, e_value]) => {
-                        // //     tr += '<td>' + e_value + '</td>';
-                        // // })
-                        // // tr += `<td class="text-center"><input type="checkbox" name="emp_ids[]" id="${emp_i.emp_id}" value="${emp_i.emp_id}" class="form-check-input" checked></td>`;
-                        // tr += `<td class="text-center">
-                        //         <button type="button" class="btn btn-warning btn-sm btn-xs" name="emp_id" value="${emp_i.emp_id}"  
-                        //             data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">挑選</button></td>`;
+            // await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                //     console.log(emp_i);
+                    // let tr = '<tr>';
+                //     Object.entries(emp_i).forEach(([e_key, e_value]) => {
+                //         tr += '<td>' + e_value + '</td>';
+                //     })
+                // tr += `<td class="text-center"><input type="checkbox" name="emp_ids[]" id="${emp_i.emp_id}" value="${emp_i.emp_id}" class="form-check-input" checked></td>`;
 
-                    tr += `<td>${emp_i.emp_sub_scope}</td> <td>${emp_i.dept_no}</td> <td>${emp_i.emp_dept}</td> <td>${emp_i.emp_id}</td>`;
-                    tr += `<td class="text-center"><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
-                            data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
-                                
-                    tr += `<td id="MONIT_LOCAL_${emp_i.emp_id}"></td> <td id="WORK_DESC_${emp_i.emp_id}"></td> <td id="HE_CATE_${emp_i.emp_id}"></td> <td id="AVG_VOL_${emp_i.emp_id}"></td> <td id="AVG_8HR_${emp_i.emp_id}"></td>`;
-                    tr += `<td id="DEH_${emp_i.emp_id}"><input type="number" class="form-control" name="DEH"></td> <td id="SH2_${emp_i.emp_id}"></td> <td id="SH3_${emp_i.emp_id}"></td>`;
-                    tr += `<td>${emp_i.HIRED}</td>`;
-                    tr += '</tr>';
-                    $('#hrdb_table tbody').append(tr);
-            })
+                    // tr += `<td>${emp_i.emp_sub_scope}</td> <td>${emp_i.dept_no}</td> <td>${emp_i.emp_dept}</td> <td>${emp_i.emp_id}</td> <td>${emp_i.cname}</td>`;
+                    // tr += `<td class="text-center">
+                    //         <button type="button" class="btn btn-warning btn-sm btn-xs" name="emp_id" value="${emp_i.emp_id}"  
+                    //             data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">挑選</button></td>`;
+                    // tr += `<td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td>${emp_i.HIRED}</td>`;
+                    // tr += '</tr>';
+                    // $('#hrdb_table tbody').append(tr);
+            // })
+            staff_inf = hrdb_arr;                           // 把staff_arr建立起來
             await reload_dataTable(hrdb_arr);               // 倒參數(陣列)，直接由dataTable渲染
         }
         $("body").mLoading("hide");
@@ -662,57 +616,57 @@
                 "pageLength": 25,                                               // 顯示長度
                 // "paging": false,                                             // 分頁
                 // "searching": false,                                          // 搜尋
-                // "data": hrdb_data,
-                // "columns": [
-                //         // { data: null , title: "驗證資格",  // 這邊是欄位
-                //         //     render: function (data, type, row) {
-                //         //         return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" ></div>`
-                //         //     } 
-                //         // },
-                //         { data: 'emp_sub_scope' }, 
-                //         { data: 'dept_no' }, 
-                //         { data: 'emp_dept' }, 
-                //         { data: 'emp_id' }, 
-                //         { data: 'cname' }, 
-                //         { data: null , title: '特危作業', 
-                //             render: function (data, type, row) {
-                //                 return `<button type="button" class="btn btn-warning btn-sm btn-xs" data-bs-toggle="modal" data-bs-target="#import_shLocal" value="${data.emp_id}" onclick="reNew_empId(this.value)">挑選</button>`
-                //                 // return `<button type="button" class="btn btn-warning btn-sm btn-xs" name="emp_id" value="${data.emp_id}">挑選</button>`
-                //             } }, 
-                //         { data: null , title: '工作場所', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } }, 
-                //         { data: null , title: '工作內容', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } }, 
-                //         { data: null , title: '均能音量', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } }, 
-                //         { data: null , title: '平均音壓', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } }, 
-                //         { data: null , title: '每日曝露時數', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } }, 
-                //         { data: null , title: '檢查類別代號', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } },
-                //         { data: null , title: '噪音作業判斷', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } },
-                //         { data: null , title: '特殊健檢資格驗證', 
-                //             render: function (data, type, row) {
-                //                 return ``
-                //             } },
-                //         { data: 'HIRED' , title: '到職日'},
-                //     ]
+                "data": hrdb_data,
+                "columns": [
+                        // { data: null , title: "驗證資格",  // 這邊是欄位
+                        //     render: function (data, type, row) {
+                        //         return `<div class="text-center"><input type="checkbox" name="emp_ids[]" id="${data.emp_id}" value="${data.emp_id}" class="form-check-input" ></div>`
+                        //     } 
+                        // },
+                        { data: 'emp_sub_scope' }, 
+                        { data: 'dept_no' }, 
+                        { data: 'emp_dept' }, 
+                        { data: 'emp_id' }, 
+                        { data: 'cname' }, 
+                        { data: null , title: '特危作業', 
+                            render: function (data, type, row) {
+                                return `<button type="button" class="btn btn-warning btn-sm btn-xs" data-bs-toggle="modal" data-bs-target="#import_shLocal" value="${data.emp_id}" onclick="reNew_empId(this.value)">挑選</button>`
+                                // return `<button type="button" class="btn btn-warning btn-sm btn-xs" name="emp_id" value="${data.emp_id}">挑選</button>`
+                            } }, 
+                        { data: null , title: '工作場所', 
+                            render: function (data, type, row) {
+                                return ``
+                            } }, 
+                        { data: null , title: '工作內容', 
+                            render: function (data, type, row) {
+                                return ``
+                            } }, 
+                        { data: null , title: '均能音量', 
+                            render: function (data, type, row) {
+                                return ``
+                            } }, 
+                        { data: null , title: '平均音壓', 
+                            render: function (data, type, row) {
+                                return ``
+                            } }, 
+                        { data: null , title: '每日曝露時數', 
+                            render: function (data, type, row) {
+                                return ``
+                            } }, 
+                        { data: null , title: '檢查類別代號', 
+                            render: function (data, type, row) {
+                                return ``
+                            } },
+                        { data: null , title: '噪音作業判斷', 
+                            render: function (data, type, row) {
+                                return ``
+                            } },
+                        { data: null , title: '特殊健檢資格驗證', 
+                            render: function (data, type, row) {
+                                return ``
+                            } },
+                        { data: 'HIRED' , title: '到職日'},
+                    ]
             });
 
            // 當所有設置完成後，resolve Promise
@@ -728,57 +682,35 @@
     async function reload_shLocalTable_Listeners() {
         return new Promise((resolve) => {
             console.log('fun reload_shLocalTable_Listeners...');
+
             const import_shLocal_btn = document.getElementById('import_shLocal_btn');
-                //     Object.entries(staff_inf).forEach(([s_key, s_value]) => {
-                //         if(staff_inf[s_key]['emp_id'] == select_empId){
-                //             Object.entries(selectedOptsValues).forEach(([sov_key, sov_vaule]) => {
-                //                 // 合併到陣列指定位置
-                //                 if(staff_inf[s_key]['shCase'] == undefined){
-                //                     staff_inf[s_key]['shCase'] = [];
-                //                 }
-                //                 if(staff_inf[s_key]['shCase'][sov_key] == undefined){
-                //                     staff_inf[s_key]['shCase'][sov_key] = [];
-                //                 }
-                //                 staff_inf[s_key]['shCase'][sov_key] = shLocal_inf[sov_vaule];
-
-                //                 // 渲染到 hrdb_table 對應欄位...
-                //                 let nbsp = (sov_key > 0) ? '<br>':'';
-                //                 let sov_key_up = Number(sov_key) + 1;
-                //                 Object(shLocal_item_arr).forEach((s_item) => {
-                //                     console.log(s_item ,shLocal_inf[sov_vaule][s_item]);
-                //                     let inner_Value = (s_item.includes('AVG')) ? nbsp + shLocal_inf[sov_vaule][s_item] : nbsp + sov_key_up +': '+ shLocal_inf[sov_vaule][s_item];
-                //                     $('#'+s_item+'_'+select_empId).append(inner_Value);
-                //                 })
-                //             })
-                //         }
-                //     })
-
-            // 當按鈕被點擊時觸發處理邏輯
             import_shLocal_btn.addEventListener('click', () => {
-                // 取得選中的員工 ID
-                const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;
-                // 取得所有選中的 checkbox 值
-                const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-                // 欲更新的欄位陣列
-                const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'AVG_VOL', 'AVG_8HR', 'HE_CATE'];
-                // 遍歷選中的選項
-                selectedOptsValues.forEach((sov_vaule, sov_key) => {
-                    const empData = staff_inf.find(emp => emp.emp_id === select_empId);     // 找到對應的員工資料
-                    if (empData) {
-                        empData.shCase = empData.shCase || [];                              // 初始化 shCase 陣列，如果不存在的話
-                        empData.shCase[sov_key] = shLocal_inf[sov_vaule];                   // 將 shLocal_inf 中對應的值賦予 shCase 中相應的位置
-                        const nbsp = sov_key > 0 ? '<br>' : '';                             // 生成分隔符號，用於非首項的數據
-                        const sov_key_up = sov_key + 1;                                     // 用於顯示的索引值，因為 `sov_key` 是 0 開始的索引
-                        // 更新 hrdb_table 中對應欄位的內容
-                        shLocal_item_arr.forEach((s_item) => {
-                            // 根據欄位類型選擇不同的顯示格式
-                            const inner_Value = s_item.includes('AVG') ? `${nbsp}${shLocal_inf[sov_vaule][s_item]}` : `${nbsp}${sov_key_up}: ${shLocal_inf[sov_vaule][s_item]}`;
-                            // 將生成的 HTML 插入到對應的欄位中
-                            document.getElementById(`${s_item}_${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
-                        });
+                
+                const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;         // 取得所有checkbox元素
+                const shLocal_selects = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]'));         // 取得所有checkbox元素
+                const selectedOptsValues = shLocal_selects.filter(cb => cb.checked).map(cb => cb.value);
+                    console.log('selectedOptsValues...', select_empId, selectedOptsValues);
+                    console.log('shLocal_inf...', shLocal_inf);
+
+                Object.entries(staff_inf).forEach(([s_key, s_value]) => {
+                    if(staff_inf[s_key]['emp_id'] == select_empId){
+                        Object.entries(selectedOptsValues).forEach(([sov_key, sov_vaule]) => {
+                            if(staff_inf[s_key]['shCase'] == undefined){
+                                staff_inf[s_key]['shCase'] = [];
+                            }
+                            if(staff_inf[s_key]['shCase'][sov_key] == undefined){
+                                staff_inf[s_key]['shCase'][sov_key] = [];
+                            }
+                            staff_inf[s_key]['shCase'][sov_key] = shLocal_inf[sov_vaule];
+                        })
                     }
-                });
-            });
+                })
+
+                console.log('staff_inf...', staff_inf);
+
+            })
+            
+
             // 當所有設置完成後，resolve Promise
            resolve();
         });
@@ -790,9 +722,6 @@
         mk_OSHORTs(selectedValues); // 呼叫函數-1
 
         eventListener(); // 呼叫函數-3
-
-        let message  = '*** 判斷依據1或2，二擇一符合條件：(1). O欄位≧85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        Balert( message, 'warning')
     });
 
 

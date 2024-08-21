@@ -1,7 +1,7 @@
 
 // // // utility fun
     // Bootstrap Alarm function
-    function alert(message, type) {
+    function Balert(message, type) {
         var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
         var wrapper = document.createElement('div')
         wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
@@ -85,7 +85,6 @@
             // console.log('找不到 < ? > 元素');
         }
     };
-
     // 20231128_下載Excel
     function downloadExcel(to_module) {
         // 定義要抓的key=>value
@@ -131,7 +130,7 @@
         let htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
     }
-
+// function
     // [p1 函數-1-1] 動態生成步驟2的所有按鈕，並重新綁定事件監聽器
     function mk_OSHORTs_btn(selectedOSHORTs) {
         $('#OSHORTs_opts_inside').empty();
@@ -206,6 +205,7 @@
                         console.log('找不到 ? 元素');
                     }
                 });
+                // 監控按下[清空]鍵後----呼叫清除Table
                 truncate_shLocal_btn.addEventListener('click', ()=> {
                     if(confirm(`確認徹底刪除此清單？`)){
                         load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);
@@ -238,6 +238,7 @@
             });
 
             if (!response.ok) {
+                $("body").mLoading("hide");
                 throw new Error('fun load ' + fun + ' failed. Please try again.');
             }
 
@@ -258,14 +259,14 @@
             
             mk_OSHORTs_btn(OSHORTsObj);                 // 呼叫函數-P-1
 
-
             await eventListener();                      // step_1-2 eventListener();
+
         } catch (error) {
             console.error(error);
         }
 
         let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site護理師</u></b>&nbsp;和&nbsp;<b><u>site工安</u></b>&nbsp;~&nbsp;';
-        alert( message, 'warning')
+        Balert( message, 'warning')
 
         $("body").mLoading("hide");
     }
