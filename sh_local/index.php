@@ -141,8 +141,8 @@
                                     <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                             </div>
-                            <div class="col-12 px-1 py-0">
-                                <div id="OSHORTs_opts" class="col-12 px-2 py-1">
+                            <div class="col-12 px-0 py-1">
+                                <div id="OSHORTs_opts" class="col-12 p-1">
                                     <div id="OSHORTs_opts_inside" class="row">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 

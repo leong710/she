@@ -352,7 +352,7 @@
         if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
             Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
                 let ostext_btns = `
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <div class="card">
                             <div class="card-header">${ohtext_30}</div>
                             <div class="card-body">
