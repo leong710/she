@@ -61,6 +61,18 @@
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
     <style>
+        /* 當螢幕寬度小於或等於 1366px時 */
+        @media (max-width: 1366px) {
+            .col-lm-3 {
+                flex: 0 0 calc(100% / 12 * 3);
+            }
+        }
+        /* 當螢幕寬度大於 1366px時 */
+        @media (min-width: 1900px) {
+            .col-lm-3 {
+                flex: 0 0 calc(100% / 12 * 2);
+            }
+        }
         .body > ul {
             padding-left: 0px;
         }
@@ -233,10 +245,10 @@
                 </div>
 
                 <div class="modal-body px-4">
-                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return shLocalExcelForm()">
+                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
                             <div class="col-6 col-md-8 py-0">
-                                <label for="excelFile" class="form-label">需求清單 <span>&nbsp<a href="../_Format/shLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">特作管理清單 <span>&nbsp<a href="../_Format/shLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
                                     <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
@@ -250,7 +262,7 @@
                         </div>
                             
                         <div class="row" id="excel_iframe">
-                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="shLocalExcelForm()"></iframe>
+                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="loadExcelForm()"></iframe>
                         </div>
                     </form>
                 </div>

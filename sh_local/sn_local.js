@@ -43,7 +43,7 @@
 // 20231128 以下為上傳後"iframe"的部分
     // 阻止檔案未上傳導致的錯誤。
     // 請注意設置時的"onsubmit"與"onclick"。
-    function shLocalExcelForm() {
+    function loadExcelForm() {
         // 如果檔案長度等於"0"。
         if (excelFile.files.length === 0) {
             // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
@@ -137,7 +137,7 @@
         if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
             Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
                 let ostext_btns = `
-                    <div class="col-md-2">
+                    <div class="col-lm-3">
                         <div class="card">
                             <div class="card-header">${ohtext_30}</div>
                             <div class="card-body p-2">
@@ -185,7 +185,7 @@
                 // 監控按下送出鍵後，打開"iframe"
                 excelUpload.addEventListener('click', ()=> {
                     iframeLoadAction();
-                    shLocalExcelForm();
+                    loadExcelForm();
                 });
                 // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
                 iframe.addEventListener('load', ()=> {
