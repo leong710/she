@@ -437,15 +437,6 @@
             }
         });
     }
-    // 240823 停止並銷毀 DataTable
-    function release_dataTable(){
-        return new Promise((resolve) => {
-            let table = $('#hrdb_table').DataTable();
-                table.destroy();
-            // 當所有設置完成後，resolve Promise
-            resolve();
-        });
-    }
 
     // [load_excel] 以下為上傳後"iframe"的部分
         // 阻止檔案未上傳導致的錯誤。
@@ -537,19 +528,12 @@
             let htmlTableValue = JSON.stringify(sort_listData);
             document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
         }
-        // 240823 將匯入資料合併到staff_inf
-        async function mgInto_shLocal_inf(new_shLocal_arr){
-            shLocal_inf = shLocal_inf.concat(new_shLocal_arr);   // 合併
-            console.log('shLocal_inf...', shLocal_inf);
-            await post_shLocal(shLocal_inf)
-        }
         // 240822 將匯入資料合併到staff_inf
         async function mgInto_staff_inf(excel_json_value){
             // const excel_json_value_arr = JSON.parse((excel_json_value).replace(/[\[\]]/g, ''));
             const excel_json_value_arr = JSON.parse(excel_json_value);
             const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no'];                                        // 合併陣列1
             const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};  // 合併陣列2
-            const excel_OSHORT_arr = [];
             Object.keys(excel_json_value_arr).forEach((e_key) => {
                 // 初始化 shCase 陣列
                 if (!excel_json_value_arr[e_key]['shCase']) {
@@ -569,26 +553,23 @@
                 for (const [a2_key, a2_value] of Object.entries(addIn_arr2)) {
                     if (excel_json_value_arr[e_key][a2_value]) {
                         mergedData[a2_key] = excel_json_value_arr[e_key][a2_value];  // 合併
-
-                        if(a2_key=='OSHORT'){
-                            excel_OSHORT_arr.push(excel_json_value_arr[e_key][a2_value])  // extra: 取得部門代號 => 抓特危場所清單用
-                        }
                     }
                 }
                 // 將合併後的物件加入 shCase 陣列中
                 excel_json_value_arr[e_key]['shCase'].push(mergedData);
             });
             staff_inf = staff_inf.concat(excel_json_value_arr);   // 合併
+
             // console.log(staff_inf);
+            // 停止並銷毀 DataTable
+            let table = $('#hrdb_table').DataTable();
+                table.destroy();
 
-            // *** 精煉 shLocal 
-                const excel_OSHORTs_str = (JSON.stringify([...new Set(excel_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
-                // console.log('excel_OSHORTs_str...', excel_OSHORTs_str);
-                load_fun('load_shLocal', excel_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併shLocal_inf
-
-            await release_dataTable();      // 停止並銷毀 DataTable
-            await post_hrdb(staff_inf);     // step-1.選染到畫面 hrdb_table
+            post_hrdb(staff_inf);           // step-1.選染到畫面 hrdb_table
             await post_shCase(staff_inf);   // step-1-2.重新渲染 shCase&判斷
+
+
+
 
         }
     // [p1 函數-1] 動態生成部門代號字串並貼在#OSHORTs位置
@@ -740,8 +721,7 @@
             load_hrdb_btn.addEventListener('click', function() {
                 const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
                 // $('#shLocal_table tbody').empty();
-                // load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
-                load_fun('load_shLocal', select_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併
+                load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
                 // $('#hrdb_table tbody').empty();
                 load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
 
@@ -783,18 +763,14 @@
     }
 
     // [p1 函數-6] 渲染hrdb
-    async function post_hrdb(emp_arr){
-        
+    async function post_hrdb(hrdb_arr){
         $('#hrdb_table tbody').empty();
-        if(emp_arr.length === 0){
+        if(hrdb_arr.length === 0){
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
 
         }else{
-            staff_inf = emp_arr;                         // 把staff_arr建立起來
-            // staff_inf = staff_inf.concat(emp_arr);          // 合併
-            // 停止並銷毀 DataTable
-            release_dataTable();
-            await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+            staff_inf = hrdb_arr;                           // 把staff_arr建立起來
+            await Object(hrdb_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 // console.log(emp_i);
                 let tr = '<tr>';
                     // // Object.entries(emp_i).forEach(([e_key, e_value]) => {
@@ -809,49 +785,59 @@
                 tr += `<td class="text-center">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
                         data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
                 tr += `<td id="MONIT_LOCAL_${emp_i.emp_id}"></td> <td id="WORK_DESC_${emp_i.emp_id}"></td> <td id="HE_CATE_${emp_i.emp_id}"></td> <td id="AVG_VOL_${emp_i.emp_id}"></td> <td id="AVG_8HR_${emp_i.emp_id}"></td>`;
-                tr += `<td><input type="number" id="DEH_${emp_i.emp_id}" name="DEH" class="form-control"></td> <td id="NC_${emp_i.emp_id}"></td>`;
-                tr += `<td class="text-center"><input type="checkbox" id="SH3_${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" ></td>`;
+                tr += `<td id="DEH_${emp_i.emp_id}"><input type="number" class="form-control" name="DEH"></td> <td id="NC_${emp_i.emp_id}"></td> <td id="SH3_${emp_i.emp_id}"></td>`;
                 tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
                 tr += '</tr>';
                 $('#hrdb_table tbody').append(tr);
             })
-            await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
+            await reload_dataTable(hrdb_arr);               // 倒參數(陣列)，直接由dataTable渲染
         }
         let sinn = '取得&nbsp;hrdb員工清單...Done&nbsp;!!';
         inside_toast(sinn);
         $("body").mLoading("hide");
     }
 
-        // 通用的函數，用於更新 DOM
-        async function updateDOM(sh_value, select_empId, sh_key_up) {
+    async function post_shCase(hrdb_arr){
+        return new Promise((resolve) => {
             // 欲更新的欄位陣列
             const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR'];
-            shLocal_item_arr.forEach((sh_item) => {
-                if (sh_value[sh_item]) {
-                    const nbsp = sh_key_up > 1 ? '<br>' : '';
-                    const inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
-                    document.getElementById(`${sh_item}_${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
 
-                    // 噪音驗證
-                    if (sh_item === 'HE_CATE' && sh_value['HE_CATE'].includes('噪音') && sh_value['AVG_VOL']) {
-                        const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
-                        document.getElementById(`NC_${select_empId}`).insertAdjacentHTML('beforeend', noise_check);
+            Object(hrdb_arr).forEach((emp_i) => {
+                const select_empId = emp_i.emp_id;
+                const shCase = emp_i.shCase;
+                if(shCase){
+                    for (const [sh_key, sh_value] of Object.entries(shCase)) {
+                        // console.log(sh_key, sh_value)
+                        const nbsp = sh_key > 0 ? '<br>' : '';                             // 生成分隔符號，用於非首項的數據
+                        const sh_key_up = Number(sh_key) + 1;                                     // 用於顯示的索引值，因為 `sov_key` 是 0 開始的索引
+                        // 更新 hrdb_table 中對應欄位的內容
+                        shLocal_item_arr.forEach((sh_item) => {
+                            console.log('sh_item...', sh_item, sh_value[sh_item]);
+
+                            if(sh_value[sh_item]){
+                                // 根據欄位類型選擇不同的顯示格式
+                                const inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
+                                // 將生成的 HTML 插入到對應的欄位中
+                                document.getElementById(`${sh_item}_${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
+                                console.log('inner_Value...', inner_Value);
+                                // 噪音驗證noise_check1
+                                if((sh_item == 'HE_CATE') && sh_value['HE_CATE'].includes('噪音')){
+                                    if(sh_value['AVG_VOL']){
+                                        const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
+                                        // 將生成的 HTML 插入到對應的欄位中
+                                        document.getElementById(`NC_${select_empId}`).insertAdjacentHTML('beforeend', noise_check);
+                                    }
+                                }
+                            }
+                        });
                     }
                 }
-            });
-        }
-
-
-    async function post_shCase(emp_arr){
-        emp_arr.forEach((emp_i) => {
-            const { emp_id: select_empId, shCase } = emp_i;
-            if (shCase) {
-                Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                    updateDOM(sh_value, select_empId, index + 1);
-                });
-            }
-        });
-        inside_toast('匯入Excel員工清單...Done&nbsp;!!');
+            })
+            let sinn = '匯入Excel員工清單...Done&nbsp;!!';
+            inside_toast(sinn);
+            // 當所有設置完成後，resolve Promise
+            resolve();
+        }); 
     }
 
     // [p1 函數-7] 渲染shLocal到互動視窗
@@ -885,7 +871,8 @@
         return new Promise((resolve) => {
 
             // 停止並銷毀 DataTable
-            release_dataTable();
+            let table = $('#hrdb_table').DataTable();
+                table.destroy();
             // 重新初始化 DataTable
             $('#hrdb_table').DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
@@ -952,49 +939,45 @@
     }
 
     // [p1 函數-4] 建立監聽~shLocalTable的checkbox
-    let importShLocalBtnListener;
     async function reload_shLocalTable_Listeners() {
         return new Promise((resolve) => {
             console.log('fun reload_shLocalTable_Listeners...');
-
-            const importShLocalBtn = document.getElementById('import_shLocal_btn');
-
-            // 檢查並移除已經存在的監聽器
-            if (importShLocalBtnListener) {
-                importShLocalBtn.removeEventListener('click', importShLocalBtnListener);
-            }
-            // 定義新的監聽器函數
-            importShLocalBtnListener = function () {
+            const import_shLocal_btn = document.getElementById('import_shLocal_btn');
+            // 當按鈕被點擊時觸發處理邏輯
+            import_shLocal_btn.addEventListener('click', () => {
+                // 取得選中的員工 ID
                 const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;
+                // 取得所有選中的 checkbox 值
                 const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-                selectedOptsValues.forEach((sov_vaule, index) => {
-                    const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                // 欲更新的欄位陣列
+                const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR'];
+                // 遍歷選中的選項
+                selectedOptsValues.forEach((sov_vaule, sov_key) => {
+                    const empData = staff_inf.find(emp => emp.emp_id === select_empId);     // 找到對應的員工資料
                     if (empData) {
-                        empData.shCase = empData.shCase || [];
-                        empData.shCase[index] = shLocal_inf[sov_vaule];
-                        updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
+                        empData.shCase = empData.shCase || [];                              // 初始化 shCase 陣列，如果不存在的話
+                        empData.shCase[sov_key] = shLocal_inf[sov_vaule];                   // 將 shLocal_inf 中對應的值賦予 shCase 中相應的位置
+                        const nbsp = sov_key > 0 ? '<br>' : '';                             // 生成分隔符號，用於非首項的數據
+                        const sov_key_up = sov_key + 1;                                     // 用於顯示的索引值，因為 `sov_key` 是 0 開始的索引
+                        // 更新 hrdb_table 中對應欄位的內容
+                        shLocal_item_arr.forEach((s_item) => {
+                            // 根據欄位類型選擇不同的顯示格式
+                            const inner_Value = s_item.includes('AVG') ? `${nbsp}${shLocal_inf[sov_vaule][s_item]}` : `${nbsp}${sov_key_up}: ${shLocal_inf[sov_vaule][s_item]}`;
+                            // 將生成的 HTML 插入到對應的欄位中
+                            document.getElementById(`${s_item}_${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
+                        });
+                        // 噪音驗證noise_check1
+                        if(shLocal_inf[sov_vaule]['HE_CATE'].includes('噪音')){
+                            // console.log('noise_check1...', noise_check1);
+                            const noise_check = (shLocal_inf[sov_vaule]['AVG_VOL'] >= 85) ? `${nbsp}${sov_key_up}: 1-符合` : `${nbsp}${sov_key_up}: 1-不符合`;
+                            // 將生成的 HTML 插入到對應的欄位中
+                            document.getElementById(`NC_${select_empId}`).insertAdjacentHTML('beforeend', noise_check);
+                        }
                     }
                 });
-            };
-
-            // 添加新的監聽器
-            importShLocalBtn.addEventListener('click', importShLocalBtnListener);
-
-                        // document.getElementById('import_shLocal_btn').addEventListener('click', () => {
-                        //     const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;
-                        //     const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-                        //     selectedOptsValues.forEach((sov_vaule, index) => {
-                        //         const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                        //         if (empData) {
-                        //             empData.shCase = empData.shCase || [];
-                        //             empData.shCase[index] = shLocal_inf[sov_vaule];
-                        //             updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
-                        //         }
-                        //     });
-                        //     // console.log('staff_inf...', staff_inf); // debug
-                        // });
+                console.log('staff_inf...', staff_inf); // debug
+            });
+            // 當所有設置完成後，resolve Promise
            resolve();
         });
     }

@@ -141,6 +141,6 @@
     
 </script>
 
-<script src="dashboard.js?v=<?=time()?>"></script>
+<!-- <script src="dashboard.js?v=<?=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>
