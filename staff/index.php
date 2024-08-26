@@ -103,6 +103,11 @@
         .h6 {
             font-size: 12px;
         }
+        .HE_CATE:hover {
+            transition: .5s;
+            font-weight: bold;
+            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+        }
     </style>
 </head>
 <body>
@@ -218,7 +223,7 @@
                                         </div>
                                     <?php } ?>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
-                                    <button type="button" class="btn btn-primary" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                             </div>
                             <hr>
@@ -341,6 +346,76 @@
         </div>
     </div> 
 
+    <!-- 互動視窗 edit_shLocal -->
+    <div class="modal fade" id="edit_shLocal" tabindex="-1" aria-labelledby="edit_shLocal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修正危害健康作業&nbsp;(<snap id="edit_shLocal_empId"></snap>)：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <table id="edit_shLocal_table" class="table table-striped table-hover">
+                        <thead>
+                            <th title="id">aid</th>
+                            <th title="OSTEXT_30">廠區</th>
+                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
+                            <th title="OSTEXT">部門名稱</th>
+                            <th title="HE_CATE">類別</th>
+                            <th title="AVG_VOL">均能音量</th>
+                            <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
+                            <th title="MONIT_NO">監測編號</th>
+                            <th title="MONIT_LOCAL">監測處所</th>
+                            <th title="WORK_DESC">作業描述</th>
+                            <th title="">選擇</th>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="edit_shLocal_btn" >修正</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+    <!--模組-新增Staff -->
+    <div class="modal fade" id="import_staff" aria-hidden="true" aria-labelledby="import_staff" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="searchStaff">searchStaff</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 第一排-查詢功能 -->
+                    <div class="row">
+                        <div class="col-12 col-md-6"></div>
+                        <div class="col-12 col-md-6 text-end py-1">
+                            <div class="input-group">
+                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢對象 工號、姓名或NT帳號" required>
+                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 第二排-查詢結果 -->
+                    <div class="row">
+                        <div class="col-12 p-3" id="result">
+                            <table id="result_table" class="table table-striped table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -364,656 +439,19 @@
     var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
 
-    // const shLocals       = <=json_encode($shLocals)?>;    // 引入shLocal資料
+    var searchUser_modal = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
+    var edit_shLocal_modal = new bootstrap.Modal(document.getElementById('edit_shLocal'), { keyboard: false });
+
     var staff_inf        = [];
     var shLocal_inf      = [];
     
     // [p1 步驟-0] 取得重要資訊
-    const OSHORTsObj = JSON.parse(document.getElementById('row_OSTEXT_30').innerText); // 將row_OSTEXT_30的字串轉換為物件
-    const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out'); // 取得步驟1篩選後的特危健康場所
-    const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]')); // 取得所有checkbox元素
+    const OSHORTsObj = JSON.parse(document.getElementById('row_OSTEXT_30').innerText);          // 將row_OSTEXT_30的字串轉換為物件
+    const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out');                             // 取得步驟1篩選後的特危健康場所
+    const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
 
-    // Bootstrap Alarm function
-    function Balert(message, type) {
-        var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
-        var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
-                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-        alertPlaceholder.append(wrapper)
-    }
-    // fun3-3：吐司顯示字條 // init toast // 240823堆疊
-    function inside_toast(sinn){
-        // 創建一個新的 toast 元素
-        var newToast = document.createElement('div');
-            newToast.className = 'toast align-items-center bg-warning';
-            newToast.setAttribute('role', 'alert');
-            newToast.setAttribute('aria-live', 'assertive');
-            newToast.setAttribute('aria-atomic', 'true');
-            newToast.setAttribute('autohide', 'true');
-            newToast.setAttribute('delay', '1000');
-
-            // 設置 toast 的內部 HTML
-            newToast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${sinn}</div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            `;
-
-        // 將新 toast 添加到容器中
-        document.getElementById('toastContainer').appendChild(newToast);
-
-        // 初始化並顯示 toast
-        var toast = new bootstrap.Toast(newToast);
-        toast.show();
-
-        // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
-        newToast.addEventListener('hidden.bs.toast', function () {
-            newToast.remove();
-        });
-    }
-    // 20240314 配合await將swal外移
-    function show_swal_fun(swal_value){
-        return new Promise((resolve) => {  
-            $("body").mLoading("hide");
-            if(swal_value && swal_value['fun'] && swal_value['content'] && swal_value['action']){
-                if(swal_value['action'] == 'success'){
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});          // n秒后回首頁
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                          // 手動關閉畫面
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
-                
-                } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
-                
-                } else {                                        // error
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
-                }
-            }else{
-                console.error("Invalid swal_value:", swal_value);
-                location.href = url;
-                resolve(); // 異常情況下也需要resolve
-            }
-        });
-    }
-    // 240823 停止並銷毀 DataTable
-    function release_dataTable(){
-        return new Promise((resolve) => {
-            let table = $('#hrdb_table').DataTable();
-                table.destroy();
-            // 當所有設置完成後，resolve Promise
-            resolve();
-        });
-    }
-
-    // [load_excel] 以下為上傳後"iframe"的部分
-        // 阻止檔案未上傳導致的錯誤。
-        // 請注意設置時的"onsubmit"與"onclick"。
-        function loadExcelForm() {
-            // 如果檔案長度等於"0"。
-            if (excelFile.files.length === 0) {
-                // 如果沒有選擇文件，顯示警告訊息並阻止表單提交
-                warningText_1.style.display = "block";
-                return false;
-            }
-            // 如果已選擇文件，允許表單提交
-            iframe.style.display = 'block'; 
-            // 以下為編輯特有
-            // showTrainList.style.display = 'none';
-            return true;
-        }
-        // 
-        function iframeLoadAction() {
-            iframe.style.height = '0px';
-            var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-            var iframeContent = iframeDocument.documentElement;
-            var newHeight = iframeContent.scrollHeight + 'px';
-            iframe.style.height = newHeight;
-
-            var excel_json = iframeDocument.getElementById('excel_json');
-            var stopUpload = iframeDocument.getElementById('stopUpload');
-            // 在此處對找到的 <textarea> 元素進行相應的操作
-            if (excel_json) {
-                // 手动触发input事件
-                var inputEvent = new Event('input', { bubbles: true });
-                warningText_1.style.display = "none";           // 警告文字--隱藏
-                warningText_2.style.display = "none";
-                import_excel_btn.style.display = "block";       // 載入按鈕--顯示
-                
-            } else if(stopUpload) {
-                // 沒有找到 <textarea> 元素
-                console.log('請確認資料是否正確');
-                warningText_1.style.display = "block";          // 警告文字--顯示
-                warningText_2.style.display = "block";
-                import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
-
-            }else{
-                // console.log('找不到 < ? > 元素');
-            }
-        };
-        // 20231128_下載Excel
-        function downloadExcel(to_module) {
-            // 定義要抓的key=>value
-            const item_keys = {
-                // "id"            : "aid",
-                "OSHORT"        : "部門代碼",
-                "OSTEXT_30"     : "廠區",
-                "OSTEXT"        : "部門名稱",
-                "HE_CATE"       : "類別",
-                "AVG_VOL"       : "均能音量",
-                "AVG_8HR"       : "工作日8小時平均音壓值",
-                "MONIT_NO"      : "監測編號",
-                "MONIT_LOCAL"   : "監測處所",
-                "WORK_DESC"     : "作業描述",
-                "flag"          : "開關",
-                "created_at"    : "建檔日期",
-                "updated_at"    : "最後更新",
-                "updated_cname" : "最後編輯",
-            };
-            let sort_listData = [];                         // 建立整理陣列
-            // const shLocals = <?=json_encode($shLocals)?>;    // 引入shLocal資料
-            for(let i=0; i < shLocals.length; i++){
-                sort_listData[i] = {};                      // 建立物件
-                Object.keys(item_keys).forEach(function(i_key){
-                    sort_listData[i][item_keys[i_key]] = shLocals[i][i_key];
-                })
-            }
-            // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~
-                // const table = document.getElementById(to_module);
-                // const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
-                // const rows = Array.from(table.querySelectorAll('tbody tr'));
-            
-                // const sort_listData = rows.map(row => {
-                //     const cells = Array.from(row.querySelectorAll('td'));
-                //     let rowData = {};
-                //     cells.forEach((cell, index) => {
-                //         rowData[headers[index]] = cell.textContent.trim();
-                //     });
-                //     return rowData;
-                // });
-                // console.log(sort_listData);
-
-            let htmlTableValue = JSON.stringify(sort_listData);
-            document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
-        }
-        // 240823 將匯入資料合併到staff_inf
-        async function mgInto_shLocal_inf(new_shLocal_arr){
-            shLocal_inf = shLocal_inf.concat(new_shLocal_arr);   // 合併
-            console.log('shLocal_inf...', shLocal_inf);
-            await post_shLocal(shLocal_inf)
-        }
-        // 240822 將匯入資料合併到staff_inf
-        async function mgInto_staff_inf(excel_json_value){
-            // const excel_json_value_arr = JSON.parse((excel_json_value).replace(/[\[\]]/g, ''));
-            const excel_json_value_arr = JSON.parse(excel_json_value);
-            const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no'];                                        // 合併陣列1
-            const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};  // 合併陣列2
-            const excel_OSHORT_arr = [];
-            Object.keys(excel_json_value_arr).forEach((e_key) => {
-                // 初始化 shCase 陣列
-                if (!excel_json_value_arr[e_key]['shCase']) {
-                    excel_json_value_arr[e_key]['shCase'] = [];
-                }
-                // 建立一個新的物件來儲存合併的資料
-                let mergedData = {};
-                // 遍歷 addIn_arr1 並合併數據
-                addIn_arr1.forEach((addIn_i) => {
-                    if (excel_json_value_arr[e_key][addIn_i]) {
-                        mergedData[addIn_i] = excel_json_value_arr[e_key][addIn_i];  // 合併
-                        // 刪除合併後的屬性
-                        delete excel_json_value_arr[e_key][addIn_i];
-                    }
-                });
-                // 遍歷 addIn_arr2 並合併數據
-                for (const [a2_key, a2_value] of Object.entries(addIn_arr2)) {
-                    if (excel_json_value_arr[e_key][a2_value]) {
-                        mergedData[a2_key] = excel_json_value_arr[e_key][a2_value];  // 合併
-
-                        if(a2_key=='OSHORT'){
-                            excel_OSHORT_arr.push(excel_json_value_arr[e_key][a2_value])  // extra: 取得部門代號 => 抓特危場所清單用
-                        }
-                    }
-                }
-                // 將合併後的物件加入 shCase 陣列中
-                excel_json_value_arr[e_key]['shCase'].push(mergedData);
-            });
-            staff_inf = staff_inf.concat(excel_json_value_arr);   // 合併
-            // console.log(staff_inf);
-
-            // *** 精煉 shLocal 
-                const excel_OSHORTs_str = (JSON.stringify([...new Set(excel_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
-                // console.log('excel_OSHORTs_str...', excel_OSHORTs_str);
-                load_fun('load_shLocal', excel_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併shLocal_inf
-
-            await release_dataTable();      // 停止並銷毀 DataTable
-            await post_hrdb(staff_inf);     // step-1.選染到畫面 hrdb_table
-            await post_shCase(staff_inf);   // step-1-2.重新渲染 shCase&判斷
-
-        }
-    // [p1 函數-1] 動態生成部門代號字串並貼在#OSHORTs位置
-    function mk_OSHORTs(selectedValues) {
-        const selectedOSHORTs = selectedValues.reduce((acc, value) => {
-            if (OSHORTsObj[value]) { // 檢查選擇的值是否存在於OSHORTsObj中
-                acc[value] = OSHORTsObj[value];
-            }
-            return acc;
-        }, {});
-
-        const selectedOSHORTs_str = JSON.stringify(selectedOSHORTs).replace(/[\[\]]/g, '');
-        $('#OSHORTs').empty().append(selectedOSHORTs_str); // 將生成的字串貼在<OSHORTs>元素中
-
-        mk_OSHORTs_btn(selectedOSHORTs); // 呼叫函數-1-1來生成按鈕
-        mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]'))); // 更新 select_OSHORTs 的內容
-    }
-    // [p1 函數-1-1] 動態生成步驟2的所有按鈕，並重新綁定事件監聽器
-    function mk_OSHORTs_btn(selectedOSHORTs) {
-        $('#OSHORTs_opts_inside').empty();
-        if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
-            Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
-                let ostext_btns = `
-                    <div class="col-lm-3">
-                        <div class="card">
-                            <div class="card-header">${ohtext_30}</div>
-                            <div class="card-body">
-                                ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                    `<div class="form-check px-4">
-                                        <input type="checkbox" name="OSHORTs" id="${o_key}" value="${o_key}" class="form-check-input" check >
-                                        <label for="${o_key}" class="form-check-label">${o_key} (${o_value})</label>
-                                    </div>`
-                                ).join('')}
-                            </div>
-                        </div>
-                    </div>`;
-                $('#OSHORTs_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<OSHORTs_opts_inside>元素中
-            });
-        }else{
-            let ostext_btns = `
-                <div class="col-md-3">
-                    <div class="card">
-                        <div class="card-header">空值注意</div>
-                        <div class="card-body">
-                            STEP-1.沒有選擇任何一個特危健康場所~ 本欄位無效!!
-                        </div>
-                    </div>
-                </div>`;
-            $('#OSHORTs_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<OSHORTs_opts_inside>元素中
-        }
-
-        // 重新綁定事件監聽器
-        rebindOSHORTsOptsListeners();
-    }
-    // [p1 函數-2] 根據步驟2的選擇動態生成部門代號字串
-    function mk_select_OSHORTs(OSHORTs_opts_arr) {
-        const selectedOptsValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-
-        OSHORTs_opts.classList.toggle('is-invalid', selectedOptsValues.length === 0);
-        OSHORTs_opts.classList.toggle('is-valid', selectedOptsValues.length > 0);
-        
-        load_hrdb_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
-        load_hrdb_btn.disabled = selectedOptsValues.length === 0 ;                  // 取得人事資料庫btn
-        
-        const selectedOptsValues_str = JSON.stringify(selectedOptsValues).replace(/[\[\]]/g, '');
-        $('#select_OSHORTs').empty().append(selectedOptsValues_str); // 將生成的字串貼在<select_OSHORTs>元素中
-    }
-
-    // [p1 函數-4] 重新綁定事件監聽器給#OSHORTs_opts內的checkbox
-    function rebindOSHORTsOptsListeners() {
-        const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]'));
-        
-        OSHORTs_opts_arr.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                mk_select_OSHORTs(OSHORTs_opts_arr); // 呼叫函數-2
-            });
-        });
-    }
-
-    // [p1 函數-3] 設置事件監聽器和MutationObserver
-    async function eventListener() {
-        return new Promise((resolve) => {
-            // 在任何地方啟用工具提示框
-            $('[data-toggle="tooltip"]').tooltip();
-            // [load_excel] 以下為上傳後"iframe"的部分
-                // 監控按下送出鍵後，打開"iframe"
-                excelUpload.addEventListener('click', ()=> {
-                    iframeLoadAction();
-                    loadExcelForm();
-                });
-                // 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
-                iframe.addEventListener('load', ()=> {
-                    iframeLoadAction();
-                });
-                // 監控按下[載入]鍵後----呼叫Excel載入
-                import_excel_btn.addEventListener('click', ()=> {
-                    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                    var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
-                    var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
-
-                    if (excel_json) {
-                        document.getElementById('excelTable').value = excel_json.value;
-                        mgInto_staff_inf(excel_json.value)      // 呼叫[fun] 
-
-                    } else if(stopUpload) {
-                        console.log('請確認資料是否正確');
-                    }else{
-                        console.log('找不到 ? 元素');
-                    }
-                });
-
-            const OSHORTsDiv = document.getElementById('OSHORTs'); // 定義OSHORTsDiv變量
-            const OSHORTs_opts = document.getElementById('OSHORTs_opts_inside'); // 定義OSHORTs_opts變量
-
-            // [步驟-1-5] 監聽步驟1[棟別]的checkbox變化
-            OSTEXT_30s.forEach(checkbox => {
-                checkbox.addEventListener('change', function() {
-                    if (this.value === 'All') {
-                        OSTEXT_30s.forEach(cb => cb.checked = this.checked); // 全選或取消全選
-                    } else {
-                        const allCheckbox = OSTEXT_30s.find(cb => cb.value === 'All');
-                        const nonAllCheckboxes = OSTEXT_30s.filter(cb => cb.value !== 'All');
-                        allCheckbox.checked = nonAllCheckboxes.every(cb => cb.checked); // 更新"All"狀態
-                    }
-
-                    const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
-                    OSTEXT_30_Out.classList.toggle('is-invalid', selectedValues.length === 0);
-                    OSTEXT_30_Out.classList.toggle('is-valid', selectedValues.length > 0);
-
-                    mk_OSHORTs(selectedValues); // 呼叫函數-1生成部門代號字串
-                });
-            });
-
-            // 初始化監聽器
-            rebindOSHORTsOptsListeners();
-
-            // 使用MutationObserver監控OSHORTs區域內文本變化
-            const observer = new MutationObserver(() => {
-                const isEmpty = OSHORTsDiv.innerText.trim() === '';
-                OSHORTs_opts.classList.toggle('is-invalid', isEmpty);
-                OSHORTs_opts.classList.toggle('is-valid', !isEmpty);
-
-                // 每次 OSHORTs 變動時也更新 select_OSHORTs 的內容
-                mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]')));
-            });
-            observer.observe(OSHORTsDiv, { childList: true, subtree: true }); // 設置觀察選項並開始監控
-
-            // 監聽 load_hrdb_btn 取得認識資料庫
-            load_hrdb_btn.addEventListener('click', function() {
-                const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
-                // $('#shLocal_table tbody').empty();
-                // load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
-                load_fun('load_shLocal', select_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併
-                // $('#hrdb_table tbody').empty();
-                load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
-
-                $('#nav-p2-tab').tab('show');                                       // 切換頁面
-            });
-
-            // 當所有設置完成後，resolve Promise
-            resolve();
-        });
-    }
-
-    // [p1 函數-5] 多功能擷取fun 新版改用fetch
-    async function load_fun(fun, parm, myCallback) {        // parm = 參數
-        mloading(); 
-        // console.log(fun, parm);
-        try {
-            let formData = new FormData();
-                formData.append('fun', fun);
-                formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
-
-            let response = await fetch('load_fun.php', {
-                method : 'POST',
-                body   : formData
-            });
-
-            if (!response.ok) {
-                throw new Error('fun load ' + fun + ' failed. Please try again.');
-            }
-
-            let responseData = await response.json();
-            let result_obj = responseData['result_obj'];    // 擷取主要物件
-
-            return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
-                                                            // myCallback：form = bring_form() 、document = edit_show() 、
-        } catch (error) {
-            $("body").mLoading("hide");
-            throw error;                                    // 載入失敗，reject
-        }
-    }
-
-    // [p1 函數-6] 渲染hrdb
-    async function post_hrdb(emp_arr){
-        
-        $('#hrdb_table tbody').empty();
-        if(emp_arr.length === 0){
-            $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
-
-        }else{
-            staff_inf = emp_arr;                         // 把staff_arr建立起來
-            // staff_inf = staff_inf.concat(emp_arr);          // 合併
-            // 停止並銷毀 DataTable
-            release_dataTable();
-            await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                // console.log(emp_i);
-                let tr = '<tr>';
-                    // // Object.entries(emp_i).forEach(([e_key, e_value]) => {
-                    // //     tr += '<td>' + e_value + '</td>';
-                    // // })
-                    // // tr += `<td class="text-center"><input type="checkbox" name="emp_ids[]" id="${emp_i.emp_id}" value="${emp_i.emp_id}" class="form-check-input" checked></td>`;
-                    // tr += `<td class="text-center">
-                    //         <button type="button" class="btn btn-warning btn-sm btn-xs" name="emp_id" value="${emp_i.emp_id}"  
-                    //             data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">挑選</button></td>`;
-
-                tr += `<td>${emp_i.emp_sub_scope}</td> <td>${emp_i.dept_no}</br>${emp_i.emp_dept}</td>`;
-                tr += `<td class="text-center">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
-                        data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
-                tr += `<td id="MONIT_LOCAL_${emp_i.emp_id}"></td> <td id="WORK_DESC_${emp_i.emp_id}"></td> <td id="HE_CATE_${emp_i.emp_id}"></td> <td id="AVG_VOL_${emp_i.emp_id}"></td> <td id="AVG_8HR_${emp_i.emp_id}"></td>`;
-                tr += `<td><input type="number" id="DEH_${emp_i.emp_id}" name="DEH" class="form-control"></td> <td id="NC_${emp_i.emp_id}"></td>`;
-                tr += `<td class="text-center"><input type="checkbox" id="SH3_${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" ></td>`;
-                tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
-                tr += '</tr>';
-                $('#hrdb_table tbody').append(tr);
-            })
-            await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
-        }
-        let sinn = '取得&nbsp;hrdb員工清單...Done&nbsp;!!';
-        inside_toast(sinn);
-        $("body").mLoading("hide");
-    }
-
-        // 通用的函數，用於更新 DOM
-        async function updateDOM(sh_value, select_empId, sh_key_up) {
-            // 欲更新的欄位陣列
-            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR'];
-            shLocal_item_arr.forEach((sh_item) => {
-                if (sh_value[sh_item]) {
-                    const nbsp = sh_key_up > 1 ? '<br>' : '';
-                    const inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
-                    document.getElementById(`${sh_item}_${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
-
-                    // 噪音驗證
-                    if (sh_item === 'HE_CATE' && sh_value['HE_CATE'].includes('噪音') && sh_value['AVG_VOL']) {
-                        const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
-                        document.getElementById(`NC_${select_empId}`).insertAdjacentHTML('beforeend', noise_check);
-                    }
-                }
-            });
-        }
-
-
-    async function post_shCase(emp_arr){
-        emp_arr.forEach((emp_i) => {
-            const { emp_id: select_empId, shCase } = emp_i;
-            if (shCase) {
-                Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                    updateDOM(sh_value, select_empId, index + 1);
-                });
-            }
-        });
-        inside_toast('匯入Excel員工清單...Done&nbsp;!!');
-    }
-
-    // [p1 函數-7] 渲染shLocal到互動視窗
-    async function post_shLocal(shLocal_arr){
-        $('#shLocal_table tbody').empty();
-        if(shLocal_arr.length === 0){
-            $('#shLocal_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
-
-        }else{
-            shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
-            await Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                // console.log(sh_i);
-                let tr = '<tr>';
-                Object.entries(sh_i).forEach(([s_key, s_value]) => {
-                    tr += '<td>' + s_value + '</td>';
-                })
-                tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
-                tr += '</tr>';
-                $('#shLocal_table tbody').append(tr);
-            })
-
-        }
-        await reload_shLocalTable_Listeners();      // 建立監聽~shLocalTable的checkbox
-        let sinn = '取得&nbsp;特危場所...Done&nbsp;!!';
-        inside_toast(sinn);
-        $("body").mLoading("hide");
-    }
-    // 建立dataTable數據庫
-    async function reload_dataTable(hrdb_data){
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
-        return new Promise((resolve) => {
-
-            // 停止並銷毀 DataTable
-            release_dataTable();
-            // 重新初始化 DataTable
-            $('#hrdb_table').DataTable({
-                "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
-                "autoWidth": false,                                             // 自動寬度
-                "order": [[ 0, "asc" ], [ 1, "asc" ], [ 2, "asc" ]],            // 排序
-                "pageLength": 25,                                               // 顯示長度
-                // "paging": false,                                             // 分頁
-                // "searching": false,                                          // 搜尋
-                // "data": hrdb_data,
-                // "columns": [
-                    //             { data: 'emp_sub_scope' }, 
-                    //             { data: 'dept_no' }, 
-                    //             { data: 'emp_dept' }, 
-
-                    //             { data: null , // title: 'emp_id', 
-                    //                 render: function (data, type, row) {
-                    //                     return `${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${data.emp_id}" 
-                    //                         data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${data.cname}</button>`
-                    //                 } }, 
-                    //             { data: 'cname' }, 
-                    //             { data: null , title: '工作場所', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: null , title: '工作內容', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: null , title: '均能音量', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: null , title: '平均音壓', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: null , title: '每日曝露時數', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: null , title: '檢查類別代號', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } },
-                    //             { data: null , title: '噪音作業判斷', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } },
-                    //             { data: null , title: '特殊健檢資格驗證', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } },
-                    //             { data: 'HIRED' , title: '到職日'},
-                //     ]
-            });
-
-           // 當所有設置完成後，resolve Promise
-           resolve();
-        });
-    }
-    // 更換shLocal_modal內的emp_id值
-    function reNew_empId(this_value){
-        $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
-    }
-
-    // [p1 函數-4] 建立監聽~shLocalTable的checkbox
-    let importShLocalBtnListener;
-    async function reload_shLocalTable_Listeners() {
-        return new Promise((resolve) => {
-            console.log('fun reload_shLocalTable_Listeners...');
-
-            const importShLocalBtn = document.getElementById('import_shLocal_btn');
-
-            // 檢查並移除已經存在的監聽器
-            if (importShLocalBtnListener) {
-                importShLocalBtn.removeEventListener('click', importShLocalBtnListener);
-            }
-            // 定義新的監聽器函數
-            importShLocalBtnListener = function () {
-                const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;
-                const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-                selectedOptsValues.forEach((sov_vaule, index) => {
-                    const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                    if (empData) {
-                        empData.shCase = empData.shCase || [];
-                        empData.shCase[index] = shLocal_inf[sov_vaule];
-                        updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
-                    }
-                });
-            };
-
-            // 添加新的監聽器
-            importShLocalBtn.addEventListener('click', importShLocalBtnListener);
-
-                        // document.getElementById('import_shLocal_btn').addEventListener('click', () => {
-                        //     const select_empId = document.querySelector('#import_shLocal #import_shLocal_empId').innerText;
-                        //     const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-                        //     selectedOptsValues.forEach((sov_vaule, index) => {
-                        //         const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                        //         if (empData) {
-                        //             empData.shCase = empData.shCase || [];
-                        //             empData.shCase[index] = shLocal_inf[sov_vaule];
-                        //             updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
-                        //         }
-                        //     });
-                        //     // console.log('staff_inf...', staff_inf); // debug
-                        // });
-           resolve();
-        });
-    }
-
-    $(function() {
-        // [步驟-1] 初始化設置
-        const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
-        mk_OSHORTs(selectedValues); // 呼叫函數-1
-
-        eventListener(); // 呼叫函數-3
-
-        let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        Balert( message, 'warning')
-    });
-
-
-
-
 </script>
-<!-- <script src="staff.js?v=<=time()?>"></script> -->
+<script src="staff.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
