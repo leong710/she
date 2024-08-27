@@ -103,11 +103,12 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover {
+        /* .HE_CATE:hover {
+            background-color: #FFBFFF;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
+        } */
     </style>
 </head>
 <body>

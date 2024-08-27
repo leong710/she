@@ -207,7 +207,7 @@
             await release_dataTable();                  // 停止並銷毀 DataTable
             await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-            // await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
+            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
         }
         // 240826 單筆刪除Staff資料
         async function eraseStaff(removeEmpId){
@@ -238,7 +238,7 @@
                 await release_dataTable();                  // 停止並銷毀 DataTable
                 await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
                 await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-                // await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
+                await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
                 inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`);
             }
         }
@@ -642,8 +642,7 @@
                     tr += `<td class="text-center">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
                             data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
                     tr += `<td id="MONIT_LOCAL,${emp_i.emp_id}"></td> <td id="WORK_DESC,${emp_i.emp_id}"></td> <td id="HE_CATE,${emp_i.emp_id}" class="HE_CATE"></td> <td id="AVG_VOL,${emp_i.emp_id}"></td> <td id="AVG_8HR,${emp_i.emp_id}"></td>`;
-                    tr += `<td><input type="number" id="eh_t,${emp_i.emp_id}" name="eh_t" class="form-control" onchange="change_eh_t(this.id, this.value)"></td> <td id="NC,${emp_i.emp_id}"></td>`;
-
+                    tr += `<td><input type="number" id="DEH,${emp_i.emp_id}" name="DEH" class="form-control"></td> <td id="NC,${emp_i.emp_id}"></td>`;
                     tr += `<td class="text-center"><input type="checkbox" id="SH3,${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >`;
                     tr += `&nbsp;&nbsp;<button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></td>`;
                     tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
@@ -654,9 +653,7 @@
             }
             $("body").mLoading("hide");
         }
-    function change_eh_t(val1, val2){
-        console.log('val...', val1, val2);
-    }
+
 
     // [p-2]
         // modal：[load_excel] 以下為上傳後"iframe"的部分
