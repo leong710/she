@@ -22,7 +22,7 @@
                 if ($submit === 'shLocal') {                    // 240807_特殊危害健康作業管理
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '均能音量', '8小時平均', '監測編號', '監測處所', '作業描述');  //工作日8小時平均音壓值
+                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '均能音量', '8小時平均', '監測編號', '監測處所(10)', '作業描述(20)');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -59,18 +59,24 @@
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
                             $row[3] = str_replace('、', ',', $row[3]);   // 類別 符號轉逗號
 
-                            // 檢查OSHORT $row[1]是否空值
+                            // 1.檢查OSHORT $row[1]是否空值
                                 $OSHORT_check = (!empty($row[1])) ? true : false;
-
-                            // 檢查HE_CATE $row[3]是否含"噪音作業"，必須填AVG_VAL或AVG_8HR
+                            // 2.檢查HE_CATE $row[3]是否含"噪音作業"，必須填AVG_VAL或AVG_8HR
                                 $noise_check = (preg_match("/噪音/i",$row[3])) ? ($row[4] || $row[5]) : true ;
-
+                            // 3. MONIT_LOCAL_check // 計算字串的字元數 10
+                                $MONIT_LOCAL_check = (mb_strlen($row[7], 'UTF-8') <= 10) ? true : false;
+                            // 4. WORK_DESC_check   // 計算字串的字元數 20
+                                $WORK_DESC_check   = (mb_strlen($row[8], 'UTF-8') <= 20) ? true : false;
+                            
+                            // 合併檢查結果：
                                 $row_result = array_merge($row, [
-                                    "OSHORT_check" => $OSHORT_check,
-                                    "noise_check"  => $noise_check
+                                    "OSHORT_check"      => $OSHORT_check,
+                                    "noise_check"       => $noise_check,
+                                    "MONIT_LOCAL_check" => $MONIT_LOCAL_check,
+                                    "WORK_DESC_check"   => $WORK_DESC_check
                                 ]);
 
-                            if ($OSHORT_check && $noise_check) {
+                            if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check) {
                                 foreach ($row as $index => $value) {
                                     if ($index > 7) break;
                                     echo '<td>' . htmlspecialchars($value) . '</td>';                       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
@@ -110,9 +116,9 @@
                             echo '</div>';
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
-                            echo '<div><pre>';
-                            print_r($errLog);
-                            echo '</pre></div>';
+                            // echo '<div><pre>';
+                            // print_r($errLog);
+                            // echo '</pre></div>';
                             echo '</div>';
                         }
                     }
@@ -282,19 +288,22 @@
 
         // 根據$submit 输出特定错误消息
         switch($submit){
-            case "snLocal":
+            case "shLocal":
                 $td_str  = '<td>' . $row_result[0] . '</td>';
-                $td_str .= '<td' . (!$row_result["OSHORT_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[1]) . '</td>';
+                $td_str .= '<td>' . $row_result[1] . ((!$row_result["OSHORT_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[2] . '</td><td>' . $row_result[3] . '</td>';
-                $td_str .= '<td' . (!$row_result["noise_check"] ? ' style="color: red;background-color: pink;" colspan="2">此2欄噪音值有誤' : '>' . $row_result[4] . '</td><td>' . $row_result[5]) . '</td>';
-                $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
-                $td_str .= '<td class="word_bk">' . $row_result[8] . (!$row_result["OSHORT_check"] || !$row_result["noise_check"] ? '<br><span style="background-color: pink;">注意：此列' . $errorMsg . '有誤' : '') . '</span></td>';
+                $td_str .= '<td>' . $row_result[4] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
+                $td_str .= '<td>' . $row_result[5] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
+                $td_str .= '<td>' . $row_result[6] . '</td>';
+                $td_str .= '<td>' . $row_result[7] . ((!$row_result["MONIT_LOCAL_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤('.mb_strlen($row_result[7], 'UTF-8').')</span>' : '') . '</td>';
+                $td_str .= '<td class="word_bk">' . $row_result[8] . ((!$row_result["WORK_DESC_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤('.mb_strlen($row_result[8], 'UTF-8').')</span>' : '') . '</td>';
                 echo $td_str;
                 break;
+
             case "shStaff":
                 $td_str  = '<td>' . $row_result[0] . '</td><td>' . $row_result[1] .  '</td>';
-                $td_str .= '<td'  . (!$row_result["emp_id_check"] ? ' style="color:red;background-color:pink;">此欄有誤' : '>' . $row_result[2]) . '</td><td>' . $row_result[3]. '</td>';
-                $td_str .= '<td'  . (!$row_result["OSHORT_check"] ? ' style="color:red;background-color:pink;">此欄有誤' : '>' . $row_result[4]) . '</td><td>' . $row_result[5]. '</td>';
+                $td_str .= '<td'  . (!$row_result["emp_id_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[2]) . '</td><td>' . $row_result[3]. '</td>';
+                $td_str .= '<td'  . (!$row_result["OSHORT_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[4]) . '</td><td>' . $row_result[5]. '</td>';
                 $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
                 echo $td_str;
                 break;
@@ -310,14 +319,17 @@
     }
     // 构建错误消息
     function generateErrorMessage($submit, $row_result, $item_check) {
-        $errorMsg = '';
-        $conCount = 0;
-        
+        $errorMsg = '';     // 訊息
+        $conCount = 0;      // 件數
+
+        $spans = "<span style='color: red;'>";
+        $spane = "</span>";
+
         switch($submit){
             case "snLocal":    
                 if(!$row_result["OSHORT_check"]){
-                    $errorMsg .= '<span style="color: red;">部門代碼</span>';
-                    $conCount = 0;
+                    $errorMsg .= $spans.'部門代碼'.$spane;
+                    $conCount++;
                 }
                 if (!$row_result["noise_check"]) {
                     foreach (['4' => '均能音量', '5' => '工作日8小時平均音壓值'] as $index => $message) {
@@ -325,10 +337,24 @@
                             if ($errorMsg !== '') {
                                 $errorMsg .= '錯誤與';
                             }
-                            $errorMsg .= '<span style="color: red;">' . $message . '</span>';
+                            $errorMsg .= $spans . $message . $spane;
                             $conCount++;
                         }
                     }
+                }
+                if(!$row_result["MONIT_LOCAL_check"]){
+                    if ($errorMsg !== '') {
+                        $errorMsg .= '錯誤與';
+                    }
+                    $errorMsg .= $spans.'監測處所(10)'.$spane;
+                    $conCount++;
+                }
+                if(!$row_result["WORK_DESC_check"]){
+                    if ($errorMsg !== '') {
+                        $errorMsg .= '錯誤與';
+                    }
+                    $errorMsg .= $spans.'作業描述(20)'.$spane;
+                    $conCount++;
                 }
                 break;
             case "supp":

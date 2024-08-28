@@ -177,8 +177,8 @@
                                         <th title="AVG_VOL">均能音量</th>
                                         <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
                                         <th title="MONIT_NO">監測編號</th>
-                                        <th title="MONIT_LOCAL">監測處所</th>
-                                        <th title="WORK_DESC">作業描述</th>
+                                        <th title="MONIT_LOCAL">監測處所(10)</th>
+                                        <th title="WORK_DESC">作業描述(20)</th>
                                         <th title="flag">開關</th>
                                         <th title="updated">最後更新</th>
                                     </tr>

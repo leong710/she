@@ -263,17 +263,28 @@
                     // 噪音驗證
                     if (sh_item === 'HE_CATE' && sh_value['HE_CATE'].includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                             // const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
-                        const eh_t    = false; // 預設 每日曝露時數 eh_t = false
+                            // const eh_t    = false; // 預設 每日曝露時數 eh_t = false
+
+                        // 個人shCase的噪音中，假如有含eh_t值，就導入使用。
+                        const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
+                        // 檢查元素是否存在+是否有值
+                        const eh_t_input_value = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
+
+                        const eh_t    = (sh_value['eh_t'])    ? sh_value['eh_t']    : eh_t_input_value;
                         const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                         const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-                        const noise_check = checkNoise(eh_t, avg_vol, avg_8hr);
+
+                        const noise_check = checkNoise(eh_t, avg_vol, avg_8hr);     // 呼叫[fun]
                         const noise_check_str = `${nbsp}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`;
+                        
                         document.getElementById(`NC,${select_empId}`).insertAdjacentHTML('beforeend', noise_check_str);
+
                     }
                 }
             });
         }
         // 240827 驗證噪音是否符合   // eh_t：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
+        // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
         function checkNoise(eh_t, avg_vol, avg_8hr) {
             const result = {
                 aSample : '不適用',
@@ -298,6 +309,7 @@
                 const { emp_id: select_empId, shCase } = emp_i;
                 if (shCase) {
                     Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
+                        console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
                         updateDOM(sh_value, select_empId, index + 1);
                     });
                 }
@@ -345,14 +357,28 @@
 
                     if (empData) {
                         // empData.shCase = empData.shCase || [];
-                        empData.shCase = [];
+                        empData.shCase = [];            // 直接清空，讓後面重新帶入
                         // 清空目前顯示的 DOM
-                        clearDOM(select_empId); // 你需要根據 select_empId 來清空對應的 DOM
+                        clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                         // 然後將新勾選的項目進行更新
                         selectedOptsValues.forEach((sov_vaule, index) => {
-                            empData.shCase[index] = shLocal_inf[sov_vaule];
-                            updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
+
+                            console.log('reload_shLocalTable_Listeners--empData.dept_no, OSHORT...', empData.dept_no, shLocal_inf[sov_vaule]['OSHORT']);
+                            // 過濾...emp的部門代號 與 shLocal的部門代號是否一致...才准許導入
+                            if(empData.dept_no == shLocal_inf[sov_vaule]['OSHORT']){
+                                empData.shCase[index] = shLocal_inf[sov_vaule];
+                                if(empData.shCase[index]['HE_CATE'] && empData.shCase[index]['HE_CATE'].includes('噪音')){
+                                    // 假如input有eh_t值，就導入使用。
+                                    const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
+                                    // 檢查元素是否存在+是否有值
+                                    empData.shCase[index]['eh_t'] = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
+                                }
+                                updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
+                            }else{
+                                inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
+                            }
                         });
+                        console.log('reload_shLocalTable_Listeners--empData...', empData);
                     }
                 };
                 // 添加新的監聽器
@@ -360,77 +386,77 @@
                 resolve();
             });
         }
-        // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位
-        let HECateClickListener;
-        async function reload_HECateTable_Listeners() {
-            return new Promise((resolve) => {
-                const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-                // 檢查並移除已經存在的監聽器
-                if (HECateClickListener) {
-                    HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                        tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                    })
-                }
-                // 定義新的監聽器函數
-                HECateClickListener = function () {
-                    const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                    const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                    $('#edit_shLocal #edit_shLocal_empId').empty().append(edit_emp_id); // 清空+填上工號
-                    $('#edit_shLocal tbody').empty();                       // 清空tbody
-                    Object.entries(staff_inf).forEach(([e_index, e_value]) => {
-                        if(e_value['emp_id'] === edit_emp_id){
-                            const shCase = e_value['shCase']
-                            // console.log('HECate--staff_inf...', e_index, shCase);
-                            if(shCase.length > 0){
-                                const shLocal_item_arr = ['id', 'OSTEXT_30', 'OSHORT', 'OSTEXT', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'MONIT_NO', 'MONIT_LOCAL', 'WORK_DESC'];
-                                Object.entries(shCase).forEach(([sh_i, sh_v])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                                    if(sh_v['id'] !== undefined || sh_v['no'] !== undefined){
-                                        let tr = '<tr>';
-                                        Object(shLocal_item_arr).forEach((item_i) => {
-                                            tr += (sh_v[item_i]) ? '<td>' + sh_v[item_i] + '</td>' : '<td></td>';
-                                        })
-                                        tr += `<td class="text-center"><input type="checkbox" name="edit_shLocal_id[]" value="${sh_i}" class="form-check-input" checked ></td>`;
-                                        tr += '</tr>';
-                                        $('#edit_shLocal_table tbody').append(tr);
-                                    }
-                                })
-                            }else{
-                                $('#edit_shLocal_table tbody').append('沒有資料');
-                            }
-                        }
-                    })
-                    edit_shLocal_modal.show();
-                }
-                // 添加新的監聽器
-                HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
-                })
-                resolve();
-            });
-        }
-        // 執行監聽 p2 edit_shLocal 之修正鈕呼叫 for p-2特作欄位
-        async function editShLocal_toShCase(){
-            const select_empId = document.querySelector('#edit_shLocal #edit_shLocal_empId').innerText;
-            const selectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-            const unselectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
-            const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                // // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位
+                // let HECateClickListener;
+                // async function reload_HECateTable_Listeners() {
+                //     return new Promise((resolve) => {
+                //         const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
+                //         // 檢查並移除已經存在的監聽器
+                //         if (HECateClickListener) {
+                //             HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                //                 tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                //             })
+                //         }
+                //         // 定義新的監聽器函數
+                //         HECateClickListener = function () {
+                //             const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                //             const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
+                //             $('#edit_shLocal #edit_shLocal_empId').empty().append(edit_emp_id); // 清空+填上工號
+                //             $('#edit_shLocal tbody').empty();                       // 清空tbody
+                //             Object.entries(staff_inf).forEach(([e_index, e_value]) => {
+                //                 if(e_value['emp_id'] === edit_emp_id){
+                //                     const shCase = e_value['shCase']
+                //                     // console.log('HECate--staff_inf...', e_index, shCase);
+                //                     if(shCase.length > 0){
+                //                         const shLocal_item_arr = ['id', 'OSTEXT_30', 'OSHORT', 'OSTEXT', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'MONIT_NO', 'MONIT_LOCAL', 'WORK_DESC'];
+                //                         Object.entries(shCase).forEach(([sh_i, sh_v])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                //                             if(sh_v['id'] !== undefined || sh_v['no'] !== undefined){
+                //                                 let tr = '<tr>';
+                //                                 Object(shLocal_item_arr).forEach((item_i) => {
+                //                                     tr += (sh_v[item_i]) ? '<td>' + sh_v[item_i] + '</td>' : '<td></td>';
+                //                                 })
+                //                                 tr += `<td class="text-center"><input type="checkbox" name="edit_shLocal_id[]" value="${sh_i}" class="form-check-input" checked ></td>`;
+                //                                 tr += '</tr>';
+                //                                 $('#edit_shLocal_table tbody').append(tr);
+                //                             }
+                //                         })
+                //                     }else{
+                //                         $('#edit_shLocal_table tbody').append('沒有資料');
+                //                     }
+                //                 }
+                //             })
+                //             edit_shLocal_modal.show();
+                //         }
+                //         // 添加新的監聽器
+                //         HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                //             tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
+                //         })
+                //         resolve();
+                //     });
+                // }
+                // // 執行監聽 p2 edit_shLocal 之修正鈕呼叫 for p-2特作欄位
+                // async function editShLocal_toShCase(){
+                //     const select_empId = document.querySelector('#edit_shLocal #edit_shLocal_empId').innerText;
+                //     const selectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
+                //     const unselectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
+                //     const empData = staff_inf.find(emp => emp.emp_id === select_empId);
 
-            if (empData) {
-                empData.shCase = empData.shCase || [];
-                // 先移除未勾選的項目
-                Object.entries(unselectedOptsValues).forEach(([us_key, us_value])=>{
-                    delete empData.shCase[us_value];
-                })
-                // 清空目前顯示的 DOM
-                clearDOM(select_empId); // 你需要根據 select_empId 來清空對應的 DOM
-                // 然後將新勾選的項目進行更新
-                selectedOptsValues.forEach((sov_value, index) => {
-                    // 更新 DOM
-                    updateDOM(shLocal_inf[sov_value], select_empId, index + 1);
-                });
-                inside_toast(`更新特作資料...Done&nbsp;!!`); // [fun.0-2]
-            }
-        }
+                //     if (empData) {
+                //         empData.shCase = empData.shCase || [];
+                //         // 先移除未勾選的項目
+                //         Object.entries(unselectedOptsValues).forEach(([us_key, us_value])=>{
+                //             delete empData.shCase[us_value];
+                //         })
+                //         // 清空目前顯示的 DOM
+                //         clearDOM(select_empId); // 你需要根據 select_empId 來清空對應的 DOM
+                //         // 然後將新勾選的項目進行更新
+                //         selectedOptsValues.forEach((sov_value, index) => {
+                //             // 更新 DOM
+                //             updateDOM(shLocal_inf[sov_value], select_empId, index + 1);
+                //         });
+                //         inside_toast(`更新特作資料...Done&nbsp;!!`); // [fun.0-2]
+                //     }
+                // }
 
 
     // [p-1]
@@ -512,17 +538,62 @@
             return new Promise((resolve) => {
                 // step-1. 在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
-                // step-2.[load_excel] 以下為上傳後"iframe"的部分
-                    // step-2-1. p-2 監控按下送出鍵後，打開"iframe"
+                // step-1-1a. p-1 監聽步驟1[棟別]的checkbox變化
+                const OSHORTsDiv = document.getElementById('OSHORTs');               // 定義OSHORTsDiv變量
+                const OSHORTs_opts = document.getElementById('OSHORTs_opts_inside'); // 定義OSHORTs_opts變量
+                OSTEXT_30s.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.value === 'All') {
+                            OSTEXT_30s.forEach(cb => cb.checked = this.checked); // 全選或取消全選
+                        } else {
+                            const allCheckbox = OSTEXT_30s.find(cb => cb.value === 'All');
+                            const nonAllCheckboxes = OSTEXT_30s.filter(cb => cb.value !== 'All');
+                            allCheckbox.checked = nonAllCheckboxes.every(cb => cb.checked); // 更新"All"狀態
+                        }
+
+                        const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
+                        OSTEXT_30_Out.classList.toggle('is-invalid', selectedValues.length === 0);
+                        OSTEXT_30_Out.classList.toggle('is-valid', selectedValues.length > 0);
+
+                        mk_OSHORTs(selectedValues); // 呼叫函數-1生成部門代號字串
+                    });
+                });
+                    // step-1-1b. p-1 初始化監聽器
+                    rebindOSHORTsOptsListeners();
+                // step-1-2a. p-1 使用MutationObserver監控OSHORTs區域內文本變化
+                const observer = new MutationObserver(() => {
+                    const isEmpty = OSHORTsDiv.innerText.trim() === '';
+                    OSHORTs_opts.classList.toggle('is-invalid', isEmpty);
+                    OSHORTs_opts.classList.toggle('is-valid', !isEmpty);
+
+                    // 每次 OSHORTs 變動時也更新 select_OSHORTs 的內容
+                    mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]')));
+                });
+                    // step-1-2b. p-1 設置觀察選項並開始監控
+                    observer.observe(OSHORTsDiv, { childList: true, subtree: true }); 
+                // step-1-3. p-1 監聽 load_hrdb_btn 取得人事資料庫
+                load_hrdb_btn.addEventListener('click', function() {
+                    const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
+                    // $('#shLocal_table tbody').empty();
+                    // load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
+                    // load_fun('load_shLocal', select_OSHORTs_str, mgInto_shLocal_inf);   // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併 // 動作合併到mgInto_staff_inf裡面去執行
+                    // $('#hrdb_table tbody').empty();
+                    // load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
+                    load_fun('load_hrdb', select_OSHORTs_str, mgInto_staff_inf);         // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
+                    inside_toast('取得&nbsp;hrdb員工清單...Done&nbsp;!!');
+                    $('#nav-p2-tab').tab('show');                                       // 切換頁面
+                });
+                // step-3.[load_excel] 以下為上傳後"iframe"的部分
+                    // step-3-1. p-2 監控按下送出鍵後，打開"iframe"
                     excelUpload.addEventListener('click', ()=> {
                         iframeLoadAction();
                         loadExcelForm();
                     });
-                    // step-2-2. p-2 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+                    // step-3-2. p-2 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
                     iframe.addEventListener('load', ()=> {
                         iframeLoadAction();
                     });
-                    // step-2-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
+                    // step-3-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
                     import_excel_btn.addEventListener('click', ()=> {
                         var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                         var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
@@ -541,58 +612,9 @@
                         }
                     });
 
-                const OSHORTsDiv = document.getElementById('OSHORTs');               // 定義OSHORTsDiv變量
-                const OSHORTs_opts = document.getElementById('OSHORTs_opts_inside'); // 定義OSHORTs_opts變量
-
-                // [步驟-1-5] 監聽步驟1[棟別]的checkbox變化
-                OSTEXT_30s.forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        if (this.value === 'All') {
-                            OSTEXT_30s.forEach(cb => cb.checked = this.checked); // 全選或取消全選
-                        } else {
-                            const allCheckbox = OSTEXT_30s.find(cb => cb.value === 'All');
-                            const nonAllCheckboxes = OSTEXT_30s.filter(cb => cb.value !== 'All');
-                            allCheckbox.checked = nonAllCheckboxes.every(cb => cb.checked); // 更新"All"狀態
-                        }
-
-                        const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
-                        OSTEXT_30_Out.classList.toggle('is-invalid', selectedValues.length === 0);
-                        OSTEXT_30_Out.classList.toggle('is-valid', selectedValues.length > 0);
-
-                        mk_OSHORTs(selectedValues); // 呼叫函數-1生成部門代號字串
-                    });
-                });
-
-                // 初始化監聽器
-                rebindOSHORTsOptsListeners();
-
-                // 使用MutationObserver監控OSHORTs區域內文本變化
-                const observer = new MutationObserver(() => {
-                    const isEmpty = OSHORTsDiv.innerText.trim() === '';
-                    OSHORTs_opts.classList.toggle('is-invalid', isEmpty);
-                    OSHORTs_opts.classList.toggle('is-valid', !isEmpty);
-
-                    // 每次 OSHORTs 變動時也更新 select_OSHORTs 的內容
-                    mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]')));
-                });
-                observer.observe(OSHORTsDiv, { childList: true, subtree: true }); // 設置觀察選項並開始監控
-
-                // 監聽 p1 load_hrdb_btn 取得人事資料庫
-                load_hrdb_btn.addEventListener('click', function() {
-                    const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
-                    // $('#shLocal_table tbody').empty();
-                    // load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
-                    // load_fun('load_shLocal', select_OSHORTs_str, mgInto_shLocal_inf);   // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併 // 動作合併到mgInto_staff_inf裡面去執行
-                    // $('#hrdb_table tbody').empty();
-                    // load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
-                    load_fun('load_hrdb', select_OSHORTs_str, mgInto_staff_inf);         // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
-                    inside_toast('取得&nbsp;hrdb員工清單...Done&nbsp;!!');
-                    $('#nav-p2-tab').tab('show');                                       // 切換頁面
-                });
-
-                // 監聽 p2 edit_shLocal 之修正鈕
-                const editShLocalBtn = document.getElementById('edit_shLocal_btn');
-                editShLocalBtn.addEventListener('click', editShLocal_toShCase)
+                        // // step-1-4. p-2 監聽互動視窗 edit_shLocal 之修正鈕
+                        // const editShLocalBtn = document.getElementById('edit_shLocal_btn');
+                        // editShLocalBtn.addEventListener('click', editShLocal_toShCase)
 
                 // 當所有設置完成後，resolve Promise
                 resolve();
@@ -642,7 +664,7 @@
                     tr += `<td class="text-center">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
                             data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
                     tr += `<td id="MONIT_LOCAL,${emp_i.emp_id}"></td> <td id="WORK_DESC,${emp_i.emp_id}"></td> <td id="HE_CATE,${emp_i.emp_id}" class="HE_CATE"></td> <td id="AVG_VOL,${emp_i.emp_id}"></td> <td id="AVG_8HR,${emp_i.emp_id}"></td>`;
-                    tr += `<td><input type="number" id="eh_t,${emp_i.emp_id}" name="eh_t" class="form-control" onchange="change_eh_t(this.id, this.value)"></td> <td id="NC,${emp_i.emp_id}"></td>`;
+                    tr += `<td><input type="number" id="eh_t,${emp_i.emp_id}" name="eh_t" class="form-control" onchange="change_eh_t(this.id, this.value)" ></td> <td id="NC,${emp_i.emp_id}"></td>`;
 
                     tr += `<td class="text-center"><input type="checkbox" id="SH3,${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >`;
                     tr += `&nbsp;&nbsp;<button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></td>`;
@@ -654,8 +676,22 @@
             }
             $("body").mLoading("hide");
         }
-    function change_eh_t(val1, val2){
-        console.log('val...', val1, val2);
+    // p-2 當有輸入每日暴露時數eh_t時...
+    function change_eh_t(this_id, this_value){       // this.id, this.value
+        const this_id_arr = this_id.split(',')       // 分割this.id成陣列
+        const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
+
+        const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+        if (empData) {
+            empData.shCase = empData.shCase || [];
+            // 然後將暴露時數eh_t值 進行更新對應的empId下shCase含'噪音'的項目中。
+            empData.shCase.forEach((sh_v, sh_i) => {
+                if((sh_v['HE_CATE'] != undefined ) && sh_v['HE_CATE'].includes('噪音')){
+                    empData.shCase[sh_i]['eh_t'] = Number(this_value);
+                }
+            });
+        }
+        console.log('change_eh_t--staff_inf..', empData);
     }
 
     // [p-2]
@@ -830,8 +866,5 @@
 
         let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         Balert( message, 'warning')
-
-        const result = checkNoise(5, 95, 95);
-        console.log('checkNoise--result...', result);
 
     });

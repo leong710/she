@@ -241,10 +241,10 @@
                                         <th title="">工作場所</th>
                                         <th title="">工作內容</th>
                                         <th title="">檢查類別代號</th>
-                                        <th title="">均能音量</th>
-                                        <th title="工作日8小時">平均音壓</th>
-                                        <th title="累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
-                                        <th title="">噪音資格</th>
+                                        <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom">均能音量</th>
+                                        <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom">平均音壓</th>
+                                        <th title="eh_t 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
+                                        <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
                                         <th title="">特檢資格</th>
                                         <th title="HIRED">到職日</th>
                                     </tr>
