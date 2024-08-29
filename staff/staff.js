@@ -285,8 +285,20 @@
 
                         const noise_check = checkNoise(eh_t, avg_vol, avg_8hr);     // 呼叫[fun]
                         const noise_check_str = `${nbsp}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`;
-                        
                         document.getElementById(`NC,${select_empId}`).insertAdjacentHTML('beforeend', noise_check_str);
+
+                                // 紀錄個人(噪音)特檢資格...是=true；未達、不適用=delete
+                                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                                const i_index = sh_key_up - 1;
+                                console.log('updateDOM--empData...', empData);
+                                if(noise_check['cCheck'] == '是'){
+                                    empData['condition'][i_index] = true;
+                                }else{
+                                    // if(empData.shCase['condition'][i_index] !== undefined){
+                                    //     delete empData.shCase['condition'][i_index];
+                                    // }
+                                    empData['condition'][i_index] = false;
+                                }
                     }
                 }
             });
@@ -371,7 +383,8 @@
 
                     if (empData) {
                         // empData.shCase = empData.shCase || [];
-                        empData.shCase = [];            // 直接清空，讓後面重新帶入
+                        empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入
+                        empData.condition = [];         // 特檢資格：直接清空，讓後面重新帶入
                         // 清空目前顯示的 DOM
                         clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                         // 然後將新勾選的項目進行更新
@@ -391,7 +404,7 @@
                                 inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
                             }
                         });
-                        // console.log('reload_shLocalTable_Listeners--empData...', empData);
+                        console.log('reload_shLocalTable_Listeners--empData...', empData);
                     }
                 };
                 // 添加新的監聽器
@@ -693,29 +706,26 @@
     function change_eh_t(this_id, this_value){       // this.id, this.value
         const this_id_arr = this_id.split(',')       // 分割this.id成陣列
         const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
-
         // step-1 將每日暴露時數eh_t存到指定staff_inf
-        const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-        if (empData) {
-            empData.shCase = empData.shCase || [];
-            // 然後將暴露時數eh_t值 進行更新對應的empId下shCase含'噪音'的項目中。
-            empData.shCase.forEach((sh_v, sh_i) => {
-                if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
-                    empData.shCase[sh_i]['eh_t'] = Number(this_value);
-                }
-            });
-        }
-        console.log('change_eh_t--staff_inf..', empData);
-        // step-2 更新噪音資格
-        // post_shCase(empData);
-        clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
-        const { shCase } = empData;
-        if (shCase) {
-            Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                // console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
-                updateDOM(sh_value, select_empId, index + 1);
-            });
-        }
+            const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+            if (empData) {
+                empData.shCase = empData.shCase || [];
+                // 然後將暴露時數eh_t值 進行更新對應的empId下shCase含'噪音'的項目中。
+                empData.shCase.forEach((sh_v, sh_i) => {
+                    if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
+                        empData.shCase[sh_i]['eh_t'] = Number(this_value);
+                    }
+                });
+            }
+            // console.log('change_eh_t--staff_inf..', empData);
+        // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
+            clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
+            const { shCase } = empData;
+            if (shCase) {
+                Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
+                    updateDOM(sh_value, select_empId, index + 1);
+                });
+            }
     }
 
     // [p-2]
