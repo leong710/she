@@ -189,7 +189,12 @@
                                             <td><?php echo $shLocal['OSTEXT_30'];?></td>
                                             <td><?php echo $shLocal['OSHORT'];?></td>
                                             <td><?php echo $shLocal['OSTEXT'];?></td>
-                                            <td><?php echo $shLocal['HE_CATE'];?></td>
+                                            <td><?php 
+                                                    $HE_CATE = trim($shLocal['HE_CATE'], '{}');  // 去除開頭和結尾的 {} 字符
+                                                    $HE_CATE = str_replace('"', '', $HE_CATE);   // 去除所有的 " 字符
+                                                    $HE_CATE = str_replace(',', '<br>', $HE_CATE); // 替換逗號為 <br>
+                                                    echo $HE_CATE;
+                                            ?></td>
 
                                             <td><?php echo $shLocal['AVG_VOL'];?></td>
                                             <td><?php echo $shLocal['AVG_8HR'];?></td>

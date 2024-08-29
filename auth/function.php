@@ -57,7 +57,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute([$user]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
             return $user;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -143,7 +143,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $users = $stmt->fetchAll();
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $users;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -159,7 +159,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $sites = $stmt->fetchAll();
+            $sites = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $sites;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -175,7 +175,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $fabs = $stmt->fetchAll();
+            $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -193,7 +193,7 @@
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();
-            $depts = $stmt->fetchAll();
+            $depts = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $depts;
         }catch(PDOException $e){
             echo $e->getMessage();

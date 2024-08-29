@@ -17,24 +17,41 @@
             avgVolInput.classList.remove('is-valid');
             avg8HrInput.classList.remove('is-valid');
         }
+        function checkAVG(noiseCheckbox){
+            if(noiseCheckbox){
+                if(avgVolInput.value){
+                    avgVolInput.classList.add('is-valid');
+                }
+                if(avg8HrInput.value){
+                    avg8HrInput.classList.add('is-valid');
+                }
+            }
+        }
 
     // 240815 清除he_cate required
     function remove_required(){
         const heCateContainer = document.getElementById('HE_CATE');
         const heCates = Array.from(heCateContainer.querySelectorAll('input[type="checkbox"]'));
-        heCates.forEach(() => {
-            const selectedValues = heCates.filter(cb => cb.checked).map(cb => cb.value);
-            console.log('he_cate...', this.value, this.checked);
-            if (selectedValues.length > 0) { // 有選
-                heCateContainer.classList.remove('is-invalid');
-                heCateContainer.classList.add('is-valid');
-                heCates.forEach(cb => cb.required = false);
-            } else { // 沒選
-                heCateContainer.classList.remove('is-valid');
-                heCateContainer.classList.add('is-invalid');
-                heCates.forEach(cb => cb.required = true);
+        const selectedItems = {};
+        // const selectedValues = heCates.filter(cb => cb.checked).map(cb => cb.value);
+        heCates.forEach((cb) => {
+            if (cb.checked) {
+                const key = cb.getAttribute('data-key');
+                const value = cb.value;
+                selectedItems[key] = value;
             }
         });
+        console.log(selectedItems);
+        
+        if (Object.keys(selectedItems).length > 0) { // 有選
+            heCateContainer.classList.remove('is-invalid');
+            heCateContainer.classList.add('is-valid');
+            heCates.forEach(cb => cb.required = false);
+        } else { // 沒選
+            heCateContainer.classList.remove('is-valid');
+            heCateContainer.classList.add('is-invalid');
+            heCates.forEach(cb => cb.required = true);
+        }
     }
 
 
@@ -279,19 +296,18 @@
     // edit 主函數
     function edit_show(shLocal_row){
         // edit 內容呈現
-            const he_cate_input = document.querySelectorAll('#HE_CATE input');
             const OSTEXT30_select = document.querySelectorAll('#OSTEXT_30 option');
+            const he_cate_input = document.querySelectorAll('#HE_CATE input');
             for (const [sh_key, sh_value] of Object.entries(shLocal_row)) {
                 if(sh_value !== null){                          // 預防空值null
                     if(typeof sh_value === 'object'){           // 特例處理1.for checkBox he_cate類別
-                        sh_value.forEach((item_value)=>{
+                        Object.entries(sh_value).forEach(([item_key ,item_value])=>{
                             he_cate_input.forEach((he_cate_i)=>{
-                                // he_cate_i.checked = (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)); // 有bug
                                 if (item_value.includes(he_cate_i.value) || (item_value == he_cate_i.value)) {
                                     he_cate_i.checked = true;
-                                    const heCateDiv = document.getElementById('HE_CATE');
-                                    heCateDiv.classList.remove('is-invalid');
-                                    heCateDiv.classList.add('is-valid');
+                                    // const heCateDiv = document.getElementById('HE_CATE');
+                                    // heCateDiv.classList.remove('is-invalid');
+                                    // heCateDiv.classList.add('is-valid');
                                 }
                             })
                         })
@@ -307,6 +323,8 @@
                     }
                 }
             }
+            const noiseCheckbox = document.querySelector('#HE_CATE input[type="checkbox"][value="噪音"]');
+            checkAVG(noiseCheckbox.checked);
 
         let sinn = action + '&nbsp模式開啟，表單套用成功&nbsp!!';
         inside_toast(sinn);
@@ -345,6 +363,7 @@
                 mloading(); 
                 await eventListener();                      // step_1-2 eventListener();
             if(action == "edit" || action == "review" ){
+                await load_fun('edit_shLocal', id, console.log);   // step_2 load_shLocal(id);
                 await load_fun('edit_shLocal', id, edit_show);   // step_2 load_shLocal(id);
             }
         } catch (error) {

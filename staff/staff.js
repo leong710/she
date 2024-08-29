@@ -134,6 +134,9 @@
     // [p-0]
         // 240823 將匯入資料合併到shLocal_inf
         async function mgInto_shLocal_inf(new_shLocal_arr){
+            Object.keys(new_shLocal_arr).forEach((new_sh_key) => {
+                new_shLocal_arr[new_sh_key]['HE_CATE'] = JSON.parse(new_shLocal_arr[new_sh_key]['HE_CATE']);
+            })
             // 240826 進行shLocal_inf重複值的比對並合併
             shLocal_inf = shLocal_inf.concat(new_shLocal_arr);   // 合併
             let uniqueMap = new Map();      // 使用 Map 來去重
@@ -258,10 +261,16 @@
             shLocal_item_arr.forEach((sh_item) => {
                 if (sh_value[sh_item]) {
                     const nbsp = sh_key_up > 1 ? '<br>' : '';
-                    const inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
+                    let inner_Value = '';
+                    if (sh_item === 'HE_CATE'){
+                        let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
+                        inner_Value = `${nbsp}${sh_key_up}: ${he_cate_str}`;
+                    }else{
+                        inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
+                    }
                     document.getElementById(`${sh_item},${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
                     // 噪音驗證
-                    if (sh_item === 'HE_CATE' && sh_value['HE_CATE'].includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                    if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                             // const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
                             // const eh_t    = false; // 預設 每日曝露時數 eh_t = false
 
@@ -278,7 +287,6 @@
                         const noise_check_str = `${nbsp}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`;
                         
                         document.getElementById(`NC,${select_empId}`).insertAdjacentHTML('beforeend', noise_check_str);
-
                     }
                 }
             });
@@ -309,7 +317,7 @@
                 const { emp_id: select_empId, shCase } = emp_i;
                 if (shCase) {
                     Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                        console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
+                        // console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
                         updateDOM(sh_value, select_empId, index + 1);
                     });
                 }
@@ -326,6 +334,12 @@
                     // console.log(sh_i);
                     let tr = '<tr>';
                     Object.entries(sh_i).forEach(([s_key, s_value]) => {
+                        if(s_key == 'HE_CATE'){
+                            s_value = JSON.stringify(s_value);
+                            s_value = s_value.replace(/[{"}]/g, '');
+                            // // s_value = s_value.replace(/"/g, '');
+                            s_value = s_value.replace(/,/g, '<br>');
+                        }
                         tr += '<td>' + s_value + '</td>';
                     })
                     tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
@@ -363,11 +377,10 @@
                         // 然後將新勾選的項目進行更新
                         selectedOptsValues.forEach((sov_vaule, index) => {
 
-                            console.log('reload_shLocalTable_Listeners--empData.dept_no, OSHORT...', empData.dept_no, shLocal_inf[sov_vaule]['OSHORT']);
                             // 過濾...emp的部門代號 與 shLocal的部門代號是否一致...才准許導入
                             if(empData.dept_no == shLocal_inf[sov_vaule]['OSHORT']){
                                 empData.shCase[index] = shLocal_inf[sov_vaule];
-                                if(empData.shCase[index]['HE_CATE'] && empData.shCase[index]['HE_CATE'].includes('噪音')){
+                                if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
                                     // 假如input有eh_t值，就導入使用。
                                     const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
                                     // 檢查元素是否存在+是否有值
@@ -378,7 +391,7 @@
                                 inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
                             }
                         });
-                        console.log('reload_shLocalTable_Listeners--empData...', empData);
+                        // console.log('reload_shLocalTable_Listeners--empData...', empData);
                     }
                 };
                 // 添加新的監聽器
@@ -681,17 +694,28 @@
         const this_id_arr = this_id.split(',')       // 分割this.id成陣列
         const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
 
+        // step-1 將每日暴露時數eh_t存到指定staff_inf
         const empData = staff_inf.find(emp => emp.emp_id === select_empId);
         if (empData) {
             empData.shCase = empData.shCase || [];
             // 然後將暴露時數eh_t值 進行更新對應的empId下shCase含'噪音'的項目中。
             empData.shCase.forEach((sh_v, sh_i) => {
-                if((sh_v['HE_CATE'] != undefined ) && sh_v['HE_CATE'].includes('噪音')){
+                if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
                     empData.shCase[sh_i]['eh_t'] = Number(this_value);
                 }
             });
         }
         console.log('change_eh_t--staff_inf..', empData);
+        // step-2 更新噪音資格
+        // post_shCase(empData);
+        clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
+        const { shCase } = empData;
+        if (shCase) {
+            Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
+                // console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
+                updateDOM(sh_value, select_empId, index + 1);
+            });
+        }
     }
 
     // [p-2]

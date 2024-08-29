@@ -33,7 +33,8 @@
                         }
                         $shLocal = $stmt->fetch(PDO::FETCH_ASSOC);
                         // 把特定json轉物件
-                        $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
+                        // $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
+                        $shLocal["HE_CATE"] = json_decode($shLocal["HE_CATE"]);
 
                         // 製作返回文件
                         $result = [
@@ -50,6 +51,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
             break;
+
             case 'truncate_shLocal':               // 清空_shLocal
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "truncate_shLocal",
@@ -95,6 +97,7 @@
                     ];
                 }
             break;
+
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",
@@ -125,6 +128,7 @@
                     ];
                 }
             break;
+            
             default:
                 // $result['error'] = 'Load '.$fun.' failed...(function)';
         };

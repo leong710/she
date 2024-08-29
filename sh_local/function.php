@@ -210,7 +210,9 @@
         );
         
         $OSHORT = trim($OSHORT);
-        $HE_CATE_str = implode(",", $HE_CATE);
+        // $HE_CATE_str = implode(",", $HE_CATE);
+        $HE_CATE_str = json_encode($HE_CATE, JSON_UNESCAPED_UNICODE);  // 中文不編碼
+        // $HE_CATE_str = json_encode($HE_CATE);
 
         $sql = "INSERT INTO _shlocal( OSHORT, OSTEXT_30, OSTEXT, HE_CATE, AVG_VOL,   AVG_8HR, MONIT_NO, MONIT_LOCAL, WORK_DESC, flag,   updated_cname, updated_at, created_at )
                 VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,now(),now())";
@@ -237,7 +239,8 @@
             $stmt->execute([$id]);
             $shLocal = $stmt->fetch();
             // 把特定json轉物件
-            $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
+            // $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
+            $shLocal["HE_CATE"] = json_decode($shLocal["HE_CATE"]);
             return $shLocal;
         }catch(PDOException $e){
             echo $e->getMessage();
@@ -254,7 +257,8 @@
         );
         
         $OSHORT = trim($OSHORT);
-        $HE_CATE_str = implode(",", $HE_CATE);
+        // $HE_CATE_str = implode(",", $HE_CATE);
+        $HE_CATE_str = json_encode($HE_CATE, JSON_UNESCAPED_UNICODE);
 
         $sql = "UPDATE _shlocal
                 SET OSHORT=?, OSTEXT_30=?, OSTEXT=?, HE_CATE=?, AVG_VOL=?,   AVG_8HR=?, MONIT_NO=?, MONIT_LOCAL=?, WORK_DESC=?, flag=?,   updated_cname=?, updated_at=now()
@@ -308,49 +312,58 @@
     function check_HE_CATE($request){
         $pdo = pdo();
         extract($request);
-
+    
         $OSHORT      = isset($OSHORT)       ? $OSHORT       : "";
         $HE_CATE_str = isset($HE_CATE_str)  ? $HE_CATE_str  : "";
         $LIKE_OSHORT = "%".$OSHORT."%";
-        $HE_CATE_arr = explode(",", $HE_CATE_str);
-
+        $HE_CATE_arr = json_decode($HE_CATE_str, true);  // 確保是陣列
+    
         // 檢查OSHORT部門代號是否已經有註冊
         $sql_check = "SELECT _sh.id, _sh.OSHORT, _sh.HE_CATE FROM _shlocal _sh WHERE _sh.OSHORT LIKE ?";
         $stmt_check = $pdo -> prepare($sql_check);
         $stmt_check -> execute([$LIKE_OSHORT]);
-
+    
         // 初始化找到的項目集合
         $found_items = [];
         $loss_item = [];
-        if($stmt_check -> rowCount() >0){     
+    
+        if($stmt_check -> rowCount() > 0){     
             $row = $stmt_check->fetchAll(PDO::FETCH_ASSOC);         // no index
             foreach($row as $r){                                    // 第一層迴圈：資料庫
-                $r_HE_CATE_arr = explode(",", $r['HE_CATE']);       // 炸開成array
-                foreach($HE_CATE_arr as $key_i){                    // 第二層迴圈：來源比對key_word
-                    if(in_array($key_i, $r_HE_CATE_arr)) {          // 注意：大小寫、字數需完全一致
-                        $found_items[] = $key_i;
-                        echo "<br>Find... ".$key_i;
+                $r_HE_CATE_arr = json_decode($r['HE_CATE'], true);  // 確保是陣列
+
+                // 確保 $r_HE_CATE_arr 是一個有效的陣列
+                if (is_array($r_HE_CATE_arr)) {
+                    foreach($HE_CATE_arr as $key_i){
+                        if (in_array($key_i, $r_HE_CATE_arr)) {
+                            $found_items[] = $key_i;
+                            echo "<br>Find... ".$key_i;
+                        }
                     }
                 }
             }
         }
         
         // 計算未找到的項目
-        $loss_item = array_diff($HE_CATE_arr, $found_items);
+        if (is_array($HE_CATE_arr) && is_array($found_items)) {
+            $loss_item = array_diff($HE_CATE_arr, $found_items);
+        } else {
+            $loss_item = [];
+        }
+        
         if(!empty($loss_item)){
             $loss_item_str = implode('、', $loss_item);
-            // echo "<script>alert('請確認 {$OSHORT} 其[ {$loss_item_str} ]是否已完成環測 !!')</script>";
-            // echo "<script>swal('請確認 {$OSHORT}' ,'其[ {$loss_item_str} ]是否已完成環測 !!' ,'warning').then(()=>{history.back()});     // 手動回上頁</script>";
             $swal_json = array(                                 // for swal_json
                 "fun"       => "請確認 {$OSHORT}",
                 "content"   => "其[ {$loss_item_str} ]是否已完成環測 !!",
                 "action"    => "warning"
             );
-        }else{
+        } else {
             $swal_json = [];
         }
         return $swal_json;
     }
+    
 
     // API隱藏或開啟
     function changeShLocal_flag($request){

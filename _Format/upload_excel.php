@@ -8,6 +8,18 @@
 
     use PhpOffice\PhpSpreadsheet\IOFactory;
 
+            // 將HE_CATE字串轉成陣列...
+            function parseString($inputStr) {
+                $result = [];
+                $pairs = explode(',', $inputStr);               // 拆分字串，取得每個 key:value 配對
+                foreach ($pairs as $pair) {
+                    list($key, $value) = explode(':', $pair);   // 拆分 key 和 value
+                    $result[$key] = $value;                     // 儲存到結果陣列中
+                }
+                $result = json_encode($result, JSON_UNESCAPED_UNICODE );       // 類別轉中文字串
+                return $result;
+            }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['excelUpload'])) {
             
@@ -57,7 +69,8 @@
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
-                            $row[3] = str_replace('、', ',', $row[3]);   // 類別 符號轉逗號
+                            $row[3] = str_replace('、', ',', $row[3]);   // 類別 全形符號轉逗號
+                            $row[3] = parseString($row[3]);              // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
 
                             // 1.檢查OSHORT $row[1]是否空值
                                 $OSHORT_check = (!empty($row[1])) ? true : false;

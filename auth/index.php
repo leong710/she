@@ -19,9 +19,6 @@
     $showAllUsers = showAllUsers("all");
 
     $depts = show_dept();
-    // $sites = show_site();
-    // $fabs = show_fab();
-    
 
 ?>
 <?php include("../template/header.php"); ?>
@@ -308,9 +305,9 @@
                                 <div class="form-floating">
                                     <select name="sign_code" id="sign_code" class="form-select" required>
                                         <option value="" selected hidden>--請選擇所屬部門--</option>
-                                        <?php if($depts['up_sign_code']){ ?>
-                                            <option value="<?php echo $depts['up_sign_code'];?>" ><?php echo $depts['up_sign_dept']."(".$depts['up_sign_code'].")";?></option>
-                                        <?php } ?>
+                                        <!-- <php if($depts['up_sign_code']){ ?>
+                                            <option value="<php echo $depts['up_sign_code'];?>" ><php echo $depts['up_sign_dept']."(".$depts['up_sign_code'].")";?></option>
+                                        <php } ?> -->
                                         <?php foreach($depts as $dept){ ?>
                                             <option value="<?php echo $dept['sign_code'];?>" ><?php echo $dept['up_sign_dept'] != "" ? $dept['up_sign_dept']." / ":""; echo $dept['sign_dept']." (".$dept['sign_code'].")";?></option>
                                         <?php } ?>

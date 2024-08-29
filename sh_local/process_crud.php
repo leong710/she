@@ -11,7 +11,7 @@
         extract($request);
         $query_arr = [                                  // 打包問項
             "OSHORT"      => trim($OSHORT),             // 部門代號
-            "HE_CATE_str" => implode(",", $HE_CATE)     // 特作
+            "HE_CATE_str" => json_encode($HE_CATE, JSON_UNESCAPED_UNICODE)       // 特作
         ];
         return check_HE_CATE($query_arr);                      // 比對提醒~
     }
