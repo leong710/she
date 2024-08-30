@@ -241,12 +241,12 @@
                                         <th title="">工作場所</th>
                                         <th title="">工作內容</th>
                                         <th title="">檢查類別代號</th>
-                                        <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom">均能音量</th>
-                                        <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom">平均音壓</th>
+                                        <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">均能音量</th>
+                                        <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
                                         <th title="eh_t 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
                                         <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
-                                        <th title="">特檢資格</th>
-                                        <th title="HIRED">到職日</th>
+                                        <th title="" style="width: 70px;">特檢資格</th>
+                                        <th title="shCondition" data-toggle="tooltip" data-placement="bottom">資格驗證</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -315,7 +315,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">挑選危害健康作業&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
+                    <h5 class="modal-title">挑選作業位置&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-4">
@@ -341,42 +341,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
-
-    <!-- 互動視窗 edit_shLocal -->
-    <div class="modal fade" id="edit_shLocal" tabindex="-1" aria-labelledby="edit_shLocal" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">修正危害健康作業&nbsp;(<snap id="edit_shLocal_empId"></snap>)：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4">
-                    <table id="edit_shLocal_table" class="table table-striped table-hover">
-                        <thead>
-                            <th title="id">aid</th>
-                            <th title="OSTEXT_30">廠區</th>
-                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
-                            <th title="OSTEXT">部門名稱</th>
-                            <th title="HE_CATE">類別</th>
-                            <th title="AVG_VOL">均能音量</th>
-                            <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
-                            <th title="MONIT_NO">監測編號</th>
-                            <th title="MONIT_LOCAL">監測處所</th>
-                            <th title="WORK_DESC">作業描述</th>
-                            <th title="">選擇</th>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="edit_shLocal_btn" >修正</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -441,7 +405,6 @@
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
 
     var searchUser_modal = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
-    var edit_shLocal_modal = new bootstrap.Modal(document.getElementById('edit_shLocal'), { keyboard: false });
 
     var staff_inf        = [];
     var shLocal_inf      = [];

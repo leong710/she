@@ -149,7 +149,7 @@
             });
             // 將結果轉換為陣列
             shLocal_inf = Array.from(uniqueMap.values());
-                // console.log('2-mgInto_shLocal_inf--shLocal_inf...', shLocal_inf);
+                console.log('2-mgInto_shLocal_inf--shLocal_inf...', shLocal_inf);
             await post_shLocal(shLocal_inf)
         }
         // 240822 將匯入資料合併到staff_inf
@@ -257,51 +257,65 @@
         // 通用的函數，用於更新 DOM for p-2特作欄位
         async function updateDOM(sh_value, select_empId, sh_key_up) {
             // 欲更新的欄位陣列
-            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR'];
+            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_t'];
             shLocal_item_arr.forEach((sh_item) => {
-                if (sh_value[sh_item]) {
-                    const nbsp = sh_key_up > 1 ? '<br>' : '';
+                if (sh_value[sh_item] !== undefined) {
+                    const br = sh_key_up > 1 ? '<br>' : '';
                     let inner_Value = '';
-                    if (sh_item === 'HE_CATE'){
+                    if (sh_item === 'HE_CATE'){             // 類別代號 特別處理：1.物件轉字串、2.去除符號
                         let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
-                        inner_Value = `${nbsp}${sh_key_up}: ${he_cate_str}`;
+                        inner_Value = `${br}${he_cate_str}`;
+                
+                    }else if(sh_item.includes('AVG')){      // 均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
+                        let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
+                        inner_Value = `${br}${avg_str}`;
                     }else{
-                        inner_Value = sh_item.includes('AVG') ? `${nbsp}${sh_value[sh_item]}` : `${nbsp}${sh_key_up}: ${sh_value[sh_item]}`;
+                        inner_Value = `${br}${sh_value[sh_item]}`;
                     }
                     document.getElementById(`${sh_item},${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
+
                     // 噪音驗證
                     if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
-                            // const noise_check = (sh_value['AVG_VOL'] >= 85) ? `${nbsp}${sh_key_up}: 1-符合` : `${nbsp}${sh_key_up}: 1-不符合`;
-                            // const eh_t    = false; // 預設 每日曝露時數 eh_t = false
-
                         // 個人shCase的噪音中，假如有含eh_t值，就導入使用。
-                        const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
-                        // 檢查元素是否存在+是否有值
-                        const eh_t_input_value = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
+                            const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
+                            // 檢查元素是否存在+是否有值
+                            const eh_t_input_value = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
 
                         const eh_t    = (sh_value['eh_t'])    ? sh_value['eh_t']    : eh_t_input_value;
                         const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                         const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
 
-                        const noise_check = checkNoise(eh_t, avg_vol, avg_8hr);     // 呼叫[fun]
-                        const noise_check_str = `${nbsp}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`;
+                        const noise_check = checkNoise(eh_t, avg_vol, avg_8hr);     // 呼叫[fun]checkNoise
+                        // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
+                        const noise_check_str = `${br}${noise_check.cCheck}`;
                         document.getElementById(`NC,${select_empId}`).insertAdjacentHTML('beforeend', noise_check_str);
 
-                                // 紀錄個人(噪音)特檢資格...是=true；未達、不適用=delete
-                                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                                const i_index = sh_key_up - 1;
-                                console.log('updateDOM--empData...', empData);
-                                if(noise_check['cCheck'] == '是'){
-                                    empData['condition'][i_index] = true;
-                                }else{
-                                    // if(empData.shCase['condition'][i_index] !== undefined){
-                                    //     delete empData.shCase['condition'][i_index];
-                                    // }
-                                    empData['condition'][i_index] = false;
-                                }
+                        eh_t_input.value = (eh_t_input_value != eh_t) ? eh_t : eh_t_input.value;    // 判斷eh_t輸入格是否一致，強行帶入顯示~
+
+                        // 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
+                        const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                        const i_index = sh_key_up - 1;
+                        // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
+                        empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
                     }
                 }
             });
+        }
+        // 更新資格驗證(1by1)
+        async function updateShCondition(ShCondition_value, select_empId) {
+            let inner_Value = JSON.stringify(ShCondition_value).replace(/[{"}]/g, '');
+                inner_Value = inner_Value.replace(/,/g, '<br>');
+            document.getElementById(`shCondition,${select_empId}`).insertAdjacentHTML('beforeend', inner_Value);
+
+            let ShCondition_arr = [];
+            Object.entries(ShCondition_value).forEach(([item, value]) => {
+                if(value){
+                    ShCondition_arr.push(item)
+                }
+                ShCondition_str = JSON.stringify(ShCondition_arr).replace(/[\[\]{"}]/g, '');
+                document.getElementById(`shIdentity,${select_empId}`).innerHTML = '';
+                document.getElementById(`shIdentity,${select_empId}`).insertAdjacentHTML('beforeend', ShCondition_str);
+            })
         }
         // 240827 驗證噪音是否符合   // eh_t：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
         // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
@@ -323,15 +337,19 @@
             }
             return result;
         }
-        // 渲染特危項目 for p-2特作欄位
+        // 渲染特危項目 for p-2特作欄位(1by1)
         async function post_shCase(emp_arr){
             emp_arr.forEach((emp_i) => {
-                const { emp_id: select_empId, shCase } = emp_i;
+                const { emp_id: select_empId, shCase ,shCondition} = emp_i;
                 if (shCase) {
                     Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
                         // console.log('post_shCase--sh_key, sh_value...', sh_key, sh_value);
                         updateDOM(sh_value, select_empId, index + 1);
                     });
+                }
+                // 更新資格驗證(1by1)
+                if (shCondition) {
+                    updateShCondition(shCondition, select_empId);
                 }
             });
         }
@@ -384,27 +402,37 @@
                     if (empData) {
                         // empData.shCase = empData.shCase || [];
                         empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入
-                        empData.condition = [];         // 特檢資格：直接清空，讓後面重新帶入
+                        // 特檢資格：直接清空，讓後面重新帶入
+                            empData.shCondition = {
+                                "noise"   : false,
+                                "newOne"  : false,
+                                "regular" : false,
+                                "change"  : false
+                            };       
                         // 清空目前顯示的 DOM
                         clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                         // 然後將新勾選的項目進行更新
                         selectedOptsValues.forEach((sov_vaule, index) => {
 
-                            // 過濾...emp的部門代號 與 shLocal的部門代號是否一致...才准許導入
-                            if(empData.dept_no == shLocal_inf[sov_vaule]['OSHORT']){
-                                empData.shCase[index] = shLocal_inf[sov_vaule];
-                                if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
-                                    // 假如input有eh_t值，就導入使用。
-                                    const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
-                                    // 檢查元素是否存在+是否有值
-                                    empData.shCase[index]['eh_t'] = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
-                                }
-                                updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
-                            }else{
-                                inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
+                            empData.shCase[index] = shLocal_inf[sov_vaule];
+                            if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
+                                // 假如input有eh_t值，就導入使用。
+                                const eh_t_input = document.querySelector(`input[id="eh_t,${select_empId}"]`);
+                                // 檢查元素是否存在+是否有值
+                                empData.shCase[index]['eh_t'] = (eh_t_input && eh_t_input.value) ? eh_t_input.value : false;
                             }
+                            updateDOM(shLocal_inf[sov_vaule], select_empId, index + 1);
+                            // [停用] 過濾...emp的部門代號 與 shLocal的部門代號是否一致...才准許導入
+                            // if(empData.dept_no !== shLocal_inf[sov_vaule]['OSHORT']){
+                            //     inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
+                            // }
                         });
-                        console.log('reload_shLocalTable_Listeners--empData...', empData);
+
+                        // 更新資格驗證(1by1)
+                        if (empData.shCondition) {
+                            updateShCondition(empData.shCondition, select_empId);
+                        }
+                        console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
                     }
                 };
                 // 添加新的監聽器
@@ -412,78 +440,6 @@
                 resolve();
             });
         }
-                // // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位
-                // let HECateClickListener;
-                // async function reload_HECateTable_Listeners() {
-                //     return new Promise((resolve) => {
-                //         const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-                //         // 檢查並移除已經存在的監聽器
-                //         if (HECateClickListener) {
-                //             HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                //                 tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                //             })
-                //         }
-                //         // 定義新的監聽器函數
-                //         HECateClickListener = function () {
-                //             const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                //             const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                //             $('#edit_shLocal #edit_shLocal_empId').empty().append(edit_emp_id); // 清空+填上工號
-                //             $('#edit_shLocal tbody').empty();                       // 清空tbody
-                //             Object.entries(staff_inf).forEach(([e_index, e_value]) => {
-                //                 if(e_value['emp_id'] === edit_emp_id){
-                //                     const shCase = e_value['shCase']
-                //                     // console.log('HECate--staff_inf...', e_index, shCase);
-                //                     if(shCase.length > 0){
-                //                         const shLocal_item_arr = ['id', 'OSTEXT_30', 'OSHORT', 'OSTEXT', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'MONIT_NO', 'MONIT_LOCAL', 'WORK_DESC'];
-                //                         Object.entries(shCase).forEach(([sh_i, sh_v])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                //                             if(sh_v['id'] !== undefined || sh_v['no'] !== undefined){
-                //                                 let tr = '<tr>';
-                //                                 Object(shLocal_item_arr).forEach((item_i) => {
-                //                                     tr += (sh_v[item_i]) ? '<td>' + sh_v[item_i] + '</td>' : '<td></td>';
-                //                                 })
-                //                                 tr += `<td class="text-center"><input type="checkbox" name="edit_shLocal_id[]" value="${sh_i}" class="form-check-input" checked ></td>`;
-                //                                 tr += '</tr>';
-                //                                 $('#edit_shLocal_table tbody').append(tr);
-                //                             }
-                //                         })
-                //                     }else{
-                //                         $('#edit_shLocal_table tbody').append('沒有資料');
-                //                     }
-                //                 }
-                //             })
-                //             edit_shLocal_modal.show();
-                //         }
-                //         // 添加新的監聽器
-                //         HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                //             tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
-                //         })
-                //         resolve();
-                //     });
-                // }
-                // // 執行監聽 p2 edit_shLocal 之修正鈕呼叫 for p-2特作欄位
-                // async function editShLocal_toShCase(){
-                //     const select_empId = document.querySelector('#edit_shLocal #edit_shLocal_empId').innerText;
-                //     const selectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-                //     const unselectedOptsValues = Array.from(document.querySelectorAll('#edit_shLocal #edit_shLocal_table input[type="checkbox"]:not(:checked)')).map(cb => cb.value);
-                //     const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-
-                //     if (empData) {
-                //         empData.shCase = empData.shCase || [];
-                //         // 先移除未勾選的項目
-                //         Object.entries(unselectedOptsValues).forEach(([us_key, us_value])=>{
-                //             delete empData.shCase[us_value];
-                //         })
-                //         // 清空目前顯示的 DOM
-                //         clearDOM(select_empId); // 你需要根據 select_empId 來清空對應的 DOM
-                //         // 然後將新勾選的項目進行更新
-                //         selectedOptsValues.forEach((sov_value, index) => {
-                //             // 更新 DOM
-                //             updateDOM(shLocal_inf[sov_value], select_empId, index + 1);
-                //         });
-                //         inside_toast(`更新特作資料...Done&nbsp;!!`); // [fun.0-2]
-                //     }
-                // }
-
 
     // [p-1]
         // [p1 函數-1] 動態生成部門代號字串並貼在#OSHORTs位置
@@ -600,12 +556,8 @@
                 // step-1-3. p-1 監聽 load_hrdb_btn 取得人事資料庫
                 load_hrdb_btn.addEventListener('click', function() {
                     const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
-                    // $('#shLocal_table tbody').empty();
-                    // load_fun('load_shLocal', select_OSHORTs_str, post_shLocal);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => post_shLocal渲染
-                    // load_fun('load_shLocal', select_OSHORTs_str, mgInto_shLocal_inf);   // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併 // 動作合併到mgInto_staff_inf裡面去執行
-                    // $('#hrdb_table tbody').empty();
                     // load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
-                    load_fun('load_hrdb', select_OSHORTs_str, mgInto_staff_inf);         // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
+                    load_fun('load_hrdb', select_OSHORTs_str, mgInto_staff_inf);         // 呼叫load_fun 用 部門代號字串 取得 人員清單 => 合併到mgInto_staff_inf post_hrdb渲染
                     inside_toast('取得&nbsp;hrdb員工清單...Done&nbsp;!!');
                     $('#nav-p2-tab').tab('show');                                       // 切換頁面
                 });
@@ -637,10 +589,6 @@
                             console.log('找不到 ? 元素');
                         }
                     });
-
-                        // // step-1-4. p-2 監聽互動視窗 edit_shLocal 之修正鈕
-                        // const editShLocalBtn = document.getElementById('edit_shLocal_btn');
-                        // editShLocalBtn.addEventListener('click', editShLocal_toShCase)
 
                 // 當所有設置完成後，resolve Promise
                 resolve();
@@ -684,17 +632,24 @@
                 // 停止並銷毀 DataTable
                 release_dataTable();
                 await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    // console.log(emp_i);
+                    // console.log('emp_i', emp_i);
                     let tr = '<tr>';
                     tr += `<td>${emp_i.emp_sub_scope}</td> <td>${emp_i.dept_no}</br>${emp_i.emp_dept}</td>`;
-                    tr += `<td class="text-center">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}"
-                            data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
+
+                    tr += `<td>${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}" `;
+                        tr += emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``;
+                        tr += `data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
+
                     tr += `<td id="MONIT_LOCAL,${emp_i.emp_id}"></td> <td id="WORK_DESC,${emp_i.emp_id}"></td> <td id="HE_CATE,${emp_i.emp_id}" class="HE_CATE"></td> <td id="AVG_VOL,${emp_i.emp_id}"></td> <td id="AVG_8HR,${emp_i.emp_id}"></td>`;
                     tr += `<td><input type="number" id="eh_t,${emp_i.emp_id}" name="eh_t" class="form-control" onchange="change_eh_t(this.id, this.value)" ></td> <td id="NC,${emp_i.emp_id}"></td>`;
 
-                    tr += `<td class="text-center"><input type="checkbox" id="SH3,${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >`;
-                    tr += `&nbsp;&nbsp;<button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></td>`;
-                    tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
+                    tr += `<td><input type="checkbox" id="SH3,${emp_i.emp_id}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >`;
+                        tr += `&nbsp;&nbsp;<button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>`;
+                        tr += `<br><span id="shIdentity,${emp_i.emp_id}"></span></td>`;
+                    
+                    // tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
+                    tr += `<td id="shCondition,${emp_i.emp_id}"></td>`;
+
                     tr += '</tr>';
                     $('#hrdb_table tbody').append(tr);
                 })
@@ -720,11 +675,15 @@
             // console.log('change_eh_t--staff_inf..', empData);
         // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
             clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
-            const { shCase } = empData;
+            const { shCase, shCondition } = empData;
             if (shCase) {
                 Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
                     updateDOM(sh_value, select_empId, index + 1);
                 });
+            }
+            // 更新資格驗證(1by1)
+            if (shCondition) {
+                updateShCondition(shCondition, select_empId);
             }
     }
 
@@ -854,11 +813,12 @@
                 for (let i=0; i < len; i++) {
                     // 把user訊息包成json字串以便夾帶
                     let user_json = JSON.stringify({
-                            "emp_sub_scope" : res_r[i].emp_sub_scope.trim(),
-                            "emp_id"        : res_r[i].emp_id.trim(),
-                            "cname"         : res_r[i].cname.trim(),
-                            "dept_no"       : res_r[i].dept_no.trim(),
-                            "emp_dept"      : res_r[i].emp_dept.trim(),
+                            'emp_sub_scope' : res_r[i].emp_sub_scope.replace(/ /g, '&nbsp;'),
+                            'emp_id'        : res_r[i].emp_id,
+                            'cname'         : res_r[i].cname,
+                            'dept_no'       : res_r[i].dept_no,
+                            'emp_dept'      : res_r[i].emp_dept,
+                            'HIRED'         : res_r[i].HIRED,
                         });
                     div_result_tbody.innerHTML += 
                         '<tr>' +
@@ -898,7 +858,8 @@
 
         eventListener(); // 呼叫函數-3
 
-        let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
+        // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
+        let message  = '*** mgInto_shLocal_inf(new_shLocal_arr) 在二次導入時有摻雜到"eh_t"...應於以排除! &nbsp;~&nbsp;';
         Balert( message, 'warning')
 
     });

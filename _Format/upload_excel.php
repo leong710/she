@@ -8,18 +8,6 @@
 
     use PhpOffice\PhpSpreadsheet\IOFactory;
 
-            // 將HE_CATE字串轉成陣列...
-            function parseString($inputStr) {
-                $result = [];
-                $pairs = explode(',', $inputStr);               // 拆分字串，取得每個 key:value 配對
-                foreach ($pairs as $pair) {
-                    list($key, $value) = explode(':', $pair);   // 拆分 key 和 value
-                    $result[$key] = $value;                     // 儲存到結果陣列中
-                }
-                $result = json_encode($result, JSON_UNESCAPED_UNICODE );       // 類別轉中文字串
-                return $result;
-            }
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['excelUpload'])) {
             
@@ -32,6 +20,18 @@
                 // 其他按钮被点击时执行的操作
                 $submit = $_POST['excelUpload'];                // "上傳"按钮被点击时执行的操作
                 if ($submit === 'shLocal') {                    // 240807_特殊危害健康作業管理
+
+                    // 將HE_CATE字串轉成陣列...
+                        function parseString($inputStr) {
+                            $result = [];
+                            $pairs = explode(',', $inputStr);               // 拆分字串，取得每個 key:value 配對
+                            foreach ($pairs as $pair) {
+                                list($key, $value) = explode(':', $pair);   // 拆分 key 和 value
+                                $result[$key] = $value;                     // 儲存到結果陣列中
+                            }
+                            $result = json_encode($result, JSON_UNESCAPED_UNICODE );       // 類別轉中文字串
+                            return $result;
+                        }
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
                     $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '均能音量', '8小時平均', '監測編號', '監測處所(10)', '作業描述(20)');  //工作日8小時平均音壓值
@@ -70,26 +70,29 @@
                             }
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
                             $row[3] = str_replace('、', ',', $row[3]);   // 類別 全形符號轉逗號
-                            $row[3] = parseString($row[3]);              // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
+                            // $row[3] = parseString($row[3]);              // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
 
-                            // 1.檢查OSHORT $row[1]是否空值
-                                $OSHORT_check = (!empty($row[1])) ? true : false;
-                            // 2.檢查HE_CATE $row[3]是否含"噪音作業"，必須填AVG_VAL或AVG_8HR
-                                $noise_check = (preg_match("/噪音/i",$row[3])) ? ($row[4] || $row[5]) : true ;
-                            // 3. MONIT_LOCAL_check // 計算字串的字元數 10
-                                $MONIT_LOCAL_check = (mb_strlen($row[7], 'UTF-8') <= 10) ? true : false;
-                            // 4. WORK_DESC_check   // 計算字串的字元數 20
-                                $WORK_DESC_check   = (mb_strlen($row[8], 'UTF-8') <= 20) ? true : false;
+                            // 1. 檢查 OSHORT $row[1] 是否為空值
+                                $OSHORT_check = !empty($row[1]);
+                            // 2. 檢查 HE_CATE $row[3] 是否包含 "噪音作業"，必須填 AVG_VAL 或 AVG_8HR
+                                $noise_check = preg_match("/噪音/i", $row[3]) ? ($row[4] || $row[5]) : true;
+                            // 3. MONIT_LOCAL_check: 檢查字串長度是否小於等於 10
+                                $MONIT_LOCAL_check = mb_strlen($row[7], 'UTF-8') <= 10;
+                            // 4. WORK_DESC_check: 檢查字串長度是否小於等於 20
+                                $WORK_DESC_check = mb_strlen($row[8], 'UTF-8') <= 20;
+                            // 5. HE_CATE_check: 檢查 HE_CATE 是否包含 ":"
+                                $HE_CATE_check = strpos($row[3], ':') !== false;
                             
                             // 合併檢查結果：
                                 $row_result = array_merge($row, [
                                     "OSHORT_check"      => $OSHORT_check,
                                     "noise_check"       => $noise_check,
                                     "MONIT_LOCAL_check" => $MONIT_LOCAL_check,
-                                    "WORK_DESC_check"   => $WORK_DESC_check
+                                    "WORK_DESC_check"   => $WORK_DESC_check,
+                                    "HE_CATE_check"     => $HE_CATE_check
                                 ]);
 
-                            if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check) {
+                            if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check && $HE_CATE_check) {
                                 foreach ($row as $index => $value) {
                                     if ($index > 7) break;
                                     echo '<td>' . htmlspecialchars($value) . '</td>';                       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
@@ -100,7 +103,7 @@
                                     "OSTEXT_30"     => $row[0],
                                     "OSHORT"        => $row[1],
                                     "OSTEXT"        => $row[2],
-                                    "HE_CATE"       => $row[3],
+                                    "HE_CATE"       => (preg_match("/:/i",$row[3])) ? parseString($row[3]) : explode(',', $row[3]),        // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
                                     "AVG_VOL"       => $row[4],
                                     "AVG_8HR"       => $row[5],
                                     "MONIT_NO"      => $row[6],
@@ -304,12 +307,13 @@
             case "shLocal":
                 $td_str  = '<td>' . $row_result[0] . '</td>';
                 $td_str .= '<td>' . $row_result[1] . ((!$row_result["OSHORT_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
-                $td_str .= '<td>' . $row_result[2] . '</td><td>' . $row_result[3] . '</td>';
+                $td_str .= '<td>' . $row_result[2] . '</td>';
+                $td_str .= '<td>' . $row_result[3] . ((!$row_result["HE_CATE_check"]) ? '<br><span style="background-color: pink;">注意：此欄格式有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[4] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[5] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[6] . '</td>';
-                $td_str .= '<td>' . $row_result[7] . ((!$row_result["MONIT_LOCAL_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤('.mb_strlen($row_result[7], 'UTF-8').')</span>' : '') . '</td>';
-                $td_str .= '<td class="word_bk">' . $row_result[8] . ((!$row_result["WORK_DESC_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤('.mb_strlen($row_result[8], 'UTF-8').')</span>' : '') . '</td>';
+                $td_str .= '<td>' . $row_result[7] . ((!$row_result["MONIT_LOCAL_check"]) ? '<br><span style="background-color: pink;">注意：此欄字數有誤('.mb_strlen($row_result[7], 'UTF-8').')</span>' : '') . '</td>';
+                $td_str .= '<td class="word_bk">' . $row_result[8] . ((!$row_result["WORK_DESC_check"]) ? '<br><span style="background-color: pink;">注意：此欄字數有誤('.mb_strlen($row_result[8], 'UTF-8').')</span>' : '') . '</td>';
                 echo $td_str;
                 break;
 
