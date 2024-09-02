@@ -214,6 +214,7 @@
                                     
                                 </div>
                                 <div class="col-md-4 py-0 text-end">
+                                    <button type="button" class="btn btn-outline-success add_btn" onclick="bat_storeStaff()"><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <?php if($per_total != 0){ ?>
                                         <!-- 下載EXCEL的觸發 -->
                                         <div class="inb">
@@ -247,6 +248,7 @@
                                         <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
                                         <th title="" style="width: 70px;">特檢資格</th>
                                         <th title="shCondition" data-toggle="tooltip" data-placement="bottom">資格驗證</th>
+                                        <th title="Transition" data-toggle="tooltip" data-placement="bottom">轉調</th>
                                     </tr>
                                 </thead>
                                 <tbody>

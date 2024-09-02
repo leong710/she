@@ -128,6 +128,205 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
             break;
+            case 'bat_storeStaff_isGood':
+                if(isset($parm)){
+                    $pdo = pdo();
+                    $swal_json = array(                                 // for swal_json
+                        "fun"       => "bat_storeStaff",
+                        "content"   => "批次儲存名單--"
+                    );
+                    
+                    $sql = "INSERT INTO _staff (emp_id, cname, gesch, natiotxt, HIRED,   dept_logs, shCase_logs, shCondition_logs, _content,   created_cname, updated_cname, created_at, updated_at) VALUES ";
+                
+                    $values = [];
+                    $params = [];
+                    $parm = (array) json_decode($parm);     // #1.這裡decode要由物件轉成陣列
+                    
+                    foreach ($parm as $parm_i) {
+                        $parm_i_arr = (array) $parm_i;      // #2.這裡要在一次由物件轉成陣列
+                        extract($parm_i_arr);
+                
+                        $dept_logs = array (
+                            date('Y')       => [
+                                "dept_no"       => $dept_no,
+                                "emp_dept"      => $emp_dept,
+                                "emp_sub_scope" => $emp_sub_scope,
+                                "schkztxt"      => $schkztxt,
+                                "cstext"        => $cstext,
+                                "emp_group"     => $emp_group
+                            ]
+                        );
+                        $shCase_logs = array (
+                            date('Y')       => $shCase
+                        );
+                        $shCondition_logs = array (
+                            date('Y')       => $shCondition
+                        );
+                        $_content = array (
+                            date('Y')       => ""
+                        );
+
+                        $dept_logs_str         = json_encode($dept_logs, JSON_UNESCAPED_UNICODE);
+                        $shCase_logs_str       = json_encode($shCase_logs, JSON_UNESCAPED_UNICODE);
+                        $shCondition_logs_str  = json_encode($shCondition_logs, JSON_UNESCAPED_UNICODE);
+                        $_content_str          = json_encode($_content, JSON_UNESCAPED_UNICODE);
+                
+                        $values[] = "(?, ?, ?, ?, ?,   ?, ?, ?, ?,   ?, ?, now(), now())";
+                        $params = array_merge($params, [
+                            $emp_id, $cname, $gesch, $natiotxt, $HIRED,
+                            $dept_logs_str, $shCase_logs_str, $shCondition_logs_str, $_content_str, 
+                            "Leong.chen", "Leong.chen"
+                        ]);
+                    }
+                
+                    $sql .= implode(", ", $values);
+
+                    // 1. ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
+                    // 2. VALUES(column_name)：VALUES() 函數用來引用插入時的值，以便在更新現有紀錄時使用相同的數據。
+                        $sql .= " ON DUPLICATE KEY UPDATE 
+                                cname = VALUES(cname),
+                                gesch = VALUES(gesch),
+                                natiotxt = VALUES(natiotxt),
+                                HIRED = VALUES(HIRED),
+                                dept_logs = VALUES(dept_logs),
+                                shCase_logs = VALUES(shCase_logs),
+                                shCondition_logs = VALUES(shCondition_logs),
+                                _content = VALUES(_content),
+                                updated_cname = VALUES(updated_cname),
+                                updated_at = now()";
+
+                    $stmt = $pdo->prepare($sql);
+
+                    try {
+                        $stmt->execute($params);
+                    // 製作返回文件
+                        $swal_json["action"]   = "success";
+                        $swal_json["content"] .= '儲存成功';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+
+                    } catch (PDOException $e) {
+                        echo $e->getMessage();
+                        $swal_json["action"]   = "error";
+                        $swal_json["content"] .= '儲存失敗';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        ];
+                    }
+                }else{
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+            break;
+            case 'bat_storeStaff':  // 
+                if(isset($parm)){
+
+                    $pdo = pdo();
+                    $swal_json = array(                                 // for swal_json
+                        "fun"       => "bat_storeStaff",
+                        "content"   => "批次儲存名單--"
+                    );
+                    
+                    $sql_select = "SELECT dept_logs, shCase_logs, shCondition_logs, _content FROM _staff WHERE emp_id = ?";
+                    $sql_insert = "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, dept_logs, 
+                                        shCase_logs, shCondition_logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ";
+                    // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
+                    $sql_update = "ON DUPLICATE KEY UPDATE 
+                                    cname = VALUES(cname),
+                                    gesch = VALUES(gesch),
+                                    natiotxt = VALUES(natiotxt),
+                                    HIRED = VALUES(HIRED),
+                                    dept_logs = VALUES(dept_logs),
+                                    shCase_logs = VALUES(shCase_logs),
+                                    shCondition_logs = VALUES(shCondition_logs),
+                                    _content = VALUES(_content),
+                                    updated_cname = VALUES(updated_cname),
+                                    updated_at = now()";
+                    
+                    $values = [];
+                    $params = [];
+                    $parm = (array) json_decode($parm); // #1.這裡decode要由物件轉成陣列
+
+                    foreach ($parm as $parm_i) {
+                        $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
+                        extract($parm_i_arr);
+                    
+                        // 提取現有資料
+                        $stmt_select = $pdo->prepare($sql_select);
+                        $stmt_select->execute([$emp_id]);
+                        $existing_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+                    
+                        // 解析現有資料為陣列
+                        $dept_logs_existing         = isset($existing_data['dept_logs'])        ? json_decode($existing_data['dept_logs'], true)        : [];
+                        $shCase_logs_existing       = isset($existing_data['shCase_logs'])      ? json_decode($existing_data['shCase_logs'], true)      : [];
+                        $shCondition_logs_existing  = isset($existing_data['shCondition_logs']) ? json_decode($existing_data['shCondition_logs'], true) : [];
+                        $_content_existing          = isset($existing_data['_content'])         ? json_decode($existing_data['_content'], true)         : [];
+                    
+                        // 檢查並維護現有資料中的 key
+                            $current_year = date('Y');
+                    
+                        // 更新或新增該年份的資料
+                            $dept_logs_existing[$current_year] = json_encode([
+                                "dept_no"       => $dept_no,
+                                "emp_dept"      => $emp_dept,
+                                "emp_sub_scope" => $emp_sub_scope,
+                                "schkztxt"      => $schkztxt,
+                                "cstext"        => $cstext,
+                                "emp_group"     => $emp_group
+                            ]);
+                        
+                            $shCase_logs_existing[$current_year] = $shCase;
+                            $shCondition_logs_existing[$current_year] = $shCondition;
+                            $_content_existing[$current_year] = "";
+                    
+                        // 將更新後的資料編碼為 JSON 字串
+                        $dept_logs_str         = json_encode($dept_logs_existing, JSON_UNESCAPED_UNICODE);
+                        $shCase_logs_str       = json_encode($shCase_logs_existing, JSON_UNESCAPED_UNICODE);
+                        $shCondition_logs_str  = json_encode($shCondition_logs_existing, JSON_UNESCAPED_UNICODE);
+                        $_content_str          = json_encode($_content_existing, JSON_UNESCAPED_UNICODE);
+                    
+                        // 準備 SQL 和參數
+                        $values[] = "(?, ?, ?, ?, ?,   ?, ?, ?, ?,   ?, ?, now(), now())";
+                        $params = array_merge($params, [
+                            $emp_id, $cname, $gesch, $natiotxt, $HIRED,
+                            $dept_logs_str, $shCase_logs_str, $shCondition_logs_str, $_content_str, 
+                            "Leong.chen", "Leong.chen"
+                        ]);
+                    }
+                    
+                    $sql = $sql_insert . implode(", ", $values) . " " . $sql_update;
+                    $stmt = $pdo->prepare($sql);
+                    
+                    try {
+                        $stmt->execute($params);
+                        // 製作返回文件
+                        $swal_json["action"]   = "success";
+                        $swal_json["content"] .= '儲存成功';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+                    
+                    } catch (PDOException $e) {
+                        echo $e->getMessage();
+                        $swal_json["action"]   = "error";
+                        $swal_json["content"] .= '儲存失敗';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        ];
+                    }
+
+                }else{
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+            break;
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",

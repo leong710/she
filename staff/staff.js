@@ -46,9 +46,11 @@
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});          // n秒后回首頁
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                          // 手動關閉畫面
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動 載入成功，resolve
                 } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
+
                 } else {                                        // error
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
                 }
@@ -369,6 +371,9 @@
                             s_value = s_value.replace(/[{"}]/g, '');
                             // // s_value = s_value.replace(/"/g, '');
                             s_value = s_value.replace(/,/g, '<br>');
+
+                        }else if(s_key == 'eh_t'){          // mgInto_shLocal_inf(new_shLocal_arr) 在二次導入時有摻雜到"eh_t"...應予以排除
+                            return;
                         }
                         tr += '<td>' + s_value + '</td>';
                     })
@@ -649,6 +654,7 @@
                     
                     // tr += emp_i.HIRED ? `<td>${emp_i.HIRED}</td>` : `<td> -- </td>`;
                     tr += `<td id="shCondition,${emp_i.emp_id}"></td>`;
+                    tr += `<td id="Transition,${emp_i.emp_id}"></td>`;
 
                     tr += '</tr>';
                     $('#hrdb_table tbody').append(tr);
@@ -685,6 +691,10 @@
             if (shCondition) {
                 updateShCondition(shCondition, select_empId);
             }
+    }
+
+    function bat_storeStaff(){
+        load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
     }
 
     // [p-2]
