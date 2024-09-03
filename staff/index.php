@@ -38,10 +38,19 @@
 
         $shLocal_OSTEXT_30s = load_shLocal_OSTEXT30s();
 
+        // p1
         $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
-        // $shLocal_OSHORTs_str = "";   // step2.陣列轉字串
-        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');    // step3.去掉括號forMysql查詢
+        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
+
+        // p3
+        $staff_dept_nos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
+        $staff_dept_nos_str = json_encode($staff_dept_nos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
+        $staff_dept_nos_str = trim($staff_dept_nos_str, '[]');                          // step3.去掉括號forMysql查詢
+
+        // echo "<pre>";
+        // print_r($staff_dept_nos);
+        // echo "</pre>";
 
 ?>
 
@@ -66,7 +75,7 @@
             }
         }
         /* 當螢幕寬度大於 1366px時 */
-        @media (min-width: 1900px) {
+        @media (min-width: 1366px) {
             .col-lm-3 {
                 flex: 0 0 calc(100% / 12 * 2);
             }
@@ -115,13 +124,15 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
-                <!-- NAV分頁標籤與統計 -->
                 <div class="col-12 pb-0 px-0">
+                    <!-- Bootstrap Alarm -->
+                    <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>
+                    <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" type="button" role="tab" aria-controls="nav-p1" aria-selected="false">取得條件</button>
+                            <button class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" type="button" role="tab" aria-controls="nav-p1" aria-selected="false">條件取得</button>
                             <button class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" type="button" role="tab" aria-controls="nav-p2" aria-selected="false">員工清單</button>
-                            <button class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" type="button" role="tab" aria-controls="nav-p3" aria-selected="false">p3</button>
+                            <button class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" type="button" role="tab" aria-controls="nav-p3" aria-selected="false">存檔員工</button>
                         </div>
                     </nav>
                 </div>
@@ -131,7 +142,7 @@
                     <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
-                            <p class="block">
+                            <p class="<?php echo ($sys_role > 1) ? 'unblock':'';?>">
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-1" aria-expanded="false" aria-controls="step1-1">step1-1</button>
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-2" aria-expanded="false" aria-controls="step1-2">step1-2</button>
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step2-1" aria-expanded="false" aria-controls="step2-1">step2-1</button>
@@ -207,12 +218,11 @@
                         <div class="col-12 bg-white">
                             <!-- 人員名單： -->
                             <div class="row">
-                                <!-- Bootstrap Alarm -->
-                                <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 py-0"></div>
-                                <!-- sort/groupBy function -->
+                                <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     
                                 </div>
+                                <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
                                     <button type="button" class="btn btn-outline-success add_btn" onclick="bat_storeStaff()"><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <?php if($per_total != 0){ ?>
@@ -260,7 +270,28 @@
 
                     <!-- p3 -->
                     <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
-                        p3
+                        <div class="col-12 bg-white">
+                            <!-- step-0 資料交換 -->
+                            <div class="unblock" id="row_emp_sub_scope">
+                                <!-- 1-1.放原始 staff_dept_nos_str -->
+                                <?php echo $staff_dept_nos_str;?>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-md-6 py-0">
+                                    <snap for="dept_nos" class="form-label">已存檔之部門代號：</snap>
+                                </div>
+                                <div class="col-12 col-md-6 py-0 text-end">
+                                   
+                                </div>
+                            </div>
+                            <div class="col-12 px-0 py-1">
+                                <div id="dept_no_opts" class="col-12 p-1">
+                                    <div id="dept_no_opts_inside" class="row">
+                                        <!-- 放checkbox按鈕的地方 -->
+                                    </div> 
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                 </div>
@@ -416,6 +447,13 @@
     const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out');                             // 取得步驟1篩選後的特危健康場所
     const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
+
+    
+    // const dept_nosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
+
+    const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
+    const dept_nosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
+
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>

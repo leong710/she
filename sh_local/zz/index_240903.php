@@ -43,9 +43,9 @@
     }
 
 
-    echo "<pre>";
-    print_r($shLocal_OSHORTs);
-    echo "</pre>";
+    // echo "<pre>";
+    // print_r($shLocal_OSHORTs);
+    // echo "</pre>";
             
 ?>
 
@@ -68,7 +68,7 @@
             }
         }
         /* 當螢幕寬度大於 1366px時 */
-        @media (min-width: 1366px) {
+        @media (min-width: 1900px) {
             .col-lm-3 {
                 flex: 0 0 calc(100% / 12 * 2);
             }
@@ -312,6 +312,6 @@
     const OSHORTsObj = OSHORTsTXT ? JSON.parse(OSHORTsTXT) : OSHORTsTXT; // 將row_OSTEXT_30的字串轉換為物件
 
 </script>
-<script src="sh_local.js?v=<?=time()?>"></script>
+<script src="sn_local.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

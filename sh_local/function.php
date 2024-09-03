@@ -60,38 +60,38 @@
         }
     }
 
-    function show_site_lists(){
-        $pdo = pdo();
-        $sql = "SELECT _site.id, _site.site_title, _site.site_remark, _site.flag
-                FROM _site
-                -- WHERE _fab.flag = 'On' AND _site.flag = 'On'
-                ORDER BY _site.id ASC ";
-        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
-        try {
-            $stmt->execute();
-            $site = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $site;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
+            function show_site_lists(){
+                $pdo = pdo();
+                $sql = "SELECT _site.id, _site.site_title, _site.site_remark, _site.flag
+                        FROM _site
+                        -- WHERE _fab.flag = 'On' AND _site.flag = 'On'
+                        ORDER BY _site.id ASC ";
+                $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+                try {
+                    $stmt->execute();
+                    $site = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    return $site;
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                }
+            }
 
-    function show_fab_lists(){
-        $pdo = pdo();
-        $sql = "SELECT _fab.*, _site.site_title, _site.site_remark, _site.flag AS site_flag
-                FROM _fab
-                LEFT JOIN _site ON _site.id = _fab.site_id
-                -- WHERE _fab.flag = 'On' AND _site.flag = 'On'
-                ORDER BY _site.id, _fab.id ASC ";
-        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
-        try {
-            $stmt->execute();
-            $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $fabs;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
+            function show_fab_lists(){
+                $pdo = pdo();
+                $sql = "SELECT _fab.*, _site.site_title, _site.site_remark, _site.flag AS site_flag
+                        FROM _fab
+                        LEFT JOIN _site ON _site.id = _fab.site_id
+                        -- WHERE _fab.flag = 'On' AND _site.flag = 'On'
+                        ORDER BY _site.id, _fab.id ASC ";
+                $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+                try {
+                    $stmt->execute();
+                    $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    return $fabs;
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                }
+            }
 
     // 取得特作列管的部門代號
     function load_shLocal_OSHORTs(){

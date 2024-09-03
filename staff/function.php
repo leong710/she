@@ -38,6 +38,32 @@
             echo $e->getMessage();
         }
     }
+    
+    // 取得已存檔的員工部門代號
+    function load_staff_dept_nos(){
+        $pdo = pdo();
+        $sql = "SELECT
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]')) AS year_key,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.dept_no')) AS dept_no,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.emp_dept')) AS emp_dept,
+                    COUNT(*) AS _count
+                FROM _staff
+                GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();
+            $staff_dept_nos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $staff_dept_nos_arr = [];
+            foreach($staff_dept_nos as $dept_no_i){
+                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["OSTEXT"] = $dept_no_i["emp_dept"];
+                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["_count"] = $dept_no_i["_count"];
+            }
+            return $staff_dept_nos_arr;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
 
 // 在index表頭顯示清單：
     function show_shLocal($request){
