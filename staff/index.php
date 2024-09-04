@@ -395,7 +395,7 @@
                         <div class="col-12 col-md-6 text-end py-1">
                             <div class="input-group">
                                 <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢對象 工號、姓名或NT帳號" required>
-                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                             </div>
                         </div>
                     </div>
@@ -441,6 +441,7 @@
 
     var staff_inf        = [];
     var shLocal_inf      = [];
+    var loadStaff_tmp    = [];
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = JSON.parse(document.getElementById('row_OSTEXT_30').innerText);          // 將row_OSTEXT_30的字串轉換為物件

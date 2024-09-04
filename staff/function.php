@@ -43,10 +43,10 @@
     function load_staff_dept_nos(){
         $pdo = pdo();
         $sql = "SELECT
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]')) AS year_key,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.dept_no')) AS dept_no,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.emp_dept')) AS emp_dept,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]')) AS year_key,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
+                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
                     COUNT(*) AS _count
                 FROM _staff
                 GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";

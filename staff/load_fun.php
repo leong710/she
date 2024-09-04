@@ -131,9 +131,9 @@
             case 'load_staff_byDeptNo':
                 if(isset($parm)){
                     $pdo = pdo();
-                    $sql = "SELECT emp_id, cname, dept_logs, shCase_logs, shCondition_logs, _content 
+                    $sql = "SELECT emp_id, cname, shCase_logs, _content 
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(dept_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(dept_logs), '$[0]'))))), '$.dept_no')) = '{$parm}' ";
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) = '{$parm}' ";
                 
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
@@ -150,13 +150,10 @@
                         $current_year = date('Y');
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['dept_logs']        = json_decode($shStaffs[$index]['dept_logs'], true);
                             $shStaffs[$index]['shCase_logs']      = json_decode($shStaffs[$index]['shCase_logs'], true);
-                                $shStaffs[$index]['shCase']       = $shStaffs[$index]['shCase_logs'][$current_year];
-
-                            $shStaffs[$index]['shCondition_logs'] = json_decode($shStaffs[$index]['shCondition_logs'], true);
-                                $shStaffs[$index]['shCondition']  = $shStaffs[$index]['shCondition_logs'][$current_year];
-
+                                $shStaffs[$index]['eh_time']      = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
+                                $shStaffs[$index]['shCase']       = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
+                                $shStaffs[$index]['shCondition']  = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
                             $shStaffs[$index]['_content']         = json_decode($shStaffs[$index]['_content'], true);
                         }
 
@@ -188,22 +185,19 @@
                         "content"   => "批次儲存名單--"
                     );
                     
-                    $sql_select = "SELECT dept_logs, shCase_logs, shCondition_logs, _content FROM _staff WHERE emp_id = ? ";
-                    $sql_insert = "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, dept_logs, 
-                                        shCase_logs, shCondition_logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ";
+                    $sql_select = "SELECT shCase_logs, _content FROM _staff WHERE emp_id = ? ";
+                    $sql_insert = "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, 
+                                        shCase_logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ";
                     // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
                     $sql_update = "ON DUPLICATE KEY UPDATE 
-                                    cname = VALUES(cname),
-                                    gesch = VALUES(gesch),
-                                    natiotxt = VALUES(natiotxt),
-                                    HIRED = VALUES(HIRED),
-                                    dept_logs = VALUES(dept_logs),
-                                    shCase_logs = VALUES(shCase_logs),
-                                    shCondition_logs = VALUES(shCondition_logs),
-                                    _content = VALUES(_content),
-                                    updated_cname = VALUES(updated_cname),
-                                    updated_at = now()";
-                    
+                                    cname            = VALUES(cname),
+                                    gesch            = VALUES(gesch),
+                                    natiotxt         = VALUES(natiotxt),
+                                    HIRED            = VALUES(HIRED),
+                                    shCase_logs      = VALUES(shCase_logs),
+                                    _content         = VALUES(_content),
+                                    updated_cname    = VALUES(updated_cname),
+                                    updated_at       = now()";
                     $values = [];
                     $params = [];
                     $parm = (array) json_decode($parm, true); // #1.這裡decode要由物件轉成陣列
@@ -218,39 +212,35 @@
                         $existing_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                     
                         // step.2 解析現有資料為陣列
-                        $dept_logs_existing         = isset($existing_data['dept_logs'])        ? json_decode($existing_data['dept_logs'], true)        : [];
-                        $shCase_logs_existing       = isset($existing_data['shCase_logs'])      ? json_decode($existing_data['shCase_logs'], true)      : [];
-                        $shCondition_logs_existing  = isset($existing_data['shCondition_logs']) ? json_decode($existing_data['shCondition_logs'], true) : [];
-                        $_content_existing          = isset($existing_data['_content'])         ? json_decode($existing_data['_content'], true)         : [];
+                        $shCase_logs_existing = isset($existing_data['shCase_logs']) ? json_decode($existing_data['shCase_logs'], true)      : [];
+                        $_content_existing    = isset($existing_data['_content'])    ? json_decode($existing_data['_content'], true)         : [];
                     
                         // step.3a 檢查並維護現有資料中的 key
                             $current_year = date('Y');
                     
                         // step.3b 更新或新增該年份的資料
-                            $dept_logs_existing[$current_year] = [
+                            $shCase_logs_existing[$current_year] = [
                                 "dept_no"       => $dept_no,
                                 "emp_dept"      => $emp_dept,
                                 "emp_sub_scope" => $emp_sub_scope,
                                 "schkztxt"      => $schkztxt,
                                 "cstext"        => $cstext,
                                 "emp_group"     => $emp_group,
-                                "eh_t"          => isset($eh_t) ? $eh_t : null                // 暴露時數
+                                "eh_time"       => isset($eh_time)     ? $eh_time     : null ,          // 暴露時數
+                                "shCase"        => isset($shCase)      ? $shCase      : null ,          // 特作區域
+                                "shCondition"   => isset($shCondition) ? $shCondition : null            // 特作驗證
                             ];
-                            $shCase_logs_existing[$current_year]        = isset($shCase)      ? $shCase      : null;
-                            $shCondition_logs_existing[$current_year]   = isset($shCondition) ? $shCondition : null;
-                            $_content_existing[$current_year]           = isset($_content)    ? $_content    : null;
+                            $_content_existing[$current_year] = isset($_content) ? $_content : null;
                     
                         // step.4 將更新後的資料編碼為 JSON 字串
-                        $dept_logs_str         = json_encode($dept_logs_existing,        JSON_UNESCAPED_UNICODE);
-                        $shCase_logs_str       = json_encode($shCase_logs_existing,      JSON_UNESCAPED_UNICODE);
-                        $shCondition_logs_str  = json_encode($shCondition_logs_existing, JSON_UNESCAPED_UNICODE);
-                        $_content_str          = json_encode($_content_existing,         JSON_UNESCAPED_UNICODE);
+                        $shCase_logs_str       = json_encode($shCase_logs_existing, JSON_UNESCAPED_UNICODE);
+                        $_content_str          = json_encode($_content_existing,    JSON_UNESCAPED_UNICODE);
                     
                         // step.5 準備 SQL 和參數
-                        $values[] = "(?, ?, ?, ?, ?,   ?, ?, ?, ?,   ?, ?, now(), now())";
+                        $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
                         $params = array_merge($params, [
                             $emp_id, $cname, $gesch, $natiotxt, $HIRED,
-                            $dept_logs_str, $shCase_logs_str, $shCondition_logs_str, $_content_str, 
+                            $shCase_logs_str, $_content_str, 
                             "Leong.chen", "Leong.chen"
                         ]);
                     }

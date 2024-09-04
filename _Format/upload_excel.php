@@ -193,6 +193,13 @@
                                     if ($index > 7) break;
                                     echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
+                                // 240904 將特作代號$row[6]升級成物件
+                                    $row6 = explode(",", $row[6]);    
+                                    $row6_arr = array();
+                                    foreach ($row6 as $row6_i) {
+                                        list($key, $value) = explode(':', $row6_i);
+                                        $row6_arr[$key] = $value;
+                                    }
 
                                 $process = [
                                     "no"            => $row[0],
@@ -201,7 +208,7 @@
                                     "cname"         => $row[3],
                                     "dept_no"       => $row[4],
                                     "emp_dept"      => $row[5],
-                                    "HE_CATE"       => $row[6],
+                                    "HE_CATE"       => $row6_arr,
                                     "HE_CATE_KEY"   => $row[7],
                                 ];
                                 $result[] = $process;
