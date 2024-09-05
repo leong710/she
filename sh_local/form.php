@@ -98,7 +98,7 @@
                     <div class="col-12 col-md-8 py-1">
                         存檔編號：<?php echo ($action == 'create' || !isset($shLocal_row['id'])) ? "(尚未給號)": "aid_".$shLocal_row['id']; ?></br>
                         開單日期：<?php echo ($action == 'create' || !isset($shLocal_row['created_at'])) ? date('Y-m-d H:i')."&nbsp;(以送出時間為主)" : $shLocal_row['created_at'] ." / 更新：".$shLocal_row['updated_at'] ; ?></br>
-                        填單人員：<?php echo ($action == 'create' || !isset($shLocal_row['id'])) ? $auth_cname : $shLocal_row["updated_cname"];?>
+                        建檔人員：<?php echo ($action == 'create' || !isset($shLocal_row['id'])) ? $auth_cname : $shLocal_row["updated_cname"];?>
                     </div>
                     <div class="col-12 col-md-4 py-1 text-end head_btn"  >
                         <span id="delete_btn">
@@ -224,9 +224,16 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <?php if($action != "edit"){ ?>
-                                        <button type="reset" class="btn btn-outline-secondary add_btn" onclick="remove_invalid()">Reset</button> 
-                                    <?php } ?>
+                                    <div class="row">
+                                        <div class="col-12 col-md-6">
+                                            <?php if($action != "edit"){ ?>
+                                                <button type="reset" class="btn btn-outline-secondary add_btn" onclick="remove_invalid()">Reset</button> 
+                                            <?php } ?>
+                                        </div>
+                                        <div class="col-12 col-md-6 text-end">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#saveSubmit" onclick="saveSubmit_modal(this.innerHTML);">儲存 (Save)</button> 
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

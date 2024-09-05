@@ -150,11 +150,13 @@
                         $current_year = date('Y');
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['shCase_logs']      = json_decode($shStaffs[$index]['shCase_logs'], true);
-                                $shStaffs[$index]['eh_time']      = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
-                                $shStaffs[$index]['shCase']       = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
-                                $shStaffs[$index]['shCondition']  = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
-                            $shStaffs[$index]['_content']         = json_decode($shStaffs[$index]['_content'], true);
+                            $shStaffs[$index]['shCase_logs']             = json_decode($shStaffs[$index]['shCase_logs'], true);
+                                $shStaffs[$index]['eh_time']             = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
+                                $shStaffs[$index]['shCase']              = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
+                                $shStaffs[$index]['shCondition']         = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
+                            // $shStaffs[$index]['_content'][$current_year] = json_decode($shStaffs[$index]['_content'], true);
+                            $_content_arr = json_decode($shStaffs[$index]['_content'], true);
+                            $shStaffs[$index]['_content'][$current_year] = isset($_content_arr[$current_year]) ? $_content_arr[$current_year] : [];
                         }
 
                     // 製作返回文件
@@ -230,7 +232,16 @@
                                 "shCase"        => isset($shCase)      ? $shCase      : null ,          // 特作區域
                                 "shCondition"   => isset($shCondition) ? $shCondition : null            // 特作驗證
                             ];
-                            $_content_existing[$current_year] = isset($_content) ? $_content : null;
+                            
+                        // $_content_existing[$current_year] = isset($_content) ? $_content : null;
+                        // 檢查並串接新的 _content
+                            if (isset($_content)) {
+                                if (isset($_content_existing[$current_year])) {
+                                    $_content_existing[$current_year] .= "\r\n" . $_content;        // 如果已經有內容，將新的內容用換行符串接到現有內容後面
+                                } else {
+                                    $_content_existing[$current_year] = $_content;                  // 如果沒有現有內容，直接設置新內容
+                                }
+                            }
                     
                         // step.4 將更新後的資料編碼為 JSON 字串
                         $shCase_logs_str       = json_encode($shCase_logs_existing, JSON_UNESCAPED_UNICODE);

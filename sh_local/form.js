@@ -9,13 +9,18 @@
     }
     
     // 240809 清除'噪音'AVG_VOL和AVG_8HR classList
+    var HE_CATEDiv  = document.getElementById('HE_CATE');
     var avgVolInput = document.getElementById('AVG_VOL');
     var avg8HrInput = document.getElementById('AVG_8HR');
         function remove_invalid(){
             avgVolInput.classList.remove('is-invalid');
             avg8HrInput.classList.remove('is-invalid');
+
             avgVolInput.classList.remove('is-valid');
             avg8HrInput.classList.remove('is-valid');
+
+            HE_CATEDiv.classList.remove('is-valid');
+            HE_CATEDiv.classList.add('is-invalid');
         }
         function checkAVG(noiseCheckbox){
             if(noiseCheckbox){
@@ -220,7 +225,7 @@
                 heCates.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const selectedValues = heCates.filter(cb => cb.checked).map(cb => cb.value);
-                        console.log('he_cate...', this.value, this.checked);
+                        // console.log('he_cate...', this.value, this.checked);
                         if (selectedValues.length > 0) { // 有選
                             heCateContainer.classList.remove('is-invalid');
                             heCateContainer.classList.add('is-valid');

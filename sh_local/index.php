@@ -43,9 +43,9 @@
     }
 
 
-    echo "<pre>";
-    print_r($shLocal_OSHORTs);
-    echo "</pre>";
+    // echo "<pre>";
+    // print_r($shLocal_OSHORTs);
+    // echo "</pre>";
             
 ?>
 
@@ -68,7 +68,7 @@
             }
         }
         /* 當螢幕寬度大於 1366px時 */
-        @media (min-width: 1366px) {
+        @media (min-width: 1367px) {
             .col-lm-3 {
                 flex: 0 0 calc(100% / 12 * 2);
             }

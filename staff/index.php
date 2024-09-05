@@ -75,7 +75,7 @@
             }
         }
         /* 當螢幕寬度大於 1366px時 */
-        @media (min-width: 1366px) {
+        @media (min-width: 1367px) {
             .col-lm-3 {
                 flex: 0 0 calc(100% / 12 * 2);
             }
@@ -130,16 +130,16 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" type="button" role="tab" aria-controls="nav-p1" aria-selected="false">條件取得</button>
-                            <button class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" type="button" role="tab" aria-controls="nav-p2" aria-selected="false">員工清單</button>
-                            <button class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" type="button" role="tab" aria-controls="nav-p3" aria-selected="false">存檔員工</button>
+                            <button class="nav-link" disable id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" type="button" role="tab" aria-controls="nav-p1" aria-selected="false">條件取得</button>
+                            <button class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" type="button" role="tab" aria-controls="nav-p2" aria-selected="false">員工清單</button>
+                            <button class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" type="button" role="tab" aria-controls="nav-p3" aria-selected="false">存檔員工</button>
                         </div>
                     </nav>
                 </div>
                 <!-- 內頁 -->
                 <div class="tab-content" id="nav-tabContent">
                     <!-- p1 -->
-                    <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
+                    <div id="nav-p1_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
                             <p class="<?php echo ($sys_role > 1) ? 'unblock':'';?>">
@@ -214,7 +214,7 @@
                     </div>
 
                     <!-- p2 -->
-                    <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
+                    <div id="nav-p2_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
                             <!-- 人員名單： -->
                             <div class="row">
@@ -411,6 +411,17 @@
                     <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- canvas -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            ...
         </div>
     </div>
 

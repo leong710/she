@@ -31,7 +31,7 @@
     </style>
 </head>
 <body>
-    <div class="col-12" id="process">prccess issue...<br></div>
+    <div class="col-12" id="process">prccess shLocal...<br></div>
     <?php
         switch($_REQUEST["action"]){
             case "create":              // 開新表單
