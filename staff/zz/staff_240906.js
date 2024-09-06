@@ -133,34 +133,6 @@
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
-    // fun.0-5 多功能擷取fun 新版改用fetch
-    async function load_fun(fun, parm, myCallback) {        // parm = 參數
-        mloading(); 
-        if(parm){
-            try {
-                let formData = new FormData();
-                    formData.append('fun', fun);
-                    formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
-
-                let response = await fetch('load_fun.php', {
-                    method : 'POST',
-                    body   : formData
-                });
-
-                if (!response.ok) {
-                    throw new Error('fun load ' + fun + ' failed. Please try again.');
-                }
-
-                let responseData = await response.json();
-                let result_obj = responseData['result_obj'];    // 擷取主要物件
-                return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
-                                                                // myCallback：form = bring_form() 、document = edit_show() 、
-            } catch (error) {
-                $("body").mLoading("hide");
-                throw error;                                    // 載入失敗，reject
-            }
-        }
-    }
 
     
 // // 2. 數據操作函數 (Data Manipulation Functions)
@@ -445,18 +417,9 @@
                 });
                 // step.3 新人特殊驗證：呼叫[fun]checkNewOne 取得判斷結果
                 const hired = (empData['HIRED'] != undefined) ? empData['HIRED'] : false;
-                empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;
-
-                // step.4 進行部門代號dept_no的變更檢查
-                const currentYear = String(new Date().getFullYear());   // 取得當前年份
-                let asIs_deptNo = false;
-                if(empData.shCase_logs[currentYear] !== undefined){
-                    asIs_deptNo = (empData.shCase_logs[currentYear]['dept_no'] !== undefined ) ? empData.shCase_logs[currentYear]['dept_no'] : false;
+                if(hired){
+                    empData['shCondition']['newOne'] = checkNewOne(hired);
                 }
-                const toBe_deptNo = (empData.dept_no !== undefined )                           ? empData.dept_no                             : false;
-                empData['shCondition']['change'] = (asIs_deptNo && toBe_deptNo) ? checkChange(asIs_deptNo, toBe_deptNo) : false;
-                console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
-
                 resolve();  // 當所有設置完成後，resolve Promise
             });
         }
@@ -492,10 +455,9 @@
                 resolve();  // 當所有設置完成後，resolve Promise
             });
         }
-
         // 240827 check fun-1 驗證[噪音]是否符合   
-            // eh_time：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
-            // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
+        // eh_time：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
+        // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
         function checkNoise(eh_time, avg_vol, avg_8hr) {
             const result = {
                 aSample : '不適用',
@@ -521,12 +483,7 @@
             const hiredYear = hiredDate.getFullYear();      // 取得 HIRED 的年份
             return hiredYear === currentYear;        // 比較 HIRED 的年份與當前年份
         }
-        // 240906 check fun-3 驗證[變更檢查]是否符合   
-        function checkChange(asIs_deptNo, toBe_deptNo) {
-            return asIs_deptNo !== toBe_deptNo;        // 比較 dept_no 前後是否一致
-        }
-
-        // 渲染特危項目 for p-2特作欄位(arr_All)
+        // 渲染特危項目 for p-2特作欄位(1by1)
         async function post_shCase(emp_arr){
             for (const emp_i of emp_arr) {  // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
@@ -544,7 +501,7 @@
                 }
             };
         }
-        // 渲染到shLocal互動視窗 for shLocal互動視窗
+        // [p1 函數-7] 渲染到shLocal互動視窗 for shLocal互動視窗
         async function post_shLocal(shLocal_arr){
             $('#shLocal_table tbody').empty();
             if(shLocal_arr.length === 0){
@@ -574,8 +531,11 @@
             await reload_shLocalTable_Listeners();      // 重新建立監聽~shLocalTable的checkbox
             $("body").mLoading("hide");
         }
-
-        // 建立監聽~shLocalTable的checkbox for shLocal互動視窗
+        // 更換shLocal_modal內的emp_id值 for shLocal互動視窗
+        function reNew_empId(this_value){
+            $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
+        }
+        // [p1 函數-4] 建立監聽~shLocalTable的checkbox for shLocal互動視窗
         let importShLocalBtnListener;
         async function reload_shLocalTable_Listeners() {
             return new Promise((resolve) => {
@@ -638,8 +598,33 @@
                 resolve();
             });
         }
+        // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位
+        let HECateClickListener;
+        async function reload_HECateTable_Listeners() {
+            return new Promise((resolve) => {
+                const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
+                // 檢查並移除已經存在的監聽器
+                if (HECateClickListener) {
+                    HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                        tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                    })
+                }
+                // 定義新的監聽器函數
+                HECateClickListener = function () {
+                    const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                    const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
+                    $('#import_shLocal #import_shLocal_empId').empty().append(edit_emp_id); // 清空+填上工號
+                    importShLocal_modal.show();
+                }
+                // 添加新的監聽器
+                HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                    tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
+                })
+                resolve();
+            });
+        }
 
-        
+
     // [p-1]
         // [p1 函數-1] 動態生成部門代號字串並貼在#OSHORTs位置
         function mk_OSHORTs(selectedValues) {
@@ -691,7 +676,47 @@
             // 重新綁定事件監聽器
             rebindOSHORTsOptsListeners();
         }
+        // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
+        function mk_dept_nos_btn(selecteddept_no) {
+            $('#dept_no_opts_inside').empty();
+            if(Object.entries(selecteddept_no).length > 0){     // 判斷使否有長度值
+                Object.entries(selecteddept_no).forEach(([emp_sub_scope, oh_value]) => {
+                    let ostext_btns = `
+                        <div class="col-lm-3">
+                            <div class="card">
+                                <div class="card-header">${emp_sub_scope}</div>
+                                <div class="card-body p-2">
+                                    ${Object.entries(oh_value).map(([o_key, o_value]) =>
+                                        `<div class="form-check px-1">
+                                            <button type="button" class="btn btn-outline-success add_btn " name="dept_no[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
+                                        </div>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>`;
+                    $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
+                });
+            }else{
+                let ostext_btns = `
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">!! 空值注意 !!</div>
+                            <div class="card-body">
+                                ~ 目前沒有任何已存檔的員工資料 ~
+                            </div>
+                        </div>
+                    </div>`;
+                $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
+            }
+            // 重新綁定dept_no_opts事件監聽器
+            const dept_no_opts_arr = Array.from(document.querySelectorAll('#dept_no_opts_inside button[name="dept_no[]"]'));
+            dept_no_opts_arr.forEach(dept_no_btn => {
+                dept_no_btn.addEventListener('click', function() {
+                    load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                });
+            });
 
+        }
         // [p1 函數-2] 根據步驟2的選擇動態生成部門代號字串
         function mk_select_OSHORTs(OSHORTs_opts_arr) {
             const selectedOptsValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
@@ -714,48 +739,45 @@
                 });
             });
         }
-
         // [p1 函數-3] 設置事件監聽器和MutationObserver
-        async function p1_eventListener() {
+        async function eventListener() {
             return new Promise((resolve) => {
-                // p1. [通用]在任何地方啟用工具提示框
+                // step-1. 在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
+                // step-1-1a. p-1 監聽步驟1[棟別]的checkbox變化
+                const OSHORTsDiv = document.getElementById('OSHORTs');               // 定義OSHORTsDiv變量
+                const OSHORTs_opts = document.getElementById('OSHORTs_opts_inside'); // 定義OSHORTs_opts變量
+                OSTEXT_30s.forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.value === 'All') {
+                            OSTEXT_30s.forEach(cb => cb.checked = this.checked); // 全選或取消全選
+                        } else {
+                            const allCheckbox = OSTEXT_30s.find(cb => cb.value === 'All');
+                            const nonAllCheckboxes = OSTEXT_30s.filter(cb => cb.value !== 'All');
+                            allCheckbox.checked = nonAllCheckboxes.every(cb => cb.checked); // 更新"All"狀態
+                        }
 
-                // p1-1a. 監聽步驟1[棟別]的checkbox變化
-                    const OSHORTsDiv = document.getElementById('OSHORTs');               // 定義OSHORTsDiv變量
-                    const OSHORTs_opts = document.getElementById('OSHORTs_opts_inside'); // 定義OSHORTs_opts變量
-                    OSTEXT_30s.forEach(checkbox => {
-                        checkbox.addEventListener('change', function() {
-                            if (this.value === 'All') {
-                                OSTEXT_30s.forEach(cb => cb.checked = this.checked); // 全選或取消全選
-                            } else {
-                                const allCheckbox = OSTEXT_30s.find(cb => cb.value === 'All');
-                                const nonAllCheckboxes = OSTEXT_30s.filter(cb => cb.value !== 'All');
-                                allCheckbox.checked = nonAllCheckboxes.every(cb => cb.checked); // 更新"All"狀態
-                            }
+                        const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
+                        OSTEXT_30_Out.classList.toggle('is-invalid', selectedValues.length === 0);
+                        OSTEXT_30_Out.classList.toggle('is-valid', selectedValues.length > 0);
 
-                            const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
-                            OSTEXT_30_Out.classList.toggle('is-invalid', selectedValues.length === 0);
-                            OSTEXT_30_Out.classList.toggle('is-valid', selectedValues.length > 0);
-
-                            mk_OSHORTs(selectedValues); // 呼叫函數-1生成部門代號字串
-                        });
+                        mk_OSHORTs(selectedValues); // 呼叫函數-1生成部門代號字串
                     });
-                    // p1-1b. 初始化監聽器
+                });
+                    // step-1-1b. p-1 初始化監聽器
                     rebindOSHORTsOptsListeners();
+                // step-1-2a. p-1 使用MutationObserver監控OSHORTs區域內文本變化
+                const observer = new MutationObserver(() => {
+                    const isEmpty = OSHORTsDiv.innerText.trim() === '';
+                    OSHORTs_opts.classList.toggle('is-invalid', isEmpty);
+                    OSHORTs_opts.classList.toggle('is-valid', !isEmpty);
 
-                // p1-2a. 使用MutationObserver監控OSHORTs區域內文本變化
-                    const observer = new MutationObserver(() => {
-                        const isEmpty = OSHORTsDiv.innerText.trim() === '';
-                        OSHORTs_opts.classList.toggle('is-invalid', isEmpty);
-                        OSHORTs_opts.classList.toggle('is-valid', !isEmpty);
-                        // 每次 OSHORTs 變動時也更新 select_OSHORTs 的內容
-                        mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]')));
-                    });
-                    // p1-2b. 設置觀察選項並開始監控
+                    // 每次 OSHORTs 變動時也更新 select_OSHORTs 的內容
+                    mk_select_OSHORTs(Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[type="checkbox"]')));
+                });
+                    // step-1-2b. p-1 設置觀察選項並開始監控
                     observer.observe(OSHORTsDiv, { childList: true, subtree: true }); 
-
-                // p1-3. 監聽 load_hrdb_btn 取得人事資料庫
+                // step-1-3. p-1 監聽 load_hrdb_btn 取得人事資料庫
                 load_hrdb_btn.addEventListener('click', function() {
                     const select_OSHORTs_str = document.getElementById('select_OSHORTs').innerText; // 取得部門代號字串
                     // load_fun('load_hrdb', select_OSHORTs_str, post_hrdb);               // 呼叫load_fun 用 部門代號字串 取得 人員清單 => post_hrdb渲染
@@ -763,11 +785,68 @@
                     inside_toast('取得&nbsp;hrdb員工清單...Done&nbsp;!!');
                     $('#nav-p2-tab').tab('show');                                       // 切換頁面
                 });
+                // step-3.[load_excel] 以下為上傳後"iframe"的部分
+                    // step-3-1. p-2 監控按下送出鍵後，打開"iframe"
+                    excelUpload.addEventListener('click', ()=> {
+                        iframeLoadAction();
+                        loadExcelForm();
+                    });
+                    // step-3-2. p-2 監控按下送出鍵後，打開"iframe"，"load"後，執行抓取資料
+                    iframe.addEventListener('load', ()=> {
+                        iframeLoadAction();
+                    });
+                    // step-3-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
+                    import_excel_btn.addEventListener('click', ()=> {
+                        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                        var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
+                        var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
+
+                        if (excel_json) {
+                            document.getElementById('excelTable').value = excel_json.value;
+                            const excel_json_value_arr = JSON.parse(excel_json.value);
+                            
+                            // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
+                            mgInto_staff_inf(excel_json_value_arr)      // 呼叫[fun] 
+                            inside_toast(`批次匯入Excel資料...Done&nbsp;!!`);
+
+                        } else if(stopUpload) {
+                            console.log('請確認資料是否正確');
+                        }else{
+                            console.log('找不到 ? 元素');
+                        }
+                    });
                 
                 resolve();      // 當所有設置完成後，resolve Promise
             });
         }
-
+        // [p1 函數-5] 多功能擷取fun 新版改用fetch
+        async function load_fun(fun, parm, myCallback) {        // parm = 參數
+            mloading(); 
+            if(parm){
+                try {
+                    let formData = new FormData();
+                        formData.append('fun', fun);
+                        formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
+    
+                    let response = await fetch('load_fun.php', {
+                        method : 'POST',
+                        body   : formData
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('fun load ' + fun + ' failed. Please try again.');
+                    }
+    
+                    let responseData = await response.json();
+                    let result_obj = responseData['result_obj'];    // 擷取主要物件
+                    return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
+                                                                    // myCallback：form = bring_form() 、document = edit_show() 、
+                } catch (error) {
+                    $("body").mLoading("hide");
+                    throw error;                                    // 載入失敗，reject
+                }
+            }
+        }
         // [p1 函數-6] 渲染hrdb
         async function post_hrdb(emp_arr){
             // console.log('post_hrdb--emp_arr...', emp_arr);
@@ -785,7 +864,6 @@
                     tr += `<td>${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.emp_id}" `;
                         tr += emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``;
                         tr += `data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${emp_i.cname}</button></td>`;
-                    // tr += `<td>${emp_i.emp_id}</br><span ` + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) + `>${emp_i.cname}</span></td>`;        // 檢查類別代號 開啟 importShLocal_modal
 
                     tr += `<td id="MONIT_LOCAL,${emp_i.emp_id}"></td> <td id="WORK_DESC,${emp_i.emp_id}"></td>
                            <td id="HE_CATE,${emp_i.emp_id}" class="HE_CATE"></td>
@@ -831,74 +909,45 @@
 
             $("body").mLoading("hide");
         }
+    // p-2 當有輸入每日暴露時數eh_time時...
+    function change_eh_time(this_id, this_value){    // this.id, this.value
+        const this_id_arr = this_id.split(',')       // 分割this.id成陣列
+        const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
+        // step-1 將每日暴露時數eh_time存到指定staff_inf
+            const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+            if (empData) {
+                        // [改用] empData.shCase = empData.shCase || [];
+                        // // 然後將暴露時數eh_time值 進行更新對應的empId下shCase含'噪音'的項目中。
+                        // empData.shCase.forEach((sh_v, sh_i) => {
+                        //     if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
+                        //         empData.shCase[sh_i]['eh_time'] = Number(this_value);
+                        //     }
+                        // });
+                empData['eh_time'] = Number(this_value);
+            }
+            console.log('change_eh_time--staff_inf..', empData);
+
+        // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
+            clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
+            const { shCase, shCondition } = empData;
+            if (shCase) {
+                Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
+                    updateDOM(sh_value, select_empId, index + 1);
+                });
+            }
+            // 更新資格驗證(1by1)
+            if (shCondition) {
+                updateShCondition(shCondition, select_empId);
+            }
+    }
+    // p-2 批次儲存員工清單...
+    function bat_storeStaff(){
+        load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
+    }
+    // p-3：[load_staff]
 
 
     // [p-2]
-        // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
-        let HECateClickListener;
-        async function reload_HECateTable_Listeners() {
-            return new Promise((resolve) => {
-                const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-                // 檢查並移除已經存在的監聽器
-                if (HECateClickListener) {
-                    HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                        tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                    })
-                }
-                // 定義新的監聽器函數
-                HECateClickListener = function () {
-                    const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                    const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                    $('#import_shLocal #import_shLocal_empId').empty().append(edit_emp_id); // 清空+填上工號
-                    importShLocal_modal.show();
-                }
-                // 添加新的監聽器
-                HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
-                })
-                resolve();
-            });
-        }
-        // 更換shLocal_modal內的emp_id值 for shLocal互動視窗
-        function reNew_empId(this_value){
-            $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
-        }
-        // p-2 當有輸入每日暴露時數eh_time時...
-        function change_eh_time(this_id, this_value){    // this.id, this.value
-            const this_id_arr = this_id.split(',')       // 分割this.id成陣列
-            const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
-            // step-1 將每日暴露時數eh_time存到指定staff_inf
-                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                if (empData) {
-                            // [改用] empData.shCase = empData.shCase || [];
-                            // // 然後將暴露時數eh_time值 進行更新對應的empId下shCase含'噪音'的項目中。
-                            // empData.shCase.forEach((sh_v, sh_i) => {
-                            //     if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
-                            //         empData.shCase[sh_i]['eh_time'] = Number(this_value);
-                            //     }
-                            // });
-                    empData['eh_time'] = Number(this_value);
-                }
-                console.log('change_eh_time--staff_inf..', empData);
-
-            // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
-                clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
-                const { shCase, shCondition } = empData;
-                if (shCase) {
-                    Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                        updateDOM(sh_value, select_empId, index + 1);
-                    });
-                }
-                // 更新資格驗證(1by1)
-                if (shCondition) {
-                    updateShCondition(shCondition, select_empId);
-                }
-        }
-        // p-2 批次儲存員工清單...
-        function bat_storeStaff(){
-            load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
-        }
-
         // modal：[load_excel] 以下為上傳後"iframe"的部分
             // fun.2-1a 阻止檔案未上傳導致的錯誤。 // 請注意設置時的"onsubmit"與"onclick"。
             function loadExcelForm() {
@@ -973,7 +1022,7 @@
                 let htmlTableValue = JSON.stringify(sort_listData);
                 document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
             }
-            // p2_eventListener() step-3-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
+            // eventListener() step-3-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
 
         // modal：[searchStaff]
             // fun.2-2a：search Key_word
@@ -1102,99 +1151,12 @@
                 }
             }
 
-        // [p2 函數-3] 設置事件監聽器和MutationObserver
-        async function p2_eventListener() {
-            return new Promise((resolve) => {
-
-                // p2.[load_excel] 以下為上傳後"iframe"的部分
-                    // p2-1. 監控modal按下[上傳]鍵後，載入Excel
-                    excelUpload.addEventListener('click', ()=> {
-                        iframeLoadAction();
-                        loadExcelForm();
-                    });
-
-                    // p2-2. 監控modal按下[上傳]鍵後，打開隱藏的"iframe"，"load"後執行抓取資料
-                    iframe.addEventListener('load', ()=> {
-                        iframeLoadAction();
-                    });
-
-                    // p2-3. 監控按下[載入]鍵後----呼叫Excel載入
-                    import_excel_btn.addEventListener('click', ()=> {
-                        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                        var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
-                        var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
-
-                        if (excel_json) {
-                            document.getElementById('excelTable').value = excel_json.value;
-                            const excel_json_value_arr = JSON.parse(excel_json.value);
-                            
-                            // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
-                            mgInto_staff_inf(excel_json_value_arr)      // 呼叫[fun] 
-                            inside_toast(`批次匯入Excel資料...Done&nbsp;!!`);
-
-                        } else if(stopUpload) {
-                            console.log('請確認資料是否正確');
-                        }else{
-                            console.log('找不到 ? 元素');
-                        }
-                    });
-                
-                resolve();      // 當所有設置完成後，resolve Promise
-            });
-        }
-
-    // [p-3]
-        // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
-        function mk_dept_nos_btn(selecteddept_no) {
-            $('#dept_no_opts_inside').empty();
-            if(Object.entries(selecteddept_no).length > 0){     // 判斷使否有長度值
-                Object.entries(selecteddept_no).forEach(([emp_sub_scope, oh_value]) => {
-                    let ostext_btns = `
-                        <div class="col-lm-3">
-                            <div class="card">
-                                <div class="card-header">${emp_sub_scope}</div>
-                                <div class="card-body p-2">
-                                    ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                        `<div class="form-check px-1">
-                                            <button type="button" class="btn btn-outline-success add_btn " name="dept_no[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
-                                        </div>`
-                                    ).join('')}
-                                </div>
-                            </div>
-                        </div>`;
-                    $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
-                });
-            }else{
-                let ostext_btns = `
-                    <div class="col-md-3">
-                        <div class="card">
-                            <div class="card-header">!! 空值注意 !!</div>
-                            <div class="card-body">
-                                ~ 目前沒有任何已存檔的員工資料 ~
-                            </div>
-                        </div>
-                    </div>`;
-                $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
-            }
-            // 重新綁定dept_no_opts事件監聽器
-            const dept_no_opts_arr = Array.from(document.querySelectorAll('#dept_no_opts_inside button[name="dept_no[]"]'));
-            dept_no_opts_arr.forEach(dept_no_btn => {
-                dept_no_btn.addEventListener('click', function() {
-                    load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                });
-            });
-
-        }
-    // p-3：[load_staff]
-
-
     $(function() {
         // [步驟-1] 初始化設置
         const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
         mk_OSHORTs(selectedValues);     // 呼叫函數-1 生成p1廠區按鈕
         mk_dept_nos_btn(dept_nosObj);   // 呼叫函數-2 生成p3部門按鈕
-        p1_eventListener();                // 呼叫函數-3 建立監聽
-        p2_eventListener();                // 呼叫函數-3 建立監聽
+        eventListener();                // 呼叫函數-3 建立監聽
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         let message  = '*** 完成員工存檔、更新與呼出還原功能! ... 歷史資料檢視在側邊顯示&nbsp;~';

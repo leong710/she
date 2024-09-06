@@ -150,13 +150,13 @@
                         $current_year = date('Y');
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['shCase_logs']             = json_decode($shStaffs[$index]['shCase_logs'], true);
-                                $shStaffs[$index]['eh_time']             = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
-                                $shStaffs[$index]['shCase']              = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
-                                $shStaffs[$index]['shCondition']         = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
+                            $shStaffs[$index]['shCase_logs']     = json_decode($shStaffs[$index]['shCase_logs'], true);
+                                $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
+                                $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
+                                $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
+                                
                             // $shStaffs[$index]['_content'][$current_year] = json_decode($shStaffs[$index]['_content'], true);
-                            $_content_arr = json_decode($shStaffs[$index]['_content'], true);
-                            $shStaffs[$index]['_content'][$current_year] = isset($_content_arr[$current_year]) ? $_content_arr[$current_year] : [];
+                            $shStaffs[$index]['_content']        = json_decode($shStaffs[$index]['_content']);
                         }
 
                     // 製作返回文件
@@ -180,7 +180,7 @@
             break;
             case 'bat_storeStaff':  // 
                 if(isset($parm)){
-
+                    require_once("../user_info.php");
                     $pdo = pdo();
                     $swal_json = array(                                 // for swal_json
                         "fun"       => "bat_storeStaff",
@@ -214,45 +214,65 @@
                         $existing_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                     
                         // step.2 解析現有資料為陣列
-                        $shCase_logs_existing = isset($existing_data['shCase_logs']) ? json_decode($existing_data['shCase_logs'], true)      : [];
-                        $_content_existing    = isset($existing_data['_content'])    ? json_decode($existing_data['_content'], true)         : [];
+                        $shCase_logs_existing = isset($existing_data['shCase_logs']) ? json_decode($existing_data['shCase_logs'], true) : [];
+                        $_content_existing    = isset($existing_data['_content'])    ? json_decode($existing_data['_content'], true)    : [];
                     
                         // step.3a 檢查並維護現有資料中的 key
                             $current_year = date('Y');
                     
                         // step.3b 更新或新增該年份的資料
                             $shCase_logs_existing[$current_year] = [
-                                "dept_no"       => $dept_no,
-                                "emp_dept"      => $emp_dept,
-                                "emp_sub_scope" => $emp_sub_scope,
-                                "schkztxt"      => $schkztxt,
-                                "cstext"        => $cstext,
-                                "emp_group"     => $emp_group,
-                                "eh_time"       => isset($eh_time)     ? $eh_time     : null ,          // 暴露時數
-                                "shCase"        => isset($shCase)      ? $shCase      : null ,          // 特作區域
-                                "shCondition"   => isset($shCondition) ? $shCondition : null            // 特作驗證
+                                "dept_no"       => isset($dept_no)       ? $dept_no       : null,
+                                "emp_dept"      => isset($emp_dept)      ? $emp_dept      : null,
+                                "emp_sub_scope" => isset($emp_sub_scope) ? $emp_sub_scope : null,
+                                "schkztxt"      => isset($schkztxt)      ? $schkztxt      : null,
+                                "cstext"        => isset($cstext)        ? $cstext        : null,
+                                "emp_group"     => isset($emp_group)     ? $emp_group     : null,
+                                "eh_time"       => isset($eh_time)       ? $eh_time       : null,           // 暴露時數
+                                "shCase"        => isset($shCase)        ? $shCase        : null,           // 特作區域
+                                "shCondition"   => isset($shCondition)   ? $shCondition   : null            // 特作驗證
                             ];
                             
                         // $_content_existing[$current_year] = isset($_content) ? $_content : null;
                         // 檢查並串接新的 _content
-                            if (isset($_content)) {
+                        if (isset($_content[$current_year])) {
+                            // 確保 $_content[$current_year] 是陣列，並將其轉換成字符串
+                            $new_content = is_array($_content[$current_year]) ? implode("\r\n", $_content[$current_year]) : $_content[$current_year];
+                            // 確保 $_content_existing[$current_year] 是陣列的存在
+                            $_content_existing[$current_year] = isset($_content_existing[$current_year]) ? $_content_existing[$current_year] : [];
+
+                            // 檢查 $new_content 是否非空，才進行後續操作
+                            if (!empty($new_content)) {
                                 if (isset($_content_existing[$current_year])) {
-                                    $_content_existing[$current_year] .= "\r\n" . $_content;        // 如果已經有內容，將新的內容用換行符串接到現有內容後面
+                                    // 檢查現有內容是否非空，再進行串接
+                                    if (!empty($_content_existing[$current_year])) {
+                                        $_content_existing[$current_year] .= "\r\n" . $new_content;
+                                    } else {
+                                        // 如果現有內容是空的，直接設置為新內容
+                                        $_content_existing[$current_year] = $new_content;
+                                    }
                                 } else {
-                                    $_content_existing[$current_year] = $_content;                  // 如果沒有現有內容，直接設置新內容
+                                    // 如果沒有現有內容，直接設置新內容
+                                    $_content_existing[$current_year] = $new_content;
                                 }
                             }
+                        }
                     
                         // step.4 將更新後的資料編碼為 JSON 字串
                         $shCase_logs_str       = json_encode($shCase_logs_existing, JSON_UNESCAPED_UNICODE);
                         $_content_str          = json_encode($_content_existing,    JSON_UNESCAPED_UNICODE);
                     
+                        // 防呆
+                        $gesch    = isset($gesch)    ? $gesch    : null;
+                        $natiotxt = isset($natiotxt) ? $natiotxt : null;
+                        $HIRED    = isset($HIRED)    ? $HIRED    : null;
+
                         // step.5 準備 SQL 和參數
                         $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
                         $params = array_merge($params, [
                             $emp_id, $cname, $gesch, $natiotxt, $HIRED,
                             $shCase_logs_str, $_content_str, 
-                            "Leong.chen", "Leong.chen"
+                            $auth_cname, $auth_cname
                         ]);
                     }
                     
