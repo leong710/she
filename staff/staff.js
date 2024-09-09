@@ -293,6 +293,7 @@
             await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
             await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
+            download_excel_btn.disabled = staff_inf.length === 0;  // 讓下載按鈕啟停
         }
         // 240826 單筆刪除Staff資料
         async function eraseStaff(removeEmpId){
@@ -324,6 +325,7 @@
                 await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
                 await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
                 await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
+                download_excel_btn.disabled = staff_inf.length === 0;  // 讓下載按鈕啟停
                 inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`);
             }
         }
@@ -356,7 +358,8 @@
             return new Promise((resolve) => {
                 Object.entries(searchStaff_arr).forEach(([index, staffValue]) => {
                     const rework_staff = {
-                        'emp_sub_scope' : staffValue.emp_sub_scope.replace(/ /g, '&nbsp;'),
+                        // 'emp_sub_scope' : staffValue.emp_sub_scope.replace(/ /g, '&nbsp;'),
+                        'emp_sub_scope' : staffValue.emp_sub_scope,
                         'emp_id'        : staffValue.emp_id,
                         'cname'         : staffValue.cname,
                         'dept_no'       : staffValue.dept_no,
@@ -448,14 +451,14 @@
                 empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;
 
                 // step.4 進行部門代號dept_no的變更檢查
-                const currentYear = String(new Date().getFullYear());   // 取得當前年份
+                const currentYear = String(new Date().getFullYear() - 1);   // 取得當前年份-1=去年  ** asIs_deptNo / toBe_deptNo：要注意是否in_array(特作區域) 
                 let asIs_deptNo = false;
                 if(empData.shCase_logs[currentYear] !== undefined){
                     asIs_deptNo = (empData.shCase_logs[currentYear]['dept_no'] !== undefined ) ? empData.shCase_logs[currentYear]['dept_no'] : false;
                 }
                 const toBe_deptNo = (empData.dept_no !== undefined )                           ? empData.dept_no                             : false;
                 empData['shCondition']['change'] = (asIs_deptNo && toBe_deptNo) ? checkChange(asIs_deptNo, toBe_deptNo) : false;
-                console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
+                // console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
 
                 resolve();  // 當所有設置完成後，resolve Promise
             });
@@ -945,34 +948,68 @@
             };
             // fun.2-1c 下載Excel
             function downloadExcel(to_module) {
-                // 定義要抓的key=>value
-                const item_keys = {
-                    // "id"            : "aid",
-                    "OSHORT"        : "部門代碼",
-                    "OSTEXT_30"     : "廠區",
-                    "OSTEXT"        : "部門名稱",
-                    "HE_CATE"       : "類別",
-                    "AVG_VOL"       : "均能音量",
-                    "AVG_8HR"       : "工作日8小時平均音壓值",
-                    "MONIT_NO"      : "監測編號",
-                    "MONIT_LOCAL"   : "監測處所",
-                    "WORK_DESC"     : "作業描述",
-                    "flag"          : "開關",
-                    "created_at"    : "建檔日期",
-                    "updated_at"    : "最後更新",
-                    "updated_cname" : "最後編輯",
-                };
-                let sort_listData = [];                         // 建立整理陣列
-                for(let i=0; i < shLocals.length; i++){
-                    sort_listData[i] = {};                      // 建立物件
-                    Object.keys(item_keys).forEach(function(i_key){
-                        sort_listData[i][item_keys[i_key]] = shLocals[i][i_key];
-                    })
+                if(staff_inf.length === 0){
+                    return;
                 }
+                const item_keys = {
+                    "emp_sub_scope" : "廠區",
+                    "dept_no"       : "部門代碼",
+                    "emp_dept"      : "部門名稱",
+                    "emp_id"        : "工號",
+                    "cname"         : "姓名",
+                    "shCase"        : "特作項目",
+                    "eh_time"       : "每日暴露時數",
+                    "shCondition"   : "資格驗證",
+                };
+                
+                const shCase_keys = {
+                    "MONIT_LOCAL"   : "工作場所",
+                    "WORK_DESC"     : "工作內容",
+                    "HE_CATE"       : "檢查類別代號",
+                    "AVG_VOL"       : "均能音量",
+                    "AVG_8HR"       : "平均音壓"
+                };
+            
+                let sort_listData = staff_inf.map((staff) => {
+                    let sortedData = {};
+            
+                    // 處理主欄位
+                    Object.entries(item_keys).forEach(([key, label]) => {
+                        if (key === 'shCase') {
+                            staff['shCase'].forEach((caseItem) => {
+                                // 處理 shCase 的子欄位
+                                Object.entries(shCase_keys).forEach(([subKey, subLabel]) => {
+                                    const value = caseItem[subKey];
+                                    if (subKey === 'HE_CATE' && value !== undefined) {
+                                        const heCate = JSON.stringify(value).replace(/[{"}]/g, '');
+                                        sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${heCate}` : heCate;
+                                    } else {
+                                        sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${(value || '')}` : (value || '');
+                                    }
+                                });
+                            });
+                        } else if (key === 'shCondition') {
 
+                            const shCondition = staff[key];
+                            // 過濾出 value = true 的鍵值對
+                            let shCondition_true = Object.fromEntries(
+                                Object.entries(shCondition).filter(([key, value]) => value === true)        // 這裡不能用;結尾...要注意!
+                            );
+
+                            shCondition_true = JSON.stringify(shCondition_true).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
+                            sortedData[label] = shCondition_true;
+                        } else {
+                            sortedData[label] = staff[key];
+                        }
+                    });
+            
+                    return sortedData;
+                });
+            
                 let htmlTableValue = JSON.stringify(sort_listData);
-                document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
+                document.getElementById(to_module + '_htmlTable').value = htmlTableValue;
             }
+            
             // p2_eventListener() step-3-3. p-2 監控按下[載入]鍵後----呼叫Excel載入
 
         // modal：[searchStaff]
@@ -1138,7 +1175,7 @@
                             console.log('找不到 ? 元素');
                         }
                     });
-                
+
                 resolve();      // 當所有設置完成後，resolve Promise
             });
         }

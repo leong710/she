@@ -90,8 +90,8 @@
         // 定義要抓的key=>value
         const item_keys = {
             // "id"            : "aid",
-            "OSHORT"        : "部門代碼",
             "OSTEXT_30"     : "廠區",
+            "OSHORT"        : "部門代碼",
             "OSTEXT"        : "部門名稱",
             "HE_CATE"       : "類別",
             "AVG_VOL"       : "均能音量",
@@ -109,7 +109,7 @@
         for(let i=0; i < shLocals.length; i++){
             sort_listData[i] = {};                      // 建立物件
             Object.keys(item_keys).forEach(function(i_key){
-                sort_listData[i][item_keys[i_key]] = shLocals[i][i_key];
+                sort_listData[i][item_keys[i_key]] = (i_key == "HE_CATE") ? shLocals[i][i_key].replace(/[{"}]/g, '') : shLocals[i][i_key];
             })
         }
         // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~

@@ -130,9 +130,9 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button class="nav-link" disable id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" type="button" role="tab" aria-controls="nav-p1" aria-selected="false">條件取得</button>
-                            <button class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" type="button" role="tab" aria-controls="nav-p2" aria-selected="false">員工清單</button>
-                            <button class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" type="button" role="tab" aria-controls="nav-p3" aria-selected="false">存檔員工</button>
+                            <button type="button" class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 變更作業特殊健檢</button>
+                            <button type="button" class="nav-link"          id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-cloud-arrow-down"></i> 取得部門現況名單</button>
+                            <button type="button" class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
                         </div>
                     </nav>
                 </div>
@@ -142,7 +142,7 @@
                     <div id="nav-p1_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
-                            <p class="<?php echo ($sys_role > 1) ? 'unblock':'';?>">
+                            <p class="<?php echo ($sys_role > 0) ? 'unblock':'';?>">
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-1" aria-expanded="false" aria-controls="step1-1">step1-1</button>
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-2" aria-expanded="false" aria-controls="step1-2">step1-2</button>
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step2-1" aria-expanded="false" aria-controls="step2-1">step2-1</button>
@@ -172,7 +172,9 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="col-12 p-1">
+                                <h5>由人事資料庫撈取現況名單(僅限有建立危害地圖之部門代號)：</h5>
+                            </div>
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <snap for="OSTEXT_30" class="form-label">STEP-1.篩選特危健康場所：<sup class="text-danger"> *</sup></snap>
@@ -225,15 +227,13 @@
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
                                     <button type="button" class="btn btn-outline-success add_btn" onclick="bat_storeStaff()"><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
-                                    <?php if($per_total != 0){ ?>
-                                        <!-- 下載EXCEL的觸發 -->
-                                        <div class="inb">
-                                            <form id="shLocal_myForm" method="post" action="../_Format/download_excel.php">
-                                                <input  type="hidden" name="htmlTable" id="shLocal_htmlTable" value="">
-                                                <button type="submit" name="submit" class="btn btn-outline-success add_btn" value="shLocal" onclick="downloadExcel(this.value)" ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
-                                            </form>
-                                        </div>
-                                    <?php } ?>
+                                    <!-- 下載EXCEL的觸發 -->
+                                    <div class="inb">
+                                        <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
+                                            <input  type="hidden" name="htmlTable" id="staff_htmlTable" value="">
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                                        </form>
+                                    </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
@@ -254,7 +254,7 @@
                                         <th title="">檢查類別代號</th>
                                         <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">均能音量</th>
                                         <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
-                                        <th title="eh_t 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
+                                        <th title="eh_time 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
                                         <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
                                         <th title="" style="width: 70px;">特檢資格</th>
                                         <th title="shCondition" data-toggle="tooltip" data-placement="bottom">資格驗證</th>
@@ -414,7 +414,7 @@
         </div>
     </div>
 
-    <!-- canvas -->
+    <!-- canvas側欄 -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
         <div class="offcanvas-header">
             <h5 id="offcanvasRightLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
@@ -439,14 +439,15 @@
 
 // // // 開局導入設定檔
 // 以下為控制 iframe
-    var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
-    var iframe           = document.getElementById('api');                // 清冊的iframe介面
-    var warningText_1    = document.getElementById('warningText_1');      // 未上傳的提示
-    var warningText_2    = document.getElementById('warningText_2');      // 資料有誤的提示
-    var excel_json       = document.getElementById('excel_json');         // 清冊中有誤的提示
-    var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
-    var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
-    var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
+    var realName           = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
+    var iframe             = document.getElementById('api');                // 清冊的iframe介面
+    var warningText_1      = document.getElementById('warningText_1');      // 未上傳的提示
+    var warningText_2      = document.getElementById('warningText_2');      // 資料有誤的提示
+    var excel_json         = document.getElementById('excel_json');         // 清冊中有誤的提示
+    var excelFile          = document.getElementById('excelFile');          // 上傳檔案名稱
+    var excelUpload        = document.getElementById('excelUpload');        // 上傳按鈕
+    var import_excel_btn   = document.getElementById('import_excel_btn');   // 載入按鈕
+    var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
 
     var searchUser_modal = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });

@@ -92,10 +92,10 @@
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-users"></i>&nbsp;特危作業人員管理<span class="badge rounded-pill bg-danger"></span></a>
+                                    <i class="fa-solid fa-users"></i>&nbsp;變更作業特殊健檢<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>人員清單下載</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>職業病預防管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp;<b>統計(試作版)</b></a></li>

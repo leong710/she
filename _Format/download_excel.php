@@ -65,6 +65,10 @@
                 $filename_head = "特殊危害健康作業管理_";
                 $columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P'];   // 定義調整蘭寬 
                 break;
+            case "staff":
+                $filename_head = "變更作業特殊健檢_";
+                $columns = ['C', 'F', 'G', 'H', 'L'];   // 定義調整蘭寬 
+                break;
             default:
                 $filename_head = $to_module;
                 $columns = [];
