@@ -222,11 +222,11 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    
+                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-success add_btn" onclick="bat_storeStaff()"><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
@@ -448,6 +448,8 @@
     var excelUpload        = document.getElementById('excelUpload');        // 上傳按鈕
     var import_excel_btn   = document.getElementById('import_excel_btn');   // 載入按鈕
     var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
+    var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
+    var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
 
     var searchUser_modal = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
@@ -461,7 +463,8 @@
     const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out');                             // 取得步驟1篩選後的特危健康場所
     const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
-
+    const currentYear = String(new Date().getFullYear());                                       // 取得當前年份
+    const preYear = currentYear - 1;                                                            // 取得去年年份
     
     // const dept_nosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
 
