@@ -86,12 +86,6 @@
         tr, td{
             text-align: start; 
         }
-        /* 凸顯可編輯欄位 */
-            .fix_amount:hover {
-                /* font-size: 1.05rem; */
-                font-weight: bold;
-                text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-            }
         /* 警示項目 amount、lot_num */
             .alert_itb {
                 background-color: #FFBFFF;
@@ -118,6 +112,34 @@
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
         }
+            .split-td {
+                display: flex;
+                flex-direction: column;
+                /* 設定高度以顯示效果 */
+                /* height: 100px; */
+                height: auto;
+                padding: 0;
+                /* padding-right: 0; */
+                /* padding-left: 0; */
+                /* margin: 0; */
+            }
+            .top-half, .bottom-half {
+                flex: 1; /* 平均分配空間 */
+                /* border: 1px solid black; */
+                padding: 0;
+            }
+            .bottom-half {
+                background-color: #cceeff;
+                border-radius: 4px;
+                margin-top: calc(1 * var(--spacing));
+                margin-bottom: 0;
+            }
+            .transition_ {
+                background-color: #FFBFFF;
+                padding: calc(1 * var(--spacing));
+                border-radius: 4px;
+                height: 100%;
+            }
     </style>
 </head>
 <body>
@@ -242,13 +264,9 @@
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <!-- <th title="">驗證資格</th> -->
-                                        <th title="emp_sub_scope">廠區</th>
-                                        <th title="dept_no">部門代碼名稱</th>
-                                        <!-- <th title="emp_dept">部門名稱</th> -->
-                                        <!-- <th title="emp_id">工號</th> -->
                                         <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom">工號姓名</th>
-                                        <!-- <th title="">特危作業</th> -->
+                                        <th title="emp_sub_scope">年份_廠區</th>
+                                        <th title="dept_no">部門代碼名稱</th>
                                         <th title="">工作場所</th>
                                         <th title="">工作內容</th>
                                         <th title="">檢查類別代號</th>
@@ -463,8 +481,6 @@
     const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out');                             // 取得步驟1篩選後的特危健康場所
     const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
-    const currentYear = String(new Date().getFullYear());                                       // 取得當前年份
-    const preYear = currentYear - 1;                                                            // 取得去年年份
     
     // const dept_nosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
 
