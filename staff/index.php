@@ -44,12 +44,12 @@
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
 
         // p3
-        $staff_dept_nos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
-        $staff_dept_nos_str = json_encode($staff_dept_nos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        $staff_dept_nos_str = trim($staff_dept_nos_str, '[]');                          // step3.去掉括號forMysql查詢
+        $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
+        $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
+        $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
 
         // echo "<pre>";
-        // print_r($staff_dept_nos);
+        // print_r($staff_deptNos);
         // echo "</pre>";
 
 ?>
@@ -126,7 +126,7 @@
             .top-half, .bottom-half {
                 flex: 1; /* 平均分配空間 */
                 /* border: 1px solid black; */
-                padding: 0;
+                /* padding: 0; */
             }
             .bottom-half {
                 background-color: #cceeff;
@@ -134,11 +134,13 @@
                 margin-top: calc(1 * var(--spacing));
                 margin-bottom: 0;
             }
-            .transition_ {
+            /* 轉調欄位 */
+            .transition_ {      
                 background-color: #FFBFFF;
                 padding: calc(1 * var(--spacing));
                 border-radius: 4px;
                 height: 100%;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             }
     </style>
 </head>
@@ -280,7 +282,6 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
                                 </tbody>
                             </table>
                         </div>
@@ -291,24 +292,27 @@
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
                             <div class="unblock" id="row_emp_sub_scope">
-                                <!-- 1-1.放原始 staff_dept_nos_str -->
-                                <?php echo $staff_dept_nos_str;?>
+                                <!-- 1-1.放原始 staff_deptNos_str 已存檔之部門代號 -->
+                                <?php echo $staff_deptNos_str;?>
                             </div>
-                            <div class="row">
-                                <div class="col-12 col-md-6 py-0">
-                                    <snap for="dept_nos" class="form-label">已存檔之部門代號：</snap>
+                            <!-- step-1 -->
+                            <div class="col-12 p-1">
+                                <div class="row">
+                                    <div class="col-9 col-md-10">
+                                        <snap for="deptNo_opts" class="form-label">已存檔之部門代號：</snap>
+                                    </div>
+                                    <div class="col-3 col-md-2 text-end">
+                                        <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn  form-control" ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔員工資料</button>
+                                        <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
+                                    </div>
                                 </div>
-                                <div class="col-12 col-md-6 py-0 text-end">
-                                   
-                                </div>
-                            </div>
-                            <div class="col-12 px-0 py-1">
-                                <div id="dept_no_opts" class="col-12 p-1">
-                                    <div id="dept_no_opts_inside" class="row">
+                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control is-invalid">
+                                    <div id="deptNo_opts_inside" class="row">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 
                                 </div>
                             </div>
+
                         </div>
                     </div>
                     
@@ -469,7 +473,7 @@
     var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
     var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
 
-    var searchUser_modal = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
+    var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
 
     var staff_inf        = [];
@@ -482,10 +486,10 @@
     const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
     const load_hrdb_btn = document.getElementById('load_hrdb_btn');
     
-    // const dept_nosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
+    // const deptNosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
 
     const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    const dept_nosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
+    const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
 
 
 </script>

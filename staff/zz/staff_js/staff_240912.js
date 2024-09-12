@@ -1419,25 +1419,24 @@
 
     // [p-3]
         // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
-        function mk_deptNos_slt(selectedDeptNo) {
-            $('#deptNo_opts_inside').empty();
-            if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
-                Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
+        function mk_dept_nos_btn(selecteddept_no) {
+            $('#dept_no_opts_inside').empty();
+            if(Object.entries(selecteddept_no).length > 0){     // 判斷使否有長度值
+                Object.entries(selecteddept_no).forEach(([emp_sub_scope, oh_value]) => {
                     let ostext_btns = `
                         <div class="col-lm-3">
                             <div class="card">
                                 <div class="card-header">${emp_sub_scope}</div>
                                 <div class="card-body p-2">
                                     ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                        `<div class="form-check px-4">
-                                             <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input" check >
-                                            <label for="${emp_sub_scope},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
+                                        `<div class="form-check px-1">
+                                            <button type="button" class="btn btn-outline-success add_btn " name="dept_no[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
                                         </div>`
                                     ).join('')}
                                 </div>
                             </div>
                         </div>`;
-                    $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
+                    $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
                 });
             }else{
                 let ostext_btns = `
@@ -1449,19 +1448,13 @@
                             </div>
                         </div>
                     </div>`;
-                $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
+                $('#dept_no_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<dept_no_opts_inside>元素中
             }
-            // 重新綁定deptNo_opts事件監聽器
-            const deptNo_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]'));
-            deptNo_opts_arr.forEach(deptNo_checkbox => {
-                deptNo_checkbox.addEventListener('change', function() {
-                    console.log(this.value)
-                    const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                    deptNo_opts.classList.toggle('is-invalid', selectedValues.length === 0);
-                    deptNo_opts.classList.toggle('is-valid', selectedValues.length > 0);
-
-
-                    // load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+            // 重新綁定dept_no_opts事件監聽器
+            const dept_no_opts_arr = Array.from(document.querySelectorAll('#dept_no_opts_inside button[name="dept_no[]"]'));
+            dept_no_opts_arr.forEach(dept_no_btn => {
+                dept_no_btn.addEventListener('click', function() {
+                    load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                 });
             });
 
@@ -1473,7 +1466,7 @@
         // [步驟-1] 初始化設置
         const selectedValues = OSTEXT_30s.filter(cb => cb.checked).map(cb => cb.value);
         mk_OSHORTs(selectedValues);     // 呼叫函數-1 生成p1廠區按鈕
-        mk_deptNos_slt(deptNosObj);     // 呼叫函數-2 生成p3部門slt按鈕
+        mk_dept_nos_btn(dept_nosObj);   // 呼叫函數-2 生成p3部門按鈕
         p1_eventListener();                // 呼叫函數-3 建立監聽
         p2_eventListener();                // 呼叫函數-3 建立監聽
 
