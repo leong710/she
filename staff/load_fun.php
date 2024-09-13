@@ -133,7 +133,7 @@
                     $pdo = pdo();
                     $sql = "SELECT emp_id, cname, shCase_logs, _content 
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) = '{$parm}' ";
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
                 
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";

@@ -117,16 +117,15 @@
                 flex-direction: column;
                 /* 設定高度以顯示效果 */
                 /* height: 100px; */
-                height: auto;
+                height: 100%;
                 padding: 0;
-                /* padding-right: 0; */
-                /* padding-left: 0; */
-                /* margin: 0; */
             }
             .top-half, .bottom-half {
-                flex: 1; /* 平均分配空間 */
-                /* border: 1px solid black; */
-                /* padding: 0; */
+                height: 50%;
+                overflow: hidden;
+                /* padding: calc(1 * var(--spacing)); */
+                /* 平均分配空間 */
+                /* flex: 1;  */
             }
             .bottom-half {
                 background-color: #cceeff;
@@ -135,7 +134,7 @@
                 margin-bottom: 0;
             }
             /* 轉調欄位 */
-            .transition_ {      
+            .change_ {      
                 background-color: #FFBFFF;
                 padding: calc(1 * var(--spacing));
                 border-radius: 4px;
@@ -155,7 +154,7 @@
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button type="button" class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 變更作業特殊健檢</button>
-                            <button type="button" class="nav-link"          id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-cloud-arrow-down"></i> 取得部門現況名單</button>
+                            <button type="button" class="nav-link"          id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-cloud-arrow-down"></i> 提取部門現況名單</button>
                             <button type="button" class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
                         </div>
                     </nav>
@@ -166,11 +165,8 @@
                     <div id="nav-p1_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
-                            <p class="<?php echo ($sys_role > 0) ? 'unblock':'';?>">
+                            <p class="<?php echo ($sys_role > 0) ? 'block':'';?>">
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-1" aria-expanded="false" aria-controls="step1-1">step1-1</button>
-                                <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-2" aria-expanded="false" aria-controls="step1-2">step1-2</button>
-                                <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step2-1" aria-expanded="false" aria-controls="step2-1">step2-1</button>
-                                <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" aria-expanded="false" aria-controls="step1-1 step1-2 step2-1 step2-2">Toggle both elements</button>
                             </p>
                             <div class="row">
                                 <div class="col">
@@ -178,20 +174,6 @@
                                         <div class="card card-body" id="row_OSTEXT_30">
                                             <!-- 1-1.放原始 shLocal_str -->
                                             <?php echo $shLocal_OSHORTs_str;?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="collapse multi-collapse" id="step1-2">
-                                        <div class="card card-body" id="OSHORTs">
-                                            <!-- 1-2.根據STEP-1.篩選特危健康場所--選擇結果生成字串 -->
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <div class="collapse multi-collapse" id="step2-1">
-                                        <div class="card card-body" id="select_OSHORTs">
-                                            <!-- 2-1.STEP-2.特危健康場所部門代號--選擇結果生成字串 -->
                                         </div>
                                     </div>
                                 </div>
@@ -221,7 +203,7 @@
                             <!-- step-2 -->
                             <div class="col-12 p-1">
                                 <snap for="OSHORTs_opts" class="form-label">STEP-2.特危健康場所部門代號：<sup class="text-danger"> *</sup></snap>
-                                <div id="OSHORTs_opts" class="col-12 px-2 py-1 form-control is-valid">
+                                <div id="OSHORTs_opts" class="col-12 px-2 py-1 form-control is-invalid">
                                     <div id="OSHORTs_opts_inside" class="row">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 
@@ -232,7 +214,7 @@
                             <div class="col-12 p-1">
                                 <snap for="step-3" class="form-label">STEP-3.依照條件取得人員名單：<sup class="text-danger"> *</sup></snap>
                                 <div id="step-3" class="col-3 p-3 form-control ">
-                                    <button type="button" id="load_hrdb_btn"  class="btn btn-outline-success add_btn  form-control" ><i class="fa-solid fa-arrows-rotate"></i> 取得人事資料庫</button>
+                                    <button type="button" id="load_hrdb_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取人事資料庫</button>
                                     <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
                                 </div>
                             </div>
@@ -266,19 +248,19 @@
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom">工號姓名</th>
+                                        <th title="emp_id+cname">工號姓名</th>
                                         <th title="emp_sub_scope">年份_廠區</th>
                                         <th title="dept_no">部門代碼名稱</th>
                                         <th title="">工作場所</th>
                                         <th title="">工作內容</th>
-                                        <th title="">檢查類別代號</th>
+                                        <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom"><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別代號</th>
                                         <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">均能音量</th>
                                         <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
                                         <th title="eh_time 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
                                         <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
-                                        <th title="" style="width: 70px;">特檢資格</th>
+                                        <th title="SH3" style="width: 70px;">特檢資格</th>
                                         <th title="shCondition" data-toggle="tooltip" data-placement="bottom">資格驗證</th>
-                                        <th title="Transition" data-toggle="tooltip" data-placement="bottom">轉調</th>
+                                        <th title="change" data-toggle="tooltip" data-placement="bottom">轉調</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -302,8 +284,8 @@
                                         <snap for="deptNo_opts" class="form-label">已存檔之部門代號：</snap>
                                     </div>
                                     <div class="col-3 col-md-2 text-end">
-                                        <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn  form-control" ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔員工資料</button>
-                                        <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
+                                        <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔資料</button>
+                                        <div class='invalid-feedback pt-0' id='load_deptNo_btn_feedback'>* 請先勾選部門代號至少一項 !! </div>
                                     </div>
                                 </div>
                                 <div id="deptNo_opts" class="col-12 px-2 py-1 form-control is-invalid">
