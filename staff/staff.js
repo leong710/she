@@ -190,6 +190,7 @@
         }
             // 240904 shCase 去重...
             async function removeDuplicateShCase(shCaseArray) {
+                console.log('removeDuplicateShCase...',shCaseArray);
                 const uniqueShCaseMap = new Map();
                 await shCaseArray.forEach(item => {
                     // 建立一個唯一標識符，根據所有屬性值來生成
@@ -200,6 +201,7 @@
                     }
                 });
                 // 將 Map 轉換回陣列
+                console.log(Array.from(uniqueShCaseMap.values()));
                 return Array.from(uniqueShCaseMap.values());
             }
         // 240822 將匯入資料合併到staff_inf
@@ -232,7 +234,6 @@
                         }
                     }
                 }
-
                 // 將合併後的物件加入 shCase 陣列中
                 if( Object.keys(mergedData).length > 0 && mergedData['HE_CATE']){       // 限制要有'HE_CATE'檢查類別代號才能合併
                     source_json_value_arr[e_key]['shCase'].push(mergedData);
@@ -417,7 +418,7 @@
                     empData.shCondition = {
                         "noise"   : false,          // 噪音判定
                         "newOne"  : false,          // 新人
-                        "regular" : false,          // 常態
+                        "regular" : false,          // 定期
                         "change"  : false           // 變更
                     };   
                 }
@@ -514,7 +515,7 @@
                 const shCondition_style = {
                     'noise'  : {'title':'噪音', 'bgc':'bg-secondary' },
                     'newOne' : {'title':'新人', 'bgc':'bg-success' },
-                    'regular': {'title':'常態', 'bgc':'bg-primary' },
+                    'regular': {'title':'定期', 'bgc':'bg-primary' },
                     'change' : {'title':'變更', 'bgc':'bg-warning text-dark' }
                 }
                 let inner_Value = JSON.stringify(ShCondition_value).replace(/[\[\]{"}]/g, '');
@@ -583,7 +584,7 @@
         function checkChange(asIs_deptNo, toBe_deptNo) {
             return asIs_deptNo !== toBe_deptNo;        // 比較 dept_no 前後是否一致
         }
-        // 240906 check fun-4 驗證[常態檢查]是否符合
+        // 240906 check fun-4 驗證[定期檢查]是否符合
         function checkRegular(shCase){
             return shCase.length > 0;
 
@@ -747,7 +748,7 @@
                                     empData.shCondition = {
                                         "noise"   : false,          // 噪音判定
                                         "newOne"  : false,          // 新人
-                                        "regular" : false,          // 常態
+                                        "regular" : false,          // 定期
                                         "change"  : false           // 變更
                                     }; 
                                 };
@@ -917,6 +918,7 @@
                     OSHORTs_opts.classList.toggle('is-valid', selectedOptsValues.length > 0);
                     // 更新step3 驗證標籤
                     load_hrdb_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
+                    load_hrdb_btn.classList.toggle('is-valid', selectedOptsValues.length > 0);
                     load_hrdb_btn.disabled = selectedOptsValues.length === 0 ;                  // 取得人事資料庫btn
                 });
             });
@@ -998,10 +1000,10 @@
                     tr1 += `<td><div class="split-td"><div class="top-half" id="MONIT_LOCAL,${emp_i.emp_id},${currentYear}"></div>
                                                    <div class="bottom-half" id="MONIT_LOCAL,${emp_i.emp_id},${preYear}"></div></div></td>`;
                             
-                    tr1 += `<td><div class="split-td"><div class="top-half" id="WORK_DESC,${emp_i.emp_id},${currentYear}"></div>
+                    tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div class="split-td"><div class="top-half" id="WORK_DESC,${emp_i.emp_id},${currentYear}"></div>
                                                    <div class="bottom-half" id="WORK_DESC,${emp_i.emp_id},${preYear}"></div></div></td>`;
-        
-                    tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div class="split-td"><div class="top-half" id="HE_CATE,${emp_i.emp_id},${currentYear}"></div>
+                    // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
+                    tr1 += `<td><div class="split-td"><div class="top-half" id="HE_CATE,${emp_i.emp_id},${currentYear}"></div>
                                                                    <div class="bottom-half" id="HE_CATE,${emp_i.emp_id},${preYear}"></div></div></td>`;
 
                     tr1 += `<td><div class="split-td"><div class="top-half" id="AVG_VOL,${emp_i.emp_id},${currentYear}"></div>
