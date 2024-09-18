@@ -107,7 +107,7 @@
             font-size: 12px;
         }
         .HE_CATE:hover {
-            background-color: #FFBFFF;
+            background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
@@ -165,7 +165,7 @@
                     <div id="nav-p1_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
-                            <p class="<?php echo ($sys_role > 0) ? 'block':'';?>">
+                            <p class="<?php echo ($sys_role > 0) ? 'unblock':'';?>">
                                 <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-1" aria-expanded="false" aria-controls="step1-1">step1-1</button>
                             </p>
                             <div class="row">
@@ -179,7 +179,17 @@
                                 </div>
                             </div>
                             <div class="col-12 p-1">
-                                <h5>由人事資料庫撈取現況名單(僅限有建立危害地圖之部門代號)：</h5>
+                                
+                                <div class="row">
+                                    <div class="col-9 col-md-10">
+                                        <snap for="deptNo_opts" class="form-label"><h5>由人事資料庫撈取現況名單(僅限有建立危害地圖之部門代號)：</h5></snap>
+                                    </div>
+                                    <div class="col-3 col-md-2 text-end">
+                                        <!-- step-3 -->
+                                        <button type="button" id="load_hrdb_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取人事資料庫</button>
+                                        <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* 特危健康場所部門代號至少需有一項 !! </div>
+                                    </div>
+                                </div>
                             </div>
                             <!-- step-1 -->
                             <div class="col-12 p-1">
@@ -209,14 +219,6 @@
                                     </div> 
                                 </div>
                                 <div class='invalid-feedback pt-0' id='OSHORTs_opts_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
-                            </div>
-                            <!-- step-3 -->
-                            <div class="col-12 p-1">
-                                <snap for="step-3" class="form-label">STEP-3.依照條件取得人員名單：<sup class="text-danger"> *</sup></snap>
-                                <div id="step-3" class="col-3 p-3 form-control ">
-                                    <button type="button" id="load_hrdb_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取人事資料庫</button>
-                                    <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -252,8 +254,8 @@
                                         <th title="emp_sub_scope">年份_廠區</th>
                                         <th title="dept_no">部門代碼名稱</th>
                                         <th title="">工作場所</th>
-                                        <th title="">工作內容</th>
-                                        <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom"><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別代號</th>
+                                        <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom"><i class="fa-regular fa-square-check"></i>&nbsp;工作內容</th>
+                                        <th title="HE_CATE" data-toggle="tooltip" data-placement="bottom">檢查類別代號</th>
                                         <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">均能音量</th>
                                         <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
                                         <th title="eh_time 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
@@ -281,7 +283,7 @@
                             <div class="col-12 p-1">
                                 <div class="row">
                                     <div class="col-9 col-md-10">
-                                        <snap for="deptNo_opts" class="form-label">已存檔之部門代號：</snap>
+                                        <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
                                     </div>
                                     <div class="col-3 col-md-2 text-end">
                                         <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔資料</button>
