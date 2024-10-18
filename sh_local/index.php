@@ -140,7 +140,7 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <div class="<?php echo ($per_total != 0) ? "inb":"unblock";?>">
-                                        <button type="button" id="truncate_shLocal_btn" class="btn btn-outline-danger add_btn" <?php echo ($sys_role <= 1) ? "":"disabled";?> ><i class="fa-solid fa-trash-can"></i> 清空</button>
+                                        <button type="button" id="truncate_shLocal_btn" class="btn btn-outline-danger add_btn" <?php echo ($sys_role <= 1) ? "":"disabled";?> ><i class="fa-solid fa-trash-can"></i> 刪除</button>
                                     </div>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="<?php echo ($per_total != 0) ? "inb":"unblock";?>">

@@ -212,8 +212,11 @@
 
                     const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
                     const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+                    console.log('selectedValues...', selectedValues);
+                    // *** 這裡要加過濾空值，防止刪除錯誤 -- 待處理
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-                    // console.log('selectedValues_str...', selectedValues_str);
+                    console.log('selectedValues_str...', selectedValues_str);
+
                     if(confirm(`確認要刪除以下部門特危作業？\n`+selectedValues_str)){
                         // load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
                         // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff

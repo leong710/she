@@ -109,7 +109,7 @@
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
 
                     // $sql = "TRUNCATE TABLE `_shlocal` ";
-                    $sql = "DELETE FROM _shlocal WHERE id  IN ({$parm_re}) ";
+                    $sql = "DELETE FROM _shlocal WHERE OSHORT IN ({$parm_re}) ";
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
