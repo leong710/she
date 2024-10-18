@@ -98,6 +98,53 @@
                 }
             break;
 
+            case 'deleteSelected_shLocal':         // 刪除選定的_shLocal (可多筆)
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "deleteSelected_shLocal",
+                    "content"   => "刪除特危作業--"
+                );
+                
+                if(isset($parm)){
+                    $pdo = pdo();
+                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+
+                    // $sql = "TRUNCATE TABLE `_shlocal` ";
+                    $sql = "DELETE FROM _shlocal WHERE id  IN ({$parm_re}) ";
+                    $stmt = $pdo->prepare($sql);
+                    try {
+                        $stmt->execute();
+
+                        $swal_json["action"]   = "success";
+                        $swal_json["content"] .= '成功';
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+
+                        $swal_json["action"]   = "error";
+                        $swal_json["content"] .= '失敗';
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e)'
+                        ];
+                    }
+
+                }else{
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(no parm)'
+                    ];
+                }
+            break;
+
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",

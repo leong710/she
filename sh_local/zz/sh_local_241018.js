@@ -142,10 +142,8 @@
                             <div class="card-header">${ohtext_30}</div>
                             <div class="card-body p-2">
                                 ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                    // <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
-                                    `<div class="form-check px-4">
-                                        <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" check >
-                                        <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
+                                    `<div class="form-check px-1">
+                                        <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
                                     </div>`
                                 ).join('')}
                             </div>
@@ -209,27 +207,19 @@
                 });
                 // 監控按下[清空]鍵後----呼叫清除Table
                 truncate_shLocal_btn.addEventListener('click', ()=> {
-
-                    const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
-                    const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-                    // console.log('selectedValues_str...', selectedValues_str);
-                    if(confirm(`確認要刪除以下部門特危作業？\n`+selectedValues_str)){
-                        // load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
-                        // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                        load_fun('deleteSelected_shLocal',selectedValues_str,show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
+                    if(confirm(`確認徹底刪除此清單？`)){
+                        load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);
                     }
                 });
-                // 241018 已改成checkbox，舊按鈕監聽暫停
-                    // const shLocal_table = $('#shLocal').DataTable();
-                    // const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
-                    // OSHORTs_btns.forEach(btn => {
-                    //     btn.addEventListener('click', function() {
-                    //         // console.log(this.value)
-                    //         shLocal_table.search(this.value).draw();     // 在特危作業清單的search帶入部門代號，他會過濾出符合的清單
-                    //         $('#nav-p2-tab').tab('show');                // 挑轉頁面到[特危作業清單]
-                    //     })
-                    // })
+                const shLocal_table = $('#shLocal').DataTable();
+                const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
+                OSHORTs_btns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // console.log(this.value)
+                        shLocal_table.search(this.value).draw();
+                        $('#nav-p2-tab').tab('show');
+                    })
+                })
             // 文件載入成功，resolve
             resolve();
         });
