@@ -130,8 +130,7 @@
             .bottom-half {
                 background-color: #cceeff;
                 border-radius: 4px;
-                /* margin-top: calc(1 * var(--spacing)); */
-                margin-top: 0;
+                margin-top: calc(1 * var(--spacing));
                 margin-bottom: 0;
             }
             /* 轉調欄位 */
@@ -155,12 +154,74 @@
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button type="button" class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
+                            <button type="button" class="nav-link"          id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-cloud-arrow-down"></i> 提取部門現況名單</button>
                             <button type="button" class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
                         </div>
                     </nav>
                 </div>
                 <!-- 內頁 -->
                 <div class="tab-content" id="nav-tabContent">
+                    <!-- p1 -->
+                    <div id="nav-p1_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p1-tab">
+                        <div class="col-12 bg-white">
+                            <!-- step-0 資料交換 -->
+                            <p class="<?php echo ($sys_role > 0) ? 'unblock':'';?>">
+                                <button class="btn btn-sm btn-xs btn-warning" type="button" data-bs-toggle="collapse" data-bs-target="#step1-1" aria-expanded="false" aria-controls="step1-1">step1-1</button>
+                            </p>
+                            <div class="row">
+                                <div class="col">
+                                    <div class="collapse multi-collapse" id="step1-1">
+                                        <div class="card card-body" id="row_OSTEXT_30">
+                                            <!-- 1-1.放原始 shLocal_str -->
+                                            <?php echo $shLocal_OSHORTs_str;?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 p-1">
+                                
+                                <div class="row">
+                                    <div class="col-9 col-md-10">
+                                        <snap for="deptNo_opts" class="form-label"><h5>由人事資料庫撈取現況名單(僅限有建立危害地圖之部門代號)：</h5></snap>
+                                    </div>
+                                    <div class="col-3 col-md-2 text-end">
+                                        <!-- step-3 -->
+                                        <button type="button" id="load_hrdb_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取人事資料庫</button>
+                                        <div class='invalid-feedback pt-0' id='load_hrdb_btn_feedback'>* 特危健康場所部門代號至少需有一項 !! </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- step-1 -->
+                            <div class="col-12 p-1">
+                                <snap for="OSTEXT_30" class="form-label">STEP-1.篩選特危健康場所：<sup class="text-danger"> *</sup></snap>
+                                <div id="OSTEXT_30_Out" class="col-12 p-3 form-control is-invalid" >
+                                    <div class='form-check px-4 py-1'>
+                                        <input type='checkbox' name='OSTEXT_30_All' id='OSTEXT_30_All' value='All' class='form-check-input' >
+                                        <label for='OSTEXT_30_All' class='form-check-label'>All</label>
+                                    </div>
+                                    <snap id="OSTEXT_30" class=" px-3 inf" >
+                                        <?php foreach($shLocal_OSTEXT_30s as $OSTEXT_30_i){
+                                                echo "<div class='form-check px-3'>";
+                                                echo "<input type='checkbox' name='OSTEXT_30[]' id='OSTEXT_30_{$OSTEXT_30_i["OSTEXT_30"]}' value='{$OSTEXT_30_i["OSTEXT_30"]}' class='form-check-input'  >";
+                                                echo "<label for='OSTEXT_30_{$OSTEXT_30_i["OSTEXT_30"]}' class='form-check-label'>{$OSTEXT_30_i["OSTEXT_30"]}</label></div>&nbsp;";
+                                            }
+                                        ?>
+                                    </snap>
+                                </div>
+                                <div class='invalid-feedback pt-0' id='OSTEXT_30_Out_feedback'>* STEP-1.特危健康場所至少需勾選一項 !! </div>
+                            </div>
+                            <!-- step-2 -->
+                            <div class="col-12 p-1">
+                                <snap for="OSHORTs_opts" class="form-label">STEP-2.特危健康場所部門代號：<sup class="text-danger"> *</sup></snap>
+                                <div id="OSHORTs_opts" class="col-12 px-2 py-1 form-control is-invalid">
+                                    <div id="OSHORTs_opts_inside" class="row">
+                                        <!-- 放checkbox按鈕的地方 -->
+                                    </div> 
+                                </div>
+                                <div class='invalid-feedback pt-0' id='OSHORTs_opts_feedback'>* STEP-2.特危健康場所部門代號至少需有一項 !! </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p2-tab">
@@ -370,36 +431,6 @@
         </div>
     </div>
 
-    <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasTopLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body small py-0">
-            <table id="shCase_table" class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th title="emp_id+cname">工號姓名</th>
-                        <th title="emp_sub_scope">年份_廠區</th>
-                        <th title="dept_no">部門代碼名稱</th>
-                        <th title="">工作場所</th>
-                        <th title="點選特殊作業">工作內容</th>
-                        <th title="HE_CATE">檢查類別代號</th>
-                        <th title="AVG_VOL" style="width: 50px;">均能音量</th>
-                        <th title="AVG_8HR 工作日8小時" style="width: 50px;">平均音壓</th>
-                        <th title="eh_time 累計暴露" style="width: 70px;">每日曝露時數</th>
-                        <th title="NC" style="width: 80px;">噪音資格</th>
-                        <th title="SH3" style="width: 80px;">特檢資格</th>
-                        <th title="shCondition">資格驗證</th>
-                        <th title="change">轉調</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -433,10 +464,17 @@
     var shLocal_inf      = [];
     var loadStaff_tmp    = [];
     
-    // [p3 步驟-0] 取得重要資訊
-    const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
+    // [p1 步驟-0] 取得重要資訊
+    const OSHORTsObj = JSON.parse(document.getElementById('row_OSTEXT_30').innerText);          // 將row_OSTEXT_30的字串轉換為物件
+    const OSTEXT_30_Out = document.getElementById('OSTEXT_30_Out');                             // 取得步驟1篩選後的特危健康場所
+    const OSTEXT_30s = Array.from(OSTEXT_30_Out.querySelectorAll('input[type="checkbox"]'));    // 取得所有checkbox元素
+    const load_hrdb_btn = document.getElementById('load_hrdb_btn');
+    
+    // const deptNosObj = JSON.parse(document.getElementById('row_emp_sub_scope').innerText);      // 將row_emp_sub_scope的字串轉換為物件
+
     const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
+
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>

@@ -222,27 +222,16 @@
                     
                         // step.3b 更新或新增該年份的資料
                             $shCase_logs_existing[$current_year] = [
-                                "dept_no"       => !empty($dept_no)       ? $dept_no       : null,
-                                "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : null,
-                                "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : null,
-                                "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : null,
-                                "cstext"        => !empty($cstext)        ? $cstext        : null,
-                                "emp_group"     => !empty($emp_group)     ? $emp_group     : null,
-                                "eh_time"       => !empty($eh_time)       ? $eh_time       : null,           // 暴露時數
-                                "shCase"        => !empty($shCase)        ? $shCase        : null,           // 特作區域
-                                "shCondition"   => !empty($shCondition)   ? $shCondition   : null            // 特作驗證
+                                "dept_no"       => isset($dept_no)       ? $dept_no       : null,
+                                "emp_dept"      => isset($emp_dept)      ? $emp_dept      : null,
+                                "emp_sub_scope" => isset($emp_sub_scope) ? $emp_sub_scope : null,
+                                "schkztxt"      => isset($schkztxt)      ? $schkztxt      : null,
+                                "cstext"        => isset($cstext)        ? $cstext        : null,
+                                "emp_group"     => isset($emp_group)     ? $emp_group     : null,
+                                "eh_time"       => isset($eh_time)       ? $eh_time       : null,           // 暴露時數
+                                "shCase"        => isset($shCase)        ? $shCase        : null,           // 特作區域
+                                "shCondition"   => isset($shCondition)   ? $shCondition   : null            // 特作驗證
                             ];
-                        // //  241021 針對 
-                        //     if(!empty($shCase_logs_existing[$current_year]["shCase"])){
-                        //         if(!empty($shCase)){
-                        //             $get_shCase = (array) $shCase_logs_existing[$current_year]["shCase"];
-                        //             array_push($get_shCase, $shCase);
-                        //             // array_push($shCase_logs_existing[$current_year]["shCase"], $shCase);
-                        //             $shCase_logs_existing[$current_year]["shCase"] = $get_shCase;
-                        //         }
-                        //     }else{
-                        //         $shCase_logs_existing[$current_year]["shCase"] = $shCase;
-                        //     }
                             
                         // $_content_existing[$current_year] = isset($_content) ? $_content : null;
                         // 檢查並串接新的 _content
@@ -274,9 +263,9 @@
                         $_content_str          = json_encode($_content_existing,    JSON_UNESCAPED_UNICODE);
                     
                         // 防呆
-                        $gesch    = $gesch    ?? "";    // 性別
-                        $natiotxt = $natiotxt ?? "";    // 國別
-                        $HIRED    = $HIRED    ?? "";    // 到職日
+                        $gesch    = isset($gesch)    ? $gesch    : null;
+                        $natiotxt = isset($natiotxt) ? $natiotxt : null;
+                        $HIRED    = isset($HIRED)    ? $HIRED    : null;
 
                         // step.5 準備 SQL 和參數
                         $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";

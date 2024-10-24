@@ -105,13 +105,35 @@
             "updated_cname" : "最後編輯",
         };
         let sort_listData = [];                         // 建立整理陣列
-        // const shLocals = <?=json_encode($shLocals)?>;    // 引入shLocal資料
-        for(let i=0; i < shLocals.length; i++){
-            sort_listData[i] = {};                      // 建立物件
-            Object.keys(item_keys).forEach(function(i_key){
-                sort_listData[i][item_keys[i_key]] = (i_key == "HE_CATE") ? shLocals[i][i_key].replace(/[{"}]/g, '') : shLocals[i][i_key];
-            })
-        }
+
+        const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
+        const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+        console.log('selectedValues...', selectedValues);
+        // *** 這裡要加過濾空值，防止刪除錯誤 -- 待處理
+        if(selectedValues.length > 0){
+            for (let i = 0; i < shLocals.length; i++) {
+                // 這裡修改成 includes，檢查 shLocals[i]['OSHORT'] 是否存在於 selectedValues 中
+                if (selectedValues.includes(shLocals[i]['OSHORT'])) {
+                    let sortedItem = {}; // 建立物件
+                    Object.keys(item_keys).forEach(function (i_key) {
+                        // 處理 HE_CATE 的格式
+                        sortedItem[item_keys[i_key]] = (i_key === "HE_CATE") ? shLocals[i][i_key].replace(/[{"}]/g, '') : shLocals[i][i_key];
+                    });
+                    sort_listData.push(sortedItem); // 將有資料的物件加入陣列
+                }
+            }  
+        }else{
+            for(let i=0; i < shLocals.length; i++){
+                let sortedItem = {}; // 建立物件
+                Object.keys(item_keys).forEach(function(i_key){
+                    // 處理 HE_CATE 的格式
+                    sortedItem[item_keys[i_key]] = (i_key === "HE_CATE") ? shLocals[i][i_key].replace(/[{"}]/g, '') : shLocals[i][i_key];
+                });
+                sort_listData.push(sortedItem); // 將所有物件加入陣列
+            }    
+        }            
+        console.log('aaa...sort_listData...', sort_listData);
+
         // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~
             // const table = document.getElementById(to_module);
             // const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
@@ -209,18 +231,20 @@
                 });
                 // 監控按下[清空]鍵後----呼叫清除Table
                 truncate_shLocal_btn.addEventListener('click', ()=> {
-
                     const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
                     const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                    console.log('selectedValues...', selectedValues);
+                    // console.log('selectedValues...', selectedValues);
                     // *** 這裡要加過濾空值，防止刪除錯誤 -- 待處理
-                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-                    console.log('selectedValues_str...', selectedValues_str);
-
-                    if(confirm(`確認要刪除以下部門特危作業？\n`+selectedValues_str)){
-                        // load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
-                        // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                        load_fun('deleteSelected_shLocal',selectedValues_str,show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
+                    if(selectedValues.length > 0){
+                        const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
+                        // console.log('selectedValues_str...', selectedValues_str);
+                        if(confirm(`確認要刪除以下部門特危作業？\n`+selectedValues_str)){
+                            // load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
+                            // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                            load_fun('deleteSelected_shLocal',selectedValues_str,show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
+                        }
+                    }else{
+                        alert('請勾選要刪除的部門代號!');
                     }
                 });
                 // 241018 已改成checkbox，舊按鈕監聽暫停
