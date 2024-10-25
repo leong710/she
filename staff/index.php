@@ -36,7 +36,7 @@
             $icon_e = ' fa-2x"></i>&nbsp&nbsp';
 
 
-        $shLocal_OSTEXT_30s = load_shLocal_OSTEXT30s();
+        // $shLocal_OSTEXT_30s = load_shLocal_OSTEXT30s();
 
         // p1
         $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號

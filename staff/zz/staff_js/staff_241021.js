@@ -533,7 +533,7 @@
                     }
                 }
 
-                        // // 240913 整合型的作法
+                    // // 240913 整合型的作法
                         // let shIdentity_pill = '';
                         // let shCondition_str = '';
                         // for (const [item, value] of Object.entries(ShCondition_value)) {

@@ -131,17 +131,23 @@
             case 'load_staff_byDeptNo':
                 if(isset($parm)){
                     $pdo = pdo();
-                    $sql = "SELECT emp_id, cname, shCase_logs, _content 
+                    // $sql = "SELECT emp_id, cname, shCase_logs, _content 
+                    //         FROM _staff
+                    //         WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
+                    $year = $year ?? date('Y');
+                    $sql = "SELECT emp_id, cname, shCase_logs, _content
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
-                
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
+                               OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
+                               OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
+                            ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
 
                             // $deBugFile = "deBug.json";      // 預設sw.json檔案位置
-                            // $fop = fopen($deBugFile,"w");   //開啟檔案
-                            // fputs($fop, $parm);             //初始化sw+寫入
-                            // fclose($fop);                   //關閉檔案
+                            // $fop = fopen($deBugFile,"w");   // 開啟檔案
+                            // fputs($fop, $parm);             // 初始化sw+寫入
+                            // fclose($fop);                   // 關閉檔案
                     
                     $stmt = $pdo->prepare($sql);
                     try {

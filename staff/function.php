@@ -42,14 +42,45 @@
     // 取得已存檔的員工部門代號
     function load_staff_dept_nos(){
         $pdo = pdo();
-        $sql = "SELECT
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]')) AS year_key,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
-                    JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
-                    COUNT(*) AS _count
-                FROM _staff
-                GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
+        // $sql = "SELECT
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]')) AS year_key,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
+            //             COUNT(*) AS _count
+            //         FROM _staff
+            //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
+        // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護...
+        $year = $year ?? date('Y');
+        $sql = "SELECT year_key, dept_no, emp_sub_scope, emp_dept, COUNT(*) AS _count
+                FROM (
+                        SELECT '{$year}' AS year_key,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT')) AS dept_no,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT_30')) AS emp_sub_scope,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT')) AS emp_dept
+                        FROM _staff
+                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT') IS NOT NULL
+                
+                    UNION ALL
+                
+                        SELECT '{$year}' AS year_key,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT')) AS dept_no,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT_30')) AS emp_sub_scope,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT')) AS emp_dept
+                        FROM _staff
+                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT') IS NOT NULL
+                
+                    UNION ALL
+                
+                        SELECT '{$year}' AS year_key,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT')) AS dept_no,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT_30')) AS emp_sub_scope,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT')) AS emp_dept
+                        FROM _staff
+                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT') IS NOT NULL
+                ) AS expanded_shCase
+                GROUP BY year_key, dept_no, emp_sub_scope, emp_dept;
+                ";
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();
