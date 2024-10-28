@@ -440,5 +440,6 @@
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>
+<script src="staff_excel.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
