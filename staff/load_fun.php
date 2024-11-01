@@ -254,7 +254,8 @@
                         // 檢查並串接新的 _content
                         if (isset($_content[$current_year])) {
                             // 確保 $_content[$current_year] 是陣列，並將其轉換成字符串
-                            $new_content = is_array($_content[$current_year]) ? implode("\r\n", $_content[$current_year]) : $_content[$current_year];
+                            // $new_content = is_array($_content[$current_year]) ? implode("\r\n", $_content[$current_year]) : $_content[$current_year];
+                            $new_content = $_content[$current_year];
                             // 確保 $_content_existing[$current_year] 是陣列的存在
                             $_content_existing[$current_year] = isset($_content_existing[$current_year]) ? $_content_existing[$current_year] : [];
 
