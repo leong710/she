@@ -202,9 +202,6 @@
                                         <th title="SH3" style="width: 70px;">特檢資格</th>
                                         <th title="shCondition" data-toggle="tooltip" data-placement="bottom" <?php echo ($sys_role != '0') ? "class='block'":"";?> >資格驗證</th>
                                         <th title="change" data-toggle="tooltip" data-placement="bottom"      <?php echo ($sys_role != '0') ? "class='unblock'":"";?> >轉調</th>
-                                        <th title="檢查項目(類別代號)" data-toggle="tooltip" data-placement="bottom" >匯入1</th>
-                                        <th title="檢查項目" data-toggle="tooltip" data-placement="bottom" >匯入2</th>
-                                        <th title="去年檢查項目" data-toggle="tooltip" data-placement="bottom" >匯入3</th>
                                     </tr>
                                 </thead>
                                 <tbody>

@@ -142,7 +142,7 @@
                 } else if ($submit === 'shStaff') {             // 240822_特危健康作業人員
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('NO', '廠區', '工號', '姓名', '部門代碼', '部門名稱', '檢查類別代號', '檢查項目');  //工作日8小時平均音壓值
+                    $theadTitles = array('NO', '廠區', '工號', '姓名', '部門代碼', '部門名稱', '檢查類別代號', '今年檢查項目', '去年檢查項目');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -190,7 +190,7 @@
 
                             if ($emp_id_check && $OSHORT_check) {
                                 foreach ($row as $index => $value) {
-                                    if ($index > 7) break;
+                                    if ($index > 8) break;                                  // 欄位數
                                     echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
                                 // 240904 將特作代號$row[6]升級成物件
@@ -210,6 +210,9 @@
                                     "emp_dept"      => $row[5],
                                     "HE_CATE"       => $row6_arr,
                                     "HE_CATE_KEY"   => $row[7],
+                                    "yearHe"        => $row[6],
+                                    "yearCurrent"   => $row[7],
+                                    "yearPre"       => $row[8]
                                 ];
                                 $result[] = $process;
 

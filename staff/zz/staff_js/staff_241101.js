@@ -179,22 +179,16 @@
         async function mgInto_staff_inf(source_json_value_arr){
             // const source_json_value_arr = JSON.parse(source_json_value);
             // console.log('2.source_json_value_arr...', source_json_value_arr);
-            const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no' ];                                        // 合併陣列1
-            const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};   // 合併陣列2
-            const addIn_arr3 = ['yearHe', 'yearCurrent', 'yearPre'];                                     // 合併陣列3
+            const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no'];                                        // 合併陣列1
+            const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};  // 合併陣列2
             const source_OSHORT_arr = [];
 
             for (const e_key of Object.keys(source_json_value_arr)) {
                 // 初始化 shCase 陣列
                 if (!source_json_value_arr[e_key]['shCase']) { source_json_value_arr[e_key]['shCase'] = []; }         // 特作案件紀錄陣列建立
                 if (!source_json_value_arr[e_key]['eh_time']) { source_json_value_arr[e_key]['eh_time'] = null; }     // eh_time在這裡要先建立，避免驗證錯誤跳脫
-
-                if (!source_json_value_arr[e_key]['_content']) { source_json_value_arr[e_key]['_content'] = {}; }         // 特作案件紀錄陣列建立
-                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]) { source_json_value_arr[e_key]['_content'][`${currentYear}`] = {}; }         // 特作案件紀錄陣列建立
-                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']) { source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = {}; }         // 特作案件紀錄陣列建立
                 // 建立一個新的物件來儲存合併的資料
                 let mergedData = {};
-                let importData = {};
                 // 遍歷合併陣列1 addIn_arr1 並合併數據
                 addIn_arr1.forEach((addIn_i) => {
                     if (source_json_value_arr[e_key][addIn_i]) {
@@ -202,7 +196,6 @@
                         delete source_json_value_arr[e_key][addIn_i];                    // 刪除合併後的屬性
                     }
                 });
-                
                 // 遍歷合併陣列2 addIn_arr2 並合併數據
                 for (const [a2_key, a2_value] of Object.entries(addIn_arr2)) {
                     if (source_json_value_arr[e_key][a2_value]) {
@@ -212,14 +205,6 @@
                         }
                     }
                 }
-
-                // 遍歷合併陣列3 addIn_arr3 並合併數據
-                addIn_arr3.forEach((addIn_i) => {
-                    if (source_json_value_arr[e_key][addIn_i]) {
-                        importData[addIn_i] = source_json_value_arr[e_key][addIn_i];     // 合併
-                        delete source_json_value_arr[e_key][addIn_i];                    // 刪除合併後的屬性
-                    }
-                });
 
                 // 241028 補強提取資料後原本只抓最外層的部門代號'shCase，補上shCase_logs內當年度'shCase
                 if(source_json_value_arr[e_key]['shCase_logs'] !== undefined && source_json_value_arr[e_key]['shCase_logs'][currentYear]){
@@ -237,27 +222,18 @@
                     // 使用 await 調用 removeDuplicateShCase 去重
                     source_json_value_arr[e_key]['shCase'] = await removeDuplicateShCase(source_json_value_arr[e_key]['shCase']);
                 }
-
-                // 將合併後的物件加入 _content/import 陣列中
-                if( Object.keys(importData).length > 0 ){       
-                    // source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'].push(importData);
-                    source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = importData;
-                    // 使用 await 調用 removeDuplicateShCase 去重
-                    // source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = await removeDuplicateShCase(source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']);
-                }
             };
-
             // 240826 進行emp_id重複值的比對並合併
                 let combined = staff_inf.concat(source_json_value_arr);                                  // 合併2個陣列到combined
                 let uniqueStaffMap = new Map();                                                         // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
                 await combined.forEach(item => {
                     if (uniqueStaffMap.has(item.emp_id)) {
                         // 如果 emp_id 已經存在，則合併 shCase 和 shCondition
-                        let existingShCase       = uniqueStaffMap.get(item.emp_id).shCase;
-                        let existingShCondition  = uniqueStaffMap.get(item.emp_id).shCondition || {};    // 初始化 shCondition 為空物件
-                        let existingShCase_logs  = uniqueStaffMap.get(item.emp_id).shCase_logs || {};    // 初始化 shCase_logs 為空物件
-                        let existing_content     = uniqueStaffMap.get(item.emp_id)._content || {};       // 初始化 _content 為空物件
-
+                        let existingShCase      = uniqueStaffMap.get(item.emp_id).shCase;
+                        let existingShCondition = uniqueStaffMap.get(item.emp_id).shCondition || {};    // 初始化 shCondition 為空物件
+                        let existingShCase_logs = uniqueStaffMap.get(item.emp_id).shCase_logs || {};    // 初始化 shCase_logs 為空物件
+                        let existing_content    = uniqueStaffMap.get(item.emp_id)._content || {};       // 初始化 _content 為空物件
+                        
                         // 合併 shCase
                         uniqueStaffMap.get(item.emp_id).shCase = existingShCase.concat(item.shCase);
 
@@ -286,9 +262,7 @@
                         if (!item.shCondition) {  item.shCondition = {};  }
                         if (!item.shCase_logs) {  item.shCase_logs = {};  }
                         if (!item._content) {  item._content = {};  }
-                        if (!item._content[`${currentYear}`]) {  item._content[`${currentYear}`] = {};  }
-                        if (!item._content[`${currentYear}`]['import']) {  item._content[`${currentYear}`]['import'] = {};  }
-
+                        if (!item._content[`${currentYear}`]) {  item._content[`${currentYear}`] = [];  }
                     }
                 });
                 // 將 Map 轉換回陣列
@@ -351,9 +325,9 @@
                 empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
                 // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
                 // 241101 暫停取用hrdb進行更新。 改用下面：
-                    empData.gesch    = s_value.gesch;
+                    empData.gesch = s_value.gesch;
                     empData.natiotxt = s_value.natiotxt;
-                    empData.HIRED    = s_value.HIRED;
+                    empData.HIRED = s_value.HIRED;
             }
             mgInto_staff_inf(loadStaff_arr);
             inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -847,9 +821,6 @@
                     tr1 += `<td><div class="bottom-half" id="shIdentity`    + empId_preYear;
                     tr1 += `<td><div class="bottom-half" id="shCondition`   + empId_preYear;
                     tr1 += `<td><div class="bottom-half" id="change,${select_empId},${currentYear}"></div></td>`;
-                    tr1 += `<td><div class="bottom-half" id="yearHe`        + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="yearCurrent`   + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="yearPre`       + empId_preYear;
                     tr1 += '</tr>';
                 $('#shCase_table tbody').empty().append(tr1);
     
@@ -1110,7 +1081,6 @@
                     // console.log('emp_i', emp_i);
                     let tr1 = '<tr>';
                     const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
-                    const _content = emp_i._content[`${currentYear}`]['import'];
 
                     tr1 += `<td class="">
                                 <div class="col-12 py-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
@@ -1141,9 +1111,6 @@
                     //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
                     //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
                     // tr1 += `<div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;
-                    tr1 += `<td>`+((_content.yearHe != undefined ? _content.yearHe : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearHe'] :''))) +`</td>`;
-                    tr1 += `<td>`+ ((_content.yearCurrent != undefined ? _content.yearCurrent : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearCurrent'] :'' ))) +`</td>`;
-                    tr1 += `<td>`+ ((_content.yearPre != undefined ? _content.yearPre : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearPre'] :''))) +`</td>`;
 
                     tr1 += '</tr>';
                     $('#hrdb_table tbody').append(tr1);
