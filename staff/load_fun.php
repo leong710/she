@@ -135,11 +135,13 @@
                     //         FROM _staff
                     //         WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
                     $year = $year ?? date('Y');
+                    // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
                     $sql = "SELECT emp_id, cname, shCase_logs, _content
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
-                               OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
-                               OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ({$parm})
+                                -- WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
+                                --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
+                                --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
                             ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
@@ -228,15 +230,15 @@
                     
                         // step.3b 更新或新增該年份的資料
                             $shCase_logs_existing[$current_year] = [
-                                "dept_no"       => !empty($dept_no)       ? $dept_no       : null,
-                                "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : null,
-                                "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : null,
-                                "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : null,
-                                "cstext"        => !empty($cstext)        ? $cstext        : null,
-                                "emp_group"     => !empty($emp_group)     ? $emp_group     : null,
-                                "eh_time"       => !empty($eh_time)       ? $eh_time       : null,           // 暴露時數
-                                "shCase"        => !empty($shCase)        ? $shCase        : null,           // 特作區域
-                                "shCondition"   => !empty($shCondition)   ? $shCondition   : null            // 特作驗證
+                                "dept_no"       => !empty($dept_no)       ? $dept_no       : (!empty($shCase_logs_existing[$current_year]["dept_no"])       ? $shCase_logs_existing[$current_year]["dept_no"]       : null),
+                                "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : (!empty($shCase_logs_existing[$current_year]["emp_dept"])      ? $shCase_logs_existing[$current_year]["emp_dept"]      : null),
+                                "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : (!empty($shCase_logs_existing[$current_year]["emp_sub_scope"]) ? $shCase_logs_existing[$current_year]["emp_sub_scope"] : null),
+                                "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($shCase_logs_existing[$current_year]["schkztxt"])      ? $shCase_logs_existing[$current_year]["schkztxt"]      : null),
+                                "cstext"        => !empty($cstext)        ? $cstext        : (!empty($shCase_logs_existing[$current_year]["cstext"])        ? $shCase_logs_existing[$current_year]["cstext"]        : null),
+                                "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($shCase_logs_existing[$current_year]["emp_group"])     ? $shCase_logs_existing[$current_year]["emp_group"]     : null),
+                                "eh_time"       => !empty($eh_time)       ? $eh_time       : (!empty($shCase_logs_existing[$current_year]["eh_time"])       ? $shCase_logs_existing[$current_year]["eh_time"]       : null),    // 暴露時數
+                                "shCase"        => !empty($shCase)        ? $shCase        : (!empty($shCase_logs_existing[$current_year]["shCase"])        ? $shCase_logs_existing[$current_year]["shCase"]        : null),    // 特作區域
+                                "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($shCase_logs_existing[$current_year]["shCondition"])   ? $shCase_logs_existing[$current_year]["shCondition"]   : null)     // 特作驗證
                             ];
                         // //  241021 針對 
                         //     if(!empty($shCase_logs_existing[$current_year]["shCase"])){
@@ -261,18 +263,18 @@
 
                             // 檢查 $new_content 是否非空，才進行後續操作
                             if (!empty($new_content)) {
-                                if (isset($_content_existing[$current_year])) {
-                                    // 檢查現有內容是否非空，再進行串接
-                                    if (!empty($_content_existing[$current_year])) {
-                                        $_content_existing[$current_year] .= "\r\n" . $new_content;
-                                    } else {
-                                        // 如果現有內容是空的，直接設置為新內容
-                                        $_content_existing[$current_year] = $new_content;
+                                // 檢查現有內容是否非空，再進行串接
+                                if (!empty($_content_existing[$current_year])) {
+                                    // $_content_existing[$current_year] .= "\r\n" . $new_content;
+                                    foreach ($new_content as $new_content_ikey => $new_content_ivalue){     // forEach目的：避免蓋掉其他項目
+                                        $_content_existing[$current_year][$new_content_ikey] = isset($_content_existing[$current_year][$new_content_ikey]) ? $_content_existing[$current_year][$new_content_ikey]:[];
+                                        $_content_existing[$current_year][$new_content_ikey] = $new_content[$new_content_ikey]; // 直接覆蓋指定項
                                     }
                                 } else {
-                                    // 如果沒有現有內容，直接設置新內容
+                                    // 如果現有內容是空的，直接設置為新內容
                                     $_content_existing[$current_year] = $new_content;
                                 }
+     
                             }
                         }
                     

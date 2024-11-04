@@ -50,34 +50,41 @@
             //             COUNT(*) AS _count
             //         FROM _staff
             //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
-        // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護...
+        // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
         $year = $year ?? date('Y');
         $sql = "SELECT year_key, dept_no, emp_sub_scope, emp_dept, COUNT(*) AS _count
                 FROM (
                         SELECT '{$year}' AS year_key,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT')) AS dept_no,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT_30')) AS emp_sub_scope,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT')) AS emp_dept
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no')) AS dept_no,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_sub_scope')) AS emp_sub_scope,
+                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_dept')) AS emp_dept
                         FROM _staff
-                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT') IS NOT NULL
-                
-                    UNION ALL
-                
-                        SELECT '{$year}' AS year_key,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT')) AS dept_no,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT_30')) AS emp_sub_scope,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT')) AS emp_dept
-                        FROM _staff
-                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT') IS NOT NULL
-                
-                    UNION ALL
-                
-                        SELECT '{$year}' AS year_key,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT')) AS dept_no,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT_30')) AS emp_sub_scope,
-                            JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT')) AS emp_dept
-                        FROM _staff
-                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT') IS NOT NULL
+                        WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no') IS NOT NULL
+                    -- 
+                        -- UNION ALL
+                        --     SELECT '{$year}' AS year_key,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT')) AS dept_no,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT_30')) AS emp_sub_scope,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSTEXT')) AS emp_dept
+                        --     FROM _staff
+                        --     WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[0].OSHORT') IS NOT NULL
+                    
+                        -- UNION ALL
+                        --     SELECT '{$year}' AS year_key,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT')) AS dept_no,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT_30')) AS emp_sub_scope,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSTEXT')) AS emp_dept
+                        --     FROM _staff
+                        --     WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[1].OSHORT') IS NOT NULL
+                    
+                        -- UNION ALL
+                        --     SELECT '{$year}' AS year_key,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT')) AS dept_no,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT_30')) AS emp_sub_scope,
+                        --         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSTEXT')) AS emp_dept
+                        --     FROM _staff
+                        --     WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.shCase[2].OSHORT') IS NOT NULL
+
                 ) AS expanded_shCase
                 GROUP BY year_key, dept_no, emp_sub_scope, emp_dept;
                 ";

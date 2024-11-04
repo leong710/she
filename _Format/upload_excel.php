@@ -208,8 +208,10 @@
                                     "cname"         => $row[3],
                                     "dept_no"       => $row[4],
                                     "emp_dept"      => $row[5],
-                                    "HE_CATE"       => $row6_arr,
-                                    "HE_CATE_KEY"   => $row[7],
+                                    // "HE_CATE"       => $row6_arr,
+                                    "HE_CATE"       => null,
+                                    // "HE_CATE_KEY"   => $row[7],
+                                    "HE_CATE_KEY"   => "",
                                     "yearHe"        => $row[6],
                                     "yearCurrent"   => $row[7],
                                     "yearPre"       => $row[8]

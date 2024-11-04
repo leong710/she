@@ -207,7 +207,7 @@
                 for (const [a2_key, a2_value] of Object.entries(addIn_arr2)) {
                     if (source_json_value_arr[e_key][a2_value]) {
                         mergedData[a2_key] = source_json_value_arr[e_key][a2_value];     // 合併...有bug
-                        if(a2_key=='OSHORT'){
+                        if(a2_key == 'OSHORT'){
                             source_OSHORT_arr.push(source_json_value_arr[e_key][a2_value])  // extra: 取得部門代號 => 抓特危場所清單用
                         }
                     }
@@ -223,8 +223,11 @@
 
                 // 241028 補強提取資料後原本只抓最外層的部門代號'shCase，補上shCase_logs內當年度'shCase
                 if(source_json_value_arr[e_key]['shCase_logs'] !== undefined && source_json_value_arr[e_key]['shCase_logs'][currentYear]){
+                    if(source_json_value_arr[e_key]['shCase_logs'][currentYear]['dept_no']){
+                        source_OSHORT_arr.push(source_json_value_arr[e_key]['shCase_logs'][currentYear]['dept_no']);    // 241104 抓取shCase_logs 年度 下的部門代號 => 抓特危場所清單用
+                    }
                     let i_shCase = source_json_value_arr[e_key]['shCase_logs'][currentYear]['shCase'];
-                    if(i_shCase.length > 0){
+                    if(i_shCase != null && i_shCase.length > 0){
                         for (const [i_shCase_key, i_shCase_value] of Object.entries(i_shCase)) {
                             source_OSHORT_arr.push(i_shCase_value.OSHORT)               // extra: 取得部門代號 => 抓特危場所清單用
                         }
@@ -739,7 +742,7 @@
             for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
                 // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,shCondition);
-                doCheck(select_empId);          // 更新驗證項目(1by1)
+                // doCheck(select_empId);          // 更新驗證項目(1by1)
                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                 if (shCase) {
                     let index = 0;
@@ -979,7 +982,7 @@
                                     }; 
                                 };
                             // 更新驗證項目(1by1)
-                                doCheck(select_empId);
+                                // doCheck(select_empId);
                             // 清空目前顯示的 DOM
                                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                                 if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
@@ -1110,7 +1113,7 @@
                     // console.log('emp_i', emp_i);
                     let tr1 = '<tr>';
                     const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
-                    const _content = emp_i._content[`${currentYear}`]['import'];
+                    const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
 
                     tr1 += `<td class="">
                                 <div class="col-12 py-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
@@ -1131,7 +1134,7 @@
                     tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
-                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" min="0" class="form-control " onchange="change_eh_time(this.id, this.value)" ></td>`;
+                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" min="0" class="form-control" onchange="change_eh_time(this.id, this.value)" ></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="shIdentity` + empId_currentYear + `</div></td>`;
 
@@ -1141,9 +1144,18 @@
                     //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
                     //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
                     // tr1 += `<div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;
-                    tr1 += `<td>`+((_content.yearHe != undefined ? _content.yearHe : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearHe'] :''))) +`</td>`;
-                    tr1 += `<td>`+ ((_content.yearCurrent != undefined ? _content.yearCurrent : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearCurrent'] :'' ))) +`</td>`;
-                    tr1 += `<td>`+ ((_content.yearPre != undefined ? _content.yearPre : (emp_i._content[currentYear] != undefined ? emp_i._content[currentYear]['import']['yearPre'] :''))) +`</td>`;
+
+                    let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
+                    let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
+                    let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
+                    
+                    // _content_import_yearHe      = (_content_import_yearHe     ).replace(/,/g, '<br>');
+                    // _content_import_yearCurrent = (_content_import_yearCurrent).replace(/,/g, '<br>');
+                    // _content_import_yearPre     = (_content_import_yearPre    ).replace(/,/g, '<br>');
+                    
+                    tr1 += `<td>`+ _content_import_yearHe      +`</td>`;
+                    tr1 += `<td>`+ _content_import_yearCurrent +`</td>`;
+                    tr1 += `<td>`+ _content_import_yearPre     +`</td>`;
 
                     tr1 += '</tr>';
                     $('#hrdb_table tbody').append(tr1);
@@ -1225,7 +1237,7 @@
 
             // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
                 // 更新驗證項目(1by1)
-                doCheck(select_empId);
+                // doCheck(select_empId);
                 clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
                 const { shCase, shCondition } = empData;
                 if (shCase) {
