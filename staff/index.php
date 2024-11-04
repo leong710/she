@@ -194,7 +194,7 @@
                                         <th title="dept_no">部門代碼名稱</th>
                                         <th title="">工作場所</th>
                                         <th title="點選特殊作業" data-toggle="tooltip" data-placement="bottom"><i class="fa-regular fa-square-check"></i>&nbsp;工作內容</th>
-                                        <th title="HE_CATE" data-toggle="tooltip" data-placement="bottom">檢查類別代號</th>
+                                        <th title="HE_CATE" data-toggle="tooltip" data-placement="bottom" style="width: 90px;">檢查類別代號</th>
                                         <th title="AVG_VOL" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">均能音量</th>
                                         <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
                                         <th title="eh_time 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>

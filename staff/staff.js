@@ -397,7 +397,7 @@
             await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td
+            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td   // 關閉可防止更動
             await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
         }
         // 讓指定按鈕 依照staff_inf.length 啟停
@@ -1134,7 +1134,7 @@
                     tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
-                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" min="0" class="form-control" onchange="change_eh_time(this.id, this.value)" ></td>`;
+                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" min="0" max="12" oninput="if(value>max)value=max" class="form-control" onchange="change_eh_time(this.id, this.value)" ></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="shIdentity` + empId_currentYear + `</div></td>`;
 
@@ -1148,10 +1148,6 @@
                     let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
                     let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
                     let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
-                    
-                    // _content_import_yearHe      = (_content_import_yearHe     ).replace(/,/g, '<br>');
-                    // _content_import_yearCurrent = (_content_import_yearCurrent).replace(/,/g, '<br>');
-                    // _content_import_yearPre     = (_content_import_yearPre    ).replace(/,/g, '<br>');
                     
                     tr1 += `<td>`+ _content_import_yearHe      +`</td>`;
                     tr1 += `<td>`+ _content_import_yearCurrent +`</td>`;
