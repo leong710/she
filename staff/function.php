@@ -52,7 +52,7 @@
             //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
         // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
         $year = $year ?? date('Y');
-        $sql = "SELECT year_key, dept_no, emp_sub_scope, emp_dept, COUNT(*) AS _count,
+        $sql = "SELECT year_key, emp_sub_scope, dept_no, emp_dept, COUNT(*) AS _count,
                     SUM( CASE 
                             WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
                                 AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
@@ -60,13 +60,15 @@
                             THEN 1 ELSE 0 
                         END
                     ) AS shCaseNotNull,
-                    concat( ROUND( SUM( CASE 
+                    -- concat( ROUND( SUM( CASE 
+                    ROUND( SUM( CASE 
                                             WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
                                                 AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
                                                 AND JSON_LENGTH(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) > 0 
                                             THEN 1 ELSE 0 
                                         END
-                    ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
+                    -- ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
+                    ) * 100 / COUNT(*), 0 ) AS shCaseNotNull_pc
                 FROM (
                     SELECT '{$year}' AS year_key,
                         JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no')) AS dept_no,

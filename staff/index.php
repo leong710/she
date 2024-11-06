@@ -154,8 +154,8 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
                             <button type="button" class="nav-link"          id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
+                            <button type="button" class="nav-link active"   id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
                         </div>
                     </nav>
                 </div>

@@ -504,7 +504,7 @@
 
             // step.3 新人特殊驗證：呼叫[fun]checkNewOne 取得判斷結果
                 const hired = (empData['HIRED'] != undefined) ? empData['HIRED'] : false;
-                empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;                                           // 240906 check fun-2 驗證[新進特殊]是否符合
+                empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;                            // 240906 check fun-2 驗證[新進特殊]是否符合
 
             // step.4 進行部門代號dept_no的變更檢查 // 241022----深層比對調部門這件事: 加強版
                 let asIs_deptNo_arr = {};
@@ -652,10 +652,7 @@
                 }
 
                     // step.1 先取得select_empId的個人資料=>empData
-                    const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-
-
-
+                    // const empData = staff_inf.find(emp => emp.emp_id === select_empId);
 
                 document.getElementById(`shIdentity,${select_empId},${targetYear}`).innerHTML = '';
                 for (const [item, value] of Object.entries(ShCondition_value)) {
@@ -742,7 +739,7 @@
             for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
                 // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,shCondition);
-                // doCheck(select_empId);          // 更新驗證項目(1by1)
+                doCheck(select_empId);          // 更新驗證項目(1by1)
                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                 if (shCase) {
                     let index = 0;
@@ -982,7 +979,7 @@
                                     }; 
                                 };
                             // 更新驗證項目(1by1)
-                                // doCheck(select_empId);
+                                doCheck(select_empId);
                             // 清空目前顯示的 DOM
                                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                                 if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
@@ -1233,7 +1230,7 @@
 
             // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
                 // 更新驗證項目(1by1)
-                // doCheck(select_empId);
+                doCheck(select_empId);
                 clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
                 const { shCase, shCondition } = empData;
                 if (shCase) {
@@ -1303,7 +1300,6 @@
             return new Promise((resolve) => {
                 // init
                 $('#deptNo_opts_inside').empty();
-                console.log('selectedDeptNo...',selectedDeptNo);
                 // step-1. 鋪設按鈕
                 if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
                     Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
@@ -1315,7 +1311,7 @@
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<div class="form-check">
                                                 <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input px-0" >
-                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label">${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc})</sup></label>
+                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label">${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc}%)</sup></label>
                                             </div>`
                                         ).join('')}
                                     </div>
