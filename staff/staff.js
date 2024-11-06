@@ -1303,6 +1303,7 @@
             return new Promise((resolve) => {
                 // init
                 $('#deptNo_opts_inside').empty();
+                console.log('selectedDeptNo...',selectedDeptNo);
                 // step-1. 鋪設按鈕
                 if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
                     Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
@@ -1312,9 +1313,9 @@
                                     <div class="card-header">${emp_sub_scope}</div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<div class="form-check px-4">
-                                                 <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input" check >
-                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
+                                            `<div class="form-check">
+                                                <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input px-0" >
+                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label">${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc})</sup></label>
                                             </div>`
                                         ).join('')}
                                     </div>
