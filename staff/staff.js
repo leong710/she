@@ -1,6 +1,5 @@
 // // 1. 工具函數 (Utility Functions)
-    const currentYear = String(new Date().getFullYear());                           // 取得當前年份
-    const preYear     = String(currentYear - 1);                                    // 取得去年年份
+
     // fun.0-1: Bootstrap Alarm function
     function Balert(message, type) {
         var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
@@ -21,12 +20,8 @@
             newToast.setAttribute('delay', '1000');
 
             // 設置 toast 的內部 HTML
-            newToast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${sinn}</div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                </div>
-            `;
+            newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
 
         // 將新 toast 添加到容器中
         document.getElementById('toastContainer').appendChild(newToast);
@@ -64,14 +59,14 @@
             }
         });
     }
-        // fun.0-4b: 停止並銷毀 DataTable
-        function release_dataTable(){
-            return new Promise((resolve) => {
-                let table = $('#hrdb_table').DataTable();
-                    table.destroy();
-                resolve();      // 當所有設置完成後，resolve Promise
-            });
-        }
+    // fun.0-4b: 停止並銷毀 DataTable
+    function release_dataTable(){
+        return new Promise((resolve) => {
+            let table = $('#hrdb_table').DataTable();
+                table.destroy();
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
     // fun.0-4a: dataTable
     async function reload_dataTable(hrdb_data){
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
@@ -87,22 +82,6 @@
                     // "paging": false,                                             // 分頁
                     // "searching": false,                                          // 搜尋
                     // "data": hrdb_data,
-                    // "columns": [
-                    //             { data: 'emp_sub_scope' }, 
-                    //             { data: 'dept_no' }, 
-                    //             { data: 'emp_dept' }, 
-                    //             { data: null , // title: 'emp_id', 
-                    //                 render: function (data, type, row) {
-                    //                     return `${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${data.emp_id}" 
-                    //                         data-bs-toggle="modal" data-bs-target="#import_shLocal" onclick="reNew_empId(this.value)">${data.cname}</button>`
-                    //                 } }, 
-                    //             { data: 'cname' }, 
-                    //             { data: null , title: '工作場所', 
-                    //                 render: function (data, type, row) {
-                    //                     return ``
-                    //                 } }, 
-                    //             { data: 'HIRED' , title: '到職日'},
-                //     ]
             });
             resolve();      // 當所有設置完成後，resolve Promise
         });
@@ -181,7 +160,7 @@
             // console.log('2.source_json_value_arr...', source_json_value_arr);
             const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no' ];                                        // 合併陣列1
             const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};   // 合併陣列2
-            const addIn_arr3 = ['yearHe', 'yearCurrent', 'yearPre'];                                     // 合併陣列3
+            const addIn_arr3 = ['yearHe', 'yearCurrent', 'yearPre'];                                     // 合併陣列3 匯入1、2、3
             const source_OSHORT_arr = [];
 
             for (const e_key of Object.keys(source_json_value_arr)) {
@@ -397,7 +376,7 @@
             await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td   // 關閉可防止更動
+            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
         }
         // 讓指定按鈕 依照staff_inf.length 啟停
@@ -410,329 +389,6 @@
             });
         }
 
-        // 根據 select_empId 清空對應的 DOM區域 for p-2特作欄位
-        async function clearDOM(empId, targetYear) {
-            return new Promise((resolve) => {
-                targetYear = (targetYear == undefined) ? currentYear : targetYear;
-                // 使用屬性選擇器選取所有包含 empId 的 td 元素
-                const tdsToClear = document.querySelectorAll(`div[id*=",${empId},${targetYear}"]`);
-                // 遍歷這些選取到的元素並清空內容
-                tdsToClear.forEach(div => {
-                    div.innerHTML = '';
-                });
-                resolve();  // 當所有設置完成後，resolve Promise
-            });
-        }
-        // 通用的函數，用於更新 DOM (1by1) for p-2特作欄位 (含 噪音、新人特殊 驗證)
-        async function updateDOM(sh_value, select_empId, sh_key_up) {
-            return new Promise((resolve) => {
-                // step.1 先取得select_empId的個人資料=>empData
-                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                // const i_index = sh_key_up - 1;  // ?
-                // 防止套入時錯誤，建立[資格驗證]shCondition紀錄判斷物件
-                if(empData['shCondition'] == undefined || empData['shCondition'].length == 0){
-                    empData.shCondition = {
-                        "noise"   : false,          // 噪音判定
-                        "newOne"  : false,          // 新人
-                        "regular" : false,          // 定期
-                        "change"  : false           // 變更
-                    };   
-                }
-                // step.2 欲更新的欄位陣列
-                const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
-                // step.2 將shLocal_item_arr循環逐項進行更新
-                shLocal_item_arr.forEach((sh_item) => {
-                    // if (sh_value[sh_item] !== undefined) {      // 確認不是找不到的項目
-                        // step.2a 項目渲染...
-                        const br = sh_key_up > 0 ? '<br>' : ''; // 判斷 1以上=換行
-                        let inner_Value = '';
-                        if (sh_item === 'HE_CATE'){             // 3.類別代號 特別處理：1.物件轉字串、2.去除符號
-                            let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
-                            inner_Value = `${br}${he_cate_str}`;
-
-                        }else if(sh_item.includes('AVG')){      // 4.5.均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
-                            let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
-                            inner_Value = `${br}${avg_str}`;
-
-                        }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
-                            inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
-
-                        }else{                                  // 1.6
-                            // 確認 sh_item 是否有定義的值
-                            inner_Value = (sh_value[sh_item] !== undefined) ? `${br}${sh_value[sh_item]}` : (() => {
-                                switch (sh_item) {
-                                    case 'WORK_DESC':
-                                        return `${br}${sh_value['HE_CATE_KEY']}`;
-                                    default:
-                                        return ''; // 預設空值
-                                }
-                            })();
-                        }
-                        document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
-    
-                        // step.2b 噪音驗證
-                        if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
-                            // 2b1. 檢查元素是否存在+是否有值
-                                const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
-                                const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
-                            // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
-                                const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
-                                const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
-                                const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-                                // console.log('eh_time, eh_time_input_value...', select_empId, eh_time, eh_time_input_value)
-                                eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
-                            // 2b3. 呼叫[fun]checkNoise 取得判斷結果
-                                const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
-                                // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
-                                const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
-                            document.getElementById(`NC,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
-    
-                            // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
-                                // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
-                            empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
-                        }
-                    // }
-                });
-
-                resolve();  // 當所有設置完成後，resolve Promise
-            });
-        }
-        // 更新驗證項目(1by1)   3 新人特殊驗證、4 進行部門代號dept_no的變更檢查
-        async function doCheck(select_empId){
-            // step.1 先取得select_empId的個人資料=>empData
-                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-
-            // step.3 新人特殊驗證：呼叫[fun]checkNewOne 取得判斷結果
-                const hired = (empData['HIRED'] != undefined) ? empData['HIRED'] : false;
-                empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;                            // 240906 check fun-2 驗證[新進特殊]是否符合
-
-            // step.4 進行部門代號dept_no的變更檢查 // 241022----深層比對調部門這件事: 加強版
-                let asIs_deptNo_arr = {};
-                // step.4a1 取個人[外層]部門代號: (今年)目前的所屬部門代號
-                const toBe_deptNo = (empData.dept_no !== undefined) ? empData.dept_no : false;
-
-                    // if(empData['shCondition']['change'] == undefined){
-                        empData['shCondition']['change'] = [];
-                        empData['shCondition']['regular'] = [];
-                    // }
-
-                // step.4b1 取個人[shCase]部門代號: (今年)待過的特作場所
-                if((empData.shCase != undefined) && empData.shCase.length > 0){
-                    if(asIs_deptNo_arr[currentYear] == undefined){ asIs_deptNo_arr[currentYear] = []; }
-                    // step.4b2 取個人[shCase]部門代號工作：(每一筆) currentYear
-                    for (const [ec_key, ec_value] of Object.entries(empData.shCase)) {
-                        asIs_deptNo_arr[currentYear].push((ec_value.OSHORT) ? ec_value.OSHORT : 'undefined_b1')
-                        
-                        // let nbsp = Object.keys(empData['shCondition']['change']).length > 0 ? ', ':'';              // 241030--特檢資格串接4c_change_前置作業
-                        let HE_CATE_value = Object.values(ec_value.HE_CATE)[0];         // 241030--特檢資格串接4c_change_前置作業
-                        if(checkChange(ec_value.OSHORT, toBe_deptNo)){
-                            // let nbsp = (empData['shCondition']['change'] ? '; ':'');              
-                            // empData['shCondition']['change'] += nbsp + HE_CATE_value;  // 241030--特檢資格串接4b_change
-                            empData['shCondition']['change'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
-                        }else{
-                            // let nbsp = (empData['shCondition']['regular'] ? '; ':'');              
-                            empData['shCondition']['regular'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
-                        }
-                    }
-                }
-                // step.4c 取shCase_logs裡的部門代號工作：preYear
-                if(empData.shCase_logs !== undefined && Object.keys(empData.shCase_logs).length > 0){
-                    // // 每一筆
-                        // for (const [log_key, log_value] of Object.entries(empData.shCase_logs)) {
-                        //     if(asIs_deptNo_arr[log_key] == undefined){ asIs_deptNo_arr[log_key] = []; }
-                        //     // step.4c1 取shCase_logs裡的[外層]部門代號工作：
-                        //     asIs_deptNo_arr[log_key].push((log_value.dept_no) ? log_value.dept_no : 'undefined')
-                        //     // step.4c2 取shCase_logs裡的[shCase]部門代號工作：
-                        //     if(log_value.shCase != undefined){
-                        //         for (const [log_sc_key, log_sc_value] of Object.entries(log_value.shCase)) {
-                        //             asIs_deptNo_arr[log_key].push((log_sc_value.OSHORT) ? log_sc_value.OSHORT : 'undefined')
-                        //         }
-                        //     }
-                        // }
-                    // // 只取今年 currentYear 、去年 preYear
-                    const getYearArr = [currentYear, preYear];
-                    for (const getYear of getYearArr) {
-                        // 確認年分紀錄存在 且 有內容
-                        if(empData.shCase_logs[getYear] != undefined && Object.keys(empData.shCase_logs[getYear]).length > 0 ){
-                            if(asIs_deptNo_arr[getYear] == undefined){ asIs_deptNo_arr[getYear] = []; }
-                            // step.4c1 取shCase_logs裡的[外層]部門代號工作：
-                            asIs_deptNo_arr[getYear].push((empData.shCase_logs[getYear].dept_no) ? empData.shCase_logs[getYear].dept_no : 'undefined_c1')
-
-                            // step.4c2 取shCase_logs裡的[shCase]部門代號工作：
-                            if(empData.shCase_logs[getYear].shCase != undefined){
-                                let preYearChange = (getYear !== currentYear) ? '_轉出':'';             // 241030--特檢資格串接4c_change_前置作業
-
-                                for (const [log_sc_key, log_sc_value] of Object.entries(empData.shCase_logs[getYear].shCase)) {
-                                    asIs_deptNo_arr[getYear].push((log_sc_value.OSHORT) ? log_sc_value.OSHORT : 'undefined_c2')
-                                    
-                                    // let nbsp = empData['shCondition']['change'] ? '; ':'';              // 241030--特檢資格串接4c_change_前置作業
-                                    let HE_CATE_value = Object.values(log_sc_value.HE_CATE)[0];
-                                    // empData['shCondition']['change'] += checkChange(log_sc_value.OSHORT, toBe_deptNo) ? nbsp+HE_CATE_value+preYearChange :'';  // 241030--特檢資格串接4c_change
-                                    if(checkChange(log_sc_value.OSHORT, toBe_deptNo)){
-                                        empData['shCondition']['change'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
-                                    }else{
-                                        empData['shCondition']['regular'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                empData['shCondition']['change'] = arr_de_double(empData['shCondition']['change']);         // 241101 陣列去重：
-                empData['shCondition']['regular'] = arr_de_double(empData['shCondition']['regular']);       // 241101 陣列去重：
-
-                // console.log(empData['shCondition']['change']);
-                // console.log(empData['shCondition']['regular']);
-
-                asIs_deptNo_arr = await obj_de_double(asIs_deptNo_arr)        // 241022 物件去重：
-
-                let asIs_deptNo_check = '';
-                // console.log('emp_shCase...asIs_deptNo_arr', (asIs_deptNo_arr));
-
-                // step.4d 進行輪番驗證:
-                if(Object.keys(asIs_deptNo_arr).length > 0 && toBe_deptNo){
-                    for (const [asIs_deptNo_key, asIs_deptNo_value] of Object.entries(asIs_deptNo_arr)) {
-                        if(asIs_deptNo_value.length > 0){
-                            for (const asIs_deptNo of asIs_deptNo_value) {
-                                // 240906 check fun-3 驗證[變更檢查]是否符合        // 取得當前年份currentYear -1 = 去年preYear  ** asIs_deptNo / toBe_deptNo：要注意是否in_array(特作區域) 
-                                if(checkChange(asIs_deptNo, toBe_deptNo)){        // 240906 check fun-3 驗證[變更檢查]是否符合
-                                    // console.log(asIs_deptNo_key+' : '+asIs_deptNo+(toBe_deptNo != asIs_deptNo));
-                                    // empData['shCondition']['change'] = true;        // 驗證並帶入shCondidion.change      // 241030--特檢資格串接4c_change_配合作業-暫停
-                                    asIs_deptNo_check = await in_arrayKey(asIs_deptNo) ? `${asIs_deptNo} 特危轉出` : `${asIs_deptNo} 轉出`;    // 確認是否在[特危場所名單]
-                                    break;
-                                } 
-                            }
-                        }
-                    }
-                }
-                // step.4e 假如真的是轉調單位： 渲染轉調     // 241029 [轉調]渲染unblock
-                if(empData['shCondition']['change']){
-                    const toBe_deptNo_check = await in_arrayKey(toBe_deptNo) ? `轉入特危 ${toBe_deptNo}` : `轉入 ${toBe_deptNo}`;    // 確認是否在[特危場所名單]
-                    // 組合轉調訊息
-                    const change_inner_Value = asIs_deptNo_check ? `<div class="change_">${asIs_deptNo_check}`+(asIs_deptNo_check ? '<br>':'')+`${toBe_deptNo_check}</div>`:'';
-                    document.getElementById(`change,${select_empId},${currentYear}`).innerText = '';                                // 清空innerText內容
-                    document.getElementById(`change,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', change_inner_Value);     // 渲染轉調
-                }
-            // step.5 進行定期檢查驗證
-                // const shCase = (empData['shCase'] != undefined) ? empData['shCase'] : false;
-                // empData['shCondition']['regular']  = (shCase) ? checkRegular(shCase) : false;                                       // 240906 check fun-4 驗證[定期檢查]是否符合
-                // console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
-        }
-
-        // 241022 陣列去重：
-        function arr_de_double(arrDeDouble){
-            return [...new Set(arrDeDouble)];
-        }
-        // 241022 物件去重：
-        async function obj_de_double(objDeDouble){
-            for (let _key in objDeDouble) {
-                objDeDouble[_key] = [...new Set(objDeDouble[_key])];  // 使用 Set 去除重複，然後轉回陣列
-            }
-            return objDeDouble;
-        }
-
-        // 更新資格驗證(1by1)
-        async function updateShCondition(ShCondition_value, select_empId, targetYear) {
-            return new Promise((resolve) => {
-                // step1.處理[資格驗證]shCondition欄位
-                // 241029 [資格驗證]渲染unblock
-                let inner_Value = JSON.stringify(ShCondition_value).replace(/[\[\]{"}]/g, '');
-                    inner_Value = inner_Value.replace(/,/g, '<br>');
-                    inner_Value = inner_Value.replace(/true/g, '&nbsp;<span class="badge bg-info">true</span>');
-                document.getElementById(`shCondition,${select_empId},${targetYear}`).insertAdjacentHTML('beforeend', inner_Value);
-                
-                // step2.處理[特檢資格]shIdentity欄位 // 球型標籤方式：
-                // 'title':'對應名稱', 'bgc':'球型顏色', 'inScop':'成立項目'
-                const shCondition_style = {
-                    'noise'  : {'title':'噪音', 'bgc':'bg-secondary',         'inScop':'' },
-                    'newOne' : {'title':'新人', 'bgc':'bg-success',           'inScop':'' },
-                    'regular': {'title':'定期', 'bgc':'bg-primary',           'inScop':'' },
-                    'change' : {'title':'變更', 'bgc':'bg-warning text-dark', 'inScop':'' }
-                }
-
-                    // step.1 先取得select_empId的個人資料=>empData
-                    // const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-
-                document.getElementById(`shIdentity,${select_empId},${targetYear}`).innerHTML = '';
-                for (const [item, value] of Object.entries(ShCondition_value)) {
-                    if(value){
-                        // const inner_item = `<span class="badge rounded-pill bg-success">${item}</span>`;
-                        const inner_item = `<span class="badge rounded-pill ${shCondition_style[item]['bgc']}">${shCondition_style[item]['title']}</span>`;
-                        document.getElementById(`shIdentity,${select_empId},${targetYear}`).insertAdjacentHTML('beforeend', inner_item);
-                    }
-                }
-
-                    // // 240913 整合型的作法
-                        // let shIdentity_pill = '';
-                        // let shCondition_str = '';
-                        // for (const [item, value] of Object.entries(ShCondition_value)) {
-                        //     if(value){
-                        //         // 特檢資格：
-                        //         const inner_item = `<span class="badge rounded-pill ${shCondition_style[item]['bgc']}">${shCondition_style[item]['title']}</span>`;
-                        //         shIdentity_pill = (shIdentity_pill) ? shIdentity_pill + '&nbsp;' + inner_item : inner_item;
-                        //         // 資格驗證：
-                        //         const shCondition_item = value ? (item +'：'+ `&nbsp;<span class="badge bg-info">${value}</span>`) : (item +'：'+ value);
-                        //         shCondition_str = (shCondition_str) ? shCondition_str + '<br>' + shCondition_item : shCondition_item;
-                        //     }
-                        // }
-                        // document.getElementById(`shIdentity,${select_empId},${targetYear}`).insertAdjacentHTML('beforeend', shIdentity_pill);   // 特檢資格：
-                        // document.getElementById(`shCondition,${select_empId},${targetYear}`).insertAdjacentHTML('beforeend', shCondition_str);  // 資格驗證：
-
-                resolve();  // 當所有設置完成後，resolve Promise
-            });
-        }
-
-        // 240827 check fun-1 驗證[噪音]是否符合   
-            // eh_time：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
-            // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
-        function checkNoise(eh_time, avg_vol, avg_8hr) {
-            const result = {
-                aSample : '不適用',
-                bSample : avg_8hr !== false ? (avg_8hr >= 50 ? '符合' : '未達') : '不適用',
-                cCheck  : '不適用',
-            };
-            if (eh_time && avg_vol) {
-                const TC = (8 / Math.pow(2, (avg_vol - 90) / 5)).toFixed(2);    // TC：T換算  // 計算 TC 並四捨五入
-                const DOSE = ((eh_time / TC) * 100).toFixed(0);                 // 計算 DOSE 並四捨五入
-                result.aSample = DOSE >= 50 ? '符合' : '未達';
-            }
-            if (result.bSample === '符合' || (result.bSample === '不適用' && result.aSample === '符合')) {
-                result.cCheck = '是';
-            } else if (result.bSample === '未達' || result.aSample === '未達') {
-                result.cCheck = '否';
-            }
-            return result;
-        }
-        // 240906 check fun-2 驗證[新進特殊]是否符合   
-        function checkNewOne(HIRED) {
-            const hiredDate = new Date(HIRED);                  // 將 HIRED 字串轉換為日期物件
-            const hiredYear = String(hiredDate.getFullYear());  // 取得 HIRED 的年份並轉呈字串
-            // return hiredYear === currentYear;                   // 比較 HIRED 的年份與當前年份currentYear !! 同屬性才能用 ===
-            return hiredYear === currentYear ? String(hiredYear) : false;                   // 241030--特檢資格串接3_newOne
-        }
-        // 240906 check fun-3 驗證[變更檢查]是否符合   
-        function checkChange(asIs_deptNo, toBe_deptNo) {
-            return asIs_deptNo !== toBe_deptNo;        // 比較 dept_no 前後是否一致
-            // return asIs_deptNo !== toBe_deptNo  ? String(asIs_deptNo) : false;        // 比較 dept_no 前後是否一致
-        }
-        // 240906 check fun-4 驗證[定期檢查]是否符合
-        function checkRegular(shCase){
-            return shCase.length > 0;
-        }
-        // 240912 取php in_array功能，查詢部門代號是否在[特危場所]的部門代號物件中...返回 true、false
-        function in_arrayKey(searchKey) {
-            return new Promise((resolve) => {
-                let OSHORTsArr = JSON.parse(OSHORTsObj);
-                const found = Object.values(OSHORTsArr).some(subObj => {    // 遍歷物件中的每個屬性
-                    if (typeof subObj === 'object' && subObj !== null) {    // 確認每個子屬性是否為物件，並搜尋該物件內的 key
-                        return Object.keys(subObj).includes(searchKey);
-                    }
-                    return false;
-                });
-                resolve(found);     // 當搜尋完成後，回傳結果
-            });
-        }
 
         // 渲染 今年目前特危項目 for p-2特作欄位(arr_All)
         async function post_shCase(emp_arr){
@@ -754,76 +410,6 @@
                 }
             };
         }
-        // 渲染preYear去年特危項目 for p-2特作欄位(arr_All)     // 241024 停止鋪設到下面
-            // async function post_preYearShCase(emp_arr){
-            //     for (const emp_i of emp_arr) {                  // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
-            //         const { emp_id: select_empId, shCase_logs } = emp_i;
-            //         const empData = shCase_logs[preYear];
-            //         if(empData){
-            //             const { shCase ,shCondition, emp_dept, emp_sub_scope, dept_no } = empData;
-            //             // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,JSON.stringify(shCondition));
-            //             clearDOM(select_empId, preYear);         // 你需要根據 select_empId 來清空對應的 DOM
-            //             // step.1 欄位1,2,3
-            //             document.getElementById(`emp_sub_scope,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', `<b>${preYear}：</b>${emp_sub_scope}`); 
-            //             document.getElementById(`emp_dept,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', `${dept_no}<br>${emp_dept}`);              
-
-            //             // step.2 更新shCase欄位4,5,6,7,8,9,10
-            //             if (shCase) {
-            //                 // step.2 欲更新的欄位陣列 - 對應欄位4,5,6,7,8,9,10
-            //                 const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
-            //                 let index = 1;
-            //                 for (const [sh_key, sh_value] of Object.entries(shCase)) {
-            //                     // step.2 將shLocal_item_arr循環逐項進行更新
-            //                     shLocal_item_arr.forEach((sh_item) => {
-            //                         // step.2a 項目渲染...
-            //                         const br = index > 1 ? '<br>' : ''; // 判斷 1以上=換行
-            //                         let inner_Value = '';
-            //                         if (sh_value[sh_item] !== undefined) {      // 確認不是找不到的項目
-            //                             if (sh_item === 'HE_CATE'){             // 3.類別代號 特別處理：1.物件轉字串、2.去除符號
-            //                                 let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
-            //                                 inner_Value = `${br}${he_cate_str}`;
-            //                             }else if(sh_item.includes('AVG')){      // 4.5.均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
-            //                                 let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
-            //                                 inner_Value = `${br}${avg_str}`;
-            //                             }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
-            //                                 inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;${sh_value[sh_item]}`;
-            //                             }else{                                  // 1.2.6
-            //                                 inner_Value = `${br}${sh_value[sh_item]}`;
-            //                             }
-            //                             // step.2b 噪音驗證 對應欄位9,10
-            //                             if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
-            //                                 // 2b1. 檢查元素是否存在+是否有值
-            //                                     const eh_time_input = document.querySelector(`snap[id="eh_time,${select_empId},${preYear}"]`);
-            //                                 // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
-            //                                     eh_time_input.innerText = (empData['eh_time']) ? (empData['eh_time']) : null;    // 強行帶入顯示~
-            //                                     const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
-            //                                     const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-
-            //                                         // 2b3. 呼叫[fun]checkNoise 取得判斷結果
-            //                                             const noise_check = checkNoise(eh_time_input.innerText, avg_vol, avg_8hr);     
-            //                                             const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
-            //                                         document.getElementById(`NC,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
-                            
-            //                                         // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
-            //                                             // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
-            //                                         empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
-            //                             }
-            //                         // }else{
-            //                         //     inner_Value = `${br}--`;
-            //                         }
-            //                         document.getElementById(`${sh_item},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
-                
-            //                     });
-            //                     index++;
-            //                 }           
-            //             }
-            //             // step.3 更新資格驗證(1by1) - 對應欄位11,12
-            //             if(shCondition) {
-            //                 await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
-            //             }
-            //         }
-            //     };
-            // }
         // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
         async function show_preYearShCase(select_empId){
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
@@ -832,24 +418,25 @@
             if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
                 console.log('show_preYearShCase...empData...', empData.shCase_logs);
                 // 鋪設t-body
+                const tdClass = `<td><div class="bottom-half"`;
                 const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
                     tr1 = '<tr>';
-                    tr1 += `<td><div class="bottom-half" id="emp_id`        + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="emp_sub_scope` + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="emp_dept`      + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="MONIT_LOCAL`   + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="WORK_DESC`     + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="HE_CATE`       + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="AVG_VOL`       + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="AVG_8HR`       + empId_preYear;
-                    tr1 += `<td><div class="bottom-half"><snap id="eh_time,${select_empId},${preYear}"></snap></div></td>`;
-                    tr1 += `<td><div class="bottom-half" id="NC`            + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="shIdentity`    + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="shCondition`   + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="change,${select_empId},${currentYear}"></div></td>`;
-                    tr1 += `<td><div class="bottom-half" id="yearHe`        + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="yearCurrent`   + empId_preYear;
-                    tr1 += `<td><div class="bottom-half" id="yearPre`       + empId_preYear;
+                    tr1 += tdClass + ` id="emp_id`        + empId_preYear;
+                    tr1 += tdClass + ` id="emp_sub_scope` + empId_preYear;
+                    tr1 += tdClass + ` id="emp_dept`      + empId_preYear;
+                    tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
+                    tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
+                    tr1 += tdClass + ` id="HE_CATE`       + empId_preYear;
+                    tr1 += tdClass + ` id="AVG_VOL`       + empId_preYear;
+                    tr1 += tdClass + ` id="AVG_8HR`       + empId_preYear;
+                    tr1 += tdClass + `><snap id="eh_time,${select_empId},${preYear}"></snap></div></td>`;
+                    tr1 += tdClass + ` id="NC`            + empId_preYear;
+                    tr1 += tdClass + ` id="shIdentity`    + empId_preYear;
+                    tr1 += tdClass + ` id="shCondition`   + empId_preYear;
+                    tr1 += tdClass + ` id="change,${select_empId},${currentYear}"></div></td>`;
+                    tr1 += tdClass + ` id="yearHe`        + empId_preYear;
+                    tr1 += tdClass + ` id="yearCurrent`   + empId_preYear;
+                    tr1 += tdClass + ` id="yearPre`       + empId_preYear;
                     tr1 += '</tr>';
                 $('#shCase_table tbody').empty().append(tr1);
     
@@ -927,7 +514,7 @@
                 $('#shLocal_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
             }else{
                 shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
-                await Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                     let tr = '<tr>';
                     Object.entries(sh_i).forEach(([s_key, s_value]) => {
                         if(s_key == 'HE_CATE'){
@@ -1052,18 +639,6 @@
                 // console.log('searchWorkCaseAll--empData_shCase...', i_empId, empData_shCase);
                 // 將合併後的物件mergedData加入 shCase 陣列中，使用 await 調用 removeDuplicateShCase 去重
                 empData['shCase'] = await removeDuplicateShCase(empData_shCase);
-                        // // 自製去重+去除MONIT_LOCAL&WORK_DESC空值...** 他會連同一開始的檢查類別代號都清除，導致無法判斷。
-                        // const uniqueShCaseMap = new Map();
-                        // await empData_shCase.forEach(item => {
-                        //     const { MONIT_LOCAL: i_MONIT_LOCAL, WORK_DESC: i_WORK_DESC } = item;
-                        //     if (i_MONIT_LOCAL && i_WORK_DESC) {                         // 檢查 MONIT_LOCAL 和 WORK_DESC 是否為空，如果是則跳過該項目
-                        //         const uniqueKey = JSON.stringify(item);                 // 建立一個唯一標識符，根據所有屬性值來生成
-                        //         if (!uniqueShCaseMap.has(uniqueKey)) {                  // 如果唯一標識符已存在，則忽略此項目；否則，將其添加到Map中
-                        //             uniqueShCaseMap.set(uniqueKey, item);
-                        //         }
-                        //     }
-                        // });
-                        // empData['shCase'] = Array.from(uniqueShCaseMap.values());
             };
             // console.log('searchWorkCaseAll--staff_inf...', staff_inf);
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
@@ -1113,9 +688,9 @@
                     const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
 
                     tr1 += `<td class="">
-                                <div class="col-12 py-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
+                                <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
                                     + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">${emp_i.cname}</button></div>`
-                                + `<div class="col-12 pt-1 pb-0" >
+                                + `<div class="col-12 pt-1 pb-0 px-0" >
                                     <input type="checkbox" id="SH3,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >&nbsp;&nbsp;
                                     <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></div>
                                 </td>`;
@@ -1131,12 +706,12 @@
                     tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
-                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" min="0" max="12" oninput="if(value>max)value=max" class="form-control" onchange="change_eh_time(this.id, this.value)" ></td>`;
+                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="shIdentity` + empId_currentYear + `</div></td>`;
+                    tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shIdentity` + empId_currentYear + `</div></td>`;                                                       // 特檢資格
 
-                    tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td ` + (sys_role != '0' ? "class='unblock'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;
+                    tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                    tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
                     // tr1 += `<td><div class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>&nbsp;
                     //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
                     //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
@@ -1247,7 +822,6 @@
         function bat_storeStaff(){
             load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
         }
-
 
 
         // [p2 函數-3] 設置事件監聽器和MutationObserver

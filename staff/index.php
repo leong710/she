@@ -142,6 +142,9 @@
                 height: 100%;
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             }
+            .btn {
+                padding: 4px 4px;
+            }
     </style>
 </head>
 <body>
@@ -199,9 +202,9 @@
                                         <th title="AVG_8HR 工作日8小時" data-toggle="tooltip" data-placement="bottom" style="width: 40px;">平均音壓</th>
                                         <th title="eh_time 累計暴露" data-toggle="tooltip" data-placement="bottom" style="width: 50px;">每日曝露時數</th>
                                         <th title="NC" data-toggle="tooltip" data-placement="bottom">噪音資格</th>
-                                        <th title="SH3" style="width: 70px;">特檢資格</th>
+                                        <th title="SH3" style="width: 70px;"                                  <?php echo ($sys_role != '0') ? "class='block'":"";?> >特檢資格</th>
                                         <th title="shCondition" data-toggle="tooltip" data-placement="bottom" <?php echo ($sys_role != '0') ? "class='block'":"";?> >資格驗證</th>
-                                        <th title="change" data-toggle="tooltip" data-placement="bottom"      <?php echo ($sys_role != '0') ? "class='unblock'":"";?> >轉調</th>
+                                        <th title="change" data-toggle="tooltip" data-placement="bottom"      <?php echo ($sys_role != '0') ? "class='block'":"";?> >轉調</th>
                                         <th title="檢查項目(類別代號)" data-toggle="tooltip" data-placement="bottom" >匯入1</th>
                                         <th title="檢查項目" data-toggle="tooltip" data-placement="bottom" >匯入2</th>
                                         <th title="去年檢查項目" data-toggle="tooltip" data-placement="bottom" >匯入3</th>
@@ -442,9 +445,12 @@
     const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
 
     const sys_role = '<?=$sys_role?>';
+    const currentYear = String(new Date().getFullYear());                   // 取得當前年份
+    const preYear     = String(currentYear - 1);                            // 取得去年年份
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>
 <script src="staff_excel.js?v=<?=time()?>"></script>
+<script src="staff_check.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
