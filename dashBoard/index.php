@@ -118,6 +118,12 @@
                             <b>說明欄位：</b></br>
            
                             <div class="col-12 py-0 px-3 text-end">
+                                <a href="sys_role.php?sys_id=she&role=0"    class="btn btn-outline-success add_btn">0 管理員</a>
+                                <a href="sys_role.php?sys_id=she&role=1"    class="btn btn-outline-success add_btn">1 PM</a>
+                                <a href="sys_role.php?sys_id=she&role=2"    class="btn btn-outline-success add_btn">2 site窗口</a>
+                                <a href="sys_role.php?sys_id=she&role=2.5"  class="btn btn-outline-success add_btn">2.5 ESH</a>
+                                <a href="sys_role.php?sys_id=she&role=3"    class="btn btn-outline-success add_btn">3 現場窗口</a>
+                                <a href="sys_role.php?sys_id=she&role=3.5"  class="btn btn-outline-success add_btn">3.5 現場主管</a>
         
                             </div>
                         </div>

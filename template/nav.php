@@ -76,7 +76,7 @@
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="<php echo $webroot;?>/interView/"><i class="fa fa-edit"></i>&nbsp;</a></li> -->
                     <!-- 下拉式選單 -->
                     <?php if($sys_role >= 0){ 
-                        if($sys_role <= 2.5 ){ ?>
+                        if($sys_role <= 5 ){ ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
                                     <i class="fa-solid fa-map-location-dot"></i>&nbsp;危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
@@ -92,14 +92,12 @@
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-users"></i>&nbsp;定期特殊健檢<span class="badge rounded-pill bg-danger"></span></a>
+                                    <i class="fa-solid fa-users"></i>&nbsp;職業病預防管理<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>職業病預防管理</b></a></li>
-                                    <?php if($sys_role <= 2 ){ ?>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp;<b>統計(試作版)</b></a></li>
-                                    <?php } ?>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核</b></a></li>
                                 </ul>
                             </li>
                         <?php } 

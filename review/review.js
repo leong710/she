@@ -18,18 +18,14 @@
             newToast.setAttribute('aria-atomic', 'true');
             newToast.setAttribute('autohide', 'true');
             newToast.setAttribute('delay', '1000');
-
             // 設置 toast 的內部 HTML
             newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
-
         // 將新 toast 添加到容器中
         document.getElementById('toastContainer').appendChild(newToast);
-
         // 初始化並顯示 toast
         var toast = new bootstrap.Toast(newToast);
         toast.show();
-
         // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
         newToast.addEventListener('hidden.bs.toast', function () {
             newToast.remove();
@@ -67,23 +63,17 @@
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
-    // fun.0-4a: dataTable
+    // fun.0-4a: dataTable  // https://ithelp.ithome.com.tw/articles/10272439
     async function reload_dataTable(hrdb_data){
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         return new Promise((resolve) => {
-            release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
-            // 重新初始化 DataTable
-            $('#hrdb_table').DataTable({
+            release_dataTable();                                                // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+            $('#hrdb_table').DataTable({                                        // 重新初始化 DataTable
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
                 "autoWidth": false,                                             // 自動寬度
                 "order": [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]],            // 排序
-                // "order": [[ 0, "asc" ], [ 1, "asc" ], [ 2, "asc" ]],            // 排序
                 "pageLength": 25,                                               // 顯示長度
-                    // "paging": false,                                             // 分頁
-                    // "searching": false,                                          // 搜尋
-                    // "data": hrdb_data,
             });
-            resolve();      // 當所有設置完成後，resolve Promise
+            resolve();                                                          // 當所有設置完成後，resolve Promise
         });
     }
     // fun.0-5 多功能擷取fun 新版改用fetch
@@ -285,15 +275,15 @@
 
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
         }
-        // 240826 單筆刪除Staff資料
+        // 240826 單筆放棄Staff資料
         async function eraseStaff(removeEmpId){
-            if(!confirm(`確認刪除此筆(${removeEmpId})資料？`)){
+            if(!confirm(`確認放棄此筆(${removeEmpId})資料？`)){
                 return;
             }else{
                 // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
                 let uniqueStaffMap = new Map();
                 staff_inf.forEach(item => {
-                    if (item.emp_id === removeEmpId) {  // 跳過這個 emp_id，達到刪除的效果
+                    if (item.emp_id === removeEmpId) {  // 跳過這個 emp_id，達到放棄的效果
                         return;
                     }
                     if (uniqueStaffMap.has(item.emp_id)) {
@@ -310,7 +300,7 @@
                 staff_inf = Array.from(uniqueStaffMap.values());
 
                 resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
-                inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`);
+                inside_toast(`放棄單筆資料${removeEmpId}...Done&nbsp;!!`);
             }
         }
         // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
@@ -606,7 +596,7 @@
             });
         }
 
-            // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()
+            // 240912 [子功能] 將Obj物件進行Key的排列...call from searchWorkCaseAll()
         function sortObjKey(originalObj){
             return new Promise((resolve) => {
                 // 取得排序後的 key 陣列
@@ -665,292 +655,240 @@
             });
         }
         
-    // [p-1]
-        // [p1 函數-3] 設置事件監聽器和MutationObserver
-        async function p1_eventListener() {
-            return new Promise((resolve) => {
-                // p1. [通用]在任何地方啟用工具提示框
-                $('[data-toggle="tooltip"]').tooltip();
 
-                resolve();      // 當所有設置完成後，resolve Promise
-            });
+
+
+
+
+
+
+
+
+        
+// [p-2]
+        
+    // [p2 函數-1] 渲染hrdb
+    async function post_hrdb(emp_arr){
+        $('#hrdb_table tbody').empty();
+        if(emp_arr.length === 0){
+            $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
+        }else{
+            await release_dataTable();                            // 停止並銷毀 DataTable
+            await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                let tr1 = '<tr>';
+                const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
+                const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
+
+                tr1 += `<td class="">
+                            <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
+                                + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">${emp_i.cname}</button></div>`
+                            + `<div class="col-12 pt-1 pb-0 px-0" >
+                                <input type="checkbox" id="SH3,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >&nbsp;&nbsp;
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></div>
+                            </td>`;
+                tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
+                                                
+                tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
+                                + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i.shCase_logs[currentYear].emp_dept )) +`</td>`;
+                tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
+
+                // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
+                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
+
+                tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
+                tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;       // 特檢資格
+
+                let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
+                let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
+                let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
+                
+                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearHe      +`</td>`;
+                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearCurrent +`</td>`;
+                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearPre     +`</td>`;
+
+                tr1 += '</tr>';
+                $('#hrdb_table tbody').append(tr1);
+            })
+            await reload_dataTable(emp_arr);                // 倒參數(陣列)，直接由dataTable渲染
         }
-
-        // [p1 函數-6] 渲染hrdb
-        async function post_hrdb(emp_arr){
-            // console.log('post_hrdb--emp_arr...', emp_arr);
-            $('#hrdb_table tbody').empty();
-            if(emp_arr.length === 0){
-                $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
-            }else{
-                // 停止並銷毀 DataTable
-                release_dataTable();
-                await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    // console.log('emp_i', emp_i);
-                    let tr1 = '<tr>';
-                    const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
-                    const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
-
-                    tr1 += `<td class="">
-                                <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
-                                    + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">${emp_i.cname}</button></div>`
-                                + `<div class="col-12 pt-1 pb-0 px-0" >
-                                    <input type="checkbox" id="SH3,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input" >&nbsp;&nbsp;
-                                    <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></div>
-                                </td>`;
-                    tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
-                                                    
-                    tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
-                                 + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i.shCase_logs[currentYear].emp_dept )) +`</td>`;
-                    tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
-
-                    // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
-                    tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
-
-                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
-                    tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="shIdentity` + empId_currentYear + `</div></td>`;           // 特檢資格
-                    // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
-
-                    // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
-                    // tr1 += `<td><div class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>&nbsp;
-                    //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
-                    //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
-                    // tr1 += `<div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;
-
-                    let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
-                    let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
-                    let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
-                    
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearHe      +`</td>`;
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearCurrent +`</td>`;
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearPre     +`</td>`;
-
-                    tr1 += '</tr>';
-                    $('#hrdb_table tbody').append(tr1);
-                })
-                await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
-            }
-            // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
-                const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="offcanvasTop"]'));
-                offcanvas_arr.forEach(canva_btn => {
-                    canva_btn.addEventListener('click', function() {
-                        const this_value_arr = this.value.split(',')       // 分割this.value成陣列
-                        const select_cname = this_value_arr[0];            // 取出陣列0=cname
-                        const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
-                        $('#offcanvasTop #offcanvas_title').empty().append('( '+ this.value +' )');     // 更新 header title  
-                        // const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                        // let emp_shCase_log = '< ~ 無儲存紀錄 ~ >';
-                        // if(empData && empData.shCase_logs != undefined && ( Object.keys(empData.shCase_logs).length > 0 )){
-                        //     // 使用 JSON.stringify 來轉換物件成為格式化的JSON字符串，第二個參數設為null，第三個參數 2 表示每層縮進兩個空格。
-                        //     // 使用 <pre> 標籤來確保格式化的結果在 HTML 中正確顯示。這樣的輸出會與 PHP 的 print_r 效果相似。
-                        //     emp_shCase_log = JSON.stringify(empData.shCase_logs, null ,3);
-                        // }
-                        // $('#shCase_table tbody').empty().append('<pre>' + emp_shCase_log + '</pre>');
-                        // $('#shCase_table tbody').empty().append(emp_shCase_log);
-                        show_preYearShCase(select_empId);
-                    });
+        // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
+            const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="offcanvasTop"]'));
+            offcanvas_arr.forEach(canva_btn => {
+                canva_btn.addEventListener('click', function() {
+                    const this_value_arr = this.value.split(',')       // 分割this.value成陣列
+                    // const select_cname = this_value_arr[0];            // 取出陣列0=cname
+                    const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
+                    $('#offcanvasTop #offcanvas_title').empty().append('( '+ this.value +' )');     // 更新 header title  
+                    show_preYearShCase(select_empId);
                 });
+            });
 
-            $("body").mLoading("hide");
-        }
+        $("body").mLoading("hide");
+    }
 
-    // [p-2]
-        // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
-        let HECateClickListener;
-        async function reload_HECateTable_Listeners() {
-            return new Promise((resolve) => {
-                const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-                // 檢查並移除已經存在的監聽器
-                if (HECateClickListener) {
-                    HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                        tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                    })
-                }
-                // 定義新的監聽器函數
-                HECateClickListener = function () {
-                    const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                    const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-                    const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                    $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
-                    importShLocal_modal.show();
-                }
-                // 添加新的監聽器
+    // [p2 函數] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
+    let HECateClickListener;
+    async function reload_HECateTable_Listeners() {
+        return new Promise((resolve) => {
+            const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (HECateClickListener) {
                 HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
+                    tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
                 })
-                resolve();
-            });
-        }
-        // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeHE_CATEmode(){
-            const isHECate = sys_role <= 3;
-            const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
-                tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
-            });
-        }
-                            // 更換shLocal_modal內的emp_id值 for shLocal互動視窗
-                            function reNew_empId(this_value){
-                                $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
-                            }
-        // p-2 當有輸入每日暴露時數eh_time時...
-        function change_eh_time(this_id, this_value){    // this.id, this.value
-            const this_id_arr = this_id.split(',')       // 分割this.id成陣列
-            const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
-            // step-1 將每日暴露時數eh_time存到指定staff_inf
-                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                if (empData) {
-                            // [改用] empData.shCase = empData.shCase || [];
-                            // // 然後將暴露時數eh_time值 進行更新對應的empId下shCase含'噪音'的項目中。
-                            // empData.shCase.forEach((sh_v, sh_i) => {
-                            //     if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
-                            //         empData.shCase[sh_i]['eh_time'] = Number(this_value);
-                            //     }
-                            // });
-                    empData['eh_time'] = Number(this_value);
-                }
-                // console.log('change_eh_time--staff_inf..', empData);
+            }
+            // 定義新的監聽器函數
+            HECateClickListener = function () {
+                const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+                const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
+                $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
+                importShLocal_modal.show();                             // 顯示互動視窗
+            }
+            // 添加新的監聽器
+            HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            })
+            resolve();
+        });
+    }
+    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeHE_CATEmode(){
+        const isHECate = sys_role <= 3;
+        const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
+            tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
+        });
+    }
 
-            // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
-                // 更新驗證項目(1by1)
-                doCheck(select_empId);
-                clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
-                const { shCase, shCondition } = empData;
-                if (shCase) {
-                    Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-                        updateDOM(sh_value, select_empId, index);
-                    });
-                }
-                // 更新資格驗證(1by1)
-                if (shCondition) {
-                    updateShCondition(shCondition, select_empId, currentYear);
-                }
-        }
-        // p-2 批次儲存員工清單...
-        function bat_storeStaff(){
-            load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
-        }
-
-
-        // [p2 函數-3] 設置事件監聽器和MutationObserver
-        async function p2_eventListener() {
-            return new Promise((resolve) => {
-
-                // p2.[load_excel] 以下為上傳後"iframe"的部分
-                    // p2-1. 監控modal按下[上傳]鍵後，載入Excel
-                    excelUpload.addEventListener('click', ()=> {
-                        iframeLoadAction();
-                        loadExcelForm();
-                    });
-
-                    // p2-2. 監控modal按下[上傳]鍵後，打開隱藏的"iframe"，"load"後執行抓取資料
-                    iframe.addEventListener('load', ()=> {
-                        iframeLoadAction();
-                    });
-
-                    // p2-3. 監控按下[載入]鍵後----呼叫Excel載入
-                    import_excel_btn.addEventListener('click', async function() {
-                        var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-                        var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
-                        var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
-
-                        if (excel_json) {
-                            document.getElementById('excelTable').value = excel_json.value;
-                            const excel_json_value_arr = JSON.parse(excel_json.value);
-                            
-                            // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
-                            await mgInto_staff_inf(excel_json_value_arr)         // 呼叫[fun] 
-                            // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
-                            // searchWorkCaseAll(excel_json_value_arr);
-
-                            inside_toast(`批次匯入Excel資料...Done&nbsp;!!`);
-
-                        } else if(stopUpload) {
-                            console.log('請確認資料是否正確');
-                        }else{
-                            console.log('找不到 ? 元素');
+                        // [p2 函數] 更換shLocal_modal內的emp_id值 for shLocal互動視窗
+                        function reNew_empId(this_value){
+                            $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
                         }
-                    });
+    // [p2 函數] 當有輸入每日暴露時數eh_time時...
+    function change_eh_time(this_id, this_value){    // this.id, this.value
+        const this_id_arr = this_id.split(',')       // 分割this.id成陣列
+        const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
+        // step-1 將每日暴露時數eh_time存到指定staff_inf
+            const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+            if (empData) {  empData['eh_time'] = Number(this_value); }
+        // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
+            doCheck(select_empId);                  // 更新驗證項目(1by1)
+            clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
+            const { shCase, shCondition } = empData;
+            if (shCase) {
+                Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
+                    updateDOM(sh_value, select_empId, index);
+                });
+            }
+            // 更新資格驗證(1by1)
+            if (shCondition) {
+                updateShCondition(shCondition, select_empId, currentYear);
+            }
+    }
+    // [p2 函數] 批次儲存員工清單...
+    function bat_storeStaff(){
+        load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
+    }
 
-                resolve();      // 當所有設置完成後，resolve Promise
-            });
-        }
 
-    // [p-3]
-        // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
-        function mk_deptNos_slt(selectedDeptNo) {
-            return new Promise((resolve) => {
-                // init
-                $('#deptNo_opts_inside').empty();
-                // step-1. 鋪設按鈕
-                if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
-                    Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
-                        let ostext_btns = `
-                            <div class="col-lm-3">
-                                <div class="card">
-                                    <div class="card-header">${emp_sub_scope}</div>
-                                    <div class="card-body p-2">
-                                        ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<div class="form-check">
-                                                <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input px-0" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'disable' ) +`>
-                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'data-toggle="tooltip" data-placement="bottom" title="未完成特危作業選定"' ) +`>
-                                                    ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc}%)</sup></label>
-                                            </div>`
-                                        ).join('')}
-                                    </div>
-                                </div>
-                            </div>`;
-                        $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
-                    });
-                }else{
+
+
+
+
+
+
+                        // [p2 函數] 設置事件監聽器和MutationObserver
+                        async function p2_eventListener() {
+                            return new Promise((resolve) => {
+
+                                resolve();      // 當所有設置完成後，resolve Promise
+                            });
+                        }
+
+// [p-1]
+    // [p1 函數-1] 動態生成所有按鈕，並重新綁定事件監聽器
+    function mk_deptNos_slt(selectedDeptNo) {
+        return new Promise((resolve) => {
+            // init
+            $('#deptNo_opts_inside').empty();
+            // step-1. 鋪設按鈕
+            if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
+                Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
                     let ostext_btns = `
-                        <div class="col-md-3">
+                        <div class="col-lm-3">
                             <div class="card">
-                                <div class="card-header">!! 空值注意 !!</div>
-                                <div class="card-body">
-                                    ~ 目前沒有任何已存檔的員工資料 ~
+                                <div class="card-header">${emp_sub_scope}</div>
+                                <div class="card-body p-2">
+                                    ${Object.entries(oh_value).map(([o_key, o_value]) =>
+                                        `<div class="form-check">
+                                            <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input px-0" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'disable' ) +`>
+                                            <label for="${emp_sub_scope},${o_key}" class="form-check-label" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'data-toggle="tooltip" data-placement="bottom" title="未完成特危作業選定"' ) +`>
+                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc}%)</sup></label>
+                                        </div>`
+                                    ).join('')}
                                 </div>
                             </div>
                         </div>`;
                     $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
-                }
-                // step-2. 綁定deptNo_opts事件監聽器
-                const deptNo_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[name="deptNo[]"]'));
-                deptNo_opts_arr.forEach(deptNo_checkbox => {
-                    deptNo_checkbox.addEventListener('change', function() {
-                        const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                        deptNo_opts.classList.toggle('is-invalid', selectedValues.length === 0);
-                        deptNo_opts.classList.toggle('is-valid', selectedValues.length > 0);
-                        load_deptNo_btn.classList.toggle('is-invalid', selectedValues.length === 0);
-                        load_deptNo_btn.classList.toggle('is-valid', selectedValues.length > 0);
-                        load_deptNo_btn.disabled = selectedValues.length === 0 ;                  // 取得人事資料庫btn
-                        // load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                    });
                 });
-                // step-3. 綁定load_deptNo_btn進行撈取員工資料
-                const load_deptNo_btn = document.getElementById('load_deptNo_btn');
-                load_deptNo_btn.addEventListener('click', function() {
+            }else{
+                let ostext_btns = `
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-header">!! 空值注意 !!</div>
+                            <div class="card-body">
+                                ~ 目前沒有任何已存檔的員工資料 ~
+                            </div>
+                        </div>
+                    </div>`;
+                $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
+            }
+            // step-2. 綁定deptNo_opts事件監聽器
+            const deptNo_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[name="deptNo[]"]'));
+            deptNo_opts_arr.forEach(deptNo_checkbox => {
+                deptNo_checkbox.addEventListener('change', function() {
                     const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-                    load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                    deptNo_opts_arr.forEach(input => { if (input.checked) { input.checked = false; } });// 清除已勾選的項目
-                })
-                resolve();      // 當所有設置完成後，resolve Promise
+                    deptNo_opts.classList.toggle('is-invalid', selectedValues.length === 0);
+                    deptNo_opts.classList.toggle('is-valid', selectedValues.length > 0);
+                    load_deptNo_btn.classList.toggle('is-invalid', selectedValues.length === 0);
+                    load_deptNo_btn.classList.toggle('is-valid', selectedValues.length > 0);
+                    load_deptNo_btn.disabled = selectedValues.length === 0 ;                        // [取得人事資料庫btn] 是否啟用 => 預防送出空值
+                });
             });
-        }
-    // p-3：[load_staff]
+            // step-3. 綁定load_deptNo_btn進行撈取員工資料
+            const load_deptNo_btn = document.getElementById('load_deptNo_btn');
+            load_deptNo_btn.addEventListener('click', function() {
+                const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);// 從清單中篩出以選擇的項目
+                const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');   // 去除特定符號、轉字串
+                load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);              // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                deptNo_opts_arr.forEach(input => { if (input.checked) { input.checked = false; } });// 清除已勾選的項目
+            })
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
 
+    // [p1 函數-2] 設置事件監聽器和MutationObserver
+    async function p1_eventListener() {
+        return new Promise((resolve) => {
+            // p1. [通用]在任何地方啟用工具提示框
+            $('[data-toggle="tooltip"]').tooltip();
 
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
+
+// [default fun]
     $(function() {
         // [步驟-1] 初始化設置
-        mk_deptNos_slt(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
+        mk_deptNos_slt(deptNosObj);             // 呼叫函數-2 生成p1部門slt按鈕
         p1_eventListener();                     // 呼叫函數-3 建立監聽
-        p2_eventListener();                     // 呼叫函數-3 建立監聽
+        // p2_eventListener();                     // 呼叫函數-3 建立監聽
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';

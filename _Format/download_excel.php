@@ -67,7 +67,11 @@
                 break;
             case "staff":
                 $filename_head = "變更作業特殊健檢_";
-                $columns = ['C', 'F', 'G', 'H', 'L'];   // 定義調整蘭寬 
+                $columns = ['B', 'C', 'F', 'G', 'H', 'L', 'N'];   // 定義調整蘭寬 
+                break;
+            case "review":
+                $filename_head = "審查特殊健檢名單_";
+                $columns = ['B', 'C', 'F', 'G', 'H', 'L', 'N'];   // 定義調整蘭寬 
                 break;
             default:
                 $filename_head = $to_module;

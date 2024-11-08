@@ -38,10 +38,10 @@
 
         // $shLocal_OSTEXT_30s = load_shLocal_OSTEXT30s();
 
-        // p1
+        // ...
         $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
-        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
+        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
 
         // p1
         $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
@@ -52,10 +52,10 @@
         // print_r($staff_deptNos);
         // echo "</pre>";
 
-?>
+    include("../template/header.php"); 
+    include("../template/nav.php"); 
 
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+?>
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
@@ -158,13 +158,12 @@
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
-                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
+                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-check"></i> 審核特檢名單</button>
                         </div>
                     </nav>
                 </div>
                 <!-- 內頁 -->
                 <div class="tab-content" id="nav-tabContent">
-
                     <!-- p1 -->
                     <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
@@ -201,27 +200,69 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                </div>
-                                <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end">
+                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
-                                        <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
-                                            <input  type="hidden" name="htmlTable" id="staff_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                                        <form id="review_myForm" method="post" action="../_Format/download_excel.php">
+                                            <input  type="hidden" name="htmlTable" id="review_htmlTable" value="">
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                </div>
+                                <!-- 右側function -->
+                                <div class="col-md-4 py-0 text-end" id="form_btn_div">
+                                    <?php
+                                        $receive_row = array(
+                                            'idty'     => '1',
+                                            'in_sign'  => '',
+                                            "flow"     => '',
+                                            "fab_id"   => '0',
+                                            'in_sign'  => '',
+                                        );
+                                        $sys_sfab_id = [];
+                                        $let_btn_s = '<button type="button" class="btn ';
+                                        $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#submitModal" value="';
+                                        $let_btn_e = '" onclick="submit_item(this.value, this.innerHTML);">';
+                                    
+                                        if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ 
+                                            if(in_array($receive_row['idty'], [ 1 ])){ // 1.簽核中
+                                                echo $let_btn_s."btn-success".$let_btn_m."0".$let_btn_e."同意 (Approve)</button> ";
+                                                if( ($receive_row["flow"] != "forward")  ){  
+                                                    echo $let_btn_s."btn-info text-white".$let_btn_m."5".$let_btn_e."轉呈 (Forwarded)</button> ";
+                                                }
+                                            }
+                                        } 
+                                        if((in_array($receive_row['idty'], [ 1, 12 ])) && ((in_array($receive_row["fab_id"], $sys_sfab_id) && $sys_role <= 2 ) || ($receive_row['in_sign'] == $auth_emp_id))){ // 1.簽核中 12.待領
+                                            echo $let_btn_s."btn-danger".$let_btn_m."2".$let_btn_e."退回 (Reject)</button> ";
+                                        }
+                                        // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
+                                            $receive_collect_role = (($receive_row['idty'] == 12) && ($receive_row['flow'] == 'collect') && (in_array($receive_row["fab_id"], $sys_sfab_id))); 
+                                            if($receive_collect_role){ 
+                                                echo $let_btn_s."btn-primary".$let_btn_m."13".$let_btn_e."交貨 (Delivery)</button> ";
+                                            }  
+                                        // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
+                                            $receive_delivery_role = ($receive_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
+                                            if($receive_row['idty'] == 13 && $receive_delivery_role){  
+                                                echo $let_btn_s."btn-primary".$let_btn_m."11".$let_btn_e."承辦同意 (Approve)</button> ";
+                                            } 
+                                        // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
+                                            if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ 
+                                                echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button> ";
+                                            } 
+                                        // 20240429 承辦退貨選項 idty=10.同意退貨 => 2.結案 (Close)
+                                        if( $receive_row['idty'] == 10 && ((in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 )){ 
+                                            echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button> ';
+                                        }
+                                    ?>
                                 </div>
                             </div>
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                    <th title="emp_id+cname">工號姓名</th>
+                                        <th title="emp_id+cname">工號姓名</th>
                                         <th title="emp_sub_scope">年份_廠區</th>
                                         <th title="dept_no">部門代碼名稱</th>
                                         <th title="MONIT_LOCAL">工作場所</th>
@@ -242,7 +283,6 @@
                             </table>
                         </div>
                     </div>
-                    
                 </div>
                 </br>
             </div>
@@ -418,14 +458,7 @@
 
 // // // 開局導入設定檔
 // 以下為控制 iframe
-    var realName           = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
-    var iframe             = document.getElementById('api');                // 清冊的iframe介面
-    var warningText_1      = document.getElementById('warningText_1');      // 未上傳的提示
-    var warningText_2      = document.getElementById('warningText_2');      // 資料有誤的提示
-    var excel_json         = document.getElementById('excel_json');         // 清冊中有誤的提示
-    var excelFile          = document.getElementById('excelFile');          // 上傳檔案名稱
-    var excelUpload        = document.getElementById('excelUpload');        // 上傳按鈕
-    var import_excel_btn   = document.getElementById('import_excel_btn');   // 載入按鈕
+
     var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
     var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
     var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
@@ -440,15 +473,15 @@
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
     const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
+    const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
     const sys_role = '<?=$sys_role?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份
     const preYear     = String(currentYear - 1);                            // 取得去年年份
 
 </script>
-<script src="staff.js?v=<?=time()?>"></script>
-<script src="staff_excel.js?v=<?=time()?>"></script>
-<script src="staff_check.js?v=<?=time()?>"></script>
+<script src="review.js?v=<?=time()?>"></script>
+<script src="review_excel.js?v=<?=time()?>"></script>
+<script src="review_check.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
