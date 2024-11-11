@@ -686,7 +686,6 @@
                 // 停止並銷毀 DataTable
                 release_dataTable();
                 await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    // console.log('emp_i', emp_i);
                     let tr1 = '<tr>';
                     const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
                     const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
@@ -712,7 +711,7 @@
 
                     tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="shIdentity` + empId_currentYear + `</div></td>`;           // 特檢資格
+                    tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
 
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調

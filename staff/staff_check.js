@@ -118,9 +118,10 @@
                         document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
     
                         // step.2b 噪音驗證
+                        const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
                         if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                             // 2b1. 檢查元素是否存在+是否有值
-                                const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                                eh_time_input.removeAttribute('disabled');
                                 const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
                             // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
                                 const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
@@ -139,6 +140,8 @@
                             empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
                         } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
                             empData['shCondition']['noise'] = false;
+                            eh_time_input.setAttribute('disabled', 'true');
+                            eh_time_input.value = "";
                         }
                     // }
                 });
@@ -256,13 +259,13 @@
                     }
                 }
                 // step.4e 假如真的是轉調單位： 渲染轉調     // 241029 [轉調]渲染unblock
-                if(empData['shCondition']['change']){
-                    const toBe_deptNo_check = await in_arrayKey(toBe_deptNo) ? `轉入特危 ${toBe_deptNo}` : `轉入 ${toBe_deptNo}`;    // 確認是否在[特危場所名單]
-                    // 組合轉調訊息
-                    const change_inner_Value = asIs_deptNo_check ? `<div class="change_">${asIs_deptNo_check}`+(asIs_deptNo_check ? '<br>':'')+`${toBe_deptNo_check}</div>`:'';
-                    document.getElementById(`change,${select_empId},${currentYear}`).innerText = '';                                // 清空innerText內容
-                    document.getElementById(`change,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', change_inner_Value);     // 渲染轉調
-                }
+                // if(empData['shCondition']['change']){
+                //     const toBe_deptNo_check = await in_arrayKey(toBe_deptNo) ? `轉入特危 ${toBe_deptNo}` : `轉入 ${toBe_deptNo}`;    // 確認是否在[特危場所名單]
+                //     // 組合轉調訊息
+                //     const change_inner_Value = asIs_deptNo_check ? `<div class="change_">${asIs_deptNo_check}`+(asIs_deptNo_check ? '<br>':'')+`${toBe_deptNo_check}</div>`:'';
+                //     document.getElementById(`change,${select_empId},${currentYear}`).innerText = '';                                // 清空innerText內容
+                //     document.getElementById(`change,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', change_inner_Value);     // 渲染轉調
+                // }
             // step.5 進行定期檢查驗證
                 // const shCase = (empData['shCase'] != undefined) ? empData['shCase'] : false;
                 // empData['shCondition']['regular']  = (shCase) ? checkRegular(shCase) : false;                                       // 240906 check fun-4 驗證[定期檢查]是否符合
