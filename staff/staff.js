@@ -510,6 +510,16 @@
             }else{
                 $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
             }
+
+            if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
+                const { _content } = empData;
+                // const preYear_content = _content[preYear];
+                const _content_import = _content[`${preYear}`]['import'] !== undefined ? _content[`${preYear}`]['import'] : {};
+
+                console.log('_content_import...',_content_import);
+            }else{
+                $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
+            }
         }
         // 渲染到shLocal互動視窗 for shLocal modal互動視窗
         async function post_shLocal(shLocal_arr){

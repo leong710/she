@@ -138,6 +138,7 @@
                             // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
                                 // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
                             empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+                            
                         } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
                             empData['shCondition']['noise'] = false;
                             eh_time_input.setAttribute('disabled', 'true');
@@ -233,7 +234,9 @@
 
                 empData['shCondition']['change'] = arr_de_double(empData['shCondition']['change']);         // 241101 陣列去重：
                 empData['shCondition']['regular'] = arr_de_double(empData['shCondition']['regular']);       // 241101 陣列去重：
-
+                
+                empData['shCondition']['change'] = empData['shCondition']['change'].join('; ');              // 241113 陣列轉字串：
+                empData['shCondition']['regular'] = empData['shCondition']['regular'].join('; ');            // 241113 陣列轉字串：
                 // console.log(empData['shCondition']['change']);
                 // console.log(empData['shCondition']['regular']);
 

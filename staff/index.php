@@ -202,9 +202,6 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                </div>
-                                <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end">
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -215,6 +212,9 @@
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
                                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                </div>
+                                <!-- 右側function -->
+                                <div class="col-md-4 py-0 text-end">
                                 </div>
                             </div>
                             <hr>
@@ -396,6 +396,9 @@
                         <th title="SH3" style="width: 80px;">特檢資格</th>
                         <th title="shCondition">資格驗證</th>
                         <th title="change">轉調</th>
+                        <th title="匯入1" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >項目類別代號</th>
+                        <th title="匯入2" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >檢查項目</th>
+                        <th title="匯入3" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
                     </tr>
                 </thead>
                 <tbody>

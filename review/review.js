@@ -700,7 +700,8 @@
 
                 tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;       // 特檢資格
+                tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                tr1 += `<td><div id="process` + empId_currentYear + `</div></td>`;       // 特檢資格
 
                 let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
                 let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');

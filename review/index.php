@@ -272,7 +272,8 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 40px;">平均<br>音壓</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >特檢資格</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >資格驗證</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="process"             >特檢資格</th>
                                         <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >去年檢查項目</th>
