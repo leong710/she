@@ -200,7 +200,7 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -209,7 +209,7 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff" disabled ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">

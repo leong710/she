@@ -65,7 +65,7 @@
                 // return asIs_deptNo !== toBe_deptNo  ? String(asIs_deptNo) : false;        // 比較 dept_no 前後是否一致
             }
             // 240906 check fun-4 驗證[定期檢查]是否符合
-            function checkRegular(shCase){
+            function checkRegular(shCase) {
                 return shCase.length > 0;
             }
 
@@ -237,10 +237,10 @@
 
                         // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
                             // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
-                        empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+                        // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
 
                     } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
-                        if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}
+                        // if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}
                         eh_time_input.setAttribute('disabled', 'true');
                         eh_time_input.value = "";
                     }
@@ -257,9 +257,9 @@
             // step.3 新人特殊驗證：呼叫[fun]checkNewOne 取得判斷結果
                 const hired = (empData['HIRED'] != undefined) ? empData['HIRED'] : false;
                 empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;                            // 240906 check fun-2 驗證[新進特殊]是否符合
-
+                
+            // step.4 進行部門代號dept_no的變更檢查
                 do_checkChange(empData);
-
         }
         // 更新資格驗證(1by1)
         async function updateShCondition(ShCondition_value, select_empId, targetYear) {

@@ -399,7 +399,7 @@
             for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
                 // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,shCondition);
-                doCheck(select_empId);          // 更新驗證項目(1by1)
+                // doCheck(select_empId);          // 更新驗證項目(1by1)
                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                 if (shCase) {
                     let index = 0;
@@ -409,14 +409,15 @@
                     }                
                 }
                 // 更新資格驗證(1by1)
-                if (shCondition) {
-                    await updateShCondition(shCondition, select_empId, currentYear);
-                }
+                // if (shCondition) {
+                //     await updateShCondition(shCondition, select_empId, currentYear);
+                // }
             };
         }
         // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
         async function show_preYearShCase(select_empId){
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+
             let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
             // console.log('show_preYearShCase...empData...', empData);
             if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
@@ -424,10 +425,12 @@
                 // 鋪設t-body
                 const tdClass = `<td><div class="bottom-half"`;
                 const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
+
                     tr1 = '<tr>';
                     tr1 += tdClass + ` id="emp_id`        + empId_preYear;
                     tr1 += tdClass + ` id="emp_sub_scope` + empId_preYear;
                     tr1 += tdClass + ` id="emp_dept`      + empId_preYear;
+
                     tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
                     tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
                     tr1 += tdClass + ` id="HE_CATE`       + empId_preYear;
@@ -435,6 +438,7 @@
                     tr1 += tdClass + ` id="AVG_8HR`       + empId_preYear;
                     tr1 += tdClass + `><snap id="eh_time,${select_empId},${preYear}"></snap></div></td>`;
                     tr1 += tdClass + ` id="NC`            + empId_preYear;
+
                     tr1 += tdClass + ` id="shIdentity`    + empId_preYear;
                     tr1 += tdClass + ` id="shCondition`   + empId_preYear;
                     tr1 += tdClass + ` id="change,${select_empId},${currentYear}"></div></td>`;
@@ -457,7 +461,7 @@
     
                     // step.2 更新shCase欄位4,5,6,7,8,9,10
                     if (shCase) {
-                        // step.2 欲更新的欄位陣列 - 對應欄位4,5,6,7,8,9,10
+                        // step.2 欲更新的欄位陣列 - 對應欄位4,5,6,7,8,9
                         const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
                         let index = 1;
                         for (const [sh_key, sh_value] of Object.entries(shCase)) {
@@ -467,17 +471,21 @@
                                 const br = index > 1 ? '<br>' : '';         // 判斷 1以上=換行
                                 let inner_Value = '';
                                 if (sh_value[sh_item] !== undefined) {      // 確認不是找不到的項目
-                                    if (sh_item === 'HE_CATE'){             // 3.類別代號 特別處理：1.物件轉字串、2.去除符號
+                                    if (sh_item === 'HE_CATE'){             // 6.類別代號 特別處理：1.物件轉字串、2.去除符號
                                         let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
                                         inner_Value = `${br}${he_cate_str}`;
-                                    }else if(sh_item.includes('AVG')){      // 4.5.均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
+
+                                    }else if(sh_item.includes('AVG')){      // 7.8.均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
                                         let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
                                         inner_Value = `${br}${avg_str}`;
-                                    }else if(sh_item === 'MONIT_LOCAL'){    // 特別處理：MONIT_LOCAL
+
+                                    }else if(sh_item === 'MONIT_LOCAL'){    // 4.特別處理：MONIT_LOCAL
                                         inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;${sh_value[sh_item]}`;
-                                    }else{                                  // 1.2.6
+
+                                    }else{                                  // 5.9
                                         inner_Value = `${br}${sh_value[sh_item]}`;
                                     }
+                                    
                                     // step.2b 噪音驗證 對應欄位9,10
                                     if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                                         // 2b1. 檢查元素是否存在+是否有值
@@ -506,17 +514,17 @@
                     if(shCondition) {
                         await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                     }
+                    // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
+                    const _content_import = empData._content[`${preYear}`]['import'] !== undefined ? empData._content[`${preYear}`]['import'] : {};
+                    if(_content_import){
+                        const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
+                        importItem_arr.forEach((importItem) => {
+                            let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                            document.getElementById(`${importItem},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', importItem_value);     // 渲染各項目
+                        })
+                    }
                 }
-            }else{
-                $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
-            }
 
-            if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
-                const { _content } = empData;
-                // const preYear_content = _content[preYear];
-                const _content_import = _content[`${preYear}`]['import'] !== undefined ? _content[`${preYear}`]['import'] : {};
-
-                console.log('_content_import...',_content_import);
             }else{
                 $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
             }
@@ -580,7 +588,7 @@
                                     }; 
                                 };
                             // 更新驗證項目(1by1)
-                                doCheck(select_empId);
+                                // doCheck(select_empId);
                             // 清空目前顯示的 DOM
                                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                                 if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
@@ -604,9 +612,9 @@
                                     });
                                 }
                         // 更新資格驗證(1by1)
-                        if (empData.shCondition) {
-                            updateShCondition(empData.shCondition, select_empId, currentYear);
-                        }
+                        // if (empData.shCondition) {
+                        //     updateShCondition(empData.shCondition, select_empId, currentYear);
+                        // }
                         console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
                     }
                 };
@@ -721,7 +729,7 @@
 
                     tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                    tr1 += `<td `+(sys_role <='1' ? '':'class="unblock"')+`><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
 
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
@@ -827,7 +835,7 @@
 
             // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
                 // 更新驗證項目(1by1)
-                doCheck(select_empId);
+                // doCheck(select_empId);
                 clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
                 const { shCase, shCondition } = empData;
                 if (shCase) {
@@ -836,9 +844,9 @@
                     });
                 }
                 // 更新資格驗證(1by1)
-                if (shCondition) {
-                    updateShCondition(shCondition, select_empId, currentYear);
-                }
+                // if (shCondition) {
+                //     updateShCondition(shCondition, select_empId, currentYear);
+                // }
         }
         // p-2 批次儲存員工清單...
         function bat_storeStaff(){

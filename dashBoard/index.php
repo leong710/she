@@ -115,6 +115,10 @@
                         </div>
                         <!-- 說明欄 -->
                         <div class="col-12 bg-white border rounded p-3 my-2 bs-b" id="remark">
+                            <div class="text-center">
+                                <img src="image.jfif" alt="tnESH Logo">
+                            </div>
+                            <hr>
                             <b>說明欄位：</b></br>
            
                             <div class="col-12 py-0 px-3 text-end">

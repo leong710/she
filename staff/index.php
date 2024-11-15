@@ -201,7 +201,7 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="resetINF(true);" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -211,7 +211,7 @@
                                         </form>
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
@@ -231,7 +231,7 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 40px;">平均<br>音壓</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >特檢資格</th>
+                                        <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>>特檢資格</th>
                                         <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >去年檢查項目</th>
@@ -393,12 +393,12 @@
                         <th title="AVG_8HR 工作日8小時" style="width: 50px;">平均音壓</th>
                         <th title="eh_time 累計暴露" style="width: 70px;">每日曝露時數</th>
                         <th title="NC" style="width: 80px;">噪音資格</th>
-                        <th title="SH3" style="width: 80px;">特檢資格</th>
+                        <th title="SH3_shIdentity" style="width: 80px;">特檢資格</th>
                         <th title="shCondition">資格驗證</th>
                         <th title="change">轉調</th>
-                        <th title="匯入1" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >項目類別代號</th>
-                        <th title="匯入2" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >檢查項目</th>
-                        <th title="匯入3" <?php echo ($sys_role >= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
+                        <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
+                        <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
+                        <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
                     </tr>
                 </thead>
                 <tbody>
