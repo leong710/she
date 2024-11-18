@@ -135,29 +135,24 @@
             });
             // 將結果轉換為陣列
             shLocal_inf = Array.from(uniqueMap.values());
-                // console.log('2-mgInto_shLocal_inf--shLocal_inf...', shLocal_inf);
             await post_shLocal(shLocal_inf)
         }
-            // 240904 shCase 去重...
-            async function removeDuplicateShCase(shCaseArray) {
-                // console.log('removeDuplicateShCase...',shCaseArray);
-                const uniqueShCaseMap = new Map();
-                await shCaseArray.forEach(item => {
-                    // 建立一個唯一標識符，根據所有屬性值來生成
-                    const uniqueKey = JSON.stringify(item);
-                    // 如果唯一標識符已存在，則忽略此項目；否則，將其添加到Map中
-                    if (!uniqueShCaseMap.has(uniqueKey)) {
-                        uniqueShCaseMap.set(uniqueKey, item);
-                    }
-                });
-                // 將 Map 轉換回陣列
-                // console.log(Array.from(uniqueShCaseMap.values()));
-                return Array.from(uniqueShCaseMap.values());
-            }
+        // 240904 shCase 去重...
+        async function removeDuplicateShCase(shCaseArray) {
+            const uniqueShCaseMap = new Map();
+            await shCaseArray.forEach(item => {
+                // 建立一個唯一標識符，根據所有屬性值來生成
+                const uniqueKey = JSON.stringify(item);
+                // 如果唯一標識符已存在，則忽略此項目；否則，將其添加到Map中
+                if (!uniqueShCaseMap.has(uniqueKey)) {
+                    uniqueShCaseMap.set(uniqueKey, item);
+                }
+            });
+            // 將 Map 轉換回陣列
+            return Array.from(uniqueShCaseMap.values());
+        }
         // 240822 將匯入資料合併到staff_inf
         async function mgInto_staff_inf(source_json_value_arr){
-            // const source_json_value_arr = JSON.parse(source_json_value);
-            // console.log('2.source_json_value_arr...', source_json_value_arr);
             const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no' ];                                        // 合併陣列1
             const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};   // 合併陣列2
             const addIn_arr3 = ['yearHe', 'yearCurrent', 'yearPre'];                                     // 合併陣列3 匯入1、2、3
@@ -168,9 +163,9 @@
                 if (!source_json_value_arr[e_key]['shCase']) { source_json_value_arr[e_key]['shCase'] = []; }         // 特作案件紀錄陣列建立
                 if (!source_json_value_arr[e_key]['eh_time']) { source_json_value_arr[e_key]['eh_time'] = null; }     // eh_time在這裡要先建立，避免驗證錯誤跳脫
 
-                if (!source_json_value_arr[e_key]['_content']) { source_json_value_arr[e_key]['_content'] = {}; }         // 特作案件紀錄陣列建立
-                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]) { source_json_value_arr[e_key]['_content'][`${currentYear}`] = {}; }         // 特作案件紀錄陣列建立
-                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']) { source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = {}; }         // 特作案件紀錄陣列建立
+                if (!source_json_value_arr[e_key]['_content']) { source_json_value_arr[e_key]['_content'] = {}; }     // 1.通聯紀錄陣列建立
+                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]) { source_json_value_arr[e_key]['_content'][`${currentYear}`] = {}; }   // 2.'年度'通聯紀錄陣列建立
+                if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']) { source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = {}; }   // 3.年度通聯-匯入紀錄陣列建立
                 // 建立一個新的物件來儲存合併的資料
                 let mergedData = {};
                 let importData = {};
@@ -222,9 +217,9 @@
 
                 // 將合併後的物件加入 _content/import 陣列中
                 if( Object.keys(importData).length > 0 ){       
-                    // source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'].push(importData);
-                    source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = importData;
-                    // 使用 await 調用 removeDuplicateShCase 去重
+                    // source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'].push(importData);   // 堆疊法
+                    source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = importData;          // 覆蓋法
+                    // // 使用 await 調用 removeDuplicateShCase 去重
                     // source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = await removeDuplicateShCase(source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']);
                 }
             };
@@ -275,7 +270,7 @@
                 });
                 // 將 Map 轉換回陣列
                 staff_inf = Array.from(uniqueStaffMap.values());
-                        console.log('2.mgInto_staff_inf--staff_inf...', staff_inf);
+                console.log('2.mgInto_staff_inf--staff_inf...', staff_inf);
 
             // *** 精煉 shLocal 
                 const source_OSHORTs_str = (JSON.stringify([...new Set(source_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
@@ -293,15 +288,13 @@
                 // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
                 let uniqueStaffMap = new Map();
                 staff_inf.forEach(item => {
-                    if (item.emp_id === removeEmpId) {  // 跳過這個 emp_id，達到刪除的效果
+                    if (item.emp_id === removeEmpId) {      // 跳過這個 emp_id，達到刪除的效果
                         return;
                     }
-                    if (uniqueStaffMap.has(item.emp_id)) {
-                        // 如果 emp_id 已經存在，則合併 shCase
+                    if (uniqueStaffMap.has(item.emp_id)) {  // 如果 emp_id 已經存在，則合併 shCase
                         let existingShCase = uniqueStaffMap.get(item.emp_id).shCase;
                         uniqueStaffMap.get(item.emp_id).shCase = existingShCase.concat(item.shCase);
-                    } else {
-                        // 如果 emp_id 不存在，則新增
+                    } else {                                // 如果 emp_id 不存在，則新增
                         uniqueStaffMap.set(item.emp_id, item);
                     }
                 });
@@ -320,7 +313,7 @@
             for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
                 const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step1-1.取出emp_id
                 const empData = staff_inf.find(emp => emp.emp_id === select_empId);                     // step1-2.查找staff_inf內該員工是否存在
-                // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6
+                // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6/FAB6
                 if(!empData){                                                                           // step1-3.沒資料就進行hrdb查詢..241101 暫停取用hrdb進行更新。???
                     await search_fun('rework_loadStaff', select_empId);                                 // 確保每次search_fun都等待完成
                 }
@@ -398,7 +391,6 @@
         async function post_shCase(emp_arr){
             for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
-                // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,shCondition);
                 // doCheck(select_empId);          // 更新驗證項目(1by1)
                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                 if (shCase) {
@@ -419,7 +411,6 @@
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
 
             let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
-            // console.log('show_preYearShCase...empData...', empData);
             if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
                 console.log('show_preYearShCase...empData...', empData.shCase_logs);
                 // 鋪設t-body
@@ -485,7 +476,6 @@
                                     }else{                                  // 5.9
                                         inner_Value = `${br}${sh_value[sh_item]}`;
                                     }
-                                    
                                     // step.2b 噪音驗證 對應欄位9,10
                                     if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                                         // 2b1. 檢查元素是否存在+是否有值
@@ -501,11 +491,10 @@
                                             document.getElementById(`NC,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
                 
                                         // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
-                                            empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+                                            // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;   // 照理說應該不需要...因為是直接抓舊紀錄鋪設，不需要任何判斷
                                     }
                                 }
                                 document.getElementById(`${sh_item},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
-            
                             });
                             index++;
                         }           
@@ -524,7 +513,6 @@
                         })
                     }
                 }
-
             }else{
                 $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
             }
@@ -573,49 +561,33 @@
                     const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
                     const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
                     const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-
+                    const useImportShLocal_value = document.getElementById('useImportShLocal');     // 保留沿用選項值
+                    
                     if (empData) {
-                        // empData.shCase = empData.shCase || [];
-                        // empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入
-                            // 特檢資格：直接清空，讓後面重新帶入
-                                // // 防止套入時錯誤，建立[資格驗證]shCondition紀錄判斷物件
-                                if(empData['shCondition'] == undefined || empData['shCondition'].length == 0){
-                                    empData.shCondition = {
-                                        "noise"   : false,          // 噪音判定
-                                        "newOne"  : false,          // 新人
-                                        "regular" : false,          // 定期
-                                        "change"  : false           // 變更
-                                    }; 
-                                };
-                            // 更新驗證項目(1by1)
-                                // doCheck(select_empId);
-                            // 清空目前顯示的 DOM
-                                clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
-                                if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
-                                    empData.shCondition['noise'] = false;   // 清除噪音判定
-                                
-                                }else{                                  // 2.裡是有勾選，然後將新勾選的項目進行更新
-                                    selectedOptsValues.forEach((sov_vaule, index) => {
-                                        empData.shCase[index] = shLocal_inf[sov_vaule];
-                                        if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
-                                            // 假如input有eh_time值，就導入使用。
-                                            const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
-                                            // 檢查元素是否存在+是否有值 then 存到個人訊息中
-                                                    // [改用] empData.shCase[index]['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : false;
-                                            empData['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
-                                        }
-                                        updateDOM(shLocal_inf[sov_vaule], select_empId, index);
-                                                // [停用] 過濾...emp的部門代號 與 shLocal的部門代號是否一致...才准許導入
-                                                    // if(empData.dept_no !== shLocal_inf[sov_vaule]['OSHORT']){
-                                                    //     inside_toast(`選用之特危作業(${shLocal_inf[sov_vaule]['HE_CATE']}) 其部門代號(${shLocal_inf[sov_vaule]['OSHORT']})與員工部門代號(${empData.dept_no}) 不一致...返回&nbsp;!!`);
-                                                    // }
-                                    });
+                        empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入
+                        // 清空目前顯示的 DOM
+                        clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
+                        if(selectedOptsValues.length !== 0){    // 裡是有勾選，然後將新勾選的項目進行更新
+                            selectedOptsValues.forEach((sov_vaule, index) => {
+                                empData.shCase[index] = shLocal_inf[sov_vaule];
+                                if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
+                                    // 假如input有eh_time值，就導入使用。
+                                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                                    // 檢查元素是否存在+是否有值 then 存到個人訊息中
+                                            // [改用] empData.shCase[index]['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : false;
+                                    empData['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
                                 }
-                        // 更新資格驗證(1by1)
-                        // if (empData.shCondition) {
-                        //     updateShCondition(empData.shCondition, select_empId, currentYear);
-                        // }
+                                updateDOM(shLocal_inf[sov_vaule], select_empId, index);
+                            });
+                        }else{
+                            
+                        }
                         console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
+                    }
+                    // 241118 選擇特危項目之保留沿用
+                    if(!useImportShLocal_value.checked){
+                        const selectedOptsItems = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]'));
+                        selectedOptsItems.forEach(input => { if (input.checked) { input.checked = false; } });  // 清除已勾選的項目
                     }
                 };
                 // 添加新的監聽器
@@ -627,12 +599,10 @@
             // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()
         function sortObjKey(originalObj){
             return new Promise((resolve) => {
-                // 取得排序後的 key 陣列
-                const sortedKeys = Object.keys(originalObj).sort();
-                // 根據排序後的 key 陣列重建新物件
+                const sortedKeys = Object.keys(originalObj).sort();     // 取得排序後的 key 陣列
                 const sortedObj = {};
                 sortedKeys.forEach(key => {
-                    sortedObj[key] = originalObj[key];
+                    sortedObj[key] = originalObj[key];                  // 根據排序後的 key 陣列重建新物件
                 });
                 resolve(sortedObj);     // 當搜尋完成後，回傳結果
             });
@@ -658,7 +628,6 @@
                         }
                     }
                 }));
-                // console.log('searchWorkCaseAll--empData_shCase...', i_empId, empData_shCase);
                 // 將合併後的物件mergedData加入 shCase 陣列中，使用 await 調用 removeDuplicateShCase 去重
                 empData['shCase'] = await removeDuplicateShCase(empData_shCase);
             };
@@ -696,13 +665,13 @@
 
         // [p1 函數-6] 渲染hrdb
         async function post_hrdb(emp_arr){
-            // console.log('post_hrdb--emp_arr...', emp_arr);
             $('#hrdb_table tbody').empty();
             if(emp_arr.length === 0){
                 $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
             }else{
                 // 停止並銷毀 DataTable
                 release_dataTable();
+                const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
                 await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                     let tr1 = '<tr>';
                     const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
@@ -738,13 +707,10 @@
                     //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
                     // tr1 += `<div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;
 
-                    let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
-                    let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
-                    let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
-                    
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearHe      +`</td>`;
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearCurrent +`</td>`;
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearPre     +`</td>`;
+                    importItem_arr.forEach((importItem) => {
+                        let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                        tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ importItem_value +`</td>`;
+                    })
 
                     tr1 += '</tr>';
                     $('#hrdb_table tbody').append(tr1);
