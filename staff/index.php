@@ -52,10 +52,10 @@
         // print_r($staff_deptNos);
         // echo "</pre>";
 
-?>
+    include("../template/header.php");
+    include("../template/nav.php"); 
 
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+?>
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
@@ -151,6 +151,9 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
+                <div class="col-12">
+                    <h3>item label</h3>
+                </div>
                 <div class="col-12 pb-0 px-0">
                     <!-- Bootstrap Alarm -->
                     <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>
@@ -322,6 +325,10 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
+                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
+                    </div>
                     <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>

@@ -496,6 +496,15 @@
                     if(shCondition) {
                         await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                     }
+                    // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
+                    const _content_import = empData._content[`${preYear}`]['import'] !== undefined ? empData._content[`${preYear}`]['import'] : {};
+                    if(_content_import){
+                        const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
+                        importItem_arr.forEach((importItem) => {
+                            let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                            document.getElementById(`${importItem},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', importItem_value);     // 渲染各項目
+                        })
+                    }
                 }
             }else{
                 $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
@@ -674,6 +683,7 @@
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
         }else{
             await release_dataTable();                            // 停止並銷毀 DataTable
+            const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
             await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 let tr1 = '<tr>';
                 const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
@@ -703,13 +713,10 @@
                 tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
                 tr1 += `<td><div id="process` + empId_currentYear + `</div></td>`;       // 特檢資格
 
-                let _content_import_yearHe      = (_content_import.yearHe      != undefined ? _content_import.yearHe      :'').replace(/,/g, '<br>');
-                let _content_import_yearCurrent = (_content_import.yearCurrent != undefined ? _content_import.yearCurrent :'').replace(/,/g, '<br>');
-                let _content_import_yearPre     = (_content_import.yearPre     != undefined ? _content_import.yearPre     :'').replace(/,/g, '<br>');
-                
-                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearHe      +`</td>`;
-                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearCurrent +`</td>`;
-                tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ _content_import_yearPre     +`</td>`;
+                importItem_arr.forEach((importItem) => {
+                    let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ importItem_value +`</td>`;
+                })
 
                 tr1 += '</tr>';
                 $('#hrdb_table tbody').append(tr1);

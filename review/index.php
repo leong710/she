@@ -437,6 +437,9 @@
                         <th title="SH3" style="width: 80px;">特檢資格</th>
                         <th title="shCondition">資格驗證</th>
                         <th title="change">轉調</th>
+                        <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
+                        <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
+                        <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
                     </tr>
                 </thead>
                 <tbody>
