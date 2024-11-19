@@ -151,7 +151,14 @@
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
-                <div class="col-12 pb-0 px-0">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-12 border rounded bg-light ">
+                            <h4 class="mb-0">step.3 各站點審核工作</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 p-0">
                     <!-- Bootstrap Alarm -->
                     <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>
                     <!-- NAV分頁標籤 -->
@@ -200,7 +207,7 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-secondary add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -224,9 +231,9 @@
                                         $sys_sfab_id = [];
                                         $let_btn_s = '<button type="button" class="btn ';
                                         $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#submitModal" value="';
-                                        $let_btn_e = '" onclick="submit_item(this.value, this.innerHTML);">';
+                                        $let_btn_e = '" onclick="submit_item(this.value, this.innerHTML);" disabled>';
                                     
-                                        if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 1 ){ 
+                                        if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 3.5 ){ 
                                             if(in_array($receive_row['idty'], [ 1 ])){ // 1.簽核中
                                                 echo $let_btn_s."btn-success".$let_btn_m."0".$let_btn_e."同意 (Approve)</button> ";
                                                 if( ($receive_row["flow"] != "forward")  ){  

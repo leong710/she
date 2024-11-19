@@ -379,6 +379,12 @@
                 download_excel_btn.disabled = staff_inf.length === 0;  // 讓下載按鈕啟停
                 bat_storeStaff_btn.disabled = staff_inf.length === 0;  // 讓儲存按鈕啟停
                 resetINF_btn.disabled       = staff_inf.length === 0;  // 讓清除按鈕啟停
+
+                const form_btn_div = Array.from(document.querySelectorAll('#form_btn_div button'));
+                form_btn_div.forEach(form_btn => {
+                    form_btn.disabled = staff_inf.length === 0;
+                })
+
                 resolve();
             });
         }
