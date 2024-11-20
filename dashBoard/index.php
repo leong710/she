@@ -89,7 +89,29 @@
             align-items: center;
             pointer-events: none;
         }
+        p {
+            /* 對齊方式 */
+            text-align: center;    
+            letter-spacing: 2px;    /*字距，英文是每個字母，中文是每個文字*/
+            /* word-spacing: 15px; */ /*字距，英文是每個單字，中文是每個文字*/
+            /* line-height: 30px;     行高 */
+            line-height: 1.4em;     /* em=父元素倍率，老師常用此行高 */
+
+            /* text-transform: capitalize; */
+            /* uppercase全部大寫, lowercase全部小寫, capitalize第一個字大寫 */
+            font-size: 1.2em;
+            font-weight: 300;
+            /* 100-900, bold 加粗=600, bolder, lighter=200細字-看字體支援, normal一般, */
+            font-style: normal;
+            /* normal正常, italic斜體 */
+            font-family: "New Tegomin","標楷體";
+        }
+        b {
+            /* 100-900, bold 加粗=600, bolder, lighter=200細字-看字體支援, normal一般, */
+            font-style: bolder;
+        }
    </style>
+    <link rel="stylesheet" href="wave.css">
 </head>
 
 <body>
@@ -98,11 +120,51 @@
             <div class="col-mm-10 col-12 rounded p-4 " style="background-color: rgba(255, 255, 255, .7);">
                 <div class="row">
                     <!-- 左測：單 -->
-                    <div class="col-3 col-md-3 px-2 py-0 t-center">
+                    <div class="col-3 col-md-3 px-2 py-0">
                         <h2><span class="badge bg-primary w-100">--&nbsp;<i class="fa fa-edit"></i>&nbsp;左側&nbsp;--</span></h2>
                         <div class="col-12 p-0" id="btn_list">
                             <div id="overlay">Permission Denied</div>
                             <!-- append button here -->
+                            <div class="rounded wave_div">
+                                <div class="waveform">
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                    <div class="bar"></div>
+                                </div>
+                            </div>
+                            <div class="col-12 seed">
+                                <h4>垂老別</h4>
+                                <strong>作者：唐朝 杜甫</strong><br>
+                                原文：<br>
+                                <p>
+                                    四郊未寧靜，垂老不得安。<br>子孫陣亡盡，焉用身獨完。<br>
+                                    投杖出門去，同行爲辛酸。<br>幸有牙齒存，所悲骨髓幹。<br>
+                                    男兒既介冑，長揖別上官。<br>老妻臥路啼，歲暮衣裳單。<br>
+                                    孰知是死別，且復傷其寒。<br>此去必不歸，還聞勸加餐。<br>
+                                    土門壁甚堅，杏園度亦難。<br>勢異鄴城下，縱死時猶寬。<br>
+                                    人生有離合，豈擇衰老端。<br>憶昔少壯日，遲迴竟長嘆。<br>
+                                    萬國盡征戍，烽火被岡巒。<br>積屍草木腥，流血川原丹。<br>
+                                    何鄉爲樂土，安敢尚盤桓。<br>棄絕蓬室居，塌然摧肺肝。
+                                </p>
+                                <hr>
+                                <strong>譯文作者：佚名</strong><br>
+                                <P>
+                                    四野的戰爭還沒得到安平，我已經老了卻得不到安寧。
+                                    子孫們在戰場上盡都殉難，兵荒馬亂又何需老命苟全。
+                                    扔掉柺杖出門去拼搏一番，同行的人也爲我流淚辛酸。
+                                    慶幸牙齒完好胃口還不減，悲傷身骨瘦如柴枯槁不堪。
+                                    男兒既披戴盔甲從戎征戰，也只好長揖不拜辭別長官。
+                                    聽到老伴睡路上聲聲哀喚，嚴冬臘月仍然是褲薄衣單。
+                                    明知道死別最後一次見面，貧賤夫妻怎麼不憐她飢寒。
+                                    今朝離去永不能回返家園，猶聽她再三勸我努力加餐。
+                                    土門關深溝高壘防守堅嚴，杏園鎮天險足恃偷渡...
+                                </P>
+                            </div>
                         </div>
                     </div>
 
@@ -118,6 +180,7 @@
                             <div class="text-center">
                                 <img src="image.jfif" alt="tnESH Logo">
                             </div>
+            
                             <hr>
                             <b>說明欄位：</b></br>
            
