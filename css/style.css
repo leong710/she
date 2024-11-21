@@ -174,7 +174,7 @@ a:hover {
         word-break: break-all;
     }
     /* 密碼的眼睛*/
-    #checkEye , #omager_badge , #in_sign_badge {
+    #checkEye , #omager_badge , #in_signBadge {
         position: absolute;
         top: 50%;
         right: 10px;

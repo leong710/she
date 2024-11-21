@@ -368,8 +368,10 @@
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
             if(sys_role <= '3'){                        // 限制role <= 3 現場窗口以下...排除主管和路人
                 await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
+                await reload_shConditionTable_Listeners();
             }else{
                 changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+                changeShConditionMode();
             }
             await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
         }
@@ -395,7 +397,7 @@
             for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
                 const { emp_id: select_empId, shCase ,shCondition} = emp_i;
                 // console.log('post_shCase--select_empId, shCase ,shCondition...', select_empId, shCase ,shCondition);
-                doCheck(select_empId);          // 更新驗證項目(1by1)
+                // doCheck(select_empId);          // 更新驗證項目(1by1)
                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                 if (shCase) {
                     let index = 0;
@@ -575,7 +577,7 @@
                                     }; 
                                 };
                             // 更新驗證項目(1by1)
-                                doCheck(select_empId);
+                                // doCheck(select_empId);
                             // 清空目前顯示的 DOM
                                 clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
                                 if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
@@ -709,14 +711,15 @@
                 tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
-                // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
+                // 240918 因應流程圖三需求，將選擇特作功能移到[檢查類別代號]...
                 tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
                 tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+
+                tr1 += `<td class="shCondition" id="${emp_i.cname},${emp_i.emp_id}"><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
                 tr1 += `<td><div id="process` + empId_currentYear + `</div></td>`;       // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
@@ -779,6 +782,137 @@
             tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
         });
     }
+    
+    let shConditionClickListener;
+    async function reload_shConditionTable_Listeners() {
+        return new Promise((resolve) => {
+            const shCondition = document.querySelectorAll('[class="shCondition"]');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (shConditionClickListener) {
+                shCondition.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                    tdItem.removeEventListener('click', shConditionClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                })
+            }
+            // 定義新的監聽器函數
+            shConditionClickListener = function () {
+                const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+                const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+                $('#edit_shCondition #edit_shCondition_empId').empty().append(`${edit_cname},${edit_empId}`); // 清空+填上工號
+
+                $('#edit_shCondition_table tbody').empty();             // 清空tbody
+                const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+                const { shCondition } = empData;
+
+                const shCondition_key = {
+                    'newOne'  : { 'item' : '新人', 'type' : 'checkbox' },
+                    'noise'   : { 'item' : '噪音', 'type' : 'checkbox' },
+                    'regular' : { 'item' : '定期', 'type' : 'text' },
+                    'change'  : { 'item' : '變更', 'type' : 'text' },
+                    };
+
+                for (const [sh_key, sh_Vitem] of Object.entries(shCondition_key)) {
+                    let sh_value = shCondition[sh_key] !== undefined ? shCondition[sh_key] : '';
+
+                    //&nbsp;(${sh_Vitem['item']})
+                    let tr = `<tr><td class="text-end">${sh_key}</td><td><input name="${sh_key}" id="${edit_empId},${sh_key}" `;
+                    
+                    switch (sh_Vitem['type']) {
+                        case 'checkbox':
+                            tr += `value="true" type="${sh_Vitem['type']}" class="form-check-input" ` + (sh_value ? 'checked' : '');
+                            tr += ` >&nbsp;<label class="form-check-label" for="${edit_empId},${sh_key}">true</label></td></tr>`;
+
+                        default:
+                            tr += `value="${sh_value}" type="${sh_Vitem['type']}" class="form-control mb-0"></td></tr>`
+                    }
+                    
+                    $('#edit_shCondition_table tbody').append(tr); // 清空+填上工號
+                }
+                editShCondition_modal.show();                             // 顯示互動視窗
+            }
+            // 添加新的監聽器
+            shCondition.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                tdItem.addEventListener('click', shConditionClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            })
+            resolve();
+        });
+    }
+    // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeShConditionMode(){
+        const isShCondition = sys_role <= 3;
+        const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
+            tdItem.classList.toggle(isShCondition ? 'xshCondition' : 'shCondition');
+        });
+    }
+
+    // p2-3. 監控按下[更新]]鍵後----自編輯modal資料載入更新
+    editShCondition_btn.addEventListener('click', async function() {
+        let editShCondition_tbody = document.querySelector('#edit_shCondition_table tbody');
+        // 初始化結果物件
+        let result = {};
+
+        // 遍歷每一列
+        editShCondition_tbody.querySelectorAll('tr').forEach(row => {
+            // 取得該列的所有儲存格
+            let cells = row.querySelectorAll('td');
+            
+            // 確保有兩個儲存格（item 和 value）
+            if (cells.length === 2) {
+                let item = cells[0].textContent.trim(); // 第 1 個儲存格的值
+                let cell  = cells[1].querySelector('input'); // 第 2 個儲存格的type
+                // let input_value = cells[1].querySelector('input').value.trim(); // 第 2 個儲存格的值
+                let input_value; // 第 2 個儲存格的值
+
+                switch (cell.type) {
+                    case 'checkbox':
+                        input_value = cell.checked;
+                        break;
+                    default:
+                        input_value = cell.value.trim(); // 第 2 個儲存格的值
+                        if (!isNaN(input_value) && input_value !== '') {
+                            // input_value = parseFloat(input_value); // 轉換為數字
+                            input_value = String(input_value); // 轉換為字串
+                        }
+                }
+
+                // // 嘗試將值轉換為適合的類型
+                // if (input_value.toLowerCase() === 'true') {
+                //     input_value = true; // 轉換為布林值 true
+                // } else if (input_value.toLowerCase() === 'false') {
+                //     input_value = false; // 轉換為布林值 false
+                // } else if (!isNaN(input_value) && input_value !== '') {
+                //     // input_value = parseFloat(input_value); // 轉換為數字
+                //     input_value = String(input_value); // 轉換為字串
+                // }
+
+                result[item] = input_value; // 存入結果物件
+            }
+        });
+        // 進行強迫排序
+        let sort_item = ['newOne', 'noise', 'regular', 'change'];
+        let sorted_result = {};
+        for (const sortKey of sort_item) {
+            if((result[sortKey] !== undefined) || (result[sortKey] == false)){
+                sorted_result[sortKey] = result[sortKey];
+            }
+        }
+
+
+        let empDiv = document.querySelector('#edit_shCondition #edit_shCondition_empId').innerText;
+        const this_id_arr = empDiv.split(',')                  // 分割this.id成陣列
+        // const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+        const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+
+        const empData = staff_inf.find(emp => emp.emp_id === edit_empId);   // 取得個人資料
+        empData.shCondition = sorted_result;                   // 把資料帶入
+        // 清除指定的shCondition欄位
+        document.getElementById(`shCondition,${edit_empId},${currentYear}`).innerHTML = '';
+        // 更新資格驗證(1by1)
+        updateShCondition(empData.shCondition, edit_empId, currentYear);
+
+    })
 
                         // [p2 函數] 更換shLocal_modal內的emp_id值 for shLocal互動視窗
                         function reNew_empId(this_value){
@@ -792,7 +926,7 @@
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
             if (empData) {  empData['eh_time'] = Number(this_value); }
         // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
-            doCheck(select_empId);                  // 更新驗證項目(1by1)
+            // doCheck(select_empId);                  // 更新驗證項目(1by1)
             clearDOM(select_empId);                 // 你需要根據 select_empId 來清空對應的 DOM
             const { shCase, shCondition } = empData;
             if (shCase) {
@@ -896,6 +1030,23 @@
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
+
+
+        // 簽核類型渲染
+        function submit_item(idty, idty_title){
+            $('#idty, #idty_title, #action').empty();
+            document.getElementById('idty').value = idty;
+            // idty=99 => return the goods
+            // document.getElementById('action').value = (receive_row['idty'] == 10 && idty == 99 ) ? 'return' : 'sign';
+            document.getElementById('action').value = 'sign';
+            $('#idty_title').append(idty_title);
+            var forwarded_div = document.getElementById('forwarded');
+            if(forwarded_div && (idty == 5)){
+                forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
+            }else{
+                forwarded_div.classList.add('unblock');              // 按下其他 = 隱藏
+            }
+        }
 
 // [default fun]
     $(function() {

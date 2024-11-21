@@ -106,7 +106,7 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover {
+        .HE_CATE:hover ,.shCondition:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -216,7 +216,7 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#import_staff" disabled ><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_shCondition"  ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">
@@ -300,45 +300,6 @@
 <!-- toast -->
     <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
 
-    <!-- 互動視窗 load_excel -->
-    <div class="modal fade" id="load_excel" tabindex="-1" aria-labelledby="load_excel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">上傳Excel檔：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <div class="modal-body px-4">
-                    <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
-                        <div class="row">
-                            <div class="col-6 col-md-8 py-0">
-                                <label for="excelFile" class="form-label">特作員工清單 <span>&nbsp<a href="../_Format/shStaff_example.xlsx" target="_blank">上傳格式範例</a></span> 
-                                    <sup class="text-danger"> * 限EXCEL檔案</sup></label>
-                                <div class="input-group">
-                                    <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaff">上傳</button>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 py-0">
-                                <p id="warningText_1" name="warning" >＊請上傳[特危作業人員清單]Excel檔</p>
-                                <p id="warningText_2" name="warning" >＊請確認Excel中的資料</p>
-                            </div>
-                        </div>
-                            
-                        <div class="row" id="excel_iframe">
-                            <iframe id="api" name="api" width="100%" height="30" style="display: none;" onclick="loadExcelForm()"></iframe>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <input  type="hidden" id="excelTable" name="excelTable" value="">
-                    <button type="submit" class="btn btn-success unblock" data-bs-dismiss="modal" id="import_excel_btn" >載入</button>
-                    <button type="reset"  class="btn btn-secondary"       data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
 
     <!-- 互動視窗 import_shLocal -->
     <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="import_shLocal" aria-hidden="true">
@@ -464,7 +425,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 
-                <div class="modal-body px-5">
+                <div class="modal-body px-4 pt-1">
                     <!-- 第二排的功能 : 搜尋功能 -->
                     <div class="row unblock" id="forwarded">
                         <div class="col-12" id="searchUser_table">
@@ -472,8 +433,8 @@
                                 <span class="input-group-text form-label">轉呈</span>
                                 <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
                                         aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
-                                <div id="in_sign_badge"></div>
-                                <input type="hidden" name="in_signName" id="in_signName" class="form-control">
+                                <div id="in_signBadge"></div>
+                                <input type="hidden" name="in_signName" id="in_signName" >
                             </div>
                         </div>
                         <hr>
@@ -482,14 +443,14 @@
                     <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" name="updated_user"    id="updated_user"   value="<?php echo $auth_cname;?>">
-                    <input type="hidden" name="updated_emp_id"  id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                    <input type="hidden" name="uuid"            id="uuid"           value="">
-                    <input type="hidden" name="fab_sign_code"   id="fab_sign_code"  value="">
-                    <input type="hidden" name="action"          id="action"         value="">
-                    <input type="hidden" name="step"            id="step"           value="">
-                    <input type="hidden" name="idty"            id="idty"           value="">
-                    <input type="hidden" name="old_idty"        id="old_idty"       value="">
+                    <input type="hidden" name="updated_user"   id="updated_user"   value="<?php echo $auth_cname;?>">
+                    <input type="hidden" name="updated_emp_id" id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
+                    <input type="hidden" name="uuid"           id="uuid"           value="">
+                    <input type="hidden" name="fab_sign_code"  id="fab_sign_code"  value="">
+                    <input type="hidden" name="action"         id="action"         value="">
+                    <input type="hidden" name="step"           id="step"           value="">
+                    <input type="hidden" name="idty"           id="idty"           value="">
+                    <input type="hidden" name="old_idty"       id="old_idty"       value="">
                     <?php if($sys_role <= 3){ ?>
                         <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <?php } ?>
@@ -498,6 +459,36 @@
             </div>
         </div>
     </div>
+
+    
+    <!-- 互動視窗 edit_shCondition -->
+    <div class="modal fade" id="edit_shCondition" tabindex="-1" aria-labelledby="edit_shCondition" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯資格&nbsp;(<snap id="edit_shCondition_empId"></snap>)：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body px-4">
+                    <table id="edit_shCondition_table" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th title="item">項目</th>
+                                <th title="value">value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_shCondition_btn" >更新</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -514,12 +505,14 @@
 // // // 開局導入設定檔
 // 以下為控制 iframe
 
-    var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
-    var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
-    var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
+    var download_excel_btn  = document.getElementById('download_excel_btn');   // 下載按鈕
+    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');   // 儲存按鈕
+    var resetINF_btn        = document.getElementById('resetINF_btn');         // 清空按鈕
+    var editShCondition_btn = document.getElementById('edit_shCondition_btn'); // 編輯更新ShCondition按鈕
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
+    var editShCondition_modal = new bootstrap.Modal(document.getElementById('edit_shCondition'), { keyboard: false });
 
     var staff_inf        = [];
     var shLocal_inf      = [];
