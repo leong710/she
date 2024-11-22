@@ -474,6 +474,7 @@
                     <table id="edit_shCondition_table" class="table table-striped table-hover">
                         <thead>
                             <tr>
+                                <th title="key">key</th>
                                 <th title="item">項目</th>
                                 <th title="value">value</th>
                             </tr>
