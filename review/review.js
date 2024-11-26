@@ -562,6 +562,7 @@
                     const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
                     const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
                     const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                    const useImportShLocal_value = document.getElementById('useImportShLocal');     // 保留沿用選項值
 
                     if (empData) {
                         // empData.shCase = empData.shCase || [];
@@ -605,6 +606,11 @@
                             updateShCondition(empData.shCondition, select_empId, currentYear);
                         }
                         console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
+                    }
+                    // 241118 選擇特危項目之保留沿用
+                    if(!useImportShLocal_value.checked){
+                        const selectedOptsItems = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]'));
+                        selectedOptsItems.forEach(input => { if (input.checked) { input.checked = false; } });  // 清除已勾選的項目
                     }
                 };
                 // 添加新的監聽器
@@ -816,6 +822,7 @@
                         }
                     }
                 }
+                // 取得 匯入一
                 const currentYear_yearHe = _content[currentYear] != undefined ? ( _content[currentYear]['import'] != undefined ? _content[currentYear]['import']['yearHe'] : null) : null;
                 // step.2_1 轉換成物件
                 if(currentYear_yearHe != null) {
@@ -845,33 +852,39 @@
 
                     let tr = `<tr><td class="text-end">${sh_key}</td><td class="text-center">${sh_Vitem['item']}</td><td>`;
                     switch (sh_Vitem['type']) {
-                        case 'checkbox':
+                        case 'checkbox':        // for newOne、noise
                             tr += `<div class="form-check form-check-inline">`;
                             tr += `<input name="${sh_key}" id="${sh_key}" value="true" type="${sh_Vitem['type']}" class="form-check-input" ` + (sh_value ? 'checked' : '');
                             tr += ` ><label class="form-check-label" for="${sh_key}">true</label></div></td></tr>`;
                             break;
 
                         case 'text':
-                            let sh_value_arr = sh_value.split(',').filter(e => e !== "");
+                            
+                            let sh_value_arr = sh_value.split(';').filter(e => e !== "");   // 去除空格
+                            // console.log('sh_value_arr...',sh_value_arr)
+
                             // 生成 檢查類別代號+項目類別代號
+                            // console.log('he_cate_obj...',he_cate_obj)
                             for (const [he_cate_i, he_cate_v] of Object.entries(he_cate_obj)) {
                                 tr += `<div class="form-check form-check-inline">`;
                                 tr += `<input name="${sh_key}[]" id="${sh_key},${he_cate_i},${he_cate_v}" value="${he_cate_v}" type="checkbox" class="form-check-input" `; 
-                                tr += ((Object.values(he_cate_obj).includes(`${he_cate_v}`)) ? 'checked' : '');
+                                
+                                tr += ((Object.values(sh_value_arr).includes(`${he_cate_v}`)) ? 'checked' : '');
+
                                 tr += ` ><label class="form-check-label" for="${sh_key},${he_cate_i},${he_cate_v}">${he_cate_v}</label></div>`;
                             }
                             // 生成 資格驗證裡的舊項目
                             for (const sh_v of sh_value_arr) {
-                                if (!Object.values(he_cate_obj).includes(`${sh_v}`)) {
+                                if (!Object.values(he_cate_obj).includes(`${sh_v}`) && `${sh_v}` != 'undefined') {
                                     tr += `<div class="form-check form-check-inline">`;
                                     tr += `<input name="${sh_key}[]" id="${sh_key},${sh_v}" value="${sh_v}" type="checkbox" class="form-check-input" checked `; 
                                     tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
                                 }
                             }
-                            // 生成 其他
-                            tr += `<div class="form-check form-check-inline">`;
-                            tr += `<input name="${sh_key}[]" id="${sh_key},other" type="checkbox" class="form-check-input" >`; 
-                            tr += `<input type="text" class="form-check-label" placeholder="其他" name="${sh_key}[]" id="${sh_key},otherValue"></div>`;
+                            // // 生成 其他 的輸入項目
+                            // tr += `<div class="form-check form-check-inline">`;
+                            // tr += `<input name="${sh_key}[]" id="${sh_key},other" type="checkbox" class="form-check-input" >`; 
+                            // tr += `<input type="text" class="form-check-label" placeholder="其他" name="${sh_key}[]" id="${sh_key},otherValue"></div>`;
 
                             tr += `</td></tr>`
                             break;
@@ -924,34 +937,32 @@
 
                 } else {
                     cell = Array.from(cells[2].querySelectorAll('input'));    // 第 2 個儲存格的type
-                    console.log('cell...', cell);
 
                     for (const cell_i of cell) {
-                        let br = input_value != '' ? ',' : '';
+                        let br = input_value != '' ? ';' : '';
 
                         if (cell_i.id.includes(`other`) && cell_i.checked) {
-                            // console.log('cell_i...', cell_i);
-                            input_value += cell_i.checked ? br+cell_i.value : '';
-                            
-                        } else {
-                            input_value += cell_i.checked ? br+cell_i.value : '';
+                            input_value += cell_i.checked ? br + cell_i.value : '';
+                            // 這裡需要修正.....
 
+                        } else {
+                            input_value += cell_i.checked ? br + cell_i.value : '';
                         }
                     }
+                    input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
                 }
-                console.log(key, input_value)
-                return;
+                // console.log(key, input_value)
 
-                switch (cell.type) {
-                    case 'checkbox':
-                        input_value = cell.checked;
-                        break;
-                    default:
-                        input_value = cell.value.trim(); // 第 2 個儲存格的值
-                        if (!isNaN(input_value) && input_value !== '') {
-                            input_value = String(input_value); // 轉換為字串
-                        }
-                }
+                // switch (cell.type) {
+                //     case 'checkbox':
+                //         input_value = cell.checked;
+                //         break;
+                //     default:
+                //         input_value = cell.value.trim(); // 第 2 個儲存格的值
+                //         if (!isNaN(input_value) && input_value !== '') {
+                //             input_value = String(input_value); // 轉換為字串
+                //         }
+                // }
                 result[key] = input_value; // 存入結果物件
             }else{
                 return;

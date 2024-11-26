@@ -216,7 +216,7 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_shCondition"  ><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_shCondition" disabled ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">
@@ -331,6 +331,10 @@
                     </table>
                 </div>
                 <div class="modal-footer">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
+                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
+                    </div>
                     <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>

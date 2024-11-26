@@ -181,7 +181,7 @@
                                                         echo "<label for='HE_CATE_{$key}' class='form-check-label'>{$he_cate}</label></div>&nbsp;";
                                                     } ?>
                                             </div>
-                                            <div class='invalid-feedback py-0' id='HE_CATE_feedback'>* 危害類別至少需勾選一項 !! </div>
+                                            <div class='invalid-feedback py-0' id='HE_CATE_feedback'>* 需勾選一項危害類別 !! </div>
                                         </div>
     
                                         <!-- line b2 -->

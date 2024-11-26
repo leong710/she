@@ -51,11 +51,17 @@
         if (Object.keys(selectedItems).length > 0) { // 有選
             heCateContainer.classList.remove('is-invalid');
             heCateContainer.classList.add('is-valid');
-            heCates.forEach(cb => cb.required = false);
+            heCates.forEach(cb => {
+                cb.required = false;
+                cb.disabled = !cb.checked;              // 241126 多選checkbox改單選radio
+            });
         } else { // 沒選
             heCateContainer.classList.remove('is-valid');
             heCateContainer.classList.add('is-invalid');
-            heCates.forEach(cb => cb.required = true);
+            heCates.forEach(cb => {
+                cb.required = true;
+                cb.disabled = false;                    // 241126 多選checkbox改單選radio
+            });
         }
     }
 
@@ -229,11 +235,17 @@
                         if (selectedValues.length > 0) { // 有選
                             heCateContainer.classList.remove('is-invalid');
                             heCateContainer.classList.add('is-valid');
-                            heCates.forEach(cb => cb.required = false);
+                            heCates.forEach(cb => {
+                                cb.required = false;
+                                cb.disabled = !cb.checked;              // 241126 多選checkbox改單選radio
+                            });
                         } else { // 沒選
                             heCateContainer.classList.remove('is-valid');
                             heCateContainer.classList.add('is-invalid');
-                            heCates.forEach(cb => cb.required = true);
+                            heCates.forEach(cb => {
+                                cb.required = true;
+                                cb.disabled = false;                    // 241126 多選checkbox改單選radio
+                            });
                         }
                     });
                 });
