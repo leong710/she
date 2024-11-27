@@ -106,7 +106,7 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover ,.shCondition:hover {
+        .HE_CATE:hover ,.shCondition:hover ,.yearHe:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -216,7 +216,7 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_shCondition" disabled ><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" disabled ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">
@@ -466,21 +466,19 @@
 
     
     <!-- 互動視窗 edit_shCondition -->
-    <div class="modal fade" id="edit_shCondition" tabindex="-1" aria-labelledby="edit_shCondition" aria-hidden="true">
+    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="edit_modal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">編輯資格&nbsp;(<snap id="edit_shCondition_empId"></snap>)：</h5>
+                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body px-4">
-                    <table id="edit_shCondition_table" class="table table-striped table-hover">
+                    <table id="edit_modal_table" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th title="key">key</th>
-                                <th title="item">項目</th>
-                                <th title="value">value</th>
+
                             </tr>
                         </thead>
                         <tbody>
@@ -488,7 +486,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_shCondition_btn" >更新</button>
+                    <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -513,11 +511,11 @@
     var download_excel_btn  = document.getElementById('download_excel_btn');   // 下載按鈕
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');   // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');         // 清空按鈕
-    var editShCondition_btn = document.getElementById('edit_shCondition_btn'); // 編輯更新ShCondition按鈕
+    var editModal_btn       = document.getElementById('edit_modal_btn'); // 編輯更新ShCondition按鈕
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
-    var editShCondition_modal = new bootstrap.Modal(document.getElementById('edit_shCondition'), { keyboard: false });
+    var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
 
     var staff_inf        = [];
     var shLocal_inf      = [];

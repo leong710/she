@@ -325,33 +325,23 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
             break;
-            case 'update_heCate':
-                $swal_json = array(                                 // for swal_json
-                    "fun"       => "update_heCate",
-                    "content"   => "更新危害類別--"
-                );
-                $heCateFile = "he_cate.json";                                     // 預設sw.json檔案位置
-                $HE_CATE_json = isset($_REQUEST['parm']) ? $_REQUEST['parm'] : null;
-                if(!empty($HE_CATE_json)){
-                    $fop = fopen($heCateFile,"w");  //開啟檔案
-                    fputs($fop, $HE_CATE_json);     //初始化sw+寫入
-                    fclose($fop);                   //關閉檔案
+            case 'load_heCate':     // for 提取危害類別
+                // load 作業類別json
+                $heCateFile = "../sh_local/he_cate.json";              // 預設sw.json檔案位置
+                if(file_exists($heCateFile)){
+                    $heCate_json = file_get_contents($heCateFile);              // 从 JSON 文件加载内容
+                    // $heCate_arr = (array) json_decode($heCate_json, true);     // 解析 JSON 数据并将其存储在 $form_a_json 变量中 // 如果您想将JSON解析为关联数组，请传入 true，否则将解析为对象
                     // 製作返回文件
-                    $swal_json["action"]   = "success";
-                    $swal_json["content"] .= '儲存成功';
                     $result = [
-                        'result_obj' => $swal_json,
+                        'result_obj' => $heCate_json,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
                 }else{
-                    // echo "<script>alert('參數sw_json_data異常，請重新確認~')</script>";
-                    $swal_json["action"]   = "error";
-                    $swal_json["content"] .= '儲存失敗';
                     $result = [
-                        'result_obj' => $swal_json,
+                        'result_obj' => '',
                         'fun'        => $fun,
-                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        'error'      => 'Load '.$fun.' failed...(e 提取失敗 or 無內容)'
                     ];
                 }
             break;

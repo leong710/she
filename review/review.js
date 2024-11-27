@@ -369,9 +369,11 @@
             if(sys_role <= '3'){                        // 限制role <= 3 現場窗口以下...排除主管和路人
                 await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
                 await reload_shConditionTable_Listeners();
+                await reload_yearHeTable_Listeners();
             }else{
                 changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
                 changeShConditionMode();
+                changeYearHeMode();
             }
             await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
         }
@@ -730,7 +732,7 @@
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ importItem_value +`</td>`;
+                    tr1 += `<td class="`+(sys_role <='3' ? '':'unblock ')+`${importItem}" id="${emp_i.cname},${emp_i.emp_id}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
@@ -807,9 +809,12 @@
                 const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
                 const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
                 const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
-                $('#edit_shCondition #edit_shCondition_empId').empty().append(`${edit_cname},${edit_empId}`); // 清空+填上工號
+                const edit_fun    = 'shCondition';                      // 指定功能
+                $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
                 // step.2 顯示身段資料列
-                $('#edit_shCondition_table tbody').empty();             // 清空tbody
+                const thead = '<th title="key">key</th><th title="item">項目</th><th title="value">value</th>';
+                $('#edit_modal_table thead tr').empty().append(`${thead}`);     // 清空thead+鋪設表頭
+                $('#edit_modal_table tbody').empty();                   // 清空tbody
                 const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
                 const { shCase, shCondition, _content } = empData;
                 
@@ -890,10 +895,10 @@
                             break;
                         default:
                     }
-                    $('#edit_shCondition_table tbody').append(tr);          // 填上各列資料
+                    $('#edit_modal_table tbody').append(tr);          // 填上各列資料
                 }
                 // step.3 顯示互動視窗
-                editShCondition_modal.show();                               // 顯示互動視窗
+                edit_modal.show();                               // 顯示互動視窗
             }
 
             // 添加新的監聽器
@@ -913,13 +918,145 @@
         });
     }
 
+    async function returnMe() {
+        
+    }
+     
+
+
+    // 241121 建立yearHe監聽功能 for 編輯
+    let yearHeClickListener;
+    async function reload_yearHeTable_Listeners() {
+        return new Promise((resolve) => {
+            const yearHe = document.querySelectorAll('[class="yearHe"]');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (yearHeClickListener) {
+                yearHe.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                    tdItem.removeEventListener('click', yearHeClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                })
+            }
+            // 定義新的監聽器函數
+            yearHeClickListener = function () {
+                // step.1 標題列顯示姓名工號
+                const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+                const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+                const edit_fun    = 'yearHe';                      // 指定功能
+                $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
+                // step.2 顯示身段資料列
+                $('#edit_modal_table tbody').empty();             // 清空tbody
+                const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+                const { shCase, shCondition, _content } = empData;
+                
+                // step.2_0 蒐集shCase['HE_CATE']
+                let returnMe = load_fun('load_heCate','load_heCate', returnMe );
+
+                let he_cate_obj = {};
+                for (const sc_Vitem of shCase) {
+                    if(Object.keys(sc_Vitem['HE_CATE']).length > 0) {
+                        for (const [he_cate_i, he_cate_v] of Object.entries(sc_Vitem['HE_CATE'])) {
+                            he_cate_obj[he_cate_i] = he_cate_v;
+                        }
+                    }
+                }
+                // 取得 匯入一
+                const currentYear_yearHe = _content[currentYear] != undefined ? ( _content[currentYear]['import'] != undefined ? _content[currentYear]['import']['yearHe'] : null) : null;
+                // step.2_1 轉換成物件
+                if(currentYear_yearHe != null) {
+                    const currentYear_yearHe_obj = currentYear_yearHe.split(',').reduce((obj, pair) => {
+                        const [key, value] = pair.split(':'); // 使用 ":" 分割鍵和值
+                        obj[key] = value; // 將鍵值對加入物件中
+                        return obj;
+                    }, {});   
+                    // step.2_2 
+                    if(Object.keys(currentYear_yearHe_obj).length > 0) {
+                        for (const [yearHe_i, yearHe_v] of Object.entries(currentYear_yearHe_obj)) {
+                            he_cate_obj[yearHe_i] = yearHe_v;
+                        }
+                    }
+                }
+
+                // step.2-1 定義欄列分類
+                const shCondition_key = {
+                    'newOne'  : { 'item' : '新人', 'type' : 'checkbox' },
+                    'noise'   : { 'item' : '噪音', 'type' : 'checkbox' },
+                    'regular' : { 'item' : '定期', 'type' : 'text' },
+                    'change'  : { 'item' : '變更', 'type' : 'text' },
+                };
+                // step.2-2 逐條逐項 組合TR/TD並渲染到身段
+                for (const [sh_key, sh_Vitem] of Object.entries(shCondition_key)) {
+                    let sh_value = shCondition[sh_key] !== undefined ? shCondition[sh_key] : '';
+
+                    let tr = `<tr><td class="text-end">${sh_key}</td><td class="text-center">${sh_Vitem['item']}</td><td>`;
+                    switch (sh_Vitem['type']) {
+                        case 'checkbox':        // for newOne、noise
+                            tr += `<div class="form-check form-check-inline">`;
+                            tr += `<input name="${sh_key}" id="${sh_key}" value="true" type="${sh_Vitem['type']}" class="form-check-input" ` + (sh_value ? 'checked' : '');
+                            tr += ` ><label class="form-check-label" for="${sh_key}">true</label></div></td></tr>`;
+                            break;
+
+                        case 'text':
+                            
+                            let sh_value_arr = sh_value.split(';').filter(e => e !== "");   // 去除空格
+                            // console.log('sh_value_arr...',sh_value_arr)
+
+                            // 生成 檢查類別代號+項目類別代號
+                            // console.log('he_cate_obj...',he_cate_obj)
+                            for (const [he_cate_i, he_cate_v] of Object.entries(he_cate_obj)) {
+                                tr += `<div class="form-check form-check-inline">`;
+                                tr += `<input name="${sh_key}[]" id="${sh_key},${he_cate_i},${he_cate_v}" value="${he_cate_v}" type="checkbox" class="form-check-input" `; 
+                                
+                                tr += ((Object.values(sh_value_arr).includes(`${he_cate_v}`)) ? 'checked' : '');
+
+                                tr += ` ><label class="form-check-label" for="${sh_key},${he_cate_i},${he_cate_v}">${he_cate_v}</label></div>`;
+                            }
+                            // 生成 資格驗證裡的舊項目
+                            for (const sh_v of sh_value_arr) {
+                                if (!Object.values(he_cate_obj).includes(`${sh_v}`) && `${sh_v}` != 'undefined') {
+                                    tr += `<div class="form-check form-check-inline">`;
+                                    tr += `<input name="${sh_key}[]" id="${sh_key},${sh_v}" value="${sh_v}" type="checkbox" class="form-check-input" checked `; 
+                                    tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
+                                }
+                            }
+                            // // 生成 其他 的輸入項目
+                            // tr += `<div class="form-check form-check-inline">`;
+                            // tr += `<input name="${sh_key}[]" id="${sh_key},other" type="checkbox" class="form-check-input" >`; 
+                            // tr += `<input type="text" class="form-check-label" placeholder="其他" name="${sh_key}[]" id="${sh_key},otherValue"></div>`;
+
+                            tr += `</td></tr>`
+                            break;
+                        default:
+                    }
+                    $('#edit_modal_table tbody').append(tr);          // 填上各列資料
+                }
+                // step.3 顯示互動視窗
+                edit_modal.show();                               // 顯示互動視窗
+            }
+
+            // 添加新的監聽器
+            yearHe.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                tdItem.addEventListener('click', yearHeClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            })
+            resolve();
+        });
+    }
+    // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeyearHeMode(){
+        const isYearHe = sys_role <= 3;
+        const targetCate = document.querySelectorAll(isYearHe ? '.xyearHe' : '.yearHe');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isYearHe ? 'yearHe'  : 'xyearHe');
+            tdItem.classList.toggle(isYearHe ? 'xyearHe' : 'yearHe');
+        });
+    }
+
     // p2-3. 監控按下[更新]]鍵後----自編輯modal資料載入更新
-    editShCondition_btn.addEventListener('click', async function() {
-        let editShCondition_tbody = document.querySelector('#edit_shCondition_table tbody');
+    editModal_btn.addEventListener('click', async function() {
+        let editModal_tbody = document.querySelector('#edit_modal_table tbody');
         // 初始化結果物件
         let result = {};
         // 遍歷每一列
-        editShCondition_tbody.querySelectorAll('tr').forEach(row => {
+        editModal_tbody.querySelectorAll('tr').forEach(row => {
             // 取得該列的所有儲存格
             let cells = row.querySelectorAll('td');
             // 確保有兩個儲存格（item 和 value）
@@ -977,10 +1114,11 @@
             }
         }
         // 回存empData
-        let empDiv = document.querySelector('#edit_shCondition #edit_shCondition_empId').innerText;
+        let empDiv = document.querySelector('#edit_modal #edit_modal_empId').innerText;
         const this_id_arr = empDiv.split(',')                  // 分割this.id成陣列
-        // const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-        const edit_empId  = this_id_arr[1];                    // 取出陣列1=emp_id
+        const edit_fun    = this_id_arr[0];                     // 取出陣列0=fun
+        // const edit_cname  = this_id_arr[1];                     // 取出陣列1=cname
+        const edit_empId  = this_id_arr[2];                    // 取出陣列2=emp_id
         const empData = staff_inf.find(emp => emp.emp_id === edit_empId);   // 取得個人資料
         empData.shCondition = sorted_result;                   // 把資料帶入
         // 清除指定的shCondition欄位
