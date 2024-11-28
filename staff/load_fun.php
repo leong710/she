@@ -355,6 +355,26 @@
                     ];
                 }
             break;
+            case 'load_heCate':     // for 提取危害類別
+                // load 作業類別json
+                $heCateFile = "../sh_local/he_cate.json";              // 預設sw.json檔案位置
+                if(file_exists($heCateFile)){
+                    $heCate_json = file_get_contents($heCateFile);              // 从 JSON 文件加载内容
+                    // $heCate_arr = (array) json_decode($heCate_json, true);     // 解析 JSON 数据并将其存储在 $form_a_json 变量中 // 如果您想将JSON解析为关联数组，请传入 true，否则将解析为对象
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $heCate_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                }else{
+                    $result = [
+                        'result_obj' => '',
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e 提取失敗 or 無內容)'
+                    ];
+                }
+            break;
             default:
                 // $result['error'] = 'Load '.$fun.' failed...(function)';
         };

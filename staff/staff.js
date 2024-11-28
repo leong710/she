@@ -371,8 +371,12 @@
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
             if(sys_role <= '3'){                        // 限制role <= 3 現場窗口以下...排除主管和路人
                 await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
+                await reload_shConditionTable_Listeners();
+                await reload_yearHeTable_Listeners();
             }else{
                 changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+                changeShConditionMode();
+                changeYearHeMode();
             }
             await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
         }
@@ -692,13 +696,14 @@
                     tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
                     // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
-                    tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
+                    tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
                     tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
-                    tr1 += `<td `+(sys_role <='1' ? '':'class="unblock"')+`><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+
+                    tr1 += `<td class="shCondition`+(sys_role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
 
                     // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
@@ -709,7 +714,7 @@
 
                     importItem_arr.forEach((importItem) => {
                         let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                        tr1 += `<td `+(sys_role <='3' ? '':'class="unblock"')+`>`+ importItem_value +`</td>`;
+                        tr1 += `<td class="${importItem}`+(sys_role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                     })
 
                     tr1 += '</tr>';
@@ -742,45 +747,8 @@
         }
 
     // [p-2]
-        // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
-        let HECateClickListener;
-        async function reload_HECateTable_Listeners() {
-            return new Promise((resolve) => {
-                const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-                // 檢查並移除已經存在的監聽器
-                if (HECateClickListener) {
-                    HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                        tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                    })
-                }
-                // 定義新的監聽器函數
-                HECateClickListener = function () {
-                    const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                    const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-                    const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                    $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
-                    importShLocal_modal.show();
-                }
-                // 添加新的監聽器
-                HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
-                })
-                resolve();
-            });
-        }
-        // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeHE_CATEmode(){
-            const isHECate = sys_role <= 3;
-            const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
-                tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
-            });
-        }
-                            // 更換shLocal_modal內的emp_id值 for shLocal互動視窗
-                            function reNew_empId(this_value){
-                                $('#import_shLocal #import_shLocal_empId').empty().append(this_value);
-                            }
+
+
         // p-2 當有輸入每日暴露時數eh_time時...
         function change_eh_time(this_id, this_value){    // this.id, this.value
             const this_id_arr = this_id.split(',')       // 分割this.id成陣列

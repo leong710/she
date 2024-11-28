@@ -106,7 +106,7 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover {
+        .HE_CATE:hover ,.shCondition:hover ,.yearHe:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -418,6 +418,23 @@
         </div>
     </div>
 
+    <!-- 互動視窗 edit_modal -->
+    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="edit_modal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4"></div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -443,9 +460,11 @@
     var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
     var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
     var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
+    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
+    var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
 
     var staff_inf        = [];
     var shLocal_inf      = [];
@@ -464,5 +483,6 @@
 <script src="staff.js?v=<?=time()?>"></script>
 <script src="staff_excel.js?v=<?=time()?>"></script>
 <script src="staff_check.js?v=<?=time()?>"></script>
+<script src="staff_editModal.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

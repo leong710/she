@@ -465,7 +465,7 @@
     </div>
 
     
-    <!-- 互動視窗 edit_shCondition -->
+    <!-- 互動視窗 edit_modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="edit_modal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <div class="modal-content">
@@ -473,18 +473,7 @@
                     <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
-                <div class="modal-body px-4">
-                    <table id="edit_modal_table" class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="modal-body px-4"></div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
@@ -511,7 +500,7 @@
     var download_excel_btn  = document.getElementById('download_excel_btn');   // 下載按鈕
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');   // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');         // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn'); // 編輯更新ShCondition按鈕
+    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });

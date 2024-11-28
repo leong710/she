@@ -211,6 +211,7 @@
                     $values = [];
                     $params = [];
                     $parm = (array) json_decode($parm, true); // #1.這裡decode要由物件轉成陣列
+                    $current_year = date('Y');          // step.3a 檢查並維護現有資料中的 key
 
                     foreach ($parm as $parm_i) {
                         $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
@@ -219,68 +220,71 @@
                         // step.1 提取現有資料
                         $stmt_select = $pdo->prepare($sql_select);
                         $stmt_select->execute([$emp_id]);
-                        $existing_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+                        $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                     
                         // step.2 解析現有資料為陣列
-                        $shCase_logs_existing = isset($existing_data['shCase_logs']) ? json_decode($existing_data['shCase_logs'], true) : [];
-                        $_content_existing    = isset($existing_data['_content'])    ? json_decode($existing_data['_content'], true)    : [];
-                    
-                        // step.3a 檢查並維護現有資料中的 key
-                            $current_year = date('Y');
+                        $row_shCase_logs = isset($row_data['shCase_logs']) ? json_decode($row_data['shCase_logs'], true) : [];
+                        $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content'], true)    : [];
                     
                         // step.3b 更新或新增該年份的資料
-                            $shCase_logs_existing[$current_year] = [
-                                "dept_no"       => !empty($dept_no)       ? $dept_no       : (!empty($shCase_logs_existing[$current_year]["dept_no"])       ? $shCase_logs_existing[$current_year]["dept_no"]       : null),
-                                "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : (!empty($shCase_logs_existing[$current_year]["emp_dept"])      ? $shCase_logs_existing[$current_year]["emp_dept"]      : null),
-                                "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : (!empty($shCase_logs_existing[$current_year]["emp_sub_scope"]) ? $shCase_logs_existing[$current_year]["emp_sub_scope"] : null),
-                                "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($shCase_logs_existing[$current_year]["schkztxt"])      ? $shCase_logs_existing[$current_year]["schkztxt"]      : null),
-                                "cstext"        => !empty($cstext)        ? $cstext        : (!empty($shCase_logs_existing[$current_year]["cstext"])        ? $shCase_logs_existing[$current_year]["cstext"]        : null),
-                                "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($shCase_logs_existing[$current_year]["emp_group"])     ? $shCase_logs_existing[$current_year]["emp_group"]     : null),
-                                "eh_time"       => !empty($eh_time)       ? $eh_time       : (!empty($shCase_logs_existing[$current_year]["eh_time"])       ? $shCase_logs_existing[$current_year]["eh_time"]       : null),    // 暴露時數
-                                "shCase"        => !empty($shCase)        ? $shCase        : (!empty($shCase_logs_existing[$current_year]["shCase"])        ? $shCase_logs_existing[$current_year]["shCase"]        : null),    // 特作區域
-                                "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($shCase_logs_existing[$current_year]["shCondition"])   ? $shCase_logs_existing[$current_year]["shCondition"]   : null)     // 特作驗證
+                            $row_shCase_logs[$current_year] = [
+                                "dept_no"       => !empty($dept_no)       ? $dept_no       : (!empty($row_shCase_logs[$current_year]["dept_no"])       ? $row_shCase_logs[$current_year]["dept_no"]       : null),
+                                "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : (!empty($row_shCase_logs[$current_year]["emp_dept"])      ? $row_shCase_logs[$current_year]["emp_dept"]      : null),
+                                "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : (!empty($row_shCase_logs[$current_year]["emp_sub_scope"]) ? $row_shCase_logs[$current_year]["emp_sub_scope"] : null),
+                                "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($row_shCase_logs[$current_year]["schkztxt"])      ? $row_shCase_logs[$current_year]["schkztxt"]      : null),
+                                "cstext"        => !empty($cstext)        ? $cstext        : (!empty($row_shCase_logs[$current_year]["cstext"])        ? $row_shCase_logs[$current_year]["cstext"]        : null),
+                                "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($row_shCase_logs[$current_year]["emp_group"])     ? $row_shCase_logs[$current_year]["emp_group"]     : null),
+                                "eh_time"       => !empty($eh_time)       ? $eh_time       : (!empty($row_shCase_logs[$current_year]["eh_time"])       ? $row_shCase_logs[$current_year]["eh_time"]       : null),    // 暴露時數
+                                "shCase"        => !empty($shCase)        ? $shCase        : (!empty($row_shCase_logs[$current_year]["shCase"])        ? $row_shCase_logs[$current_year]["shCase"]        : null),    // 特作區域
+                                "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($row_shCase_logs[$current_year]["shCondition"])   ? $row_shCase_logs[$current_year]["shCondition"]   : null)     // 特作驗證
                             ];
                         // //  241021 針對 
-                        //     if(!empty($shCase_logs_existing[$current_year]["shCase"])){
+                        //     if(!empty($row_shCase_logs[$current_year]["shCase"])){
                         //         if(!empty($shCase)){
-                        //             $get_shCase = (array) $shCase_logs_existing[$current_year]["shCase"];
+                        //             $get_shCase = (array) $row_shCase_logs[$current_year]["shCase"];
                         //             array_push($get_shCase, $shCase);
-                        //             // array_push($shCase_logs_existing[$current_year]["shCase"], $shCase);
-                        //             $shCase_logs_existing[$current_year]["shCase"] = $get_shCase;
+                        //             // array_push($row_shCase_logs[$current_year]["shCase"], $shCase);
+                        //             $row_shCase_logs[$current_year]["shCase"] = $get_shCase;
                         //         }
                         //     }else{
-                        //         $shCase_logs_existing[$current_year]["shCase"] = $shCase;
+                        //         $row_shCase_logs[$current_year]["shCase"] = $shCase;
                         //     }
                             
-                        // $_content_existing[$current_year] = isset($_content) ? $_content : null;
+                        // $row_content[$current_year] = isset($_content) ? $_content : null;
                         // 檢查並串接新的 _content
                         if (isset($_content[$current_year])) {
                             // 確保 $_content[$current_year] 是陣列，並將其轉換成字符串
                             // $new_content = is_array($_content[$current_year]) ? implode("\r\n", $_content[$current_year]) : $_content[$current_year];
                             $new_content = $_content[$current_year];
-                            // 確保 $_content_existing[$current_year] 是陣列的存在
-                            $_content_existing[$current_year] = isset($_content_existing[$current_year]) ? $_content_existing[$current_year] : [];
-
+                            // 確保 $row_content[$current_year] 是陣列的存在
+                            $row_content[$current_year] = isset($row_content[$current_year]) ? $row_content[$current_year] : [];
                             // 檢查 $new_content 是否非空，才進行後續操作
                             if (!empty($new_content)) {
                                 // 檢查現有內容是否非空，再進行串接
-                                if (!empty($_content_existing[$current_year])) {
-                                    // $_content_existing[$current_year] .= "\r\n" . $new_content;
-                                    foreach ($new_content as $new_content_ikey => $new_content_ivalue){     // forEach目的：避免蓋掉其他項目
-                                        $_content_existing[$current_year][$new_content_ikey] = isset($_content_existing[$current_year][$new_content_ikey]) ? $_content_existing[$current_year][$new_content_ikey]:[];
-                                        $_content_existing[$current_year][$new_content_ikey] = $new_content[$new_content_ikey]; // 直接覆蓋指定項
+                                if (!empty($row_content[$current_year])) {
+                                    foreach ($new_content as $new_content_ikey => $new_content_ivalue){     // forEach目的：避免蓋掉其他項目                                    
+                                        // if($new_content_ikey == "import"){
+                                            // if (!empty($new_content_ivalue)) {
+                                                foreach ($new_content_ivalue as $import_key => $import_value ) {
+                                                    // $row_content[$current_year]['import'][$import_key] = $import_value;
+                                                    $row_content[$current_year][$new_content_ikey][$import_key] = $import_value;
+                                                }
+                                            // }
+                                        // } else {
+                                            // $row_content[$current_year][$new_content_ikey] = isset($row_content[$current_year][$new_content_ikey]) ? $row_content[$current_year][$new_content_ikey]:[];
+                                            // $row_content[$current_year][$new_content_ikey] = $new_content[$new_content_ikey]; // 直接覆蓋指定項
+                                        // }
                                     }
                                 } else {
                                     // 如果現有內容是空的，直接設置為新內容
-                                    $_content_existing[$current_year] = $new_content;
+                                    $row_content[$current_year] = $new_content;
                                 }
-     
                             }
                         }
                     
                         // step.4 將更新後的資料編碼為 JSON 字串
-                        $shCase_logs_str       = json_encode($shCase_logs_existing, JSON_UNESCAPED_UNICODE);
-                        $_content_str          = json_encode($_content_existing,    JSON_UNESCAPED_UNICODE);
+                        $shCase_logs_str = json_encode($row_shCase_logs, JSON_UNESCAPED_UNICODE);
+                        $_content_str    = json_encode($row_content,     JSON_UNESCAPED_UNICODE);
                     
                         // 防呆
                         $gesch    = $gesch    ?? "";    // 性別

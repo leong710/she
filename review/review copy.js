@@ -84,6 +84,7 @@
                 let formData = new FormData();
                     formData.append('fun', fun);
                     formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
+
                 let response = await fetch('load_fun.php', {
                     method : 'POST',
                     body   : formData
@@ -92,6 +93,7 @@
                 if (!response.ok) {
                     throw new Error('fun load ' + fun + ' failed. Please try again.');
                 }
+
                 let responseData = await response.json();
                 let result_obj = responseData['result_obj'];    // 擷取主要物件
                 return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
@@ -718,19 +720,19 @@
                 tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
                 // 240918 因應流程圖三需求，將選擇特作功能移到[檢查類別代號]...
-                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
+                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id}"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
                 tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                tr1 += `<td class="shCondition" id="${emp_i.cname},${emp_i.emp_id}"><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
                 tr1 += `<td><div id="process` + empId_currentYear + `</div></td>`;       // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td class="${importItem}`+(sys_role <='3' ? '':'unblock ')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
+                    tr1 += `<td class="`+(sys_role <='3' ? '':'unblock ')+`${importItem}" id="${emp_i.cname},${emp_i.emp_id}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
@@ -996,27 +998,12 @@
         // step.1 取得工號&個人資料
         const empDiv = document.querySelector('#edit_modal #edit_modal_empId').innerText;
         const this_id_arr = empDiv.split(',')                  // 分割this.id成陣列
-        const edit_fun    = this_id_arr[0].trim();                     // 取出陣列0=fun
-        // const edit_cname  = this_id_arr[1].trim();                     // 取出陣列1=cname
-        const edit_empId  = this_id_arr[2].trim();                    // 取出陣列2=emp_id
-        // console.log('switch' , edit_fun , edit_empId);
+        const edit_fun    = this_id_arr[0];                     // 取出陣列0=fun
+        // const edit_cname  = this_id_arr[1];                     // 取出陣列1=cname
+        // const edit_empId  = this_id_arr[2];                    // 取出陣列2=emp_id
+
         switch (edit_fun) {
             case 'shCondition':
-                await edit_shCondition_submit(edit_empId);
-                break;
-            case 'yearHe':
-                await edit_yearHe_submit(edit_empId);
-                break;
-            default:
-                // input_value = cell.value.trim(); // 第 2 個儲存格的值
-                // if (!isNaN(input_value) && input_value !== '') {
-                //     input_value = String(input_value); // 轉換為字串
-                // }
-        }
-    })
-
-        function edit_shCondition_submit(empId) {
-            return new Promise((resolve) => {
                 let result = {};        // 初始化結果物件
                 let editModal_tbody = document.querySelector('#edit_modal_table tbody');    // 定義table範圍
                 // 遍歷每一列
@@ -1062,38 +1049,38 @@
                 }
                 // 回存empData
                 // step.1 取得工號&個人資料
-                const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
+                // let empDiv = document.querySelector('#edit_modal #edit_modal_empId').innerText;
+                // const this_id_arr = empDiv.split(',')                  // 分割this.id成陣列
+                // const edit_fun    = this_id_arr[0];                     // 取出陣列0=fun
+                // const edit_cname  = this_id_arr[1];                     // 取出陣列1=cname
+                const edit_empId  = this_id_arr[2];                    // 取出陣列2=emp_id
+                console.log('edit_empId...', edit_empId);
+                const empData = staff_inf.find(emp => emp.emp_id === edit_empId);   // 取得個人資料
+                console.log('empData...', empData);
+                console.log('sorted_result...',sorted_result);
+                // const empData = staff_inf.find(emp => emp.emp_id == edit_empId);   // 取得個人資料
+
                 empData.shCondition = sorted_result;                   // 把資料帶入
-        
+
                 // 清除指定的shCondition欄位
-                document.getElementById(`shCondition,${empId},${currentYear}`).innerHTML = '';
+                document.getElementById(`shCondition,${edit_empId},${currentYear}`).innerHTML = '';
                 // 更新資格驗證(1by1)
-                updateShCondition(empData.shCondition, empId, currentYear);
+                updateShCondition(empData.shCondition, edit_empId, currentYear);
+                break;
 
-                resolve();
-            });
+            case 'yearHe':
+                input_value = cell.checked;
+
+
+                break;
+
+            default:
+                input_value = cell.value.trim(); // 第 2 個儲存格的值
+                if (!isNaN(input_value) && input_value !== '') {
+                    input_value = String(input_value); // 轉換為字串
+                }
         }
-        function edit_yearHe_submit(empId) {
-            return new Promise((resolve) => {
-                let result = {};        // 初始化結果物件
-                const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]')); // 定義table範圍
-                const selectedValues = heCate_arr.filter(cb => cb.checked).map(cb => cb.value);
-                const ObjectValues = JSON.stringify(selectedValues).replace(/[\[{"}\]]/g, '');
-
-                // 回存empData
-                // step.1 取得工號&個人資料
-                const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                empData._content[`${currentYear}`]['import']['yearHe'] = ObjectValues;                   // 把資料帶入
-        
-                // 清除指定的yearHe欄位並更新
-                const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');
-                const targetDiv = document.getElementById(`${empData.cname},${empId},yearHe`);
-                targetDiv.innerHTML = '';
-                targetDiv.insertAdjacentHTML('beforeend', importItem_value);
-
-                resolve();
-            });
-        }
+    })
 
                         // [p2 函數] 更換shLocal_modal內的emp_id值 for shLocal互動視窗
                         function reNew_empId(this_value){
@@ -1122,7 +1109,6 @@
     }
     // [p2 函數] 批次儲存員工清單...
     function bat_storeStaff(){
-        console.log('bat_storeStaff', staff_inf);
         load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
     }
 
