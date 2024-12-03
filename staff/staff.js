@@ -161,7 +161,7 @@
             for (const e_key of Object.keys(source_json_value_arr)) {
                 // 初始化 shCase 陣列
                 if (!source_json_value_arr[e_key]['shCase']) { source_json_value_arr[e_key]['shCase'] = []; }         // 特作案件紀錄陣列建立
-                if (!source_json_value_arr[e_key]['eh_time']) { source_json_value_arr[e_key]['eh_time'] = null; }     // eh_time在這裡要先建立，避免驗證錯誤跳脫
+                // if (!source_json_value_arr[e_key]['eh_time']) { source_json_value_arr[e_key]['eh_time'] = null; }     // eh_time在這裡要先建立，避免驗證錯誤跳脫 // 241202內縮eh_time
 
                 if (!source_json_value_arr[e_key]['_content']) { source_json_value_arr[e_key]['_content'] = {}; }     // 1.通聯紀錄陣列建立
                 if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]) { source_json_value_arr[e_key]['_content'][`${currentYear}`] = {}; }   // 2.'年度'通聯紀錄陣列建立
@@ -485,7 +485,8 @@
                                         // 2b1. 檢查元素是否存在+是否有值
                                             const eh_time_input = document.querySelector(`snap[id="eh_time,${select_empId},${preYear}"]`);
                                         // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
-                                            eh_time_input.innerText = (empData['eh_time']) ? (empData['eh_time']) : null;    // 強行帶入顯示~
+                                            // eh_time_input.innerText = (empData['eh_time']) ? (empData['eh_time']) : null;    // 強行帶入顯示~
+                                            eh_time_input.innerText = (sh_value['eh_time']) ? (sh_value['eh_time']) : null;    // 強行帶入顯示~
                                             const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                                             const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
     
@@ -571,19 +572,27 @@
                         empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入
                         // 清空目前顯示的 DOM
                         clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
-                        if(selectedOptsValues.length !== 0){    // 裡是有勾選，然後將新勾選的項目進行更新
-                            selectedOptsValues.forEach((sov_vaule, index) => {
-                                empData.shCase[index] = shLocal_inf[sov_vaule];
-                                if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
-                                    // 假如input有eh_time值，就導入使用。
-                                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
-                                    // 檢查元素是否存在+是否有值 then 存到個人訊息中
-                                            // [改用] empData.shCase[index]['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : false;
-                                    empData['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
-                                }
-                                updateDOM(shLocal_inf[sov_vaule], select_empId, index);
+                        if(selectedOptsValues.length === 0){    // 1.這裡是全部沒勾選...
+                            empData.shCondition['noise'] = false;   // 清除噪音判定
+
+                        }else{                                  // 裡是有勾選，然後將新勾選的項目進行更新
+                            selectedOptsValues.forEach((sov_value, index) => {
+                                empData.shCase[index] = shLocal_inf[sov_value];
+                                // if(empData.shCase[index]['HE_CATE'] && Object.values(empData.shCase[index]['HE_CATE']).includes('噪音')){
+                                            // 假如input有eh_time值，就導入使用。
+                                            // const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                                            // 檢查元素是否存在+是否有值 then 存到個人訊息中
+                                                    // [改用] empData.shCase[index]['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : false;
+                                            // empData.shCase[index]['eh_time'] = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
+                                    
+                                    // let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear},${index}" name="eh_time" class="form-control" 
+                                    //             min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disable ></snap>`;
+                                    
+                                    // document.getElementById(`eh_time,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', eh_time_input);     // 渲染各項目
+
+                                // }
+                                updateDOM(shLocal_inf[sov_value], select_empId, index);
                             });
-                        }else{
                             
                         }
                         console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
@@ -700,7 +709,9 @@
                     tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
 
-                    tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
+                    // tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" 
+                    //             min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
+                    tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                     tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
                     tr1 += `<td class="shCondition`+(sys_role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
@@ -753,6 +764,8 @@
         function change_eh_time(this_id, this_value){    // this.id, this.value
             const this_id_arr = this_id.split(',')       // 分割this.id成陣列
             const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
+            const select_year  = this_id_arr[2];         // 取出陣列2=year
+            const shCase_index = this_id_arr[3];         // 取出陣列3=shCase_index
             // step-1 將每日暴露時數eh_time存到指定staff_inf
                 const empData = staff_inf.find(emp => emp.emp_id === select_empId);
                 if (empData) {
@@ -763,7 +776,7 @@
                             //         empData.shCase[sh_i]['eh_time'] = Number(this_value);
                             //     }
                             // });
-                    empData['eh_time'] = Number(this_value);
+                    empData.shCase[shCase_index]['eh_time'] = Number(this_value);
                 }
                 // console.log('change_eh_time--staff_inf..', empData);
 

@@ -1,5 +1,4 @@
-    
-    // [p2 函數-4] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
+    // [p2 函數] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
     let HECateClickListener;
     async function reload_HECateTable_Listeners() {
         return new Promise((resolve) => {
@@ -16,15 +15,7 @@
                 const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
                 const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
                 $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
-
-                const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
-                
-                // 241203 這裡要加上原本已選的項目
-                const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-
-
-                importShLocal_modal.show();
+                importShLocal_modal.show();                             // 顯示互動視窗
             }
             // 添加新的監聽器
             HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
@@ -43,7 +34,7 @@
             });
         }
 
-    
+
     // 241121 建立shCondition監聽功能 for 編輯
     let shConditionClickListener;
     async function reload_shConditionTable_Listeners() {
@@ -171,8 +162,7 @@
                 tdItem.classList.toggle(isShCondition ? 'xshCondition' : 'shCondition');
             });
         }
-
-
+    
     // 241121 建立yearHe監聽功能 for 編輯
     let yearHeClickListener;
     async function reload_yearHeTable_Listeners() {
@@ -267,7 +257,7 @@
         }
         edit_modal.hide();
     })
-   
+
         function edit_shCondition_submit(empId) {
             return new Promise((resolve) => {
                 let result = {};        // 初始化結果物件

@@ -159,7 +159,7 @@
 
                         foreach($shStaffs as $index => $shStaff){
                             $shStaffs[$index]['shCase_logs']     = json_decode($shStaffs[$index]['shCase_logs'], true);
-                                $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
+                                // $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
                                 $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
                                 $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
                                 
@@ -218,7 +218,7 @@
                     
                         // step.1 提取現有資料
                         $stmt_select = $pdo->prepare($sql_select);
-                        $stmt_select->execute([$emp_id]);
+                        $stmt_select -> execute([$emp_id]);
                         $existing_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                     
                         // step.2 解析現有資料為陣列
@@ -236,7 +236,7 @@
                                 "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($shCase_logs_existing[$current_year]["schkztxt"])      ? $shCase_logs_existing[$current_year]["schkztxt"]      : null),
                                 "cstext"        => !empty($cstext)        ? $cstext        : (!empty($shCase_logs_existing[$current_year]["cstext"])        ? $shCase_logs_existing[$current_year]["cstext"]        : null),
                                 "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($shCase_logs_existing[$current_year]["emp_group"])     ? $shCase_logs_existing[$current_year]["emp_group"]     : null),
-                                "eh_time"       => isset($eh_time)        ? $eh_time       : (!empty($shCase_logs_existing[$current_year]["eh_time"])       ? $shCase_logs_existing[$current_year]["eh_time"]       : null),    // 暴露時數
+                                // "eh_time"       => isset($eh_time)        ? $eh_time       : (!empty($shCase_logs_existing[$current_year]["eh_time"])       ? $shCase_logs_existing[$current_year]["eh_time"]       : null),    // 暴露時數
                                 "shCase"        => isset($shCase)         ? $shCase        : (!empty($shCase_logs_existing[$current_year]["shCase"])        ? $shCase_logs_existing[$current_year]["shCase"]        : null),    // 特作區域
                                 "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($shCase_logs_existing[$current_year]["shCondition"])   ? $shCase_logs_existing[$current_year]["shCondition"]   : null)     // 特作驗證
                             ];

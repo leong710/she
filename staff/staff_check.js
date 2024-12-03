@@ -187,6 +187,8 @@
                         "change"  : false           // 變更
                     };   
                 }
+                const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');
+
                 // step.2 欲更新的欄位陣列
                 const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
                 // step.2 將shLocal_item_arr循環逐項進行更新
@@ -198,9 +200,15 @@
                         let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
                         inner_Value = `${br}${he_cate_str}`;
 
-                    }else if(sh_item.includes('AVG')){      // 4.5.均能音壓、平均音壓 特別處理：判斷是空值，就給他一個$nbsp;佔位
+                    }else if(sh_item.includes('AVG')){      // 4.5.均能音壓AVG_VOL、平均音壓AVG_8HR 特別處理：判斷是空值，就給他一個$nbsp;佔位
                         let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
                         inner_Value = `${br}${avg_str}`;
+
+                    }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位
+                        let eh_time = sh_value[sh_item] ? sh_value[sh_item] : '';
+                        let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear},${sh_key_up}" name="eh_time" class="form-control" value="${eh_time}" 
+                                                min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
+                        inner_Value = `${br}${eh_time_input}`;
 
                     }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
                         inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
@@ -219,16 +227,18 @@
                     document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
 
                     // step.2b 噪音驗證
-                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
                     if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                        const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear},${sh_key_up}"]`);
                         // 2b1. 檢查元素是否存在+是否有值
-                            eh_time_input.removeAttribute('disabled');
+                            // eh_time_input.removeAttribute('disabled');
                             const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
                         // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
-                            const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
+                            // const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
                             const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                             const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-                            eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
+                            const eh_time = (sh_value['eh_time']) ? sh_value['eh_time'] : eh_time_input_value;
+                            // eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
+
                         // 2b3. 呼叫[fun]checkNoise 取得判斷結果
                             const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
                             // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
@@ -239,10 +249,10 @@
                             // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
                         // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
 
-                    } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
+                    // } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
                         // if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}
-                        eh_time_input.setAttribute('disabled', 'true');
-                        eh_time_input.value = "";
+                        // eh_time_input.setAttribute('disabled', 'true');
+                        // eh_time_input.value = "";
                     }
                 });
 
