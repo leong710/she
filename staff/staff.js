@@ -428,13 +428,13 @@
 
                     tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
                     tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
+
                     tr1 += tdClass + ` id="HE_CATE`       + empId_preYear;
                     tr1 += tdClass + ` id="AVG_VOL`       + empId_preYear;
                     tr1 += tdClass + ` id="AVG_8HR`       + empId_preYear;
                     tr1 += tdClass + `><snap id="eh_time,${select_empId},${preYear}"></snap></div></td>`;
                     tr1 += tdClass + ` id="NC`            + empId_preYear;
 
-                    tr1 += tdClass + ` id="shIdentity`    + empId_preYear;
                     tr1 += tdClass + ` id="shCondition`   + empId_preYear;
                     tr1 += tdClass + ` id="change,${select_empId},${currentYear}"></div></td>`;
                     tr1 += tdClass + ` id="yearHe`        + empId_preYear;
@@ -460,6 +460,9 @@
                         const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
                         let index = 1;
                         for (const [sh_key, sh_value] of Object.entries(shCase)) {
+                            
+                            const empData_shCase_Noise = Object.values(sh_value['HE_CATE']).includes('噪音');
+
                             // step.2 將shLocal_item_arr循環逐項進行更新
                             shLocal_item_arr.forEach((sh_item) => {
                                 // step.2a 項目渲染...
@@ -474,24 +477,41 @@
                                         let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
                                         inner_Value = `${br}${avg_str}`;
 
+                                    }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位
+                                        let eh_time = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
+                                        let eh_time_input = `<snap id="eh_time,${select_empId},${preYear},${sh_key}" >${eh_time}</snap>`;
+                                        inner_Value = `${br}${eh_time_input}`;
+
                                     }else if(sh_item === 'MONIT_LOCAL'){    // 4.特別處理：MONIT_LOCAL
                                         inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;${sh_value[sh_item]}`;
 
                                     }else{                                  // 5.9
-                                        inner_Value = `${br}${sh_value[sh_item]}`;
+                                        // inner_Value = `${br}${sh_value[sh_item]}`;
+                                        // 確認 sh_item 是否有定義的值
+                                        inner_Value = (sh_value[sh_item] !== undefined) ? `${br}${sh_value[sh_item]}` : (() => {
+                                            switch (sh_item) {
+                                                case 'WORK_DESC':
+                                                    return `${br}${sh_value['HE_CATE_KEY']}`;
+                                                default:
+                                                    return ''; // 預設空值
+                                            }
+                                        })();
                                     }
+
                                     // step.2b 噪音驗證 對應欄位9,10
-                                    if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                                    if (sh_item === 'HE_CATE' && empData_shCase_Noise && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                                         // 2b1. 檢查元素是否存在+是否有值
-                                            const eh_time_input = document.querySelector(`snap[id="eh_time,${select_empId},${preYear}"]`);
+                                            // const eh_time_input = document.querySelector(`snap[id="eh_time,${select_empId},${preYear}"]`);
+                                            const eh_time = sh_value[sh_item] ? sh_value[sh_item] : '';
                                         // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
                                             // eh_time_input.innerText = (empData['eh_time']) ? (empData['eh_time']) : null;    // 強行帶入顯示~
-                                            eh_time_input.innerText = (sh_value['eh_time']) ? (sh_value['eh_time']) : null;    // 強行帶入顯示~
+                                            // eh_time_input.innerText = (sh_value['eh_time']) ? (sh_value['eh_time']) : null;    // 強行帶入顯示~
+
                                             const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                                             const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
     
                                         // 2b3. 呼叫[fun]checkNoise 取得判斷結果
-                                            const noise_check = checkNoise(eh_time_input.innerText, avg_vol, avg_8hr);     
+                                            const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
                                             const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
                                             document.getElementById(`NC,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
                 

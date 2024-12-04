@@ -174,8 +174,8 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
                                         <th title="OSTEXT">部門名稱</th>
                                         <th title="HE_CATE">類別</th>
-                                        <th title="AVG_VOL">均能音量</th>
-                                        <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
+                                        <th title="AVG_VOL">A權音壓級(dBA)</th>
+                                        <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均(dBA)</th>
                                         <th title="MONIT_NO">監測編號</th>
                                         <th title="MONIT_LOCAL">監測處所(10)</th>
                                         <th title="WORK_DESC">作業描述(20)</th>

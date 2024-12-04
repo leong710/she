@@ -206,9 +206,9 @@
 
                     }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位
                         let eh_time = sh_value[sh_item] ? sh_value[sh_item] : '';
-                        let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear},${sh_key_up}" name="eh_time" class="form-control" value="${eh_time}" 
+                        let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear},${sh_key_up}" name="eh_time" class="form-control text-center" value="${eh_time}" 
                                                 min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
-                        inner_Value = `${br}${eh_time_input}`;
+                        inner_Value = `${eh_time_input}`;
 
                     }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
                         inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);

@@ -19,10 +19,8 @@
 
                 const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
                 
-                // 241203 這裡要加上原本已選的項目
-                const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
-
-
+                // 241203 這裡要加上原本已選的項目...做不到
+                // const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked'));
 
                 importShLocal_modal.show();
             }
@@ -336,7 +334,9 @@
                 // 回存empData
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                empData._content[`${currentYear}`]['import']['yearHe'] = ObjectValues;                   // 把資料帶入
+                empData._content[`${currentYear}`]['import'] = {
+                    'yearHe' : ObjectValues            // 把資料帶入Object{物件}
+                }
         
                 // 清除指定的yearHe欄位並更新
                 const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');

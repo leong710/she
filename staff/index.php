@@ -238,8 +238,8 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>>特檢資格</th>
-                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >項目類別代號</th>
+                                        <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
+                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >去年檢查項目</th>
                                     </tr>
@@ -399,14 +399,13 @@
                         <th title="dept_no">部門代碼名稱</th>
                         <th title="">工作場所</th>
                         <th title="點選特殊作業">工作內容</th>
-                        <th title="HE_CATE">檢查類別代號</th>
-                        <th title="AVG_VOL" style="width: 50px;">均能音量</th>
-                        <th title="AVG_8HR 工作日8小時" style="width: 50px;">平均音壓</th>
-                        <th title="eh_time 累計暴露" style="width: 70px;">每日曝露時數</th>
-                        <th title="NC" style="width: 80px;">噪音資格</th>
-                        <th title="SH3_shIdentity" style="width: 80px;">特檢資格</th>
-                        <th title="shCondition">資格驗證</th>
-                        <th title="change">轉調</th>
+                        <th title="HE_CATE"             style="width: 90px;">檢查類別代號</th>
+                        <th title="AVG_VOL"             style="width: 50px;">A權音壓級</th>
+                        <th title="AVG_8HR 工作日8小時" style="width: 50px;">日時量平均</th>
+                        <th title="eh_time 累計暴露"    style="width: 50px;">每日曝露時數</th>
+                        <th title="NC"                 >噪音資格</th>
+                        <th title="shCondition"        >特檢資格</th>
+                        <th title="change"             >轉調</th>
                         <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
                         <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
                         <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
