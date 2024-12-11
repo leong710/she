@@ -112,9 +112,20 @@
                 $("body").mLoading("hide");
                 throw error;                                    // 載入失敗，reject
             }
+        }else{
+            console.log('error: parm lost...');
+            alert('error: parm lost...');
+            $("body").mLoading("hide");
         }
     }
-
+    // fun.0-6: console.log
+    function console_log(debug_value){
+        return new Promise((resolve) => {  
+            $("body").mLoading("hide");
+            console.error("console_log: ", debug_value);
+            resolve(); // 異常情況下也需要resolve
+        });
+    }
     
 // // 2. 數據操作函數 (Data Manipulation Functions)
     // [p-0]
@@ -265,7 +276,6 @@
                         if (!item._content) {  item._content = {};  }
                         if (!item._content[`${currentYear}`]) {  item._content[`${currentYear}`] = {};  }
                         if (!item._content[`${currentYear}`]['import']) {  item._content[`${currentYear}`]['import'] = {};  }
-
                     }
                 });
                 // 將 Map 轉換回陣列
@@ -329,6 +339,7 @@
                     empData.gesch    = s_value.gesch;
                     empData.natiotxt = s_value.natiotxt;
                     empData.HIRED    = s_value.HIRED;
+                    empData.dept_no  = s_value.dept_no;
             }
             mgInto_staff_inf(loadStaff_arr);
             inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -383,9 +394,10 @@
         // 讓指定按鈕 依照staff_inf.length 啟停
         function btn_disabled(){
             return new Promise((resolve) => {
-                download_excel_btn.disabled = staff_inf.length === 0;  // 讓下載按鈕啟停
-                bat_storeStaff_btn.disabled = staff_inf.length === 0;  // 讓儲存按鈕啟停
-                resetINF_btn.disabled       = staff_inf.length === 0;  // 讓清除按鈕啟停
+                download_excel_btn.disabled  = staff_inf.length === 0;  // 讓下載按鈕啟停
+                bat_storeStaff_btn.disabled  = staff_inf.length === 0;  // 讓儲存按鈕啟停
+                resetINF_btn.disabled        = staff_inf.length === 0;  // 讓清除按鈕啟停
+                SubmitForReview_btn.disabled = staff_inf.length === 0;  // 讓送審按鈕啟停
                 resolve();
             });
         }
@@ -405,9 +417,9 @@
                     }                
                 }
                 // 更新資格驗證(1by1)
-                // if (shCondition) {
-                //     await updateShCondition(shCondition, select_empId, currentYear);
-                // }
+                if (shCondition) {
+                    await updateShCondition(shCondition, select_empId, currentYear);
+                }
             };
         }
         // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
@@ -816,10 +828,16 @@
                 // }
         }
         // p-2 批次儲存員工清單...
-        function bat_storeStaff(){
-            load_fun('bat_storeStaff', JSON.stringify(staff_inf), show_swal_fun);   // load_fun的變數傳遞要用字串
+        async function bat_storeStaff(){
+            const bat_storeStaff_value = staff_inf;
+            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), console_log);   // load_fun的變數傳遞要用字串
         }
-
+        // p-2 批次儲存員工清單...
+        async function storeForReview(){
+            const bat_storeStaff_value = staff_inf;
+            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);   // load_fun的變數傳遞要用字串
+            await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);     // load_fun的變數傳遞要用字串
+        }
 
         // [p2 函數-3] 設置事件監聽器和MutationObserver
         async function p2_eventListener() {

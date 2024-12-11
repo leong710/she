@@ -138,10 +138,6 @@
                                     tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
                                 }
                             }
-                            // // 生成 其他 的輸入項目
-                            // tr += `<div class="form-check form-check-inline">`;
-                            // tr += `<input name="${sh_key}[]" id="${sh_key},other" type="checkbox" class="form-check-input" >`; 
-                            // tr += `<input type="text" class="form-check-label" placeholder="其他" name="${sh_key}[]" id="${sh_key},otherValue"></div>`;
 
                             tr += `</td></tr>`
                             break;
@@ -334,9 +330,15 @@
                 // 回存empData
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                empData._content[`${currentYear}`]['import'] = {
-                    'yearHe' : ObjectValues            // 把資料帶入Object{物件}
-                }
+                // empData._content[`${currentYear}`]['import'] = {
+                //     'yearHe' : ObjectValues           
+                // }
+                // 採用淺拷貝的方式來合併物件
+                empData._content[`${currentYear}`]['import'] = Object.assign(
+                    {}, empData._content[`${currentYear}`]['import'], {
+                        'yearHe': ObjectValues      // 把資料帶入Object{物件}
+                    }
+                );
         
                 // 清除指定的yearHe欄位並更新
                 const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');

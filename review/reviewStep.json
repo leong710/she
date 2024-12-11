@@ -1,0 +1,57 @@
+{
+    "1" : {
+            "step"          : "1",
+            "approval_steps": "建立健檢名單",
+            "remark"        : "匯入Excel、建立名單",
+            "group"         : "總窗護理師",
+            "edit"          : true
+        },
+    "2" : {
+            "step"          : "2",
+            "approval_steps": "工作維護",
+            "remark"        : "勾選特危、填暴露時數",
+            "group"         : "單位窗口,ESH工安",
+            "edit"          : true
+        },
+    "3" : {
+            "step"          : "3",
+            "approval_steps": "名單送審",
+            "remark"        : "100%的名單按下送審，將鎖定不可編輯",
+            "group"         : "單位窗口,護理師",
+            "edit"          : false
+        },
+    "4" : {
+            "step"          : "4",
+            "approval_steps": "簽核審查",
+            "remark"        : "簽核主管可維調暴露時數",
+            "group"         : "上層主管,單位窗口,護理師",
+            "edit"          : true,
+            "return"        : "2",
+            "approve"       : "5"
+        },
+    "5" : {
+            "step"          : "5",
+            "approval_steps": "收單review",
+            "remark"        : "檢查名單及特檢資料是否完備",
+            "group"         : "ESH工安,護理師",
+            "edit"          : false,
+            "return"        : "2",
+            "approve"       : "6"
+        },
+    "6" : {
+            "step"          : "6",
+            "approval_steps": "名單總匯整",
+            "remark"        : "輸出健檢名單",
+            "group"         : "總窗護理師",
+            "edit"          : false,
+            "return"        : "2",
+            "approve"       : "10"
+        },
+    "10" : {
+            "step"          : "10",
+            "approval_steps": "名單存檔",
+            "remark"        : "健檢名單存檔",
+            "group"         : "",
+            "edit"          : false
+        }
+}

@@ -155,6 +155,8 @@
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
                             <h4 class="mb-0">step.1 建立特檢名單 與 step.2 指定特別危害工作內容</h4>
+                            <span>1.名單建立:護理師  2.勾選特危、填暴露時數:工安幹事、(備援:護理師)  3.名單送審:工安幹事、(備援:護理師)
+                                    4.簽核審查:課副理、(備援:工安幹事、護理師)  5.收單review:護理師、(備援:大PM)  6.最終review整理:大PM</span>
                         </div>
                     </div>
                 </div>
@@ -222,6 +224,8 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 送審</button>
+
                                 </div>
                             </div>
                             <hr>
@@ -461,6 +465,7 @@
     var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
     var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
