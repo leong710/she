@@ -122,7 +122,7 @@
     function console_log(debug_value){
         return new Promise((resolve) => {  
             $("body").mLoading("hide");
-            console.error("console_log: ", debug_value);
+            console.log("console_log: ", debug_value);
             resolve(); // 異常情況下也需要resolve
         });
     }
@@ -830,13 +830,13 @@
         // p-2 批次儲存員工清單...
         async function bat_storeStaff(){
             const bat_storeStaff_value = staff_inf;
-            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), console_log);   // load_fun的變數傳遞要用字串
+            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);   // load_fun的變數傳遞要用字串
         }
         // p-2 批次儲存員工清單...
         async function storeForReview(){
             const bat_storeStaff_value = staff_inf;
-            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);   // load_fun的變數傳遞要用字串
-            await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);     // load_fun的變數傳遞要用字串
+            await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
+            await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
         }
 
         // [p2 函數-3] 設置事件監聽器和MutationObserver
@@ -957,5 +957,8 @@
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
         // Balert( message, 'warning')
+
+        load_fun('load_document', 'load_document', console_log);      // load_fun的變數傳遞要用字串
+
 
     });

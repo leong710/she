@@ -7,7 +7,7 @@
         
         function executeQuery($stmt, $params) {
             try {
-                return $stmt->execute($params);
+                return empty($params) ? $stmt->execute() : $stmt->execute($params);
             } catch (PDOException $e) {
                 error_log($e->getMessage());
                 sendErrorResponse('Database error.');
@@ -297,7 +297,7 @@
                     $swal_json["action"] = "success";
                     $swal_json["content"] .= '儲存成功';
                     $result = [
-                        'result_obj' => $parm,
+                        'result_obj' => $swal_json,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
@@ -483,6 +483,28 @@
                         'fun'        => $fun,
                         'error'      => 'Load '.$fun.' failed...(e 提取失敗 or 無內容)'
                     ];
+                }
+            break;
+            case 'load_document':   // 241212 取得_document送審清單
+                $pdo = pdo();
+                $year = $year ?? date('Y');
+                $sql = "SELECT id, uuid, age, dept_no, check_list, idty FROM `_document` WHERE age = '{$year}' ";
+
+                $stmt = $pdo->prepare($sql);
+                if (executeQuery($stmt, '')) {
+                    $_documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    // JSON解碼
+                    foreach($_documents as $index => $_doc){
+                        $_documents[$index]['check_list']     = json_decode($_documents[$index]['check_list'], true);
+                    }
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $_documents,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
             break;
             default:

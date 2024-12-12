@@ -86,8 +86,8 @@
             $staff_dept_nos = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $staff_dept_nos_arr = [];
             foreach($staff_dept_nos as $dept_no_i){
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["OSTEXT"] = $dept_no_i["emp_dept"];
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["_count"] = $dept_no_i["_count"];
+                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["OSTEXT"]           = $dept_no_i["emp_dept"];
+                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["_count"]           = $dept_no_i["_count"];
                 $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["shCaseNotNull"]    = $dept_no_i["shCaseNotNull"];
                 $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["shCaseNotNull_pc"] = $dept_no_i["shCaseNotNull_pc"];
             }
