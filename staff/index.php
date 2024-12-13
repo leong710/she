@@ -155,8 +155,6 @@
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
                             <h4 class="mb-0">step.1 建立特檢名單 與 step.2 指定特別危害工作內容</h4>
-                            <span>1.名單建立:護理師  2.勾選特危、填暴露時數:工安幹事、(備援:護理師)  3.名單送審:工安幹事、(備援:護理師)
-                                    4.簽核審查:課副理、(備援:工安幹事、護理師)  5.收單review:護理師、(備援:大PM)  6.最終review整理:大PM</span>
                         </div>
                     </div>
                 </div>
@@ -189,11 +187,9 @@
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
                                     </div>
                                     <div class="col-3 col-md-2 text-end">
-                                        <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔資料</button>
-                                        <div class='invalid-feedback pt-0' id='load_deptNo_btn_feedback'>* 請先勾選部門代號至少一項 !! </div>
                                     </div>
                                 </div>
-                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control is-invalid">
+                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control ">
                                     <div id="deptNo_opts_inside" class="row">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 
@@ -474,6 +470,8 @@
     var staff_inf        = [];
     var shLocal_inf      = [];
     var loadStaff_tmp    = [];
+    var _docs_inf        = [];
+    var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;

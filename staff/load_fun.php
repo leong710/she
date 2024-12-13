@@ -393,7 +393,7 @@
                         $uuid        = $age.",".$new_check_deptNo;
                         $in_sign     = $in_sign     ?? "in_sign";  
                         $in_signName = $in_signName ?? "in_signName";  
-                        $idty        = $idty        ?? "idty";  
+                        $idty        = $idty        ?? 4;  
                         $flow        = $flow        ?? "flow";  
                         $flow_remark = $flow_remark ?? "flow_remark";  
                         $_content    = $_content    ?? [];  

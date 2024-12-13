@@ -375,13 +375,12 @@
                 staff_inf     = [];
                 shLocal_inf   = [];
                 loadStaff_tmp = [];
-                _docsIdty_inf = null;
             }
             await release_dataTable();                  // 停止並銷毀 DataTable
             await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
             await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-            if(sys_role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+            if(sys_role <= '3'){                        // 限制role <= 3 現場窗口以下...排除主管和路人
                 await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
                 await reload_shConditionTable_Listeners();
                 await reload_yearHeTable_Listeners();
@@ -395,10 +394,10 @@
         // 讓指定按鈕 依照staff_inf.length 啟停
         function btn_disabled(){
             return new Promise((resolve) => {
-                download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
-                resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
-                bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-                SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+                download_excel_btn.disabled  = staff_inf.length === 0;  // 讓下載按鈕啟停
+                bat_storeStaff_btn.disabled  = staff_inf.length === 0;  // 讓儲存按鈕啟停
+                resetINF_btn.disabled        = staff_inf.length === 0;  // 讓清除按鈕啟停
+                SubmitForReview_btn.disabled = staff_inf.length === 0;  // 讓送審按鈕啟停
                 resolve();
             });
         }
@@ -643,16 +642,16 @@
         }
 
             // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()
-            function sortObjKey(originalObj){
-                return new Promise((resolve) => {
-                    const sortedKeys = Object.keys(originalObj).sort();     // 取得排序後的 key 陣列
-                    const sortedObj = {};
-                    sortedKeys.forEach(key => {
-                        sortedObj[key] = originalObj[key];                  // 根據排序後的 key 陣列重建新物件
-                    });
-                    resolve(sortedObj);     // 當搜尋完成後，回傳結果
+        function sortObjKey(originalObj){
+            return new Promise((resolve) => {
+                const sortedKeys = Object.keys(originalObj).sort();     // 取得排序後的 key 陣列
+                const sortedObj = {};
+                sortedKeys.forEach(key => {
+                    sortedObj[key] = originalObj[key];                  // 根據排序後的 key 陣列重建新物件
                 });
-            }
+                resolve(sortedObj);     // 當搜尋完成後，回傳結果
+            });
+        }
 
         // 240912 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...call from p2_eventListener()
         async function searchWorkCaseAll(excel_json_value_arr){
@@ -886,7 +885,7 @@
 
     // [p-3]
         // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
-        function mk_deptNos_btn(selectedDeptNo) {
+        function mk_deptNos_slt(selectedDeptNo) {
             return new Promise((resolve) => {
                 // init
                 $('#deptNo_opts_inside').empty();
@@ -899,9 +898,10 @@
                                     <div class="card-header">${emp_sub_scope}</div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<div class="form-check px-1">
-                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-outline-secondary add_btn " >
-                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>
+                                            `<div class="form-check">
+                                                <input type="checkbox" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input px-0" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'disable' ) +`>
+                                                <label for="${emp_sub_scope},${o_key}" class="form-check-label" ` + ( o_value.shCaseNotNull_pc == 100 ? '':'data-toggle="tooltip" data-placement="bottom" title="未完成特危作業選定"' ) +`>
+                                                    ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger"> (${o_value.shCaseNotNull_pc}%)</sup></label>
                                             </div>`
                                         ).join('')}
                                     </div>
@@ -922,61 +922,43 @@
                     $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
                 }
                 // step-2. 綁定deptNo_opts事件監聽器
-                const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
-                deptNo_btns.forEach(deptNo_btn => {
-                    deptNo_btn.addEventListener('click', function() {
-                        // 工作一 清空暫存
-                            resetINF(true); // 清空
-                        // 工作二 依部門代號撈取員工資料 後 進行鋪設
-                            const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
-                            load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                        // 工作三 
-                            const _doc = _docs_inf.find(_doc => _doc.dept_no === this.value);
-                            _docsIdty_inf = _doc.idty;
-                        // if(_docsIdty_inf >= 4){
-                        //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
-                        //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
-                        // }
-                        // bat_storeStaff_btn.disabled  = (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-                        // SubmitForReview_btn.disabled = (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
-                        $('#nav-p2-tab').tab('show');
+                const deptNo_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[name="deptNo[]"]'));
+                deptNo_opts_arr.forEach(deptNo_checkbox => {
+                    deptNo_checkbox.addEventListener('change', function() {
+                        const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+                        deptNo_opts.classList.toggle('is-invalid', selectedValues.length === 0);
+                        deptNo_opts.classList.toggle('is-valid', selectedValues.length > 0);
+                        load_deptNo_btn.classList.toggle('is-invalid', selectedValues.length === 0);
+                        load_deptNo_btn.classList.toggle('is-valid', selectedValues.length > 0);
+                        load_deptNo_btn.disabled = selectedValues.length === 0 ;                  // 取得人事資料庫btn
+                        // load_fun('load_staff_byDeptNo', this.value, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     });
                 });
-
-                resolve();      // 當所有設置完成後，resolve Promise
-            });
-        }
-    // p-3：[load_staff]
-        // 241213 將送審的百分比改成送審中
-        function filtApprove(_docs) {
-            return new Promise((resolve) => {
-                _docs_inf = _docs;      // 帶入inf
-                _docs.forEach( _doc => {
-                    if(_doc.idty >= 4){
-                        const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no}[]"]`);
-                        for (const [key, node_i] of Object.entries(deptNo_sups)) {
-                            node_i.innerHTML = "(送審中)";
-                        }
-                    } 
+                // step-3. 綁定load_deptNo_btn進行撈取員工資料
+                const load_deptNo_btn = document.getElementById('load_deptNo_btn');
+                load_deptNo_btn.addEventListener('click', function() {
+                    const selectedValues = deptNo_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
+                    load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                    deptNo_opts_arr.forEach(input => { if (input.checked) { input.checked = false; } });// 清除已勾選的項目
                 })
                 resolve();      // 當所有設置完成後，resolve Promise
             });
         }
+    // p-3：[load_staff]
 
 
     $(function() {
         // [步驟-1] 初始化設置
-        mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
-        
+        mk_deptNos_slt(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
         p1_eventListener();                     // 呼叫函數-3 建立監聽
         p2_eventListener();                     // 呼叫函數-3 建立監聽
-        
-        load_fun('load_document', 'load_document', filtApprove);      // load_fun的變數傳遞要用字串
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        if(message) {
-            Balert( message, 'warning')
-        }
+        // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
+        // Balert( message, 'warning')
+
+        load_fun('load_document', 'load_document', console_log);      // load_fun的變數傳遞要用字串
+
 
     });
