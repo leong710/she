@@ -154,7 +154,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
-                            <h4 class="mb-0">step.4 各站點審核<sup>(上層主管,單位窗口,護理師)</sup>  step.5收單review<sup>(ESH工安,護理師)</sup>  step.6 名單總匯整<sup>(總窗護理師)</sup></h4>
+                            <h4 class="mb-0">step.3 各站點審核工作</h4>
                         </div>
                     </div>
                 </div>

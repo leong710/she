@@ -154,7 +154,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
-                            <h4 class="mb-0">step.1 建立特檢名單 與 step.2 指定特別危害工作內容</h4>
+                            <h4 class="mb-0">step.1 建立特檢名單<sup>(總窗護理師)</sup>  step.2 指定特別危害工作內容、填暴露時數<sup>(單位窗口,護理師,ESH工安)</sup>  step.3 名單送審<sup>(單位窗口,護理師)</sup></h4>
                         </div>
                     </div>
                 </div>

@@ -33,9 +33,9 @@
     }
 
     // 
-    $let_btn_s = '<button type="button" class="btn ';
-    $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#saveSubmit" value="';
-    $let_btn_e = '" onclick="saveSubmit_modal(this.value, this.innerHTML);">';
+    // $let_btn_s = '<button type="button" class="btn ';
+    // $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#saveSubmit" value="';
+    // $let_btn_e = '" onclick="saveSubmit_modal(this.value, this.innerHTML);">';
 ?>
 
 <?php include("../template/header.php"); ?>
