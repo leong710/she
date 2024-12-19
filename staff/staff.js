@@ -726,7 +726,7 @@
 
                     tr1 += `<td class="">
                                 <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
-                                    + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">${emp_i.cname}</button></div>`
+                                    + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
                                 + `<div class="col-12 pt-1 pb-0 px-0" >
                                     <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;&nbsp;
                                     <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></div>
@@ -768,13 +768,13 @@
                 await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
             }
             // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
-                const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="offcanvasTop"]'));
+                const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="aboutStaff"]'));
                 offcanvas_arr.forEach(canva_btn => {
                     canva_btn.addEventListener('click', function() {
                         const this_value_arr = this.value.split(',')       // 分割this.value成陣列
                         const select_cname = this_value_arr[0];            // 取出陣列0=cname
                         const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
-                        $('#offcanvasTop #offcanvas_title').empty().append('( '+ this.value +' )');     // 更新 header title  
+                        $('#aboutStaff #aboutStaff_title').empty().append('( '+ this.value +' )');     // 更新 header title  
                         // const empData = staff_inf.find(emp => emp.emp_id === select_empId);
                         // let emp_shCase_log = '< ~ 無儲存紀錄 ~ >';
                         // if(empData && empData.shCase_logs != undefined && ( Object.keys(empData.shCase_logs).length > 0 )){

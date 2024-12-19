@@ -279,9 +279,9 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >資格驗證</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="process"             >特檢資格</th>
-                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >項目類別代號</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >特檢資格</th>
+                                        <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
+                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >去年檢查項目</th>
                                     </tr>
@@ -299,83 +299,6 @@
    
 <!-- toast -->
     <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
-
-
-    <!-- 互動視窗 import_shLocal -->
-    <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">挑選作業位置&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4">
-                    <table id="shLocal_table" class="table table-striped table-hover">
-                        <thead>
-                            <th title="id">aid</th>
-                            <th title="OSTEXT_30">廠區</th>
-                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
-                            <th title="OSTEXT">部門名稱</th>
-
-                            <th title="HE_CATE">類別</th>
-                            <th title="AVG_VOL">均能音量</th>
-                            <th title="AVG_8HR/工作日8小時平均音壓值">8hr平均音壓</th>
-                            <th title="MONIT_NO">監測編號</th>
-                            <th title="MONIT_LOCAL">監測處所</th>
-                            <th title="WORK_DESC">作業描述</th>
-                            <th title="">選擇</th>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
-                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
-                    </div>
-                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
-
-    <!--模組-新增Staff -->
-    <div class="modal fade" id="import_staff" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title" id="searchStaff">searchStaff</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- 第一排-查詢功能 -->
-                    <div class="row">
-                        <div class="col-12 col-md-6"></div>
-                        <div class="col-12 col-md-6 text-end py-1">
-                            <div class="input-group">
-                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢對象 工號、姓名或NT帳號" required>
-                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 第二排-查詢結果 -->
-                    <div class="row">
-                        <div class="col-12 p-3" id="result">
-                            <table id="result_table" class="table table-striped table-hover">
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- canvas側欄 -->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
         <div class="offcanvas-header">
@@ -393,33 +316,47 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body small py-0">
-            <table id="shCase_table" class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th title="emp_id+cname">工號姓名</th>
-                        <th title="emp_sub_scope">年份_廠區</th>
-                        <th title="dept_no">部門代碼名稱</th>
-                        <th title="">工作場所</th>
-                        <th title="點選特殊作業">工作內容</th>
-                        <th title="HE_CATE">檢查類別代號</th>
-                        <th title="AVG_VOL" style="width: 50px;">均能音量</th>
-                        <th title="AVG_8HR 工作日8小時" style="width: 50px;">平均音壓</th>
-                        <th title="eh_time 累計暴露" style="width: 70px;">每日曝露時數</th>
-                        <th title="NC" style="width: 80px;">噪音資格</th>
-                        <th title="SH3" style="width: 80px;">特檢資格</th>
-                        <th title="shCondition">資格驗證</th>
-                        <th title="change">轉調</th>
-                        <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
-                        <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
-                        <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
         </div>
     </div>
-
+    <!-- full互動視窗 歷史紀錄 -->
+    <div class="modal fade" id="aboutStaff" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">歷史紀錄查閱 <snap id="aboutStaff_title"></snap></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <table id="shCase_table" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th title="emp_id+cname">工號姓名</th>
+                                <th title="emp_sub_scope">年份_廠區</th>
+                                <th title="dept_no">部門代碼名稱</th>
+                                <th title="">工作場所</th>
+                                <th title="點選特殊作業">工作內容</th>
+                                <th title="HE_CATE"             style="width: 90px;">檢查類別代號</th>
+                                <th title="AVG_VOL"             style="width: 50px;">A權音壓級</th>
+                                <th title="AVG_8HR 工作日8小時" style="width: 50px;">日時量平均</th>
+                                <th title="eh_time 累計暴露"    style="width: 50px;">每日曝露時數</th>
+                                <th title="NC"                 >噪音資格</th>
+                                <th title="shCondition"        >特檢資格</th>
+                                <th title="change"             >轉調</th>
+                                <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
+                                <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
+                                <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 模組 submitModal-->
     <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable ">
@@ -463,8 +400,6 @@
             </div>
         </div>
     </div>
-
-    
     <!-- 互動視窗 edit_modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
