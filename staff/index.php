@@ -215,7 +215,7 @@
                                         </form>
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="import_staff_btn" class="btn btn-outline-primary add_btn" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
@@ -472,6 +472,8 @@
     var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
+    var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
+    var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });

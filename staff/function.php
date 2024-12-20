@@ -62,11 +62,11 @@
                     ) AS shCaseNotNull,
                     -- concat( ROUND( SUM( CASE 
                     ROUND( SUM( CASE 
-                                            WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
-                                                AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
-                                                AND JSON_LENGTH(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) > 0 
-                                            THEN 1 ELSE 0 
-                                        END
+                                    WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
+                                        AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
+                                        AND JSON_LENGTH(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) > 0 
+                                    THEN 1 ELSE 0 
+                                END
                     -- ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
                     ) * 100 / COUNT(*), 0 ) AS shCaseNotNull_pc
                 FROM (

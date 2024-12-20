@@ -150,10 +150,15 @@
                 //         FROM _staff
                 //         WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
                 $year = $year ?? date('Y');
+                $parm = str_replace('"', '', $parm);
+                // 分拆參數
+                $emp_sub_scope = explode(',', $parm)[0];
+                $deptNo = explode(',', $parm)[1];
                 // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
                 $sql = "SELECT emp_id, cname, shCase_logs, _content
                         FROM _staff
-                        WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ({$parm})
+                        WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                          AND JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
                             -- WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
                             --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
                             --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
@@ -333,8 +338,12 @@
                 }
 
                 // 定義SQL語句常量
-                define('SQL_SELECT_DOC', "SELECT * FROM _document WHERE age = ? AND dept_no = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
+                // define('SQL_SELECT_DOC', "SELECT * FROM ( SELECT *, SUBSTRING_INDEX(uuid, ',', 1) AS _age,
+                //                                             SUBSTRING_INDEX(SUBSTRING_INDEX(uuid, ',', 2), ',', -1) AS _dept_no, SUBSTRING_INDEX(uuid, ',', -1) AS _sub_scope
+                //                                         FROM `_document` ) AS subquery 
+                //                           WHERE _age = ? AND _dept_no = ? AND _sub_scope = ? "); // 這用在分拆uuid成獨立欄位進行篩選
+                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
                                 check_list      = VALUES(check_list), 
                                 in_sign         = VALUES(in_sign), 
@@ -358,8 +367,9 @@
                 foreach ($parm_array as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
                     $dept_no = $parm_i_arr["dept_no"];
+                    $sub_scope = $parm_i_arr["emp_sub_scope"];
                     
-                    $new_check_list_in[$dept_no] = $new_check_list_in[$dept_no] ?? [];
+                    $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
             
                     if (!empty($parm_i_arr["shCase"])) {
@@ -372,7 +382,7 @@
                 if (!empty($new_check_list_in)) {
                     foreach ($new_check_list_in as $new_check_deptNo => $new_check_valueArr) {
                         $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
-                        if (executeQuery($stmt_select, [$age, $new_check_deptNo])) {
+                        if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope])) {
                             $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                             // 如果資料存在則更新
                             if ($row_data) {
@@ -390,7 +400,7 @@
                         $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
             
                         // 防呆，使用預設值
-                        $uuid        = $age.",".$new_check_deptNo;
+                        $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
                         $in_sign     = $in_sign     ?? "in_sign";  
                         $in_signName = $in_signName ?? "in_signName";  
                         $idty        = $idty        ?? 4;  
@@ -404,9 +414,9 @@
                         $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
 
                         // 準備 SQL 和參數
-                        $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  now(), now())";
+                        $values[] = "(?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
                         $params = array_merge($params, [
-                            $uuid, $age, $new_check_deptNo, $new_form[$new_check_deptNo]["omager"],
+                            $uuid, $age, $new_check_deptNo, $sub_scope, $new_form[$new_check_deptNo]["omager"],
                             $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark, $_content_str,
                             $auth_emp_id, $auth_cname, $auth_cname, $logs_str
                         ]);
@@ -488,7 +498,7 @@
             case 'load_document':   // 241212 取得_document送審清單
                 $pdo = pdo();
                 $year = $year ?? date('Y');
-                $sql = "SELECT id, uuid, age, dept_no, check_list, idty FROM `_document` WHERE age = '{$year}' ";
+                $sql = "SELECT id, uuid, age, dept_no, sub_scope, check_list, idty FROM `_document` WHERE age = '{$year}' ";
 
                 $stmt = $pdo->prepare($sql);
                 if (executeQuery($stmt, '')) {

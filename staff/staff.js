@@ -341,11 +341,11 @@
                     empData.natiotxt = s_value.natiotxt;
                     empData.HIRED    = s_value.HIRED;
                     empData.dept_no  = s_value.dept_no;
+                    empData.emp_sub_scope  = s_value.emp_sub_scope;
             }
             mgInto_staff_inf(loadStaff_arr);
             inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
             $('#nav-p2-tab').tab('show');                                       // 切換頁面
-
         }
         // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
         async function rework_staff(searchStaff_arr){
@@ -400,6 +400,9 @@
                 resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
                 bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
                 SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+
+                loadExcel_btn.disabled   = (_docsIdty_inf >= 4);  // 讓 新增 按鈕啟停
+                importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
                 resolve();
             });
         }
@@ -904,7 +907,7 @@
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<div class="form-check px-1">
                                                 <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-outline-secondary add_btn " >
-                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>
+                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>
                                             </div>`
                                         ).join('')}
                                     </div>
@@ -931,11 +934,15 @@
                         // 工作一 清空暫存
                             resetINF(true); // 清空
                         // 工作二 依部門代號撈取員工資料 後 進行鋪設
-                            const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
+                            const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]]/g, '');
                             load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                         // 工作三 
-                            const _doc = _docs_inf.find(_doc => _doc.dept_no === this.value);
-                            _docsIdty_inf = _doc.idty;
+                            const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
+                            const emp_sub_scope = thisId_arr[0];        // 取出陣列 0=emp_sub_scope
+                            const dept_no       = thisId_arr[1];        // 取出陣列 1=dept_no
+
+                            const _doc = _docs_inf.find(_doc => _doc.dept_no === dept_no && _doc.sub_scope === emp_sub_scope );
+                            _docsIdty_inf = _doc.idty ?? null;
                         // if(_docsIdty_inf >= 4){
                         //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
                         //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
@@ -956,7 +963,7 @@
                 _docs_inf = _docs;      // 帶入inf
                 _docs.forEach( _doc => {
                     if(_doc.idty >= 4){
-                        const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no}[]"]`);
+                        const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.sub_scope}[]"]`);
                         for (const [key, node_i] of Object.entries(deptNo_sups)) {
                             node_i.innerHTML = "(送審中)";
                         }
