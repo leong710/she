@@ -340,8 +340,9 @@
                     empData.gesch    = s_value.gesch;
                     empData.natiotxt = s_value.natiotxt;
                     empData.HIRED    = s_value.HIRED;
-                    empData.dept_no  = s_value.dept_no;
-                    empData.emp_sub_scope  = s_value.emp_sub_scope;
+                    empData.dept_no  = s_value.dept_no;                 // 部門代號
+                    empData.emp_sub_scope  = s_value.emp_sub_scope;     // 人事子範圍
+                    empData.emp_dept = s_value.emp_dept;                // 部門名稱
             }
             mgInto_staff_inf(loadStaff_arr);
             inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -893,6 +894,7 @@
     // [p-3]
         // [p3 函數-1-2] 動態生成所有按鈕，並重新綁定事件監聽器
         function mk_deptNos_btn(selectedDeptNo) {
+            console.log('selectedDeptNo...',selectedDeptNo);
             return new Promise((resolve) => {
                 // init
                 $('#deptNo_opts_inside').empty();
@@ -940,9 +942,8 @@
                             const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
                             const emp_sub_scope = thisId_arr[0];        // 取出陣列 0=emp_sub_scope
                             const dept_no       = thisId_arr[1];        // 取出陣列 1=dept_no
-
-                            const _doc = _docs_inf.find(_doc => _doc.dept_no === dept_no && _doc.sub_scope === emp_sub_scope );
-                            _docsIdty_inf = _doc.idty ?? null;
+                            const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.sub_scope == emp_sub_scope );
+                            _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
                         // if(_docsIdty_inf >= 4){
                         //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
                         //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停

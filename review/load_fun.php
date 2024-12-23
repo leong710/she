@@ -131,46 +131,36 @@
             case 'load_staff_byDeptNo':
                 if(isset($parm)){
                     $pdo = pdo();
-                    // $sql = "SELECT emp_id, cname, shCase_logs, _content 
-                    //         FROM _staff
-                    //         WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
-                    $year = $year ?? date('Y');
+                    $parm = str_replace('"', '', $parm);
+                    // 分拆參數
+                    $year          = explode(',', $parm)[0];
+                    $deptNo        = explode(',', $parm)[1];
+                    $emp_sub_scope = explode(',', $parm)[2];
                     // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
-                    $sql = "SELECT emp_id, cname, shCase_logs, _content
+                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, shCase_logs, _content
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ({$parm})
-                                -- WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
-                                --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
-                                --    OR JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                              AND JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
                             ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
 
-                            // $deBugFile = "deBug.json";      // 預設sw.json檔案位置
-                            // $fop = fopen($deBugFile,"w");   // 開啟檔案
-                            // fputs($fop, $parm);             // 初始化sw+寫入
-                            // fclose($fop);                   // 關閉檔案
-                    
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
                         $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                        $current_year = date('Y');
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['shCase_logs']     = json_decode($shStaffs[$index]['shCase_logs'], true);
-                                $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
-                                $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
-                                $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
-                                
-                            // $shStaffs[$index]['_content'][$current_year] = json_decode($shStaffs[$index]['_content'], true);
-                            $shStaffs[$index]['_content']        = json_decode($shStaffs[$index]['_content']);
+                            $shStaffs[$index]['shCase_logs'] = json_decode($shStaffs[$index]['shCase_logs'], true);
+                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$year]['shCase'];
+                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$year]['shCondition'];
+                            $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
                         }
 
                     // 製作返回文件
                         $result = [
                             'result_obj' => $shStaffs,
-                            'fun'        => $fun,
+                            'fun'        => $sql,
                             'success'    => 'Load '.$fun.' success.'
                         ];
 
@@ -348,6 +338,131 @@
                         'error'      => 'Load '.$fun.' failed...(e 提取失敗 or 無內容)'
                     ];
                 }
+            break;
+
+            // 241223 取得審核文件年度清單
+            case 'load_doc_deptNos':                   // 帶入查詢條件
+                $pdo = pdo();
+                $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
+
+                $parm = isset($parm) ? (array) json_decode($parm, true) : [];
+
+
+                $_year = $parm['_year'] ?? date('Y');
+                // 初始查詢陣列
+                    $conditions = [];
+                    $stmt_arr   = [];    
+
+                if (!empty($_year)) {
+                    $conditions[] = "age = ?";
+                    $stmt_arr[]   = $_year;
+                    // $stmt_arr[] = $parm;
+                    // $stmt_arr[] = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                }
+                
+                if (!empty($conditions)) {
+                    $sql .= ' WHERE ' . implode(' AND ', $conditions);
+                }
+                // 後段-堆疊查詢語法：加入排序
+                // $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
+
+                $stmt = $pdo->prepare($sql);
+                try {
+                    if(!empty($stmt_arr)){
+                        $stmt->execute($stmt_arr);                          //處理 byYear
+                    }else{
+                        $stmt->execute();                                   //處理 byAll
+                    }
+                    $docs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $doc_deptNos_arr = [];
+                    foreach($docs as $deptNo_i){
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]      = $deptNo_i["emp_dept"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["check_list"]  = json_decode($deptNo_i["check_list"], true);
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["idty"]        = $deptNo_i["idty"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["uuid"]        = $deptNo_i["uuid"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["omager"]      = $deptNo_i["omager"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = $deptNo_i["flow_remark"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
+                    }
+
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $doc_deptNos_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+
+            break;
+            // 241223 取得審核文件
+            case 'load_doc':                   // 帶入查詢條件
+                $pdo = pdo();
+                $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
+
+                $parm = isset($parm) ? (array) json_decode($parm, true) : [];
+
+
+                $_year = $parm['_year'] ?? date('Y');
+                // 初始查詢陣列
+                    $conditions = [];
+                    $stmt_arr   = [];    
+
+                if (!empty($_year)) {
+                    $conditions[] = "age = ?";
+                    $stmt_arr[]   = $_year;
+                    // $stmt_arr[] = $parm;
+                    // $stmt_arr[] = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                }
+                
+                if (!empty($conditions)) {
+                    $sql .= ' WHERE ' . implode(' AND ', $conditions);
+                }
+                // 後段-堆疊查詢語法：加入排序
+                // $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
+
+                $stmt = $pdo->prepare($sql);
+                try {
+                    if(!empty($stmt_arr)){
+                        $stmt->execute($stmt_arr);                          //處理 byYear
+                    }else{
+                        $stmt->execute();                                   //處理 byAll
+                    }
+                    $docs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    $doc_deptNos_arr = [];
+                    foreach($docs as $deptNo_i){
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]      = $deptNo_i["emp_dept"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["check_list"]  = json_decode($deptNo_i["check_list"], true);
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["idty"]        = $deptNo_i["idty"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["uuid"]    = $deptNo_i["uuid"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["omager"]      = $deptNo_i["omager"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = $deptNo_i["flow_remark"];
+                            $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
+                    }
+
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $doc_deptNos_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+
             break;
             default:
                 // $result['error'] = 'Load '.$fun.' failed...(function)';

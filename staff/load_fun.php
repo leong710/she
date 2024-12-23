@@ -316,135 +316,7 @@
                     ];
                 }
             break;
-            case 'storeForReview':  // 241211 送嬸
-                require_once("../user_info.php");
-                $pdo = pdo();
-                $swal_json = [
-                    "fun" => "storeForReview",
-                    "content" => "批次送審名單--"
-                ];
-                
-                function showSignCode($request) {
-                    $pdo_hrdb = pdo_hrdb();
-                    $sql = "SELECT DEPT08.* FROM HCM_VW_DEPT08 DEPT08 WHERE DEPT08.OSHORT = ?";
-                    $stmt = $pdo_hrdb->prepare($sql);
-                    try {
-                        $stmt->execute([$request]);
-                        return $stmt->fetch(PDO::FETCH_ASSOC);
-                    } catch (PDOException $e) {
-                        error_log($e->getMessage());
-                        return null; // 返回null以便檢查
-                    }
-                }
 
-                // 定義SQL語句常量
-                // define('SQL_SELECT_DOC', "SELECT * FROM ( SELECT *, SUBSTRING_INDEX(uuid, ',', 1) AS _age,
-                //                                             SUBSTRING_INDEX(SUBSTRING_INDEX(uuid, ',', 2), ',', -1) AS _dept_no, SUBSTRING_INDEX(uuid, ',', -1) AS _sub_scope
-                //                                         FROM `_document` ) AS subquery 
-                //                           WHERE _age = ? AND _dept_no = ? AND _sub_scope = ? "); // 這用在分拆uuid成獨立欄位進行篩選
-                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
-                define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
-                                check_list      = VALUES(check_list), 
-                                in_sign         = VALUES(in_sign), 
-                                in_signName     = VALUES(in_signName), 
-                                idty            = VALUES(idty), 
-                                flow            = VALUES(flow), 
-                                flow_remark     = VALUES(flow_remark), 
-                                _content        = VALUES(_content), 
-                                updated_cname   = VALUES(updated_cname), 
-                                logs            = VALUES(logs), 
-                                updated_at      = NOW()");
-                $values = [];
-                $params = [];
-                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
-            
-                $age = $current_year = date('Y');
-                $new_check_list_in = [];
-                $new_check_list_out = [];
-                $new_form = [];
-
-                foreach ($parm_array as $parm_i) {
-                    $parm_i_arr = (array) $parm_i; 
-                    $dept_no = $parm_i_arr["dept_no"];
-                    $sub_scope = $parm_i_arr["emp_sub_scope"];
-                    
-                    $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
-                    $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
-            
-                    if (!empty($parm_i_arr["shCase"])) {
-                        array_push($new_check_list_in[$dept_no], $parm_i_arr["emp_id"]);
-                    } else {
-                        array_push($new_check_list_out[$dept_no], $parm_i_arr["emp_id"]);
-                    }
-                }
-
-                if (!empty($new_check_list_in)) {
-                    foreach ($new_check_list_in as $new_check_deptNo => $new_check_valueArr) {
-                        $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
-                        if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope])) {
-                            $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
-                            // 如果資料存在則更新
-                            if ($row_data) {
-                                $row_check_list = json_decode($row_data["check_list"], true) ?? [];
-                                // 使用 array_merge() 將兩個陣列合併。 使用 array_unique() 去除重複值。
-                                $new_form[$new_check_deptNo]["check_list"] = array_unique(array_merge($new_check_valueArr, $row_check_list)); 
-                            } 
-                            // 若不存在，可以考慮直接進行插入
-                            else {
-                                $new_form[$new_check_deptNo]["check_list"] = $new_check_valueArr;
-                            }
-                        }
-                             
-                        $result = showSignCode($new_check_deptNo);
-                        $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
-            
-                        // 防呆，使用預設值
-                        $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
-                        $in_sign     = $in_sign     ?? "in_sign";  
-                        $in_signName = $in_signName ?? "in_signName";  
-                        $idty        = $idty        ?? 4;  
-                        $flow        = $flow        ?? "flow";  
-                        $flow_remark = $flow_remark ?? "flow_remark";  
-                        $_content    = $_content    ?? [];  
-                        $logs        = $logs        ?? [];  
-            
-                        $check_list_str = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
-                        $_content_str   = json_encode($_content, JSON_UNESCAPED_UNICODE);
-                        $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
-
-                        // 準備 SQL 和參數
-                        $values[] = "(?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
-                        $params = array_merge($params, [
-                            $uuid, $age, $new_check_deptNo, $sub_scope, $new_form[$new_check_deptNo]["omager"],
-                            $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark, $_content_str,
-                            $auth_emp_id, $auth_cname, $auth_cname, $logs_str
-                        ]);
-                    }
-                }
-                
-                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
-                $stmt = $pdo->prepare($sql);
-
-                if (executeQuery($stmt, $params)) {
-                    // 製作返回文件
-                    $swal_json["action"] = "success";
-                    $swal_json["content"] .= '送審成功';
-                    $result = [
-                        'result_obj' => $swal_json,
-                        'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.'
-                    ];
-                } else {
-                    $swal_json["action"] = "error";
-                    $swal_json["content"] .= '送審失敗';
-                    $result = [
-                        'result_obj' => $swal_json,
-                        'fun'        => $fun,
-                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
-                    ];
-                }
-            break;
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",
@@ -495,10 +367,143 @@
                     ];
                 }
             break;
-            case 'load_document':   // 241212 取得_document送審清單
+
+            // 241211 送嬸
+            case 'storeForReview':  
+                require_once("../user_info.php");
+                $pdo = pdo();
+                $swal_json = [
+                    "fun" => "storeForReview",
+                    "content" => "批次送審名單--"
+                ];
+                
+                function showSignCode($request) {
+                    $pdo_hrdb = pdo_hrdb();
+                    $sql = "SELECT DEPT08.* FROM HCM_VW_DEPT08 DEPT08 WHERE DEPT08.OSHORT = ?";
+                    $stmt = $pdo_hrdb->prepare($sql);
+                    try {
+                        $stmt->execute([$request]);
+                        return $stmt->fetch(PDO::FETCH_ASSOC);
+                    } catch (PDOException $e) {
+                        error_log($e->getMessage());
+                        return null; // 返回null以便檢查
+                    }
+                }
+
+                // 定義SQL語句常量
+                // define('SQL_SELECT_DOC', "SELECT * FROM ( SELECT *, SUBSTRING_INDEX(uuid, ',', 1) AS _age,
+                //                                             SUBSTRING_INDEX(SUBSTRING_INDEX(uuid, ',', 2), ',', -1) AS _dept_no, SUBSTRING_INDEX(uuid, ',', -1) AS _sub_scope
+                //                                         FROM `_document` ) AS subquery 
+                //                           WHERE _age = ? AND _dept_no = ? AND _sub_scope = ? "); // 這用在分拆uuid成獨立欄位進行篩選
+                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
+                define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
+                                check_list      = VALUES(check_list), 
+                                in_sign         = VALUES(in_sign), 
+                                in_signName     = VALUES(in_signName), 
+                                idty            = VALUES(idty), 
+                                flow            = VALUES(flow), 
+                                flow_remark     = VALUES(flow_remark), 
+                                _content        = VALUES(_content), 
+                                updated_cname   = VALUES(updated_cname), 
+                                logs            = VALUES(logs), 
+                                updated_at      = NOW()");
+                $values = [];
+                $params = [];
+                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
+            
+                $age = $current_year = date('Y');
+                $new_check_list_in = [];
+                $new_check_list_out = [];
+                $new_form = [];
+
+                foreach ($parm_array as $parm_i) {
+                    $parm_i_arr = (array) $parm_i; 
+                    $dept_no = $parm_i_arr["dept_no"];
+                    $emp_dept = $parm_i_arr["emp_dept"];
+                    $sub_scope = $parm_i_arr["emp_sub_scope"];
+                    
+                    $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
+                    $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
+            
+                    if (!empty($parm_i_arr["shCase"])) {
+                        array_push($new_check_list_in[$dept_no], $parm_i_arr["emp_id"]);
+                    } else {
+                        array_push($new_check_list_out[$dept_no], $parm_i_arr["emp_id"]);
+                    }
+                }
+
+                if (!empty($new_check_list_in)) {
+                    foreach ($new_check_list_in as $new_check_deptNo => $new_check_valueArr) {
+                        $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                        if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope])) {
+                            $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+                            // 如果資料存在則更新
+                            if ($row_data) {
+                                $row_check_list = json_decode($row_data["check_list"], true) ?? [];
+                                // 使用 array_merge() 將兩個陣列合併。 使用 array_unique() 去除重複值。
+                                $new_form[$new_check_deptNo]["check_list"] = array_unique(array_merge($new_check_valueArr, $row_check_list)); 
+                            } 
+                            // 若不存在，可以考慮直接進行插入
+                            else {
+                                $new_form[$new_check_deptNo]["check_list"] = $new_check_valueArr;
+                            }
+                        }
+                             
+                        $result = showSignCode($new_check_deptNo);
+                        $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
+            
+                        // 防呆，使用預設值
+                        $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
+                        $in_sign     = $in_sign     ?? "in_sign";  
+                        $in_signName = $in_signName ?? "in_signName";  
+                        $idty        = $idty        ?? 4;  
+                        $flow        = $flow        ?? "flow";  
+                        $flow_remark = $flow_remark ?? "flow_remark";  
+                        $_content    = $_content    ?? [];  
+                        $logs        = $logs        ?? [];  
+            
+                        $check_list_str = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
+                        $_content_str   = json_encode($_content, JSON_UNESCAPED_UNICODE);
+                        $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
+
+                        // 準備 SQL 和參數
+                        $values[] = "(?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
+                        $params = array_merge($params, [
+                            $uuid, $age, $new_check_deptNo, $emp_dept, $sub_scope, $new_form[$new_check_deptNo]["omager"],
+                            $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark, $_content_str,
+                            $auth_emp_id, $auth_cname, $auth_cname, $logs_str
+                        ]);
+                    }
+                }
+                
+                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
+                $stmt = $pdo->prepare($sql);
+
+                if (executeQuery($stmt, $params)) {
+                    // 製作返回文件
+                    $swal_json["action"] = "success";
+                    $swal_json["content"] .= '送審成功';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $swal_json["action"] = "error";
+                    $swal_json["content"] .= '送審失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
+            break;
+            // 241212 取得_document送審清單
+            case 'load_document':
                 $pdo = pdo();
                 $year = $year ?? date('Y');
-                $sql = "SELECT id, uuid, age, dept_no, sub_scope, check_list, idty FROM `_document` WHERE age = '{$year}' ";
+                $sql = "SELECT id, uuid, age as year_key, sub_scope as emp_sub_scope, dept_no, emp_dept, check_list, idty FROM `_document` WHERE age = '{$year}' ";
 
                 $stmt = $pdo->prepare($sql);
                 if (executeQuery($stmt, '')) {

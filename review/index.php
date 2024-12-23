@@ -44,12 +44,12 @@
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
 
         // p1
-        $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
-        $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
+        // $doc_deptNos = load_doc_deptNos();                                        // step1.取得存檔員工的部門代號
+        // $doc_deptNos_str = json_encode($doc_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
+        // $doc_deptNos_str = trim($doc_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
 
         // echo "<pre>";
-        // print_r($staff_deptNos);
+        // print_r($doc_deptNos);
         // echo "</pre>";
 
     include("../template/header.php"); 
@@ -164,7 +164,7 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取送審名單</button>
                             <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-check"></i> 審核特檢名單</button>
                         </div>
                     </nav>
@@ -176,21 +176,19 @@
                         <div class="col-12 bg-white">
                             <!-- step-0 資料交換 -->
                             <div class="unblock" id="row_emp_sub_scope">
-                                <!-- 1-1.放原始 staff_deptNos_str 已存檔之部門代號 -->
-                                <?php echo $staff_deptNos_str;?>
+                                <!-- 1-1.放原始 doc_deptNos_str 已存檔之部門代號 -->
+                                <!-- <php echo $doc_deptNos_str;?> -->
                             </div>
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
                                     <div class="col-9 col-md-10">
-                                        <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap for="deptNo_opts" class="form-label"><h5>審查名單：</h5></snap>
                                     </div>
                                     <div class="col-3 col-md-2 text-end">
-                                        <button type="button" id="load_deptNo_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取存檔資料</button>
-                                        <div class='invalid-feedback pt-0' id='load_deptNo_btn_feedback'>* 請先勾選部門代號至少一項 !! </div>
                                     </div>
                                 </div>
-                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control is-invalid">
+                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control">
                                     <div id="deptNo_opts_inside" class="row">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 
@@ -208,7 +206,6 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="review_myForm" method="post" action="../_Format/download_excel.php">
@@ -216,7 +213,6 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" disabled ><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">
@@ -279,7 +275,6 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="shCondition"         >特檢資格</th>
                                         <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
                                         <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >檢查項目</th>
@@ -436,10 +431,10 @@
     var download_excel_btn  = document.getElementById('download_excel_btn');   // 下載按鈕
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');   // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');         // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+    var editModal_btn       = document.getElementById('edit_modal_btn');       // 編輯更新ShCondition按鈕
 
-    var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
-    var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
+    // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
+    // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
 
     var staff_inf        = [];
@@ -449,9 +444,11 @@
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
     const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
+    // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
+    // const deptNosObj = <=json_decode($doc_deptNos)?>;
+    // console.log('deptNosObj...', deptNosObj);
 
-    const sys_role = '<?=$sys_role?>';
+    const sys_role    = '<?=$sys_role?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份
     const preYear     = String(currentYear - 1);                            // 取得去年年份
 

@@ -83,15 +83,15 @@
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();
-            $staff_dept_nos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $staff_dept_nos_arr = [];
-            foreach($staff_dept_nos as $dept_no_i){
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["OSTEXT"]           = $dept_no_i["emp_dept"];
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["_count"]           = $dept_no_i["_count"];
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["shCaseNotNull"]    = $dept_no_i["shCaseNotNull"];
-                $staff_dept_nos_arr[$dept_no_i["emp_sub_scope"]][$dept_no_i["dept_no"]]["shCaseNotNull_pc"] = $dept_no_i["shCaseNotNull_pc"];
+            $staff_deptNos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $staff_deptNos_arr = [];
+            foreach($staff_deptNos as $deptNo_i){
+                $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]           = $deptNo_i["emp_dept"];
+                $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_count"]           = $deptNo_i["_count"];
+                $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
+                $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
             }
-            return $staff_dept_nos_arr;
+            return $staff_deptNos_arr;
         }catch(PDOException $e){
             echo $e->getMessage();
         }
