@@ -17,7 +17,7 @@
                 const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
                 $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
 
-                const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
+                // const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
                 
                 // 241203 這裡要加上原本已選的項目...做不到
                 // const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked'));
@@ -31,15 +31,15 @@
             resolve();
         });
     }
-        // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeHE_CATEmode(){
-            const isHECate = sys_role <= 3 && _docsIdty_inf < 4;
-            const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
-                tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
-            });
-        }
+    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeHE_CATEmode(){
+        const isHECate = sys_role <= 3 && _docsIdty_inf < 4;
+        const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
+            tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
+        });
+    }
 
     
     // 241121 建立shCondition監聽功能 for 編輯
@@ -156,15 +156,15 @@
             resolve();
         });
     }
-        // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeShConditionMode(){
-            const isShCondition = sys_role <= 3 && _docsIdty_inf < 4;
-            const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
-                tdItem.classList.toggle(isShCondition ? 'xshCondition' : 'shCondition');
-            });
-        }
+    // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeShConditionMode(){
+        const isShCondition = sys_role <= 3 && _docsIdty_inf < 4;
+        const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
+            tdItem.classList.toggle(isShCondition ? 'xshCondition' : 'shCondition');
+        });
+    }
 
 
     // 241121 建立yearHe監聽功能 for 編輯
@@ -212,30 +212,30 @@
             resolve();
         });
     }
-        // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeYearHeMode(){
-            const isYearHe = sys_role <= 3 && _docsIdty_inf < 4 ;
-            const targetCate = document.querySelectorAll(isYearHe ? '.xyearHe' : '.yearHe');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isYearHe ? 'yearHe'  : 'xyearHe');
-                tdItem.classList.toggle(isYearHe ? 'xyearHe' : 'yearHe');
-            });
-        }
-        function post_heCate(heCate_str) {
-            return new Promise((resolve) => {
-                const heCate_arr = JSON.parse(heCate_str);
-                let tr = `<div class="col-12 text-start px-5">`;
-                for (const [key, value] of Object.entries(heCate_arr)) {
-                    tr += `<div class="form-check form-check-inline">`;
-                    tr += `<input name="heCate[]" id="${key}" value="${key}:${value}" type="checkbox" class="form-check-input" ` // + (sh_value ? 'checked' : '');
-                    tr += ` ><label class="form-check-label" for="${key}">${key}&nbsp;:&nbsp;${value}</label></div><br>`;
-                }
-                tr += `</div>`;
-                $('#edit_modal .modal-body').empty().append(tr);             // 清空tbody
-                
-                resolve();
-            });
-        }
+    // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changeYearHeMode(){
+        const isYearHe = sys_role <= 3 && _docsIdty_inf < 4 ;
+        const targetCate = document.querySelectorAll(isYearHe ? '.xyearHe' : '.yearHe');  
+        targetCate.forEach(tdItem => {
+            tdItem.classList.toggle(isYearHe ? 'yearHe'  : 'xyearHe');
+            tdItem.classList.toggle(isYearHe ? 'xyearHe' : 'yearHe');
+        });
+    }
+    function post_heCate(heCate_str) {
+        return new Promise((resolve) => {
+            const heCate_arr = JSON.parse(heCate_str);
+            let tr = `<div class="col-12 text-start px-5">`;
+            for (const [key, value] of Object.entries(heCate_arr)) {
+                tr += `<div class="form-check form-check-inline">`;
+                tr += `<input name="heCate[]" id="${key}" value="${key}:${value}" type="checkbox" class="form-check-input" ` // + (sh_value ? 'checked' : '');
+                tr += ` ><label class="form-check-label" for="${key}">${key}&nbsp;:&nbsp;${value}</label></div><br>`;
+            }
+            tr += `</div>`;
+            $('#edit_modal .modal-body').empty().append(tr);             // 清空tbody
+            
+            resolve();
+        });
+    }
 
     // p2-3. 監控按下[更新]]鍵後----自編輯modal資料載入更新
     editModal_btn.addEventListener('click', async function() {
@@ -262,90 +262,90 @@
         edit_modal.hide();
     })
    
-        function edit_shCondition_submit(empId) {
-            return new Promise((resolve) => {
-                let result = {};        // 初始化結果物件
-                let editModal_tbody = document.querySelector('#edit_modal_table tbody');    // 定義table範圍
-                // 遍歷每一列
-                editModal_tbody.querySelectorAll('tr').forEach(row => {
-                    let cells = row.querySelectorAll('td');             // 取得該列的所有儲存格
-                    if (cells.length === 3) {                           // 確保有兩個儲存格（item 和 value）
-                        let key = cells[0].textContent.trim();          // 第 0 個儲存格的值
-                        // let item = cells[1].textContent.trim();         // 第 1 個儲存格的值
-                        // let cell  = cells[2].querySelector('input');    // 第 2 個儲存格的type
-                        let cell;    // 第 2 個儲存格的type
-                        // let input_value = cells[1].querySelector('input').value.trim(); // 第 2 個儲存格的值
-                        let input_value; // 第 2 個儲存格的值
-        
-                        if(key == 'newOne' || key == 'noise') {
-                            cell = cells[2].querySelector('input');    // 第 2 個儲存格的type
-                            input_value = cell.checked;
-        
-                        } else {
-                            cell = Array.from(cells[2].querySelectorAll('input'));    // 第 2 個儲存格的type
-                            for (const cell_i of cell) {
-                                let br = input_value != '' ? ';' : '';
-                                if (cell_i.id.includes(`other`) && cell_i.checked) {
-                                    input_value += cell_i.checked ? br + cell_i.value : '';
-                                    // 這裡需要修正.....
-                                } else {
-                                    input_value += cell_i.checked ? br + cell_i.value : '';
-                                }
+    function edit_shCondition_submit(empId) {
+        return new Promise((resolve) => {
+            let result = {};        // 初始化結果物件
+            let editModal_tbody = document.querySelector('#edit_modal_table tbody');    // 定義table範圍
+            // 遍歷每一列
+            editModal_tbody.querySelectorAll('tr').forEach(row => {
+                let cells = row.querySelectorAll('td');             // 取得該列的所有儲存格
+                if (cells.length === 3) {                           // 確保有兩個儲存格（item 和 value）
+                    let key = cells[0].textContent.trim();          // 第 0 個儲存格的值
+                    // let item = cells[1].textContent.trim();         // 第 1 個儲存格的值
+                    // let cell  = cells[2].querySelector('input');    // 第 2 個儲存格的type
+                    let cell;    // 第 2 個儲存格的type
+                    // let input_value = cells[1].querySelector('input').value.trim(); // 第 2 個儲存格的值
+                    let input_value; // 第 2 個儲存格的值
+    
+                    if(key == 'newOne' || key == 'noise') {
+                        cell = cells[2].querySelector('input');    // 第 2 個儲存格的type
+                        input_value = cell.checked;
+    
+                    } else {
+                        cell = Array.from(cells[2].querySelectorAll('input'));    // 第 2 個儲存格的type
+                        for (const cell_i of cell) {
+                            let br = input_value != '' ? ';' : '';
+                            if (cell_i.id.includes(`other`) && cell_i.checked) {
+                                input_value += cell_i.checked ? br + cell_i.value : '';
+                                // 這裡需要修正.....
+                            } else {
+                                input_value += cell_i.checked ? br + cell_i.value : '';
                             }
-                            input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
                         }
-                        result[key] = input_value; // 存入結果物件
-                    }else{
-                        return;
+                        input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
                     }
-                });
-                // 進行強迫排序
-                let sort_item = ['newOne', 'noise', 'regular', 'change'];
-                let sorted_result = {};
-                for (const sortKey of sort_item) {
-                    if((result[sortKey] !== undefined) || (result[sortKey] == false)){
-                        sorted_result[sortKey] = result[sortKey];
-                    }
+                    result[key] = input_value; // 存入結果物件
+                }else{
+                    return;
                 }
-                // 回存empData
-                // step.1 取得工號&個人資料
-                const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                empData.shCondition = sorted_result;                   // 把資料帶入
-        
-                // 清除指定的shCondition欄位
-                document.getElementById(`shCondition,${empId},${currentYear}`).innerHTML = '';
-                // 更新資格驗證(1by1)
-                updateShCondition(empData.shCondition, empId, currentYear);
-
-                resolve();
             });
-        }
-        function edit_yearHe_submit(empId) {
-            return new Promise((resolve) => {
-                let result = {};        // 初始化結果物件
-                const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]')); // 定義table範圍
-                const selectedValues = heCate_arr.filter(cb => cb.checked).map(cb => cb.value);
-                const ObjectValues = JSON.stringify(selectedValues).replace(/[\[{"}\]]/g, '');
+            // 進行強迫排序
+            let sort_item = ['newOne', 'noise', 'regular', 'change'];
+            let sorted_result = {};
+            for (const sortKey of sort_item) {
+                if((result[sortKey] !== undefined) || (result[sortKey] == false)){
+                    sorted_result[sortKey] = result[sortKey];
+                }
+            }
+            // 回存empData
+            // step.1 取得工號&個人資料
+            const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
+            empData.shCondition = sorted_result;                   // 把資料帶入
+    
+            // 清除指定的shCondition欄位
+            document.getElementById(`shCondition,${empId},${currentYear}`).innerHTML = '';
+            // 更新資格驗證(1by1)
+            updateShCondition(empData.shCondition, empId, currentYear);
 
-                // 回存empData
-                // step.1 取得工號&個人資料
-                const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                // empData._content[`${currentYear}`]['import'] = {
-                //     'yearHe' : ObjectValues           
-                // }
-                // 採用淺拷貝的方式來合併物件
-                empData._content[`${currentYear}`]['import'] = Object.assign(
-                    {}, empData._content[`${currentYear}`]['import'], {
-                        'yearHe': ObjectValues      // 把資料帶入Object{物件}
-                    }
-                );
-        
-                // 清除指定的yearHe欄位並更新
-                const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');
-                const targetDiv = document.getElementById(`${empData.cname},${empId},yearHe`);
-                targetDiv.innerHTML = '';
-                targetDiv.insertAdjacentHTML('beforeend', importItem_value);
+            resolve();
+        });
+    }
+    function edit_yearHe_submit(empId) {
+        return new Promise((resolve) => {
+            let result = {};        // 初始化結果物件
+            const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]')); // 定義table範圍
+            const selectedValues = heCate_arr.filter(cb => cb.checked).map(cb => cb.value);
+            const ObjectValues = JSON.stringify(selectedValues).replace(/[\[{"}\]]/g, '');
 
-                resolve();
-            });
-        }
+            // 回存empData
+            // step.1 取得工號&個人資料
+            const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
+            // empData._content[`${currentYear}`]['import'] = {
+            //     'yearHe' : ObjectValues           
+            // }
+            // 採用淺拷貝的方式來合併物件
+            empData._content[`${currentYear}`]['import'] = Object.assign(
+                {}, empData._content[`${currentYear}`]['import'], {
+                    'yearHe': ObjectValues      // 把資料帶入Object{物件}
+                }
+            );
+    
+            // 清除指定的yearHe欄位並更新
+            const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');
+            const targetDiv = document.getElementById(`${empData.cname},${empId},yearHe`);
+            targetDiv.innerHTML = '';
+            targetDiv.insertAdjacentHTML('beforeend', importItem_value);
+
+            resolve();
+        });
+    }

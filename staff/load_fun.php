@@ -21,7 +21,7 @@
             }
             return $parm_array;
         }
-        
+
     if(isset($_REQUEST['fun'])) {
         require_once("../pdo.php");
         extract($_REQUEST);
@@ -371,30 +371,15 @@
             // 241211 送嬸
             case 'storeForReview':  
                 require_once("../user_info.php");
+                require_once("load_function.php");
                 $pdo = pdo();
                 $swal_json = [
                     "fun" => "storeForReview",
                     "content" => "批次送審名單--"
                 ];
-                
-                function showSignCode($request) {
-                    $pdo_hrdb = pdo_hrdb();
-                    $sql = "SELECT DEPT08.* FROM HCM_VW_DEPT08 DEPT08 WHERE DEPT08.OSHORT = ?";
-                    $stmt = $pdo_hrdb->prepare($sql);
-                    try {
-                        $stmt->execute([$request]);
-                        return $stmt->fetch(PDO::FETCH_ASSOC);
-                    } catch (PDOException $e) {
-                        error_log($e->getMessage());
-                        return null; // 返回null以便檢查
-                    }
-                }
 
-                // 定義SQL語句常量
-                // define('SQL_SELECT_DOC', "SELECT * FROM ( SELECT *, SUBSTRING_INDEX(uuid, ',', 1) AS _age,
-                //                                             SUBSTRING_INDEX(SUBSTRING_INDEX(uuid, ',', 2), ',', -1) AS _dept_no, SUBSTRING_INDEX(uuid, ',', -1) AS _sub_scope
-                //                                         FROM `_document` ) AS subquery 
-                //                           WHERE _age = ? AND _dept_no = ? AND _sub_scope = ? "); // 這用在分拆uuid成獨立欄位進行篩選
+                $reviewStep_arr = reviewStep();     // 取得reviewStep
+
                 define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
                 define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
@@ -435,7 +420,7 @@
 
                 if (!empty($new_check_list_in)) {
                     foreach ($new_check_list_in as $new_check_deptNo => $new_check_valueArr) {
-                        $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                        $stmt_select = $pdo->prepare(SQL_SELECT_DOC);   // 預先動作：找是否已經有送件
                         if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope])) {
                             $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                             // 如果資料存在則更新
@@ -447,22 +432,40 @@
                             // 若不存在，可以考慮直接進行插入
                             else {
                                 $new_form[$new_check_deptNo]["check_list"] = $new_check_valueArr;
+                                $action = "3";  // 送出
                             }
                         }
                              
-                        $result = showSignCode($new_check_deptNo);
+                        // 欄位數據整理：
+                        $idty        = $idty        ?? 4;                                                           // 4 = 各站點審核
+
+                        $flow        = $flow        ?? "各站點審核";  
+                        $flow_remark = $flow_remark ?? "上層主管,單位窗口,護理師";  
+
+                        $result = queryHrdb("showSignCode", $new_check_deptNo);                                     // 查詢signCode部門主管
                         $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
-            
+                        
+                        $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);              // 查詢部門主管簽核代理人
+                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? $result["OMAGER"]);  
+                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? $result["cname"]);  
+                        
                         // 防呆，使用預設值
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
-                        $in_sign     = $in_sign     ?? "in_sign";  
-                        $in_signName = $in_signName ?? "in_signName";  
-                        $idty        = $idty        ?? 4;  
-                        $flow        = $flow        ?? "flow";  
-                        $flow_remark = $flow_remark ?? "flow_remark";  
                         $_content    = $_content    ?? [];  
-                        $logs        = $logs        ?? [];  
-            
+
+                        // 製作log紀錄前處理：塞進去製作元素
+                        $logs_request = array (
+                            "idty"   => $idty,
+                            "step"   => $step,                  // 節點
+                            "cname"  => $updated_user." (".$updated_emp_id.")",
+                            "action" => $action,
+                            "logs"   => $row_data["logs"] ?? [],
+                            "remark" => $sign_comm
+                        ); 
+                        // 呼叫toLog製作log檔
+                            $logs_enc = toLog($logs_request);
+
+                        // 重點打包
                         $check_list_str = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
                         $_content_str   = json_encode($_content, JSON_UNESCAPED_UNICODE);
                         $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);

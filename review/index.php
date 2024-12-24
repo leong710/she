@@ -106,7 +106,7 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover ,.shCondition:hover ,.yearHe:hover {
+        .shCondition:hover ,.yearHe:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -216,49 +216,7 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end" id="form_btn_div">
-                                    <?php
-                                        $receive_row = array(
-                                            'idty'     => '1',
-                                            'in_sign'  => '',
-                                            "flow"     => '',
-                                            "fab_id"   => '0',
-                                            'in_sign'  => '',
-                                        );
-                                        $sys_sfab_id = [];
-                                        $let_btn_s = '<button type="button" class="btn ';
-                                        $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#submitModal" value="';
-                                        $let_btn_e = '" onclick="submit_item(this.value, this.innerHTML);" disabled>';
-                                    
-                                        if( (($receive_row['idty'] == 1) && ($receive_row['in_sign'] == $auth_emp_id)) || $sys_role <= 3.5 ){ 
-                                            if(in_array($receive_row['idty'], [ 1 ])){ // 1.簽核中
-                                                echo $let_btn_s."btn-success".$let_btn_m."0".$let_btn_e."同意 (Approve)</button> ";
-                                                if( ($receive_row["flow"] != "forward")  ){  
-                                                    echo $let_btn_s."btn-info text-white".$let_btn_m."5".$let_btn_e."轉呈 (Forwarded)</button> ";
-                                                }
-                                            }
-                                        } 
-                                        if((in_array($receive_row['idty'], [ 1, 12 ])) && ((in_array($receive_row["fab_id"], $sys_sfab_id) && $sys_role <= 2 ) || ($receive_row['in_sign'] == $auth_emp_id))){ // 1.簽核中 12.待領
-                                            echo $let_btn_s."btn-danger".$let_btn_m."2".$let_btn_e."退回 (Reject)</button> ";
-                                        }
-                                        // 這裡取得發放權限 idty=12.待領、待收 => 13.交貨 (Delivery)
-                                            $receive_collect_role = (($receive_row['idty'] == 12) && ($receive_row['flow'] == 'collect') && (in_array($receive_row["fab_id"], $sys_sfab_id))); 
-                                            if($receive_collect_role){ 
-                                                echo $let_btn_s."btn-primary".$let_btn_m."13".$let_btn_e."交貨 (Delivery)</button> ";
-                                            }  
-                                        // 承辦+主管簽核選項 idty=13.交貨delivery => 11.承辦簽核 (Undertake)
-                                            $receive_delivery_role = ($receive_row['flow'] == 'PPEpm' && (in_array($auth_emp_id, $pm_emp_id_arr) || $sys_role <= 1));
-                                            if($receive_row['idty'] == 13 && $receive_delivery_role){  
-                                                echo $let_btn_s."btn-primary".$let_btn_m."11".$let_btn_e."承辦同意 (Approve)</button> ";
-                                            } 
-                                        // 承辦+主管簽核選項 idty=11.承辦簽核 => 10.結案 (Close)
-                                            if( $receive_row['idty'] == 11 && ( $receive_row['in_sign'] == $auth_emp_id || $sys_role <= 0 )){ 
-                                                echo $let_btn_s."btn-primary".$let_btn_m."10".$let_btn_e."主管同意 (Approve)</button> ";
-                                            } 
-                                        // 20240429 承辦退貨選項 idty=10.同意退貨 => 2.結案 (Close)
-                                        if( $receive_row['idty'] == 10 && ((in_array($receive_row["fab_id"], $sys_sfab_id)) && $sys_role <= 2 )){ 
-                                            echo $let_btn_s.'btn-danger" id="return_btn" onclick="return_the_goods()">退貨 (Return)</button> ';
-                                        }
-                                    ?>
+ 
                                 </div>
                             </div>
                             <hr>
@@ -270,7 +228,7 @@
                                         <th title="dept_no">部門代碼名稱</th>
                                         <th title="MONIT_LOCAL">工作場所</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="特殊作業"            >工作內容</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="HE_CATE 選擇特作項目" style="width: 90px;"><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別代號</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="HE_CATE 選擇特作項目" style="width: 90px;">檢查類別代號</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_VOL"             style="width: 50px;">A權音壓級(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
@@ -284,6 +242,36 @@
                                 <tbody>
                                 </tbody>
                             </table>
+                        </div>
+                        <hr>
+                        <!-- 尾段logs訊息 -->
+                        <div id="logs_div" class="col-12 pt-0 rounded bg-light unblock">
+                            <div class="row">
+                                <div class="col-6 col-md-6">
+                                    表單記錄：
+                                </div>
+                                <div class="col-6 col-md-6">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 py-1 px-4">
+                                    <table class="for-table logs table table-sm table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Step</th>
+                                                <th>Signer</th>
+                                                <th>Time Signed</th>
+                                                <th>Status</th>
+                                                <th>Comment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div style="font-size: 12px;" class="text-end">
+                                    logs-end
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -440,6 +428,9 @@
     var staff_inf        = [];
     var shLocal_inf      = [];
     var loadStaff_tmp    = [];
+
+    var _docsIdty_inf   = '';
+    var _docsInsign_inf = [];
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
@@ -449,6 +440,7 @@
     // console.log('deptNosObj...', deptNosObj);
 
     const sys_role    = '<?=$sys_role?>';
+    const auth_emp_id = '<?=$auth_emp_id?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份
     const preYear     = String(currentYear - 1);                            // 取得去年年份
 

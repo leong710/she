@@ -1,38 +1,38 @@
     // [p2 函數] 建立監聽~shLocalTable的HE_CATE td for p-2特作欄位 // 檢查類別代號 開啟 importShLocal_modal
-    let HECateClickListener;
-    async function reload_HECateTable_Listeners() {
-        return new Promise((resolve) => {
-            const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
-            // 檢查並移除已經存在的監聽器
-            if (HECateClickListener) {
-                HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                })
-            }
-            // 定義新的監聽器函數
-            HECateClickListener = function () {
-                const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-                const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
-                $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
-                importShLocal_modal.show();                             // 顯示互動視窗
-            }
-            // 添加新的監聽器
-            HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
-            })
-            resolve();
-        });
-    }
-        // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeHE_CATEmode(){
-            const isHECate = sys_role <= 3;
-            const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
-            targetCate.forEach(tdItem => {
-                tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
-                tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
-            });
-        }
+    // let HECateClickListener;
+    // async function reload_HECateTable_Listeners() {
+    //     return new Promise((resolve) => {
+    //         const HECate = document.querySelectorAll('[class="HE_CATE"]');      //  定義出範圍
+    //         // 檢查並移除已經存在的監聽器
+    //         if (HECateClickListener) {
+    //             HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+    //                 tdItem.removeEventListener('click', HECateClickListener);   // 將每一個tdItem移除監聽, 當按下click
+    //             })
+    //         }
+    //         // 定義新的監聽器函數
+    //         HECateClickListener = function () {
+    //             const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+    //             const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+    //             const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
+    //             $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
+    //             importShLocal_modal.show();                             // 顯示互動視窗
+    //         }
+    //         // 添加新的監聽器
+    //         HECate.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+    //             tdItem.addEventListener('click', HECateClickListener);      // 將每一個tdItem增加監聽, 當按下click
+    //         })
+    //         resolve();
+    //     });
+    // }
+    // // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    // function changeHE_CATEmode(){
+    //     const isHECate = sys_role <= 3 && _docsIdty_inf < 4;
+    //     const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
+    //     targetCate.forEach(tdItem => {
+    //         tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
+    //         tdItem.classList.toggle(isHECate ? 'xHE_CATE' : 'HE_CATE');
+    //     });
+    // }
 
 
     // 241121 建立shCondition監聽功能 for 編輯
@@ -131,11 +131,7 @@
                                     tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
                                 }
                             }
-                            // // 生成 其他 的輸入項目
-                            // tr += `<div class="form-check form-check-inline">`;
-                            // tr += `<input name="${sh_key}[]" id="${sh_key},other" type="checkbox" class="form-check-input" >`; 
-                            // tr += `<input type="text" class="form-check-label" placeholder="其他" name="${sh_key}[]" id="${sh_key},otherValue"></div>`;
-
+    
                             tr += `</td></tr>`
                             break;
                         default:
@@ -155,7 +151,7 @@
     }
         // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
         function changeShConditionMode(){
-            const isShCondition = sys_role <= 3;
+            const isShCondition = sys_role <= 3 && _docsIdty_inf < 4;
             const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
             targetCate.forEach(tdItem => {
                 tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
@@ -209,8 +205,8 @@
         });
     }
         // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
-        function changeyearHeMode(){
-            const isYearHe = sys_role <= 3;
+        function changeYearHeMode(){
+            const isYearHe = sys_role <= 3 && _docsIdty_inf < 4 ;
             const targetCate = document.querySelectorAll(isYearHe ? '.xyearHe' : '.yearHe');  
             targetCate.forEach(tdItem => {
                 tdItem.classList.toggle(isYearHe ? 'yearHe'  : 'xyearHe');
@@ -326,7 +322,13 @@
                 // 回存empData
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                empData._content[`${currentYear}`]['import']['yearHe'] = ObjectValues;                   // 把資料帶入
+                // empData._content[`${currentYear}`]['import']['yearHe'] = ObjectValues;                   // 把資料帶入
+                // 採用淺拷貝的方式來合併物件
+                empData._content[`${currentYear}`]['import'] = Object.assign(
+                    {}, empData._content[`${currentYear}`]['import'], {
+                        'yearHe': ObjectValues      // 把資料帶入Object{物件}
+                    }
+                );
         
                 // 清除指定的yearHe欄位並更新
                 const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');
