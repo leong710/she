@@ -42,12 +42,20 @@
         // load 審查作業步驟json
         function reviewStep() {
             $reviewStep_file = "../review/reviewStep.json";
+            $reviewStep_arr = [];
+
             if(file_exists($reviewStep_file)){
-                $reviewStep_json = file_get_contents($reviewStep_file);         // 从 JSON 文件加载内容
-                $reviewStep_arr = (array) json_decode($reviewStep_json, true);  // 解析 JSON 数据并将其存储在 $form_a_json 变量中 // 如果您想将JSON解析为关联数组，请传入 true，否则将解析为对象
-            }else{
-                $reviewStep_arr = [];
+                $reviewStep_json = file_get_contents($reviewStep_file); // 从JSON文件加载内容
+                // 嘗試解碼 JSON，並檢查是否成功
+                $decoded_data = json_decode($reviewStep_json, true);    // 解析JSON数据并将其存储在$变量中，如果想解析为陣列，请传入true，否则将解析为物件
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $reviewStep_arr = $decoded_data;                    // 直接賦值
+                } else {
+                    // 處理 JSON 解碼錯誤，您可以在這裡記錄錯誤或拋出異常
+                    // error_log('JSON Error: ' . json_last_error_msg());
+                }
             }
+
             return $reviewStep_arr;
         }
                 

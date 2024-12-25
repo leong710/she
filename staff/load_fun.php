@@ -398,9 +398,11 @@
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
             
                 $age = $current_year = date('Y');
-                $new_check_list_in = [];
+                $new_check_list_in  = [];
                 $new_check_list_out = [];
-                $new_form = [];
+                $new_form           = [];
+
+                $reviewStep_arr = reviewStep(); // 取得reviewStep
 
                 foreach ($parm_array as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
@@ -456,11 +458,11 @@
                         // 製作log紀錄前處理：塞進去製作元素
                         $logs_request = array (
                             "idty"   => $idty,
-                            "step"   => $step,                  // 節點
-                            "cname"  => $updated_user." (".$updated_emp_id.")",
-                            "action" => $action,
-                            "logs"   => $row_data["logs"] ?? [],
-                            "remark" => $sign_comm
+                            "step"   => $step ?? '名單送審',                  // 節點
+                            "cname"  => $auth_cname." (".$auth_emp_id.")",
+                            "action" => $action ?? '3',
+                            "logs"   => $row_data["logs"] ?? "",
+                            "remark" => $sign_comm ?? 'sign_comm'
                         ); 
                         // 呼叫toLog製作log檔
                             $logs_enc = toLog($logs_request);
@@ -468,14 +470,14 @@
                         // 重點打包
                         $check_list_str = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
                         $_content_str   = json_encode($_content, JSON_UNESCAPED_UNICODE);
-                        $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
+                        // $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
 
                         // 準備 SQL 和參數
                         $values[] = "(?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
                         $params = array_merge($params, [
                             $uuid, $age, $new_check_deptNo, $emp_dept, $sub_scope, $new_form[$new_check_deptNo]["omager"],
                             $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark, $_content_str,
-                            $auth_emp_id, $auth_cname, $auth_cname, $logs_str
+                            $auth_emp_id, $auth_cname, $auth_cname, $logs_enc
                         ]);
                     }
                 }

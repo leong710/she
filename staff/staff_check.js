@@ -248,7 +248,7 @@
 
                     // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
                         // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
-                    // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+                    empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
 
                 // } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
                     // if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}

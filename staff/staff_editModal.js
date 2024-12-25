@@ -42,7 +42,7 @@
     }
 
     
-    // 241121 建立shCondition監聽功能 for 編輯
+    // 241121 建立shCondition監聽功能 for 編輯 = [特檢資格]
     let shConditionClickListener;
     async function reload_shConditionTable_Listeners() {
         return new Promise((resolve) => {
@@ -82,7 +82,7 @@
                 // 取得 匯入一
                 const currentYear_yearHe = _content[currentYear] != undefined ? ( _content[currentYear]['import'] != undefined ? _content[currentYear]['import']['yearHe'] : null) : null;
                 // step.2_1 轉換成物件
-                if(currentYear_yearHe != null) {
+                if(currentYear_yearHe != null && currentYear_yearHe != '') {
                     const currentYear_yearHe_obj = currentYear_yearHe.split(',').reduce((obj, pair) => {
                         const [key, value] = pair.split(':'); // 使用 ":" 分割鍵和值
                         obj[key] = value; // 將鍵值對加入物件中
@@ -167,7 +167,7 @@
     }
 
 
-    // 241121 建立yearHe監聽功能 for 編輯
+    // 241121 建立yearHe監聽功能 for 編輯 = [項目類別代號]
     let yearHeClickListener;
     async function reload_yearHeTable_Listeners() {
         return new Promise((resolve) => {
@@ -221,6 +221,7 @@
             tdItem.classList.toggle(isYearHe ? 'xyearHe' : 'yearHe');
         });
     }
+    
     function post_heCate(heCate_str) {
         return new Promise((resolve) => {
             const heCate_arr = JSON.parse(heCate_str);
@@ -285,12 +286,12 @@
                         cell = Array.from(cells[2].querySelectorAll('input'));    // 第 2 個儲存格的type
                         for (const cell_i of cell) {
                             let br = input_value != '' ? ';' : '';
-                            if (cell_i.id.includes(`other`) && cell_i.checked) {
+                            // if (cell_i.id.includes(`other`) && cell_i.checked) {
+                            //     input_value += cell_i.checked ? br + cell_i.value : '';
+                            //     // 這裡需要修正.....
+                            // } else {
                                 input_value += cell_i.checked ? br + cell_i.value : '';
-                                // 這裡需要修正.....
-                            } else {
-                                input_value += cell_i.checked ? br + cell_i.value : '';
-                            }
+                            // }
                         }
                         input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
                     }
@@ -311,7 +312,7 @@
             // step.1 取得工號&個人資料
             const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
             empData.shCondition = sorted_result;                   // 把資料帶入
-    
+            console.log('sorted_result:',sorted_result);
             // 清除指定的shCondition欄位
             document.getElementById(`shCondition,${empId},${currentYear}`).innerHTML = '';
             // 更新資格驗證(1by1)

@@ -245,7 +245,7 @@
                         </div>
                         <hr>
                         <!-- 尾段logs訊息 -->
-                        <div id="logs_div" class="col-12 pt-0 rounded bg-light unblock">
+                        <div id="logs_div" class="col-12 pt-0 rounded bg-light block">
                             <div class="row">
                                 <div class="col-6 col-md-6">
                                     表單記錄：

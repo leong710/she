@@ -444,6 +444,8 @@
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
 
+            console.log('loadStaff_arr...',loadStaff_arr);
+
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
             resolve();  // 當所有設置完成後，resolve Promise
@@ -490,6 +492,7 @@
                     </div>`;
                 $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
             }
+
             // step-2. 綁定deptNo_opts事件監聽器
             const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
             deptNo_btns.forEach(deptNo_btn => {
@@ -517,7 +520,9 @@
                     // bat_storeStaff_btn.disabled  = (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
                     // SubmitForReview_btn.disabled = (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
                     
-                        mk_form_btn(docDeptNo);
+                        mk_form_btn(docDeptNo);     // 建立簽核按鈕
+
+                        post_logs(_doc.logs);       // 鋪設文件歷程
 
                     $('#nav-p2-tab').tab('show');
                 });
@@ -533,6 +538,7 @@
             // p1-1. 取得_docs裡的所有部門代號，並生成btn
                 let parm = { _year : currentYear };
                 load_fun('load_doc_deptNos', JSON.stringify(parm), mk_deptNos_btn);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
@@ -551,15 +557,15 @@
         const btn_m = `" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
         const btn_e = `" onclick="submit_item(this.value, this.innerHTML);" disable>`;
     
-        const btn_0  = btn_s +"btn-success"         + btn_m +"0" + btn_e +"同意 (Approve)</button>";
-        const btn_5  = btn_s +"btn-info text-white" + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
-        const btn_2  = btn_s +"btn-danger"          + btn_m +"2" + btn_e +"退回 (Reject)</button>";
-        const btn_11 = btn_s +"btn-primary"         + btn_m +"11"+ btn_e +"承辦同意 (Approve)</button>";
-        const btn_10 = btn_s +"btn-primary"         + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
+        const btn_0  = btn_s +"btn-outline-success" + btn_m +"0" + btn_e +"同意 (Approve)</button>";
+        const btn_2  = btn_s +"btn-outline-danger"  + btn_m +"2" + btn_e +"退回 (Reject)</button>";
+        const btn_5  = btn_s +"btn-outline-info"    + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
+        const btn_11 = btn_s +"btn-outline-primary" + btn_m +"11"+ btn_e +"承辦同意 (Approve)</button>";
+        const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
 
         const formBtnDiv = document.getElementById("form_btn_div");
         formBtnDiv.innerHTML = "";
-        formBtnDiv.insertAdjacentHTML('beforeend', btn_0);
+        formBtnDiv.insertAdjacentHTML('beforeend', btn_0+'&nbsp;'+btn_5+'&nbsp;'+btn_2);
 
     }
     // 簽核類型渲染
@@ -569,7 +575,7 @@
         // idty=99 => return the goods
         // document.getElementById('action').value = (receive_row['idty'] == 10 && idty == 99 ) ? 'return' : 'sign';
         $('#idty_title').append(idty_title);
-        var forwarded_div = document.getElementById('forwarded');
+        const forwarded_div = document.getElementById('forwarded'); // 轉呈
         if(forwarded_div && (idty == 5)){
             forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
         }else{

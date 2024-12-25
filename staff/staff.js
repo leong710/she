@@ -159,6 +159,9 @@
 
             loadExcel_btn.disabled   = (_docsIdty_inf >= 4);  // 讓 新增 按鈕啟停
             importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
+
+            document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled = (_docsIdty_inf >= 4));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
+
             resolve();
         });
     }
@@ -221,7 +224,7 @@
         });
     }
     // p-2 當有輸入每日暴露時數eh_time時...
-    function change_eh_time(this_id, this_value){    // this.id, this.value
+    async function change_eh_time(this_id, this_value){    // this.id, this.value
         const this_id_arr = this_id.split(',')       // 分割this.id成陣列
         const select_empId = this_id_arr[1];         // 取出陣列1=emp_id
         const select_year  = this_id_arr[2];         // 取出陣列2=year
@@ -251,9 +254,10 @@
                 });
             }
             // 更新資格驗證(1by1)
-            // if (shCondition) {
-            //     updateShCondition(shCondition, select_empId, currentYear);
-            // }
+            if (shCondition) {
+                // await edit_shCondition_submit(select_empId);
+                updateShCondition(shCondition, select_empId, currentYear);
+            }
     }
     // p-2 批次儲存員工清單...
     async function bat_storeStaff(){
@@ -922,14 +926,9 @@
                         const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
                         const emp_sub_scope = thisId_arr[0];        // 取出陣列 0=emp_sub_scope
                         const dept_no       = thisId_arr[1];        // 取出陣列 1=dept_no
-                        const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.sub_scope == emp_sub_scope );
+                        const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.emp_sub_scope == emp_sub_scope );
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
-                    // if(_docsIdty_inf >= 4){
-                    //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
-                    //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
-                    // }
-                    // bat_storeStaff_btn.disabled  = (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-                    // SubmitForReview_btn.disabled = (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+
                     $('#nav-p2-tab').tab('show');
                 });
             });
@@ -943,11 +942,16 @@
             _docs_inf = _docs;      // 帶入inf
             _docs.forEach( _doc => {
                 if(_doc.idty >= 4){
-                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.sub_scope}[]"]`);
+                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
                     for (const [key, node_i] of Object.entries(deptNo_sups)) {
                         node_i.innerHTML = "(送審中)";
                     }
-                } 
+                } else if(_doc.idty == 2){
+                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
+                    for (const [key, node_i] of Object.entries(deptNo_sups)) {
+                        node_i.innerHTML = "(退回編輯)";
+                    }
+                }
             })
 
             resolve();      // 當所有設置完成後，resolve Promise
