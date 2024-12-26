@@ -441,6 +441,7 @@
 
     const sys_role    = '<?=$sys_role?>';
     const auth_emp_id = '<?=$auth_emp_id?>';
+    const auth_cname  = '<?=$auth_cname?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份
     const preYear     = String(currentYear - 1);                            // 取得去年年份
 

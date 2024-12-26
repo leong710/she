@@ -145,6 +145,16 @@
             .btn {
                 padding: 4px 4px;
             }
+            .cover {
+                width: 100%;
+                height: 100px;
+            }
+            .cover img{
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: left;
+            }
     </style>
 </head>
 <body>
@@ -370,12 +380,18 @@
     </div>
     <!-- canvas側欄 -->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
-        <div class="offcanvas-header">
-            <h5 id="offcanvasRightLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
+        <div class="offcanvas-header bg-light">
+            <h5 id="offcanvasRightLabel"><i class="fa-solid fa-clipboard-list"></i>&nbsp;個案備註&nbsp;<snap id="memoTitle"></snap></h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body">
+        <div class="offcanvas-body bg-white" id="memoBody">
             ...
+        </div>
+        <div class="modal-footer bg-light">
+            <div class="input-group">
+                <input type="text" class="form-control mb-0 bg-white" id="memoMsg" name="memoMsg" placeholder="請輸入文字訊息" required>
+                <button type="submit" class="btn btn-outline-primary add_btn"  id="postMemoMsg_btn" ><i class="fa-solid fa-paper-plane"></i>發送</button>
+            </div>
         </div>
     </div>
     <!-- canvas上側欄 -->
@@ -490,6 +506,8 @@
     const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
 
     const sys_role = '<?=$sys_role?>';
+    const auth_emp_id = '<?=$auth_emp_id?>';
+    const auth_cname  = '<?=$auth_cname?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份
     const preYear     = String(currentYear - 1);                            // 取得去年年份
 

@@ -334,11 +334,15 @@
 
                 tr1 += `<td class="">
                             <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
-                                + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
+                            + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
+                            // <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;
                             + `<div class="col-12 pt-1 pb-0 px-0" >
-                                <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;&nbsp;
-                                <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button></div>
-                            </td>`;
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn " value="${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
+                                    onclick="eraseStaff(this.value)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
+                                <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " value="${emp_i.cname},${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
+                                    onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
+                            </div>
+                        </td>`;
                 tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
                                                 
                 tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
@@ -577,6 +581,114 @@
         $("body").mLoading("hide");
     }
 
+    function memoModal(this_id){
+        // step.1 標題列顯示姓名工號
+        const this_id_arr = this_id.split(',')                  // 分割this.id成陣列
+        const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+        const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+        $('#memoTitle').empty().append(`(${this_id})`);         // 清空+填上工號
+
+        // step.2.1 取得個人今年的memo，並轉成陣列
+        const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+        const { _content } = empData;
+        const _memo = _content[`${currentYear}`]['memo'] !== undefined ? _content[`${currentYear}`]['memo'] : [];
+
+        const memoBody = document.getElementById('memoBody');
+        memoBody.innerHTML = '';
+
+        if(_memo.length !== 0){
+            let memoCard;
+            for (const [memo_index, memo_value] of Object.entries(_memo)) {
+                memoCard += mk_memoMsg(memo_index, memo_value);
+            }
+            // step.2.2 鋪設個人今年的memo
+            memoBody.insertAdjacentHTML('beforeend', memoCard);
+
+        }else{
+            memoBody.insertAdjacentHTML('beforeend', '<div class="col-12 t-center">-- 暫無訊息 --</div>');
+        }
+    }
+
+    function mk_memoMsg(_index, memo_i){
+        let memoCard = 
+            `<div class="card mb-3" style="max-width: 100%;" id="memo_i_${_index}">
+                <div class="row g-0">
+                    <div class="col-md-3 cover">
+                        <img src="../image/nurse.png" alt="小護士" class="img-thumbnail;" onerror="this.onerror=null; this.src='../image/lvl.png';">
+                    </div>
+                    <div class="col-md-9 card-body">
+                        <h5 class="card-title">${memo_i.cname}</h5>
+                        <p class="card-text">${memo_i.msg}</p>
+                        <p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p>
+                    </div>
+                </div>
+            </div>`;
+        return memoCard;
+    }
+
+    function post_memoMsg(){
+
+        // postMemoMsg_btn
+        // const { _cname } = empData;
+        // memoMsg
+    }
+
+    
+    // 241226 建立PostMemoMsg_btn監聽功能 for 編輯 = [個案備註]
+    let postMemoMsg_btnClickListener;
+    async function reload_postMemoMsg_btn_Listeners() {
+        return new Promise((resolve) => {
+            const postMemoMsg_btn = document.getElementById('postMemoMsg_btn');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (postMemoMsg_btnClickListener) {
+                postMemoMsg_btn.removeEventListener('click', postMemoMsg_btnClickListener);   // 將每一個tdItem移除監聽, 當按下click
+            }
+            // 定義新的監聽器函數
+            postMemoMsg_btnClickListener = async function () {
+                // step.1 標題列顯示姓名工號
+                // const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
+                // const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
+                // const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+                // const edit_fun    = 'yearHe';                      // 指定功能
+                // $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
+
+                const memoMsg_input = document.getElementById('memoMsg');
+                if(memoMsg_input.value.length == 0){
+                    alert("沒有MemoMsg內容...");
+                    return false;
+                }
+                //打包物件
+                const memoObj = {
+                    'cname'     : auth_cname,
+                    'msg'       : (memoMsg_input.value).trim(),
+                    'timeStamp' : getTimeStamp()
+                }
+
+                const memoCard = mk_memoMsg('n', memoObj)
+
+                // step.2.2 鋪設個人今年的memo
+                const memoBody = document.getElementById('memoBody');
+                memoBody.insertAdjacentHTML('beforeend', memoCard);
+                
+                memoMsg_input.value = '';
+
+                // *** 這裡要補上把訊息塞進去個人資料內...
+            }
+
+            // 添加新的監聽器
+            postMemoMsg_btn.addEventListener('click', postMemoMsg_btnClickListener);      // 將每一個tdItem增加監聽, 當按下click
+
+            resolve();
+        });
+    }
+
+    function getTimeStamp(){
+        var Today       = new Date();
+        const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        const thisTime  = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0') +':'+ String(Today.getSeconds()).padStart(2,'0');                           // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        const timeStamp = thisToday+' '+thisTime;
+        return timeStamp;
+    }
 
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
     // 240823 將匯入資料合併到shLocal_inf
@@ -742,7 +854,7 @@
     }
     // 240826 單筆刪除Staff資料
     async function eraseStaff(removeEmpId){
-        if(!confirm(`確認刪除此筆(${removeEmpId})資料？`)){
+        if(!confirm(`確認移除此筆(${removeEmpId})資料？`)){
             return;
         }else{
             // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
@@ -962,6 +1074,8 @@
         return new Promise((resolve) => {
             // p1. [通用]在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
+
+            reload_postMemoMsg_btn_Listeners();
 
             resolve();      // 當所有設置完成後，resolve Promise
         });

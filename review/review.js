@@ -440,11 +440,9 @@
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
             })
             staff_inf = loadStaff_arr;      // 套取staff的表單
-
+            // console.log('loadStaff_arr...',loadStaff_arr);
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
-
-            console.log('loadStaff_arr...',loadStaff_arr);
 
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
@@ -459,7 +457,7 @@
         return new Promise((resolve) => {
             // init
             _docs_inf = docDeptNo;      // 套取docs
-            console.log('_docs_inf:',_docs_inf);
+            // console.log('_docs_inf:',_docs_inf);
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(Object.entries(docDeptNo).length > 0){     // 判斷使否有長度值
