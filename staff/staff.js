@@ -582,6 +582,7 @@
         await reload_shLocalTable_Listeners();      // 重新建立監聽~shLocalTable的checkbox
         $("body").mLoading("hide");
     }
+    
     // 開啟memoModal的預設工作
     async function memoModal(this_id){
         // step.1 標題列顯示姓名工號
@@ -625,7 +626,6 @@
             resolve(memoCard);      // 當所有設置完成後，resolve Promise
         });
     }
-   
     // 241226 建立PostMemoMsg_btn監聽功能 for 編輯 = [個案備註]
     let postMemoMsg_btnClickListener;
     async function reload_postMemoMsg_btn_Listeners() {
@@ -682,12 +682,12 @@
         const timeStamp = thisToday+' '+thisTime;
         return timeStamp;
     }
-    // 自動捲動到底部
+    // memoModal自動捲動到底部
     function scrollToBottom() {
         var offcanvasBody = $('#offcanvasRight .offcanvas-body');
         offcanvasBody.scrollTop(offcanvasBody[0].scrollHeight);
     }
-
+    // 241227 建立eraseMemoCar_btn監聽功能 for 編輯 = [個案備註]
     let eraseMemoCarListener;
     function reload_eraseMemoCarListeners() {
         return new Promise((resolve) => {
@@ -741,12 +741,6 @@
 
             resolve();
         });
-    }
-
-    
-    function eraseMemoCard(){
-
-
     }
 
 

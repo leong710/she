@@ -137,6 +137,8 @@
 
             // loadExcel_btn.disabled   = (_docsIdty_inf >= 4);  // 讓 新增 按鈕啟停
             // importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
+            postMemoMsg_btn.disabled = (_docsIdty_inf >= 4);  // 讓 貼上備註 按鈕啟停
+
             resolve();
         });
     }
@@ -169,6 +171,13 @@
                 await updateShCondition(shCondition, select_empId, currentYear);
             }
     }
+    // p-2 處理審查工作...
+    async function storeForReview(){
+        const bat_storeStaff_value = staff_inf;
+        await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
+        await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
+        location.reload();
+    }
 
 
 // // phase 3 -- 渲染與鋪設
@@ -186,11 +195,15 @@
                 let tr1 = '<tr>';
                 const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
                 const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
-
+                const _content_memo   = emp_i._content[`${currentYear}`]['memo']   !== undefined ? emp_i._content[`${currentYear}`]['memo']   : [];
                 tr1 += `<td class="">
                             <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
                                 + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
-                            + `</td>`;
+                                + (_content_memo.length !== 0  ? `<div class="col-12 pt-1 pb-0 px-0" >
+                                    <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " value="${emp_i.cname},${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
+                                        onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
+                                </div>` : ``)
+                            +`</td>`;
                 tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
                                                 
                 tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
@@ -424,6 +437,50 @@
         // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
     }
 
+    // 開啟memoModal的預設工作
+    async function memoModal(this_id){
+        // step.1 標題列顯示姓名工號
+        $('#memoTitle').empty().append(`(${this_id})`);         // 清空+填上工號
+        const this_id_arr = this_id.split(',');                 // 分割this.id成陣列
+        const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+        postMemoMsg_btn.value = edit_empId;
+        // step.2 取得個人今年的memo，並轉成陣列
+        const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+        const { _content } = empData;
+        const _memo = _content[`${currentYear}`]['memo'] !== undefined ? _content[`${currentYear}`]['memo'] : [];
+        // step.3 取得memoBody
+        const memoBody = document.getElementById('memoBody');
+        memoBody.innerHTML = '';
+        // step.4 有memo筆數
+        if(_memo.length !== 0){
+            let memoCard = '';
+            for (const [memo_index, memo_value] of Object.entries(_memo)) {
+                memoCard += await mk_memoMsg(memo_index, memo_value);
+            }
+            // step.4.2 鋪設個人今年的memo
+            memoBody.insertAdjacentHTML('beforeend', memoCard);
+                scrollToBottom(); // 自動捲動到底部
+        }
+    }
+    // 生成單一memoCard
+    function mk_memoMsg(_index, memo_i){
+        return new Promise((resolve) => {
+            const memoCard = `<tr><td><div class="row g-0" id="memo_i_${_index}">
+                                <div class="col-md-3 p-1 cover rounded"><img src="../image/nurse.png" alt="小護士" class="img-thumbnail" onerror="this.onerror=null; this.src='../image/lvl.png';"></div>
+                                <div class="col-md-9 p-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h5 class="card-title mb-0" title="${memo_i.emp_id}" >${memo_i.cname}</h5>
+                                    </div>
+                                    <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
+            resolve(memoCard);      // 當所有設置完成後，resolve Promise
+        });
+    }
+    // memoModal自動捲動到底部
+    function scrollToBottom() {
+        var offcanvasBody = $('#offcanvasRight .offcanvas-body');
+        offcanvasBody.scrollTop(offcanvasBody[0].scrollHeight);
+    }
+
 
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
@@ -440,7 +497,7 @@
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
             })
             staff_inf = loadStaff_arr;      // 套取staff的表單
-            // console.log('loadStaff_arr...',loadStaff_arr);
+            console.log('loadStaff_arr...',loadStaff_arr);
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
 
