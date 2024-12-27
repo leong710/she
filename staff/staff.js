@@ -161,6 +161,8 @@
             importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
 
             document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled = (_docsIdty_inf >= 4));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
+            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_docsIdty_inf >= 4));     // 讓所有eraseStaff btn啟停 = 主要for已送審
+            postMemoMsg_btn.disabled = (_docsIdty_inf >= 4);  // 讓 貼上備註 按鈕啟停
 
             resolve();
         });
@@ -337,7 +339,7 @@
                             + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
                             // <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;
                             + `<div class="col-12 pt-1 pb-0 px-0" >
-                                <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn " value="${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
+                                <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn eraseStaff" value="${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
                                     onclick="eraseStaff(this.value)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
                                 <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " value="${emp_i.cname},${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
                                     onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
@@ -580,78 +582,60 @@
         await reload_shLocalTable_Listeners();      // 重新建立監聽~shLocalTable的checkbox
         $("body").mLoading("hide");
     }
-
-    function memoModal(this_id){
+    // 開啟memoModal的預設工作
+    async function memoModal(this_id){
         // step.1 標題列顯示姓名工號
-        const this_id_arr = this_id.split(',')                  // 分割this.id成陣列
-        const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-        const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
         $('#memoTitle').empty().append(`(${this_id})`);         // 清空+填上工號
-
-        // step.2.1 取得個人今年的memo，並轉成陣列
+        const this_id_arr = this_id.split(',');                 // 分割this.id成陣列
+        const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
+        postMemoMsg_btn.value = edit_empId;
+        // step.2 取得個人今年的memo，並轉成陣列
         const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
         const { _content } = empData;
         const _memo = _content[`${currentYear}`]['memo'] !== undefined ? _content[`${currentYear}`]['memo'] : [];
-
+        // step.3 取得memoBody
         const memoBody = document.getElementById('memoBody');
         memoBody.innerHTML = '';
-
+        // step.4 有memo筆數
         if(_memo.length !== 0){
-            let memoCard;
+            let memoCard = '';
             for (const [memo_index, memo_value] of Object.entries(_memo)) {
-                memoCard += mk_memoMsg(memo_index, memo_value);
+                memoCard += await mk_memoMsg(memo_index, memo_value);
             }
-            // step.2.2 鋪設個人今年的memo
+            // step.4.2 鋪設個人今年的memo
             memoBody.insertAdjacentHTML('beforeend', memoCard);
-
-        }else{
-            memoBody.insertAdjacentHTML('beforeend', '<div class="col-12 t-center">-- 暫無訊息 --</div>');
+                scrollToBottom(); // 自動捲動到底部
         }
-    }
+        
+        await reload_eraseMemoCarListeners();
 
+    }
+    // 生成單一memoCard
     function mk_memoMsg(_index, memo_i){
-        let memoCard = 
-            `<div class="card mb-3" style="max-width: 100%;" id="memo_i_${_index}">
-                <div class="row g-0">
-                    <div class="col-md-3 cover">
-                        <img src="../image/nurse.png" alt="小護士" class="img-thumbnail;" onerror="this.onerror=null; this.src='../image/lvl.png';">
-                    </div>
-                    <div class="col-md-9 card-body">
-                        <h5 class="card-title">${memo_i.cname}</h5>
-                        <p class="card-text">${memo_i.msg}</p>
-                        <p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p>
-                    </div>
-                </div>
-            </div>`;
-        return memoCard;
+        return new Promise((resolve) => {
+            const memoCard = `<tr><td><div class="row g-0" id="memo_i_${_index}">
+                                <div class="col-md-3 p-1 cover rounded"><img src="../image/nurse.png" alt="小護士" class="img-thumbnail" onerror="this.onerror=null; this.src='../image/lvl.png';"></div>
+                                <div class="col-md-9 p-1">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h5 class="card-title mb-0" title="${memo_i.emp_id}" >${memo_i.cname}</h5>
+                                        <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== auth_emp_id && sys_role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
+                                            + (memo_i.emp_id !== auth_emp_id && sys_role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
+                                    </div>
+                                    <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
+            resolve(memoCard);      // 當所有設置完成後，resolve Promise
+        });
     }
-
-    function post_memoMsg(){
-
-        // postMemoMsg_btn
-        // const { _cname } = empData;
-        // memoMsg
-    }
-
-    
+   
     // 241226 建立PostMemoMsg_btn監聽功能 for 編輯 = [個案備註]
     let postMemoMsg_btnClickListener;
     async function reload_postMemoMsg_btn_Listeners() {
         return new Promise((resolve) => {
-            const postMemoMsg_btn = document.getElementById('postMemoMsg_btn');      //  定義出範圍
             // 檢查並移除已經存在的監聽器
             if (postMemoMsg_btnClickListener) {
                 postMemoMsg_btn.removeEventListener('click', postMemoMsg_btnClickListener);   // 將每一個tdItem移除監聽, 當按下click
             }
             // 定義新的監聽器函數
             postMemoMsg_btnClickListener = async function () {
-                // step.1 標題列顯示姓名工號
-                // const this_id_arr = this.id.split(',')                  // 分割this.id成陣列
-                // const edit_cname  = this_id_arr[0];                     // 取出陣列0=cname
-                // const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
-                // const edit_fun    = 'yearHe';                      // 指定功能
-                // $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
-
                 const memoMsg_input = document.getElementById('memoMsg');
                 if(memoMsg_input.value.length == 0){
                     alert("沒有MemoMsg內容...");
@@ -660,28 +644,37 @@
                 //打包物件
                 const memoObj = {
                     'cname'     : auth_cname,
+                    'emp_id'    : auth_emp_id,
                     'msg'       : (memoMsg_input.value).trim(),
                     'timeStamp' : getTimeStamp()
                 }
 
-                const memoCard = mk_memoMsg('n', memoObj)
-
+                // *** 這裡要補上把訊息塞進去個人資料內...
+                const edit_empId = postMemoMsg_btn.value;
+                // 取得個人今年的memo，並轉成陣列
+                    const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+                    empData._content[`${currentYear}`]['memo'] = empData._content[`${currentYear}`]['memo'] ?? [];
+                    empData._content[`${currentYear}`]['memo'].push(memoObj);
+                    console.log('staff_inf =>', staff_inf);
+                // 生成完整memo
+                const memoCard_index = empData._content[`${currentYear}`]['memo'].length - 1;
+                const memoCard = await mk_memoMsg(memoCard_index, memoObj)
                 // step.2.2 鋪設個人今年的memo
                 const memoBody = document.getElementById('memoBody');
                 memoBody.insertAdjacentHTML('beforeend', memoCard);
-                
+                    scrollToBottom(); // 自動捲動到底部
                 memoMsg_input.value = '';
 
-                // *** 這裡要補上把訊息塞進去個人資料內...
-            }
+                await reload_eraseMemoCarListeners();
 
+            }
             // 添加新的監聽器
             postMemoMsg_btn.addEventListener('click', postMemoMsg_btnClickListener);      // 將每一個tdItem增加監聽, 當按下click
 
             resolve();
         });
     }
-
+    // 生成時間戳章 for memoCard
     function getTimeStamp(){
         var Today       = new Date();
         const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
@@ -689,6 +682,73 @@
         const timeStamp = thisToday+' '+thisTime;
         return timeStamp;
     }
+    // 自動捲動到底部
+    function scrollToBottom() {
+        var offcanvasBody = $('#offcanvasRight .offcanvas-body');
+        offcanvasBody.scrollTop(offcanvasBody[0].scrollHeight);
+    }
+
+    let eraseMemoCarListener;
+    function reload_eraseMemoCarListeners() {
+        return new Promise((resolve) => {
+            const eraseMemoCarBtns = document.querySelectorAll('#memoBody button[class*="eraseMemoCar_btn"]');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (eraseMemoCarListener) {
+                eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
+                    eraseBtn.removeEventListener('click', eraseMemoCarListener);   // 將每一個eraseBtn移除監聽, 當按下click
+                })
+            }
+            // 定義新的監聽器函數
+            eraseMemoCarListener = async function () {
+                // *** 把訊息移出去個人資料內...
+                const edit_empId = postMemoMsg_btn.value;
+                    // 取得個人今年的memo，並轉成陣列後進行splice移除...
+                    const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
+                    empData._content[`${currentYear}`]['memo'] = empData._content[`${currentYear}`]['memo'] ?? [];
+                    if(empData._content[`${currentYear}`]['memo'].length > 0){
+                        await empData._content[`${currentYear}`]['memo'].splice(this.value, 1);
+                        console.log('staff_inf =>', staff_inf);  
+                        
+                        // *** 把畫面上的訊息移除...
+                            // var element = document.getElementById(`memo_i_${this.value}`);
+                            // if (element) {
+                            //     element.parentNode.removeChild(element);
+                            // }
+                        // step.3 取得memoBody
+                        const memoBody = document.getElementById('memoBody');
+                        memoBody.innerHTML = '';
+                       
+                        const _memo = empData._content[`${currentYear}`]['memo'] ?? [];
+                        // step.4 有memo筆數
+                        if(_memo.length !== 0){
+                            let memoCard = '';
+                            for (const [memo_index, memo_value] of Object.entries(_memo)) {
+                                memoCard += await mk_memoMsg(memo_index, memo_value);
+                            }
+                            // step.4.2 鋪設個人今年的memo
+                            memoBody.insertAdjacentHTML('beforeend', memoCard);
+                                scrollToBottom(); // 自動捲動到底部
+                        }
+                    }
+                await reload_eraseMemoCarListeners();
+                // await memoModal(['',edit_empId])
+            }
+
+            // 添加新的監聽器
+            eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
+                eraseBtn.addEventListener('click', eraseMemoCarListener);      // 將每一個eraseBtn增加監聽, 當按下click
+            })
+
+            resolve();
+        });
+    }
+
+    
+    function eraseMemoCard(){
+
+
+    }
+
 
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
     // 240823 將匯入資料合併到shLocal_inf

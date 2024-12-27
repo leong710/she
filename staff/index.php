@@ -155,6 +155,10 @@
                 object-fit: contain;
                 object-position: left;
             }
+            /* .memoCard {
+                color: $yellow-300;
+                background-color: $indigo-900;
+            } */
     </style>
 </head>
 <body>
@@ -378,20 +382,24 @@
             </div>
         </div>
     </div>
-    <!-- canvas側欄 -->
+    <!-- canvas側欄 memoCard-->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
         <div class="offcanvas-header bg-light">
             <h5 id="offcanvasRightLabel"><i class="fa-solid fa-clipboard-list"></i>&nbsp;個案備註&nbsp;<snap id="memoTitle"></snap></h5>
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body bg-white" id="memoBody">
-            ...
+        <div class="offcanvas-body p-0" style="background-color: #D4D4D4;">
+            <table>
+                <tbody id="memoBody">
+                </tbody>
+            </table>
         </div>
         <div class="modal-footer bg-light">
             <div class="input-group">
-                <input type="text" class="form-control mb-0 bg-white" id="memoMsg" name="memoMsg" placeholder="請輸入文字訊息" required>
-                <button type="submit" class="btn btn-outline-primary add_btn"  id="postMemoMsg_btn" ><i class="fa-solid fa-paper-plane"></i>發送</button>
+                <input type="text"    class="form-control mb-0 bg-white" id="memoMsg" name="memoMsg" placeholder="請輸入文字訊息" required>
+                <button type="submit" class="btn btn-outline-primary add_btn" id="postMemoMsg_btn" value="" title="Paste">&nbsp;<i class="fa-regular fa-paste"></i>&nbsp;</button>
             </div>
+            <label for="memoMsg" class="form-label text-danger"><h6>* 任何編輯備註行為，最後請記得按[儲存]！</h6></label>
         </div>
     </div>
     <!-- canvas上側欄 -->
@@ -489,10 +497,12 @@
     var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
     var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
+    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn範圍
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+    var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
     var staff_inf        = [];
     var shLocal_inf      = [];

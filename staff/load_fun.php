@@ -261,19 +261,21 @@
                         // 確保 $row_content[$current_year] 是陣列的存在
                         $row_content[$current_year] = $row_content[$current_year] ?? [];                        
                         $new_content = $_content[$current_year];
-                        // 檢查 $new_content 是否非空，才進行後續操作
-                        if (!empty($new_content)) {
-                            foreach ($new_content as $new_content_key => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
-                                // 初始化當前年份的 row_content
-                                $row_content[$current_year][$new_content_key] = $row_content[$current_year][$new_content_key] ?? [];
-                                // 針對每一筆分別帶入
-                                foreach ($new_content_value as $newMainKey => $newMainValue) {      // forEach目的：避免蓋掉其他項目 。$newMainKey這裡指到yearHe...
-                                    // 如果 newMainValue 不為空，則使用它，否則保留舊值
-                                    $row_content[$current_year][$new_content_key][$newMainKey] = $newMainValue ?? null;
-                                        // !empty($newMainValue) ? $newMainValue : ($row_content[$current_year][$new_content_key][$newMainKey] ?? null);    // 這裡會無法更新新的空值
-                                }
-                            }
-                        }
+                        // // 檢查 $new_content 是否非空，才進行後續操作
+                        // if (!empty($new_content)) {
+                        //     foreach ($new_content as $new_content_key => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                        //         // 初始化當前年份的 row_content
+                        //         $row_content[$current_year][$new_content_key] = $row_content[$current_year][$new_content_key] ?? [];
+                        //         // 針對每一筆分別帶入
+                        //         foreach ($new_content_value as $newMainKey => $newMainValue) {      // forEach目的：避免蓋掉其他項目 。$newMainKey這裡指到yearHe...
+                        //             // 如果 newMainValue 不為空，則使用它，否則保留舊值
+                        //             $row_content[$current_year][$new_content_key][$newMainKey] = $newMainValue ?? null;
+                        //                 // !empty($newMainValue) ? $newMainValue : ($row_content[$current_year][$new_content_key][$newMainKey] ?? null);    // 這裡會無法更新新的空值
+                        //         }
+                        //     }
+                        // }
+                        // 更新現有的內容，將其刪除
+                        $row_content[$current_year] = array_merge($row_content[$current_year], $_content[$current_year]); // 合併新的項目
                     }
                 
                     // step.4 將更新後的資料編碼為 JSON 字串
