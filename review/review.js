@@ -42,6 +42,7 @@
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動 載入成功，resolve
+                    
                 } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
 
@@ -110,6 +111,12 @@
             shLocal_inf   = [];
             loadStaff_tmp = [];
             _docsIdty_inf = null;
+
+            await release_dataTable();
+            $('#form_btn_div').empty();
+            $('#hrdb_table tbody').empty();
+            $('#logs_div .logs tbody').empty();
+            $('#reviewInfo').empty();
         }
         // await release_dataTable();                  // 停止並銷毀 DataTable
         // await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
@@ -177,6 +184,10 @@
         await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
         await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
         location.reload();
+    }
+    // 
+    async function processSubmit(){
+
     }
 
 
@@ -428,6 +439,7 @@
     // 鋪設logs紀錄
     async function post_logs(logsJson){
         const logsTable = document.querySelector('#logs_div .logs tbody');
+        logsTable.innerHTML = '';
         for (let i = 0, len = logsJson.length; i < len; i++) {
             logsJson[i].remark = logsJson[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
             logsTable.innerHTML += 
@@ -436,6 +448,17 @@
         }
         // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
     }
+    // 鋪設表頭訊息及待簽人員
+    async function post_reviewInfo(){
+        return new Promise((resolve) => {
+            const reviewItem_txt   = `Step：${_docsIdty_inf}<br>審核：${_docsInsign_inf.subScope} -- ${_docsInsign_inf.deptNo}&nbsp;${_docsInsign_inf.OSTEXT}`;
+            const reviewInsign_txt = `待簽：${_docsInsign_inf.cname}&nbsp;(${_docsInsign_inf.empId})`;
+            $('#reviewInfo').empty().append('<div class="p-2 bg-light border rounded">'+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>');
+
+            resolve();  // 當所有設置完成後，resolve Promise
+        });
+    }
+
 
     // 開啟memoModal的預設工作
     async function memoModal(this_id){
@@ -500,6 +523,7 @@
             console.log('loadStaff_arr...',loadStaff_arr);
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
+            post_reviewInfo(_docsInsign_inf); // 鋪設表頭訊息及待簽人員
 
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
@@ -514,7 +538,6 @@
         return new Promise((resolve) => {
             // init
             _docs_inf = docDeptNo;      // 套取docs
-            // console.log('_docs_inf:',_docs_inf);
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(Object.entries(docDeptNo).length > 0){     // 判斷使否有長度值
@@ -551,9 +574,9 @@
             // step-2. 綁定deptNo_opts事件監聽器
             const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
             deptNo_btns.forEach(deptNo_btn => {
-                deptNo_btn.addEventListener('click', function() {
+                deptNo_btn.addEventListener('click', async function() {
                     // 工作一 清空暫存
-                        resetINF(true); // 清空
+                        await resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
@@ -565,8 +588,11 @@
                         const _doc = _docs_inf[select_subScope][select_deptNo];     // 從_docs_inf中取出對應 廠區/部門代號 的表單
                         _docsIdty_inf = _doc.idty;                          // 將表單中的狀態導入，供按鈕狀態切換
                         _docsInsign_inf = {
-                            'empId' : _doc.in_sign,
-                            'cname' : _doc.in_signName
+                            'subScope' : select_subScope,
+                            'deptNo'   : select_deptNo,
+                            'OSTEXT'   : _doc.OSTEXT,
+                            'empId'    : _doc.in_sign,
+                            'cname'    : _doc.in_signName
                         };
                     // if(_docsIdty_inf >= 4){
                     //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
@@ -602,6 +628,12 @@
         return new Promise((resolve) => {
             // p1-2. [通用]在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
+
+                reviewSubmit_btn.addEventListener('click', async ()=> {
+                    
+                    console.log('submit!');
+                    submit_modal.hide();
+                })
 
             resolve();      // 當所有設置完成後，resolve Promise
         });

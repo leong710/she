@@ -214,7 +214,8 @@
             for (let i=0; i < len; i++) {
                 // 把user訊息包成json字串以便夾帶
                 let user_json = JSON.stringify({
-                        'emp_sub_scope' : res_r[i].emp_sub_scope.replace(/ /g, '&nbsp;'),
+                        'emp_sub_scope' : res_r[i].emp_sub_scope.replace(/ /g, ''),
+                        // 'emp_sub_scope' : res_r[i].emp_sub_scope,     // 人事子範圍名稱
                         'emp_id'        : res_r[i].emp_id,
                         'cname'         : res_r[i].cname,
                         'dept_no'       : res_r[i].dept_no,
@@ -245,7 +246,7 @@
     // fun.2-2c：點選、渲染模組+套入
     function tagsInput_me(val) {
         if (val !== '') {
-            val = '['+val+']';
+            val = `[${val}]`;
             const tagsInput_me_arr = JSON.parse(val);   // 將物件字串轉成陣列
             mgInto_staff_inf(tagsInput_me_arr);         // 呼叫[...]進行 合併+渲染
             $('#searchkeyWord').val('');                // 清除searchkeyWord

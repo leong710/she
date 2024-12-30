@@ -952,12 +952,12 @@
             empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
             // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
             // 241101 暫停取用hrdb進行更新。 改用下面：
-                empData.gesch    = s_value.gesch;
-                empData.natiotxt = s_value.natiotxt;
-                empData.HIRED    = s_value.HIRED;
-                empData.dept_no  = s_value.dept_no;                 // 部門代號
-                empData.emp_sub_scope  = s_value.emp_sub_scope;     // 人事子範圍
-                empData.emp_dept = s_value.emp_dept;                // 部門名稱
+                empData.gesch          = s_value.gesch;
+                empData.natiotxt       = s_value.natiotxt;
+                empData.HIRED          = s_value.HIRED;
+                empData.dept_no        = s_value.dept_no;                 // 部門代號
+                empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍
+                empData.emp_dept       = s_value.emp_dept;                // 部門名稱
         }
         mgInto_staff_inf(loadStaff_arr);
         inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -983,6 +983,7 @@
                 };
                 loadStaff_tmp = loadStaff_tmp.concat(rework_staff);   // 合併2個陣列到combined
             })
+
             resolve();  // 當所有設置完成後，resolve Promise
         });
     }
@@ -1048,6 +1049,7 @@
         return new Promise((resolve) => {
             // init
             $('#deptNo_opts_inside').empty();
+            console.log('selectedDeptNo...',selectedDeptNo);
             // step-1. 鋪設按鈕
             if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
                 Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
@@ -1086,7 +1088,7 @@
                     // 工作一 清空暫存
                         resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
-                        const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]]/g, '');
+                        const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
@@ -1123,11 +1125,25 @@
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
+    // [p1 函數-1] 設置事件監聽器和MutationObserver
+    async function p1_init(deptNosObj) {
+        return new Promise((resolve) => {
+            rework_staff(deptNosObj);
+            mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
+
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
     // [p1 函數-3] 設置事件監聽器和MutationObserver
     async function p1_eventListener() {
         return new Promise((resolve) => {
             // p1. [通用]在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
+
+            // [步驟-1] 初始化設置
+            let parm = { _year : currentYear };
+            load_fun('load_staff_dept_nos', JSON.stringify(parm), p1_init);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+            load_fun('load_document', 'load_document', filtApprove);            // load_fun的變數傳遞要用字串
 
             reload_postMemoMsg_btn_Listeners();
 
@@ -1137,13 +1153,9 @@
 
 // [default fun]
     $(function() {
-        // [步驟-1] 初始化設置
-        mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
-        load_fun('load_document', 'load_document', filtApprove);      // load_fun的變數傳遞要用字串
         
         p1_eventListener();                     // 呼叫函數-3 建立監聽
         p2_eventListener();                     // 呼叫函數-3 建立監聽
-        
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;

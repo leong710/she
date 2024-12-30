@@ -30,6 +30,7 @@
                 }
                 return false;
             });
+            
             resolve(found);     // 當搜尋完成後，回傳結果
         });
     }

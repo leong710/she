@@ -44,9 +44,9 @@
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
 
         // p1
-        $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
-        $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
+        // $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
+        // $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
+        // $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
 
         // echo "<pre>";
         // print_r($staff_deptNos);
@@ -188,11 +188,6 @@
                     <!-- p1 -->
                     <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
-                            <!-- step-0 資料交換 -->
-                            <div class="unblock" id="row_emp_sub_scope">
-                                <!-- 1-1.放原始 staff_deptNos_str 已存檔之部門代號 -->
-                                <?php echo $staff_deptNos_str;?>
-                            </div>
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
@@ -512,10 +507,10 @@
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-    const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT; // 將row_OSTEXT_30的字串轉換為物件
+    // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
+    // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
-    const sys_role = '<?=$sys_role?>';
+    const sys_role    = '<?=$sys_role?>';
     const auth_emp_id = '<?=$auth_emp_id?>';
     const auth_cname  = '<?=$auth_cname?>';
     const currentYear = String(new Date().getFullYear());                   // 取得當前年份

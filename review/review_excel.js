@@ -199,7 +199,8 @@
             for (let i=0; i < len; i++) {
                 // 把user訊息包成json字串以便夾帶
                 let user_json = JSON.stringify({
-                        'emp_sub_scope' : res_r[i].emp_sub_scope.replace(/ /g, '&nbsp;'),
+                        'emp_sub_scope' : res_r[i].emp_sub_scope.replace(/ /g, ''),
+                        // 'emp_sub_scope' : res_r[i].emp_sub_scope,
                         'emp_id'        : res_r[i].emp_id,
                         'cname'         : res_r[i].cname,
                         'dept_no'       : res_r[i].dept_no,

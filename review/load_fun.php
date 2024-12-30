@@ -242,7 +242,7 @@
                 
                     // step.2 解析現有資料為陣列
                     $row_shCase_logs = isset($row_data['shCase_logs']) ? json_decode($row_data['shCase_logs'], true) : [];
-                    $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content'], true)    : [];
+                    $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content']   , true) : [];
                 
                     // step.3b 更新或新增該年份的資料
                         $row_shCase_logs[$current_year] = [

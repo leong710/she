@@ -174,11 +174,6 @@
                     <!-- p1 -->
                     <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
                         <div class="col-12 bg-white">
-                            <!-- step-0 資料交換 -->
-                            <div class="unblock" id="row_emp_sub_scope">
-                                <!-- 1-1.放原始 doc_deptNos_str 已存檔之部門代號 -->
-                                <!-- <php echo $doc_deptNos_str;?> -->
-                            </div>
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
@@ -201,10 +196,12 @@
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
+                            <!-- L1：單位訊息 -->
+                            <div class="col-12 p-0" id="reviewInfo"></div>
                             <!-- 人員名單： -->
                             <div class="row">
-                                <!-- 左側function -->
-                                <div class="col-md-8 py-0 ">
+                                <!-- L2：左側function -->
+                                <div class="col-md-6 pb-0 pt-2 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -214,8 +211,8 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end" id="form_btn_div">
+                                <!-- L2：右側function -->
+                                <div class="col-md-6 pb-0 pt-2 text-end" id="form_btn_div">
  
                                 </div>
                             </div>
@@ -386,7 +383,7 @@
                     <input type="hidden" name="idty"           id="idty"           value="">
                     <input type="hidden" name="old_idty"       id="old_idty"       value="">
                     <?php if($sys_role <= 3){ ?>
-                        <button type="submit" name="receive_submit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                        <button type="submit" id="reviewSubmit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <?php } ?>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -426,15 +423,17 @@
 // // // 開局導入設定檔
 // 以下為控制 iframe
 
-    var download_excel_btn  = document.getElementById('download_excel_btn');   // 下載按鈕
-    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');   // 儲存按鈕
-    var resetINF_btn        = document.getElementById('resetINF_btn');         // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn');       // 編輯更新ShCondition按鈕
+    var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
+    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
+    var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
+    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn範圍
+    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn範圍
 
     // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+    var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
     var staff_inf        = [];
@@ -446,7 +445,7 @@
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-    const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
+    // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
     // const deptNosObj = <=json_decode($doc_deptNos)?>;
     // console.log('deptNosObj...', deptNosObj);
