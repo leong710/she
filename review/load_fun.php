@@ -403,10 +403,11 @@
 
                     $doc_deptNos_arr = [];
                     foreach($docs as $deptNo_i){
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["id"]          = $deptNo_i["id"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["uuid"]        = $deptNo_i["uuid"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]      = $deptNo_i["emp_dept"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["check_list"]  = json_decode($deptNo_i["check_list"], true);
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["idty"]        = $deptNo_i["idty"];
-                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["uuid"]        = $deptNo_i["uuid"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["omager"]      = $deptNo_i["omager"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];

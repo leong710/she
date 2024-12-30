@@ -537,6 +537,7 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             // init
+            console.log('docDeptNo =>',docDeptNo);
             _docs_inf = docDeptNo;      // 套取docs
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
