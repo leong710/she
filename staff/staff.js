@@ -429,7 +429,7 @@
 
         let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
         if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
-            console.log('show_preYearShCase...empData...', empData.shCase_logs);
+            // console.log('show_preYearShCase...empData...', empData.shCase_logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -456,7 +456,7 @@
                 tr1 += '</tr>';
             $('#shCase_table tbody').empty().append(tr1);
 
-            const { shCase_logs } = empData;
+            const { shCase_logs , _content } = empData;
             const preYear_shCaseLog = shCase_logs[preYear];
 
             if(preYear_shCaseLog){
@@ -542,7 +542,7 @@
                     await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                 }
                 // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
-                const _content_import = empData._content[`${preYear}`]['import'] !== undefined ? empData._content[`${preYear}`]['import'] : {};
+                const _content_import = _content[`${preYear}`] != undefined ? (_content[`${preYear}`].import ?? {}) : {};
                 if(_content_import){
                     const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
                     importItem_arr.forEach((importItem) => {

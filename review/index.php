@@ -374,16 +374,8 @@
                     <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <input type="hidden" name="updated_user"   id="updated_user"   value="<?php echo $auth_cname;?>">
-                    <input type="hidden" name="updated_emp_id" id="updated_emp_id" value="<?php echo $auth_emp_id;?>">
-                    <input type="hidden" name="uuid"           id="uuid"           value="">
-                    <input type="hidden" name="fab_sign_code"  id="fab_sign_code"  value="">
-                    <input type="hidden" name="action"         id="action"         value="">
-                    <input type="hidden" name="step"           id="step"           value="">
-                    <input type="hidden" name="idty"           id="idty"           value="">
-                    <input type="hidden" name="old_idty"       id="old_idty"       value="">
                     <?php if($sys_role <= 3){ ?>
-                        <button type="submit" id="reviewSubmit" value="Submit" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                        <button type="submit" id="reviewSubmit" value="" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <?php } ?>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
@@ -441,7 +433,8 @@
     var loadStaff_tmp    = [];
 
     var _docsIdty_inf   = '';
-    var _docsInsign_inf = [];
+    var _docs_inf       = [];
+    var _doc_inf        = [];
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;

@@ -246,15 +246,18 @@
                 
                     // step.3b 更新或新增該年份的資料
                         $row_shCase_logs[$current_year] = [
-                            "dept_no"       => !empty($dept_no)       ? $dept_no       : (!empty($row_shCase_logs[$current_year]["dept_no"])       ? $row_shCase_logs[$current_year]["dept_no"]       : null),
-                            "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : (!empty($row_shCase_logs[$current_year]["emp_dept"])      ? $row_shCase_logs[$current_year]["emp_dept"]      : null),
-                            "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : (!empty($row_shCase_logs[$current_year]["emp_sub_scope"]) ? $row_shCase_logs[$current_year]["emp_sub_scope"] : null),
-                            "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($row_shCase_logs[$current_year]["schkztxt"])      ? $row_shCase_logs[$current_year]["schkztxt"]      : null),
-                            "cstext"        => !empty($cstext)        ? $cstext        : (!empty($row_shCase_logs[$current_year]["cstext"])        ? $row_shCase_logs[$current_year]["cstext"]        : null),
-                            "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($row_shCase_logs[$current_year]["emp_group"])     ? $row_shCase_logs[$current_year]["emp_group"]     : null),
-                            "eh_time"       => !empty($eh_time)       ? $eh_time       : (!empty($row_shCase_logs[$current_year]["eh_time"])       ? $row_shCase_logs[$current_year]["eh_time"]       : null),    // 暴露時數
-                            "shCase"        => !empty($shCase)        ? $shCase        : (!empty($row_shCase_logs[$current_year]["shCase"])        ? $row_shCase_logs[$current_year]["shCase"]        : null),    // 特作區域
-                            "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($row_shCase_logs[$current_year]["shCondition"])   ? $row_shCase_logs[$current_year]["shCondition"]   : null)     // 特作驗證
+                            "cstext"        => $cstext        ?? ( $row_shCase_logs[$current_year]["cstext"]        ?? null ),
+                            "dept_no"       => $dept_no       ?? ( $row_shCase_logs[$current_year]["dept_no"]       ?? null ),
+                            "eh_time"       => $eh_time       ?? ( $row_shCase_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
+                            "emp_dept"      => $emp_dept      ?? ( $row_shCase_logs[$current_year]["emp_dept"]      ?? null ),
+                            "emp_group"     => $emp_group     ?? ( $row_shCase_logs[$current_year]["emp_group"]     ?? null ),
+                            "emp_sub_scope" => $emp_sub_scope ?? ( $row_shCase_logs[$current_year]["emp_sub_scope"] ?? null ),
+                            "schkztxt"      => $schkztxt      ?? ( $row_shCase_logs[$current_year]["schkztxt"]      ?? null ),
+                            "shCase"        => $shCase        ?? ( $row_shCase_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
+                            "shCondition"   => $shCondition   ?? ( $row_shCase_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
+                            "HIRED"         => $HIRED         ?? ( $row_shCase_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
+                            "gesch"         => $gesch         ?? ( $row_shCase_logs[$current_year]["gesch"]         ?? null ),    // 性別
+                            "natiotxt"      => $natiotxt      ?? ( $row_shCase_logs[$current_year]["natiotxt"]      ?? null )     // 國籍
                         ];
                     // //  241021 針對 
                         //     if(!empty($row_shCase_logs[$current_year]["shCase"])){

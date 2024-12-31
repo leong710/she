@@ -110,7 +110,7 @@
             staff_inf     = [];
             shLocal_inf   = [];
             loadStaff_tmp = [];
-            _docsIdty_inf = null;
+            _doc_inf.idty = null;
 
             await release_dataTable();
             $('#form_btn_div').empty();
@@ -123,7 +123,7 @@
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
-        if(sys_role <= '3' && _docsIdty_inf >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(sys_role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -139,12 +139,21 @@
         return new Promise((resolve) => {
             download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
-            // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-            // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+            
+            postMemoMsg_btn.disabled = (_doc_inf.idty >= 4);  // 讓 貼上備註 按鈕啟停
+            
+                // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
+                // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
 
-            // loadExcel_btn.disabled   = (_docsIdty_inf >= 4);  // 讓 新增 按鈕啟停
-            // importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
-            postMemoMsg_btn.disabled = (_docsIdty_inf >= 4);  // 讓 貼上備註 按鈕啟停
+                // loadExcel_btn.disabled   = (_doc_inf.idty >= 4);  // 讓 新增 按鈕啟停
+                // importStaff_btn.disabled = (_doc_inf.idty >= 4);  // 讓 上傳 按鈕啟停
+
+                // if(_doc_inf.idty >= 4){
+                //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
+                //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
+                // }
+                // bat_storeStaff_btn.disabled  = (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
+                // SubmitForReview_btn.disabled = (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
 
             resolve();
         });
@@ -186,7 +195,26 @@
         location.reload();
     }
     // 
-    async function processSubmit(){
+    async function processSubmit(action){
+
+        const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
+        const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
+        const submitValue   = {
+            updated_emp_id  : auth_emp_id,
+            updated_cname   : auth_cname,
+            action          : action,
+            forwarded       : {
+                in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
+                in_signName : (action == '5') ? getInputValue('in_signName') : null
+            },
+            sign_comm       : getCommValue('sign_comm'),
+            _doc            : _doc_inf,
+            _staff          : staff_inf
+        }
+
+        console.log('submitValue =>', submitValue);
+
+        submit_modal.hide();
 
     }
 
@@ -282,7 +310,7 @@
 
         let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
         if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
-            console.log('show_preYearShCase...empData...', empData.shCase_logs);
+            // console.log('show_preYearShCase...empData...', empData.shCase_logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -309,7 +337,7 @@
                 tr1 += '</tr>';
             $('#shCase_table tbody').empty().append(tr1);
 
-            const { shCase_logs } = empData;
+            const { shCase_logs , _content } = empData;
             const preYear_shCaseLog = shCase_logs[preYear];
 
             if(preYear_shCaseLog){
@@ -395,7 +423,7 @@
                     await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                 }
                 // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
-                const _content_import = empData._content[`${preYear}`]['import'] !== undefined ? empData._content[`${preYear}`]['import'] : {};
+                const _content_import = _content[`${preYear}`] != undefined ? (_content[`${preYear}`].import ?? {}) : {};
                 if(_content_import){
                     const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
                     importItem_arr.forEach((importItem) => {
@@ -451,8 +479,8 @@
     // 鋪設表頭訊息及待簽人員
     async function post_reviewInfo(){
         return new Promise((resolve) => {
-            const reviewItem_txt   = `Step：${_docsIdty_inf}<br>審核：${_docsInsign_inf.subScope} -- ${_docsInsign_inf.deptNo}&nbsp;${_docsInsign_inf.OSTEXT}`;
-            const reviewInsign_txt = `待簽：${_docsInsign_inf.cname}&nbsp;(${_docsInsign_inf.empId})`;
+            const reviewItem_txt   = `Step：${_doc_inf.idty}<br>審核：${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
+            const reviewInsign_txt = `待簽：${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`;
             $('#reviewInfo').empty().append('<div class="p-2 bg-light border rounded">'+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>');
 
             resolve();  // 當所有設置完成後，resolve Promise
@@ -523,7 +551,7 @@
             console.log('loadStaff_arr...',loadStaff_arr);
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
-            post_reviewInfo(_docsInsign_inf); // 鋪設表頭訊息及待簽人員
+            post_reviewInfo(_doc_inf); // 鋪設表頭訊息及待簽人員
 
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
@@ -537,7 +565,7 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             // init
-            console.log('docDeptNo =>',docDeptNo);
+                console.log('docDeptNo =>',docDeptNo);
             _docs_inf = docDeptNo;      // 套取docs
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
@@ -582,34 +610,23 @@
                         const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
-                        const thisValue_arr = this.value.split(',')         // 分割this.value成陣列
-                        // const select_year     = thisValue_arr[0];            // 取出陣列0=年份
+                        const thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
+                        // const select_year     = thisValue_arr[0];           // 取出陣列0=年份
                         const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
                         const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
                         const _doc = _docs_inf[select_subScope][select_deptNo];     // 從_docs_inf中取出對應 廠區/部門代號 的表單
-                        _docsIdty_inf = _doc.idty;                          // 將表單中的狀態導入，供按鈕狀態切換
-                        _docsInsign_inf = {
-                            'subScope' : select_subScope,
-                            'deptNo'   : select_deptNo,
-                            'OSTEXT'   : _doc.OSTEXT,
-                            'empId'    : _doc.in_sign,
-                            'cname'    : _doc.in_signName
-                        };
-                    // if(_docsIdty_inf >= 4){
-                    //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
-                    //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
-                    // }
-                    // bat_storeStaff_btn.disabled  = (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-                    // SubmitForReview_btn.disabled = (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+                        _doc_inf = _doc;
+                        _doc_inf['subScope'] = select_subScope;
+                        _doc_inf['deptNo']   = select_deptNo;
+
+                            console.log('_doc_inf =>',_doc_inf);
                     
                         mk_form_btn(docDeptNo);     // 建立簽核按鈕
-
                         post_logs(_doc.logs);       // 鋪設文件歷程
 
                     $('#nav-p2-tab').tab('show');
                 });
             });
-
 
             resolve();      // 當所有設置完成後，resolve Promise
         });
@@ -629,40 +646,40 @@
         return new Promise((resolve) => {
             // p1-2. [通用]在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
+            // p1-3. 增加簽核[Agree]鈕的監聽動作...
+                reviewSubmit_btn.addEventListener('click', async function() {
+                    const buttonValue = this.getAttribute('value'); // 使用 getAttribute 獲取 value
+                    console.log('EventListener -- submit! =>', buttonValue);
 
-                reviewSubmit_btn.addEventListener('click', async ()=> {
-                    
-                    console.log('submit!');
-                    submit_modal.hide();
+                    processSubmit(buttonValue);
                 })
 
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
-    // 
+    // 生成簽核btn
     async function mk_form_btn (docDeptNo) {
         const btn_s = `<button type="button" class="btn `;
         const btn_m = `" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
-        const btn_e = `" onclick="submit_item(this.value, this.innerHTML);" disable>`;
+        const btn_e = `" onclick="mk_submitItem(this.value, this.innerHTML);" disable>`;
     
-        const btn_0  = btn_s +"btn-outline-success" + btn_m +"0" + btn_e +"同意 (Approve)</button>";
-        const btn_2  = btn_s +"btn-outline-danger"  + btn_m +"2" + btn_e +"退回 (Reject)</button>";
+        const btn_0  = btn_s +"btn-outline-danger"  + btn_m +"0" + btn_e +"作廢 (Abort)</button>";
+        const btn_4  = btn_s +"btn-outline-warning" + btn_m +"4" + btn_e +"退回 (Reject)</button>";
         const btn_5  = btn_s +"btn-outline-info"    + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
+        const btn_6  = btn_s +"btn-outline-success" + btn_m +"6" + btn_e +"同意 (Approve)</button>";
         const btn_11 = btn_s +"btn-outline-primary" + btn_m +"11"+ btn_e +"承辦同意 (Approve)</button>";
         const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
 
         const formBtnDiv = document.getElementById("form_btn_div");
         formBtnDiv.innerHTML = "";
-        formBtnDiv.insertAdjacentHTML('beforeend', btn_0+'&nbsp;'+btn_5+'&nbsp;'+btn_2);
+        formBtnDiv.insertAdjacentHTML('beforeend', btn_6 +'&nbsp;'+ btn_5 +'&nbsp;'+ btn_4 +'&nbsp;'+ btn_0);
 
     }
     // 簽核類型渲染
-    function submit_item(idty, idty_title){
-        $('#idty, #idty_title, #action').empty();
-        document.getElementById('idty').value = idty;
-        // idty=99 => return the goods
-        // document.getElementById('action').value = (receive_row['idty'] == 10 && idty == 99 ) ? 'return' : 'sign';
-        $('#idty_title').append(idty_title);
+    function mk_submitItem(idty, idty_title){
+        $('#idty_title').empty().append(idty_title);
+        reviewSubmit_btn.value = idty;
+
         const forwarded_div = document.getElementById('forwarded'); // 轉呈
         if(forwarded_div && (idty == 5)){
             forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽

@@ -1,5 +1,16 @@
 {
     "action" : {
+        "0"  : "作廢 (Abort)",
+        "1"  : "編輯 (Edit)",
+        "2"  : "暫存 (Save)",
+        "3"  : "送出 (Submit)",
+        "4"  : "退回 (Reject)",
+        "5"  : "轉呈 (Forwarded)",
+        "6"  : "同意 (Approve)",
+        "10" : "結案 (Close)",
+        "99" : "錯誤 (Error)"
+    },
+    "processAction" : {
         "0"  : {
                 "status"    : "作廢 (Abort)",
                 "step"      : "= 0"
@@ -37,10 +48,9 @@
                 "step"      : "= 99"
             }
     },
-    
     "step" : {
         "0" : {
-                "idty"          : "0",
+                "step"          : "0",
                 "approvalStep"  : "作廢健檢名單",
                 "remark"        : "作廢名單",
                 "group"         : "總窗護理師",
@@ -49,7 +59,7 @@
                 "approveTo"     : false
             },
         "1" : {
-                "idty"          : "1",
+                "step"          : "1",
                 "approvalStep"  : "建立健檢名單",
                 "remark"        : "匯入Excel、建立名單",
                 "group"         : "總窗護理師",
@@ -58,7 +68,7 @@
                 "approveTo"     : false
             },
         "2" : {
-                "idty"          : "2",
+                "step"          : "2",
                 "approvalStep"  : "工作維護",
                 "remark"        : "勾選特危、填暴露時數",
                 "group"         : "單位窗口,ESH工安",
@@ -67,7 +77,7 @@
                 "approveTo"     : false
             },
         "3" : {
-                "idty"          : "3",
+                "step"          : "3",
                 "approvalStep"  : "名單送審",
                 "remark"        : "100%的名單按下送審，將鎖定不可編輯",
                 "group"         : "單位窗口,護理師",
@@ -76,7 +86,7 @@
                 "approveTo"     : "4"
             },
         "4" : {
-                "idty"          : "4",
+                "step"          : "4",
                 "approvalStep"  : "簽核審查",
                 "remark"        : "簽核主管可維調暴露時數",
                 "group"         : "上層主管,單位窗口,護理師",
@@ -85,7 +95,7 @@
                 "approveTo"     : "5"
             },
         "5" : {
-                "idty"          : "5",
+                "step"          : "5",
                 "approvalStep"  : "收單review",
                 "remark"        : "檢查名單及特檢資料是否完備",
                 "group"         : "ESH工安,護理師",
@@ -94,7 +104,7 @@
                 "approveTo"     : "6"
             },
         "6" : {
-                "idty"          : "6",
+                "step"          : "6",
                 "approvalStep"  : "名單總匯整",
                 "remark"        : "輸出健檢名單",
                 "group"         : "總窗護理師",
@@ -103,7 +113,7 @@
                 "approveTo"     : "10"
             },
         "10" : {
-                "idty"          : "10",
+                "step"          : "10",
                 "approvalStep"  : "名單存檔",
                 "remark"        : "健檢名單存檔",
                 "group"         : "",

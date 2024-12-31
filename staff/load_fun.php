@@ -36,21 +36,16 @@
             case 'load_hrdb':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo_hrdb();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                
                 $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.updated_at, _E.HIRED
                         FROM STAFF _S 
                         LEFT JOIN HCM_VW_EMP01_hiring _E ON _S.emp_id = _E.PERNR
                         WHERE _S.dept_no IN ({$parm_re}) ";
-
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY _S.dept_no ASC, _S.emp_id ASC ";
-
                 $stmt = $pdo->prepare($sql);
                 try {
-
                     $stmt->execute();                                   //處理 byAll
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $shStaffs,
@@ -67,7 +62,6 @@
             case 'load_shLocal':                   // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                
                 // $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
                 //             , GROUP_CONCAT(DISTINCT _S.AVG_VOL ORDER BY _S.AVG_VOL SEPARATOR ',') AS gb_AVG_VOL 
                 //             , GROUP_CONCAT(DISTINCT _S.AVG_8HR ORDER BY _S.AVG_8HR SEPARATOR ',') AS gb_AVG_8HR 
@@ -77,18 +71,13 @@
                 //         GROUP BY _S.OSHORT ";
                 $sql = "SELECT _S.id, _S.OSTEXT_30, _S.OSHORT, _S.OSTEXT, _S.HE_CATE, _S.AVG_VOL, _S.AVG_8HR, _S.MONIT_NO, _S.MONIT_LOCAL, _S.WORK_DESC
                         FROM `_shlocal` _S
-                        WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re})
-                        ";
-
+                        WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re}) ";
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY _S.OSHORT ASC ";
-
                 $stmt = $pdo->prepare($sql);
                 try {
-
                     $stmt->execute();                                   //處理 byAll
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $shStaffs,
@@ -106,23 +95,19 @@
                 $pdo = pdo_hrdb();
                 $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
                         FROM STAFF s ";
-
                 // 初始查詢陣列
                     $conditions = [];
                     $stmt_arr   = [];    
-
                 if (!empty($parm)) {
                     $conditions[] = "s.dept_no IN ( ? )";
                     // $stmt_arr[] = $parm;
                     $stmt_arr[] = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                 }
-                
                 if (!empty($conditions)) {
                     $sql .= ' WHERE ' . implode(' AND ', $conditions);
                 }
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
-
                 $stmt = $pdo->prepare($sql);
                 try {
                     if(!empty($stmt_arr)){
@@ -131,7 +116,6 @@
                         $stmt->execute();                                   //處理 byAll
                     }
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $shStaffs,
@@ -165,18 +149,15 @@
                         ";
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY emp_id ASC ";
-
                         // $deBugFile = "deBug.json";      // 預設sw.json檔案位置
                         // $fop = fopen($deBugFile,"w");   // 開啟檔案
                         // fputs($fop, $parm);             // 初始化sw+寫入
                         // fclose($fop);                   // 關閉檔案
-                
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $current_year = date('Y');
-
                     foreach($shStaffs as $index => $shStaff){
                         $shStaffs[$index]['shCase_logs']     = json_decode($shStaffs[$index]['shCase_logs'], true);
                             // $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
@@ -186,14 +167,12 @@
                         // $shStaffs[$index]['_content'][$current_year] = json_decode($shStaffs[$index]['_content'], true);
                         $shStaffs[$index]['_content']        = json_decode($shStaffs[$index]['_content']);
                     }
-
                 // 製作返回文件
                     $result = [
                         'result_obj' => $shStaffs,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
-
                 } catch (PDOException $e) {
                     echo $e->getMessage();
                     $result = [
@@ -227,36 +206,33 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
-
                 // step.3a 檢查並維護現有資料中的 key
                 $current_year = date('Y');
-
                 foreach ($parm_array as $parm_i) {
                     $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
                     extract($parm_i_arr);
-                
                     // step.1 提取現有資料
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
-                
                     // step.2 解析現有資料為陣列
                     $row_shCase_logs = isset($row_data['shCase_logs']) ? json_decode($row_data['shCase_logs'], true) : [];
                     $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content']   , true) : [];
-                
                     // step.3b 更新或新增該年份的資料
                     $row_shCase_logs[$current_year] = [
-                        "dept_no"       => !empty($dept_no)       ? $dept_no       : (!empty($row_shCase_logs[$current_year]["dept_no"])       ? $row_shCase_logs[$current_year]["dept_no"]       : null),
-                        "emp_dept"      => !empty($emp_dept)      ? $emp_dept      : (!empty($row_shCase_logs[$current_year]["emp_dept"])      ? $row_shCase_logs[$current_year]["emp_dept"]      : null),
-                        "emp_sub_scope" => !empty($emp_sub_scope) ? $emp_sub_scope : (!empty($row_shCase_logs[$current_year]["emp_sub_scope"]) ? $row_shCase_logs[$current_year]["emp_sub_scope"] : null),
-                        "schkztxt"      => !empty($schkztxt)      ? $schkztxt      : (!empty($row_shCase_logs[$current_year]["schkztxt"])      ? $row_shCase_logs[$current_year]["schkztxt"]      : null),
-                        "cstext"        => !empty($cstext)        ? $cstext        : (!empty($row_shCase_logs[$current_year]["cstext"])        ? $row_shCase_logs[$current_year]["cstext"]        : null),
-                        "emp_group"     => !empty($emp_group)     ? $emp_group     : (!empty($row_shCase_logs[$current_year]["emp_group"])     ? $row_shCase_logs[$current_year]["emp_group"]     : null),
-                        "eh_time"       => !empty($eh_time)       ? $eh_time       : (!empty($row_shCase_logs[$current_year]["eh_time"])       ? $row_shCase_logs[$current_year]["eh_time"]       : null),    // 暴露時數
-                        "shCase"        => isset($shCase)         ? $shCase        : (!empty($row_shCase_logs[$current_year]["shCase"])        ? $row_shCase_logs[$current_year]["shCase"]        : null),    // 特作區域
-                        "shCondition"   => !empty($shCondition)   ? $shCondition   : (!empty($row_shCase_logs[$current_year]["shCondition"])   ? $row_shCase_logs[$current_year]["shCondition"]   : null)     // 特作驗證
+                        "cstext"        => $cstext        ?? ( $row_shCase_logs[$current_year]["cstext"]        ?? null ),
+                        "dept_no"       => $dept_no       ?? ( $row_shCase_logs[$current_year]["dept_no"]       ?? null ),
+                        "eh_time"       => $eh_time       ?? ( $row_shCase_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
+                        "emp_dept"      => $emp_dept      ?? ( $row_shCase_logs[$current_year]["emp_dept"]      ?? null ),
+                        "emp_group"     => $emp_group     ?? ( $row_shCase_logs[$current_year]["emp_group"]     ?? null ),
+                        "emp_sub_scope" => $emp_sub_scope ?? ( $row_shCase_logs[$current_year]["emp_sub_scope"] ?? null ),
+                        "schkztxt"      => $schkztxt      ?? ( $row_shCase_logs[$current_year]["schkztxt"]      ?? null ),
+                        "shCase"        => $shCase        ?? ( $row_shCase_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
+                        "shCondition"   => $shCondition   ?? ( $row_shCase_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
+                        "HIRED"         => $HIRED         ?? ( $row_shCase_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
+                        "gesch"         => $gesch         ?? ( $row_shCase_logs[$current_year]["gesch"]         ?? null ),    // 性別
+                        "natiotxt"      => $natiotxt      ?? ( $row_shCase_logs[$current_year]["natiotxt"]      ?? null )     // 國籍
                     ];
- 
                     // 檢查並串接新的 _content
                     if (isset($_content[$current_year])) {
                         // 確保 $row_content[$current_year] 是陣列的存在
@@ -420,7 +396,6 @@
                         $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
                         $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $staff_deptNos_arr,
@@ -505,8 +480,8 @@
                         }
                              
                         // 欄位數據整理：
-                        $idty        = $idty        ?? 4;                                                           // 4 = 各站點審核
-
+                        // $idty        = $idty        ?? 4;                                                           // 4 = 各站點審核
+                        $idty        = 4;                                                           // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
                         $flow        = $flow        ?? "各站點審核";  
                         $flow_remark = $flow_remark ?? "上層主管,單位窗口,護理師";  
 
