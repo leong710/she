@@ -172,7 +172,6 @@
                             ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
-
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
@@ -229,9 +228,10 @@
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
 
                 // step.3a 檢查並維護現有資料中的 key
-                $current_year = date('Y');          // step.3a 檢查並維護現有資料中的 key
+                $staff_inf    = $parm_array['staff_inf']   ?? [];
+                $current_year = $parm_array['currentYear'] ?? date('Y');
 
-                foreach ($parm as $parm_i) {
+                foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
                     extract($parm_i_arr);
                 
@@ -326,20 +326,17 @@
                 $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
                 $stmt = $pdo->prepare($sql);
                 
-                try {
-                    $stmt->execute($params);
+                if (executeQuery($stmt, $params)) {
                     // 製作返回文件
-                    $swal_json["action"]   = "success";
+                    $swal_json["action"] = "success";
                     $swal_json["content"] .= '儲存成功';
                     $result = [
                         'result_obj' => $swal_json,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
-                
-                } catch (PDOException $e) {
-                    echo $e->getMessage();
-                    $swal_json["action"]   = "error";
+                } else {
+                    $swal_json["action"] = "error";
                     $swal_json["content"] .= '儲存失敗';
                     $result = [
                         'result_obj' => $swal_json,
@@ -347,7 +344,6 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-
             break;
             case 'load_heCate':     // for 提取危害類別
                 // load 作業類別json
@@ -415,7 +411,7 @@
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
-                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = $deptNo_i["flow_remark"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = json_decode($deptNo_i["flow_remark"], true);
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }
@@ -477,7 +473,7 @@
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
-                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = $deptNo_i["flow_remark"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = json_decode($deptNo_i["flow_remark"], true);
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }

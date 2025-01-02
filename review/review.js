@@ -479,9 +479,12 @@
     // 鋪設表頭訊息及待簽人員
     async function post_reviewInfo(){
         return new Promise((resolve) => {
+            const divs = '<div class="row p-2">';
+            const divm = '<div class="col-md-6 bg-light border rounded">';
             const reviewItem_txt   = `Step：${_doc_inf.idty}<br>審核：${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
             const reviewInsign_txt = `待簽：${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`;
-            $('#reviewInfo').empty().append('<div class="p-2 bg-light border rounded">'+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>');
+            const reviewflow_txt   = `Flow：${_doc_inf.flow}<br>Remark：${_doc_inf.flow_remark.remark}<br>Group：${_doc_inf.flow_remark.group}`;
+            $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
 
             resolve();  // 當所有設置完成後，resolve Promise
         });
@@ -608,6 +611,7 @@
                         await resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
+                        console.log('selectedValues_str...',selectedValues_str);
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisValue_arr   = this.value.split(',')       // 分割this.value成陣列

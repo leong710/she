@@ -263,13 +263,20 @@
     }
     // p-2 批次儲存員工清單...
     async function bat_storeStaff(){
-        const bat_storeStaff_value = staff_inf;
+        const bat_storeStaff_value = {
+            staff_inf   : staff_inf,
+            currentYear : currentYear
+        };
         await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);   // load_fun的變數傳遞要用字串
         location.reload();
     }
     // p-2 批次儲存員工清單...
     async function storeForReview(){
-        const bat_storeStaff_value = staff_inf;
+        // const bat_storeStaff_value = staff_inf;
+        const bat_storeStaff_value = {
+            staff_inf   : staff_inf,
+            currentYear : currentYear
+        };
         await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
         await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
         location.reload();
@@ -958,6 +965,7 @@
                 empData.dept_no        = s_value.dept_no;                 // 部門代號
                 empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍
                 empData.emp_dept       = s_value.emp_dept;                // 部門名稱
+                empData.currentYear    = currentYear;                     // 作業年度
         }
         mgInto_staff_inf(loadStaff_arr);
         inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -979,7 +987,8 @@
                     'gesch'         : staffValue.gesch,             // 性別
                     'emp_group'     : staffValue.emp_group,         // 員工群組名稱
                     'natiotxt'      : staffValue.natiotxt,          // 國籍名稱
-                    'schkztxt'      : staffValue.schkztxt           // 工作時程表規則名稱
+                    'schkztxt'      : staffValue.schkztxt,          // 工作時程表規則名稱
+                    'currentYear'   : currentYear                   // 作業年度
                 };
                 loadStaff_tmp = loadStaff_tmp.concat(rework_staff);   // 合併2個陣列到combined
             })
@@ -1049,7 +1058,6 @@
         return new Promise((resolve) => {
             // init
             $('#deptNo_opts_inside').empty();
-            console.log('selectedDeptNo...',selectedDeptNo);
             // step-1. 鋪設按鈕
             if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
                 Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
@@ -1060,7 +1068,7 @@
                                 <div class="card-body p-2">
                                     ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                         `<div class="form-check px-1">
-                                            <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-outline-secondary add_btn " >
+                                            <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-outline-secondary add_btn " >
                                             ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>
                                         </div>`
                                     ).join('')}
@@ -1089,11 +1097,12 @@
                         resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
+                        console.log('selectedValues_str...',selectedValues_str);
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
-                        const emp_sub_scope = thisId_arr[0];        // 取出陣列 0=emp_sub_scope
-                        const dept_no       = thisId_arr[1];        // 取出陣列 1=dept_no
+                        const emp_sub_scope = thisId_arr[1];        // 取出陣列 1=emp_sub_scope
+                        const dept_no       = thisId_arr[2];        // 取出陣列 2=dept_no
                         const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.emp_sub_scope == emp_sub_scope );
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
 

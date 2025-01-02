@@ -130,14 +130,12 @@
             break;
             case 'load_staff_byDeptNo':
                 $pdo = pdo();
-                // $sql = "SELECT emp_id, cname, shCase_logs, _content 
-                //         FROM _staff
-                //         WHERE JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no')) IN ({$parm}) ";
-                $year = $year ?? date('Y');
                 $parm = str_replace('"', '', $parm);
                 // 分拆參數
-                $emp_sub_scope = explode(',', $parm)[0];
-                $deptNo = explode(',', $parm)[1];
+                // $year = $year ?? date('Y');
+                $year           = explode(',', $parm)[0];
+                $emp_sub_scope  = explode(',', $parm)[1];
+                $deptNo         = explode(',', $parm)[2];
                 // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
                 $sql = "SELECT emp_id, cname, shCase_logs, _content
                         FROM _staff
@@ -149,23 +147,16 @@
                         ";
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY emp_id ASC ";
-                        // $deBugFile = "deBug.json";      // 預設sw.json檔案位置
-                        // $fop = fopen($deBugFile,"w");   // 開啟檔案
-                        // fputs($fop, $parm);             // 初始化sw+寫入
-                        // fclose($fop);                   // 關閉檔案
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    $current_year = date('Y');
+
                     foreach($shStaffs as $index => $shStaff){
-                        $shStaffs[$index]['shCase_logs']     = json_decode($shStaffs[$index]['shCase_logs'], true);
-                            // $shStaffs[$index]['eh_time']     = $shStaffs[$index]['shCase_logs'][$current_year]['eh_time'];
-                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$current_year]['shCase'];
-                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$current_year]['shCondition'];
-                            
-                        // $shStaffs[$index]['_content'][$current_year] = json_decode($shStaffs[$index]['_content'], true);
-                        $shStaffs[$index]['_content']        = json_decode($shStaffs[$index]['_content']);
+                        $shStaffs[$index]['shCase_logs'] = json_decode($shStaffs[$index]['shCase_logs'], true);
+                        $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$year]['shCase'];
+                        $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$year]['shCondition'];
+                        $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
                     }
                 // 製作返回文件
                     $result = [
@@ -206,18 +197,24 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
+
                 // step.3a 檢查並維護現有資料中的 key
-                $current_year = date('Y');
-                foreach ($parm_array as $parm_i) {
+                $staff_inf    = $parm_array['staff_inf']   ?? [];
+                $current_year = $parm_array['currentYear'] ?? date('Y');
+
+                foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
                     extract($parm_i_arr);
+
                     // step.1 提取現有資料
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
                     // step.2 解析現有資料為陣列
                     $row_shCase_logs = isset($row_data['shCase_logs']) ? json_decode($row_data['shCase_logs'], true) : [];
                     $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content']   , true) : [];
+
                     // step.3b 更新或新增該年份的資料
                     $row_shCase_logs[$current_year] = [
                         "cstext"        => $cstext        ?? ( $row_shCase_logs[$current_year]["cstext"]        ?? null ),
@@ -419,8 +416,6 @@
                     "content" => "批次送審名單--"
                 ];
 
-                $reviewStep_arr = reviewStep();     // 取得reviewStep
-
                 define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
                 define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
@@ -437,18 +432,25 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
-            
-                $age = $current_year = date('Y');
+                
+                $staff_inf           = $parm_array['staff_inf']   ?? [];
+                $age = $current_year = $parm_array['currentYear'] ?? date('Y');
+
                 $new_check_list_in  = [];
                 $new_check_list_out = [];
                 $new_form           = [];
 
-                $reviewStep_arr = reviewStep(); // 取得reviewStep
+                // 簽核步驟
+                $reviewStep_arr = reviewStep();                         // 取得reviewStep
+                $action         = $action ?? "3";                       // 3 = 送出
+                // 簽核欄位數據整理：by $action
+                $action_arr     = $reviewStep_arr['action'];            // getAction arr
+                    $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
 
-                foreach ($parm_array as $parm_i) {
+                foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
-                    $dept_no = $parm_i_arr["dept_no"];
-                    $emp_dept = $parm_i_arr["emp_dept"];
+                    $dept_no   = $parm_i_arr["dept_no"];
+                    $emp_dept  = $parm_i_arr["emp_dept"];
                     $sub_scope = $parm_i_arr["emp_sub_scope"];
                     
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
@@ -471,19 +473,67 @@
                                 $row_check_list = json_decode($row_data["check_list"], true) ?? [];
                                 // 使用 array_merge() 將兩個陣列合併。 使用 array_unique() 去除重複值。
                                 $new_form[$new_check_deptNo]["check_list"] = array_unique(array_merge($new_check_valueArr, $row_check_list)); 
+                                $rowStep = $row_data["idty"] ?? "4";        // $rowStep = 目前的進度 = idty
                             } 
                             // 若不存在，可以考慮直接進行插入
                             else {
                                 $new_form[$new_check_deptNo]["check_list"] = $new_check_valueArr;
-                                $action = "3";  // 送出
+                                $rowStep = "3";
                             }
                         }
-                             
-                        // 欄位數據整理：
-                        // $idty        = $idty        ?? 4;                                                           // 4 = 各站點審核
-                        $idty        = 4;                                                           // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
-                        $flow        = $flow        ?? "各站點審核";  
-                        $flow_remark = $flow_remark ?? "上層主管,單位窗口,護理師";  
+        
+                        // 簽核欄位數據整理：by $rowStep = 目前狀態
+                        $rowStep_arr = $reviewStep_arr['step'][$rowStep];   // getStep arr 取得目前狀態節點
+                            // $rowStep_arr['idty'];              // 表單狀態
+                            // $rowStep_arr['approvalStep'];      // 節點工作
+                            // $rowStep_arr['remark'];            // 節點工作備註
+                            // $rowStep_arr['group'];             // 適用群組
+                            // $rowStep_arr['edit'];              // 節點-編輯
+                            // $rowStep_arr['returnTo'];          // 節點-返回
+                            // $rowStep_arr['approveTo'];         // 節點-進步
+
+                        // 製作log紀錄前處理：塞進去製作元素
+                        $logs_request = array (
+                            "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
+                            "cname"  => $auth_cname." (".$auth_emp_id.")",
+                            "action" => $status ?? '送出 (Submit)',
+                            "logs"   => $row_data["logs"] ?? "",
+                            "remark" => $sign_comm ?? 'sign_comm'
+                        ); 
+                        // 呼叫toLog製作log檔
+                            $logs_enc = toLog($logs_request);
+        
+                        switch ($action) {
+                            case "0":       // 作廢
+                                $idty = "0";
+                                break;
+                            case "1":       // 編輯
+                            case "2":       // 暫存
+                                $idty = "2";
+                                break;
+                            case "3":       // 送出
+                            case "5":       // 轉呈
+                                $idty = "4";
+                            break;
+                            case "4":       // 退回
+                                $idty = $rowStep_arr['returnTo'];
+                                break;
+                            case "6":       // 同意
+                            case "10":      // 結案
+                                $idty = $rowStep_arr['approveTo'];
+                                break;
+                            default:
+                                $idty = 4;  // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
+                        }
+
+                        // 簽核欄位數據整理：by $idty = 下一步狀態
+                        $nextStep_arr = $reviewStep_arr['step'][$idty];   // getStep arr 取得下一步狀態節點
+
+                        $flow        = $nextStep_arr['approvalStep'] ?? "簽核審查";
+                        $flow_remark = [
+                            "group"  => $nextStep_arr['group']  ?? "上層主管,單位窗口,護理師",  
+                            "remark" => $nextStep_arr['remark'] ?? "簽核主管可維調暴露時數"
+                        ];
 
                         $result = queryHrdb("showSignCode", $new_check_deptNo);                                     // 查詢signCode部門主管
                         $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
@@ -496,28 +546,16 @@
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
                         $_content    = $_content    ?? [];  
 
-                        // 製作log紀錄前處理：塞進去製作元素
-                        $logs_request = array (
-                            "idty"   => $idty,
-                            "step"   => $step ?? '名單送審',                  // 節點
-                            "cname"  => $auth_cname." (".$auth_emp_id.")",
-                            "action" => $action ?? '3',
-                            "logs"   => $row_data["logs"] ?? "",
-                            "remark" => $sign_comm ?? 'sign_comm'
-                        ); 
-                        // 呼叫toLog製作log檔
-                            $logs_enc = toLog($logs_request);
-
                         // 重點打包
-                        $check_list_str = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
-                        $_content_str   = json_encode($_content, JSON_UNESCAPED_UNICODE);
-                        // $logs_str       = json_encode($logs, JSON_UNESCAPED_UNICODE);
+                        $flow_remark_str = json_encode($flow_remark, JSON_UNESCAPED_UNICODE);
+                        $check_list_str  = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
+                        $_content_str    = json_encode($_content, JSON_UNESCAPED_UNICODE);
 
                         // 準備 SQL 和參數
                         $values[] = "(?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
                         $params = array_merge($params, [
                             $uuid, $age, $new_check_deptNo, $emp_dept, $sub_scope, $new_form[$new_check_deptNo]["omager"],
-                            $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark, $_content_str,
+                            $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark_str, $_content_str,
                             $auth_emp_id, $auth_cname, $auth_cname, $logs_enc
                         ]);
                     }

@@ -1,14 +1,43 @@
 {
     "action" : {
-        "0"  : "作廢 (Abort)",
-        "1"  : "編輯 (Edit)",
-        "2"  : "暫存 (Save)",
-        "3"  : "送出 (Submit)",
-        "4"  : "退回 (Reject)",
-        "5"  : "轉呈 (Forwarded)",
-        "6"  : "同意 (Approve)",
-        "10" : "結案 (Close)",
-        "99" : "錯誤 (Error)"
+        "0"  : {
+                "status"    : "作廢 (Abort)",
+                "step"      : "0"
+            },
+        "1"  : {
+                "status"    : "編輯 (Edit)",
+                "step"      : "2"
+            },
+        "2"  : {
+                "status"    : "暫存 (Save)",
+                "step"      : "2"
+            },
+        "4"  : {
+                "status"    : "退回 (Reject)",
+                "step"      : "2"
+            },
+
+        "3"  : {
+                "status"    : "送出 (Submit)",
+                "step"      : "4"
+            },
+        "5"  : {
+                "status"    : "轉呈 (Forwarded)",
+                "step"      : "4"
+            },
+            
+        "6"  : {
+                "status"    : "同意 (Approve)",
+                "step"      : "+1"
+            },
+        "10" : {
+                "status"    : "結案 (Close)",
+                "step"      : "10"
+            },
+        "99" : {
+                "status"    : "錯誤 (Error)",
+                "step"      : "99"
+            }
     },
     
     "step" : {

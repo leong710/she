@@ -4,17 +4,17 @@
             extract($request);
             // log資料前處理
             // 交易狀態：0完成/1待收/2退貨/3取消/12發貨
-            switch($action){
-                case "0":   $action = '作廢 (Abort)';          break;
-                case "1":   $action = '編輯 (Edit)';           break;
-                case "2":   $action = '暫存 (Save)';           break;
-                case "3":   $action = '送出 (Submit)';         break;
-                case "4":   $action = '退回 (Reject)';         break;
-                case "5":   $action = '轉呈 (Forwarded)';      break;
-                case "6":   $action = '同意 (Approve)';        break;
-                case "10":  $action = '結案 (Close)';          break;    // 結案 (Close)
-                default:    $action = '錯誤 (Error)';
-            }
+                // switch($action){
+                //     case "0":   $action = '作廢 (Abort)';          break;
+                //     case "1":   $action = '編輯 (Edit)';           break;
+                //     case "2":   $action = '暫存 (Save)';           break;
+                //     case "3":   $action = '送出 (Submit)';         break;
+                //     case "4":   $action = '退回 (Reject)';         break;
+                //     case "5":   $action = '轉呈 (Forwarded)';      break;
+                //     case "6":   $action = '同意 (Approve)';        break;
+                //     case "10":  $action = '結案 (Close)';          break;    // 結案 (Close)
+                //     default:    $action = '錯誤 (Error)';
+                // }
 
             if(!isset($logs)){
                 $logs     = [];

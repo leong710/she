@@ -8,38 +8,32 @@
     // for return
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
-    // default fab_scope
-        $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";               // All :allMy
     // tidy query condition：
-        $OSHORT      = (isset($_REQUEST["OSHORT"]))      ? $_REQUEST["OSHORT"]      : "All";        // 部門代碼
-        $flag        = (isset($_REQUEST["flag"]))        ? $_REQUEST["flag"]        : "All";        // 開關狀態
-        $fab_title   = (isset($_REQUEST["fab_title"]))   ? $_REQUEST["fab_title"]   : $fab_scope;   // 問卷fab
+        $_year        = $_REQUEST["_year"] ?? date('Y');    // 開起年份
+        $_years = [ $_year+1, $_year, $_year-1, $_year-2];
+      
+    // default fab_scope
+        $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
+        $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
     // tidy sign_code scope 
         $sfab_id_str     = get_coverFab_lists("str");   // get signCode的管理轄區
         $sfab_id_arr     = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
     // merge quesy array
         $query_arr = array(
-            'OSHORT'        => $OSHORT,
-            'flag'          => $flag,
             'fab_title'     => $fab_title,
             'sfab_id'       => $sfab_id_str,
         );
     // get mainData = shLocal
         // $shLocals       = show_shLocal($query_arr);     // get case清單
+
         $shLocals       = [];     // get case清單
         $per_total      = count($shLocals);             // 計算總筆數
     // for select item
         $fab_lists      = show_fab_lists();             // get 廠區清單
         $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
-            $icon_s = '<i class="';
-            $icon_e = ' fa-2x"></i>&nbsp&nbsp';
-
-
-        // $shLocal_OSTEXT_30s = load_shLocal_OSTEXT30s();
-
         // p1
-        $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號
+        $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
 
@@ -191,10 +185,24 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-9 col-md-10">
+                                    <div class="col-8 col-md-9">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
                                     </div>
-                                    <div class="col-3 col-md-2 text-end">
+                                    <div class="col-4 col-md-3 text-end">
+                                        <form action="" method="GET">
+                                            <div class="input-group">
+                                                <span class="input-group-text">篩選</span>
+                                                <select name="_year" id="_year" class="form-select" >
+                                                    <option value="" hidden selected >-- 請選擇 問卷年度 --</option>
+                                                    <?php 
+                                                        echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' hidden >-- All 所有年度 --</option>';
+                                                        foreach($_years as $_y){
+                                                            echo "<option for='_year' value='{$_y}' ".($_y == $_year ? "selected" : "" )." >".$_y."y</option>";
+                                                        } ?>
+                                                </select>
+                                                <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                                 <div id="deptNo_opts" class="col-12 px-2 py-1 form-control ">
@@ -513,8 +521,9 @@
     const sys_role    = '<?=$sys_role?>';
     const auth_emp_id = '<?=$auth_emp_id?>';
     const auth_cname  = '<?=$auth_cname?>';
-    const currentYear = String(new Date().getFullYear());                   // 取得當前年份
-    const preYear     = String(currentYear - 1);                            // 取得去年年份
+    // const currentYear = String(new Date().getFullYear());   // 取得當前年份
+    const currentYear = '<?=$_year?>';                       // 取得當前年份
+    const preYear     = String(currentYear - 1);            // 取得去年年份
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>
