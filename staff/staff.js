@@ -1117,6 +1117,7 @@
     function filtApprove(_docs) {
         return new Promise((resolve) => {
             _docs_inf = _docs;      // 帶入inf
+            console.log(_docs_inf)
             _docs.forEach( _doc => {
                 if(_doc.idty >= 4){
                     const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
