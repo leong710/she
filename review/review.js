@@ -139,8 +139,7 @@
         return new Promise((resolve) => {
             download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
-            
-            postMemoMsg_btn.disabled = (_doc_inf.idty >= 4);  // 讓 貼上備註 按鈕啟停
+            postMemoMsg_btn.disabled     = (_doc_inf.idty >= 4);    // 讓 貼上備註 按鈕啟停
             
                 // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
                 // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
@@ -195,7 +194,7 @@
         location.reload();
     }
     // 
-    async function processSubmit(action){
+    async function processSubmit(action){   // 已崁入監聽中
 
         const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
         const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
@@ -211,8 +210,7 @@
             _doc            : _doc_inf,
             _staff          : staff_inf
         }
-
-        console.log('submitValue =>', submitValue);
+            console.log('submitValue =>', submitValue);
 
         submit_modal.hide();
 
@@ -481,9 +479,9 @@
         return new Promise((resolve) => {
             const divs = '<div class="row p-2">';
             const divm = '<div class="col-md-6 bg-light border rounded">';
-            const reviewItem_txt   = `Step：${_doc_inf.idty}<br>審核：${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
-            const reviewInsign_txt = `待簽：${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`;
-            const reviewflow_txt   = `Flow：${_doc_inf.flow}<br>Remark：${_doc_inf.flow_remark.remark}<br>Group：${_doc_inf.flow_remark.group}`;
+            const reviewItem_txt   = `<b>Step：</b>${_doc_inf.idty}<br><b>審核：</b>${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
+            const reviewInsign_txt = `<b>待簽：</b>${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`;
+            const reviewflow_txt   = `<b>Flow：</b>${_doc_inf.flow}<br><b>Remark：</b>${_doc_inf.flow_remark.remark}<br><b>Group：</b>${_doc_inf.flow_remark.group}`;
             $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
 
             resolve();  // 當所有設置完成後，resolve Promise
@@ -551,6 +549,7 @@
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
             })
             staff_inf = loadStaff_arr;      // 套取staff的表單
+            loadStaff_tmp = loadStaff_arr;  // 套取staff的表單 = for 比對功能，來決定是否儲存
             console.log('loadStaff_arr...',loadStaff_arr);
             post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             post_shCase(loadStaff_arr);     // 鋪設--特作資料
@@ -568,7 +567,6 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             // init
-                console.log('docDeptNo =>',docDeptNo);
             _docs_inf = docDeptNo;      // 套取docs
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
@@ -611,7 +609,6 @@
                         await resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
-                        console.log('selectedValues_str...',selectedValues_str);
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
@@ -622,8 +619,6 @@
                         _doc_inf = _doc;
                         _doc_inf['subScope'] = select_subScope;
                         _doc_inf['deptNo']   = select_deptNo;
-
-                            console.log('_doc_inf =>',_doc_inf);
                     
                         mk_form_btn(docDeptNo);     // 建立簽核按鈕
                         post_logs(_doc.logs);       // 鋪設文件歷程
@@ -652,10 +647,36 @@
                 $('[data-toggle="tooltip"]').tooltip();
             // p1-3. 增加簽核[Agree]鈕的監聽動作...
                 reviewSubmit_btn.addEventListener('click', async function() {
-                    const buttonValue = this.getAttribute('value'); // 使用 getAttribute 獲取 value
-                    console.log('EventListener -- submit! =>', buttonValue);
+                    // const buttonValue = this.getAttribute('value'); // 使用 getAttribute 獲取 value
+                    // console.log('EventListener -- submit! =>', buttonValue);
+                    // processSubmit(buttonValue);
+                    
+                    const action = this.getAttribute('value'); // 使用 getAttribute 獲取 value
+                    const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
+                    const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
+                    const submitValue   = JSON.stringify({
+                            updated_emp_id  : auth_emp_id,
+                            updated_cname   : auth_cname,
+                            currentYear     : currentYear,
+                            action          : action,
+                            forwarded       : {
+                                in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
+                                in_signName : (action == '5') ? getInputValue('in_signName') : null
+                            },
+                            sign_comm       : getCommValue('sign_comm'),
+                            _doc            : _doc_inf,
+                            _staff          : staff_inf
+                        })
+                        console.log('submitValue =>', JSON.parse(submitValue)); 
 
-                    processSubmit(buttonValue);
+                    if( staff_inf !== loadStaff_tmp){   // for 比對功能，來決定是否儲存
+                        await load_fun('bat_storeStaff', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+                    }
+                    await load_fun('processReview', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+            
+                    submit_modal.hide();
+                    location.reload();
+
                 })
 
             resolve();      // 當所有設置完成後，resolve Promise

@@ -1153,7 +1153,7 @@
             // [步驟-1] 初始化設置
             let parm = { _year : currentYear };
             load_fun('load_staff_dept_nos', JSON.stringify(parm), p1_init);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
-            load_fun('load_document', 'load_document', filtApprove);            // load_fun的變數傳遞要用字串
+            load_fun('load_document', JSON.stringify(parm), filtApprove);            // load_fun的變數傳遞要用字串
 
             reload_postMemoMsg_btn_Listeners();
 

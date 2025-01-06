@@ -228,7 +228,7 @@
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
 
                 // step.3a 檢查並維護現有資料中的 key
-                $staff_inf    = $parm_array['staff_inf']   ?? [];
+                $staff_inf    = $parm_array['_staff']   ?? [];
                 $current_year = $parm_array['currentYear'] ?? date('Y');
 
                 foreach ($staff_inf as $parm_i) {
@@ -378,6 +378,9 @@
                     $conditions = [];
                     $stmt_arr   = [];    
 
+                    $conditions[] = "idty > 3";
+                    $conditions[] = "idty < 99";
+
                 if (!empty($_year)) {
                     $conditions[] = "age = ?";
                     $stmt_arr[]   = $_year;
@@ -420,7 +423,8 @@
                     $result = [
                         'result_obj' => $doc_deptNos_arr,
                         'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.'
+                        'success'    => 'Load '.$fun.' success.',
+                        'sel'        => $sql
                     ];
 
                 }catch(PDOException $e){
@@ -428,6 +432,143 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
+            break;
+            // 241211 送嬸
+            case 'processReview':  
+                require_once("../user_info.php");
+                require_once("../staff/load_function.php");
+                $pdo = pdo();
+                $swal_json = [
+                    "fun" => "processReview",
+                    "content" => "批次送審名單--"
+                ];
+
+                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE uuid = ? ");
+                define('SQL_UPDATE_DOC', "UPDATE _document SET in_sign = ?, in_signName = ?, idty = ?, flow = ?, flow_remark = ?, _content = ?, updated_cname = ?, logs = ?, updated_at = now() WHERE uuid = ? " );
+                $values   = [];
+                $params   = [];
+                $parm_array          = parseJsonParams($parm); // 使用新的函數解析JSON
+                $current_year        = $parm_array['currentYear'] ?? date('Y');
+                $staff_inf           = $parm_array['_staff']      ?? [];
+                $forwarded           = $parm_array['forwarded']   ?? [];
+                $doc_inf             = $parm_array['_doc']        ?? [];
+                $deptNo              = $doc_inf["deptNo"];
+                $uuid                = $doc_inf["uuid"];
+                $_content            = $doc_inf["_content"]       ?? [];  
+
+                // 簽核步驟
+                $reviewStep_arr = reviewStep();                         // 取得reviewStep
+                $action         = $parm_array["action"] ?? "3";                       // 3 = 送出
+                // 簽核欄位數據整理：by $action
+                $action_arr     = $reviewStep_arr['action'];            // getAction arr
+                    $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
+
+                $stmt_select = $pdo->prepare(SQL_SELECT_DOC);           // 預先動作：找是否已經有送件
+                if (executeQuery($stmt_select, [$uuid])) {
+                    $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+                    // 如果資料存在則更新，$rowStep = 目前的進度 = idty // 若不存在，可以考慮直接進行插入3
+                    $rowStep = ($row_data) ? ($row_data["idty"] ?? "4") : "3";  
+                }
+
+                // 簽核欄位數據整理：by $rowStep = 目前狀態
+                $rowStep_arr = $reviewStep_arr['step'][$rowStep];   // getStep arr 取得目前狀態節點
+                    // $rowStep_arr['idty'];              // 表單狀態
+                    // $rowStep_arr['approvalStep'];      // 節點工作
+                    // $rowStep_arr['remark'];            // 節點工作備註
+                    // $rowStep_arr['group'];             // 適用群組
+                    // $rowStep_arr['edit'];              // 節點-編輯
+                    // $rowStep_arr['returnTo'];          // 節點-返回
+                    // $rowStep_arr['approveTo'];         // 節點-進步
+
+                // 製作log紀錄前處理：塞進去製作元素
+                $logs_request = array (
+                    "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
+                    "cname"  => $auth_cname." (".$auth_emp_id.")",
+                    "action" => $status ?? '送出 (Submit)',
+                    "logs"   => $row_data["logs"] ?? "",
+                    "remark" => $parm_array["sign_comm"] ?? ""
+                ); 
+                // 呼叫toLog製作log檔
+                    $logs_enc = toLog($logs_request);
+
+                switch ($action) {
+                    case "0":       // 作廢
+                        $idty = "0";
+                        break;
+                    case "1":       // 編輯
+                    case "2":       // 暫存
+                        $idty = "2";
+                        break;
+                    case "3":       // 送出
+                    case "5":       // 轉呈
+                        $idty = "4";
+                    break;
+                    case "4":       // 退回
+                        $idty = $rowStep_arr['returnTo'];
+                        break;
+                    case "6":       // 同意
+                    case "10":      // 結案
+                        $idty = $rowStep_arr['approveTo'];
+                        break;
+                    default:
+                        $idty = 4;  // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
+                }
+
+                // 簽核欄位數據整理：by $idty = 下一步狀態
+                $nextStep_arr = $reviewStep_arr['step'][$idty];   // getStep arr 取得下一步狀態節點
+
+                $flow        = $nextStep_arr['approvalStep'] ?? "簽核審查";
+                $flow_remark = [
+                    "group"  => $nextStep_arr['group']  ?? "上層主管,單位窗口,護理師",  
+                    "remark" => $nextStep_arr['remark'] ?? "簽核主管可維調暴露時數"
+                ];
+
+                if($action === "3"){
+                    $result = queryHrdb("showSignCode",   $deptNo);                        // 查詢signCode部門主管
+                    $DEPUTY = queryHrdb("showDelegation", $result["OMAGER"]);              // 查詢部門主管簽核代理人
+                    $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? $result["OMAGER"]);  
+                    $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? $result["cname"]);  
+                    
+                // } else if($action === "5"){
+                //     $in_sign     = $forwarded["in_sign"]     ?? ($row_data["in_sign"]     ?? "");  
+                //     $in_signName = $forwarded["in_signName"] ?? ($row_data["in_signName"] ?? "");  
+
+                } else {
+                    $in_sign     = ($action === "5") ? $forwarded["in_sign"]     : ($row_data["in_sign"]     ?? "");  
+                    $in_signName = ($action === "5") ? $forwarded["in_signName"] : ($row_data["in_signName"] ?? "");  
+                }
+                
+                // 重點打包
+                $flow_remark_str = json_encode($flow_remark, JSON_UNESCAPED_UNICODE);
+                $_content_str    = json_encode($_content,    JSON_UNESCAPED_UNICODE);
+
+                // 準備 SQL 和參數
+                $params = array_merge($params, [
+                        $in_sign, $in_signName, $idty, $flow, $flow_remark_str, $_content_str,
+                        $parm_array["updated_cname"], $logs_enc, $uuid
+                    ]);
+
+                $sql = SQL_UPDATE_DOC;
+                $stmt = $pdo->prepare($sql);
+
+                if (executeQuery($stmt, $params)) {
+                    // 製作返回文件
+                    $swal_json["action"] = "success";
+                    $swal_json["content"] .= '簽核成功';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $swal_json["action"] = "error";
+                    $swal_json["content"] .= '簽核失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
             break;
             // 241223 取得審核文件
             case 'load_doc':                   // 帶入查詢條件

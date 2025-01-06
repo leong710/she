@@ -343,6 +343,7 @@
                     ];
                 }
             break;
+            
             case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號
                 $pdo = pdo();
                 // $sql = "SELECT
@@ -586,7 +587,9 @@
             // 241212 取得_document送審清單
             case 'load_document':
                 $pdo = pdo();
-                $year = $year ?? date('Y');
+                $parm = isset($parm) ? json_decode($parm, true) : [];
+                $year = $parm['_year'] ?? date('Y');
+
                 $sql = "SELECT id, uuid, age as year_key, sub_scope as emp_sub_scope, dept_no, emp_dept, check_list, idty FROM `_document` WHERE age = '{$year}' ";
 
                 $stmt = $pdo->prepare($sql);
