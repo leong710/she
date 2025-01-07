@@ -236,7 +236,9 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 送審</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
+                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
+                                        <!-- value="" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button> -->
 
                                 </div>
                             </div>
@@ -453,6 +455,41 @@
             </div>
         </div>
     </div>
+    <!-- 模組 submitModal-->
+    <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body px-4 pt-1">
+                    <!-- 第二排的功能 : 搜尋功能 -->
+                    <div class="row unblock" id="forwarded">
+                        <div class="col-12" id="searchUser_table">
+                            <div class="input-group search" id="select_inSign_Form">
+                                <span class="input-group-text form-label">轉呈</span>
+                                <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                        aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
+                                <div id="in_signBadge"></div>
+                                <input type="hidden" name="in_signName" id="in_signName" >
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                    <label for="sign_comm" id="sign_comm_label" class="form-check-label" >command：</label>
+                    <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <?php if($sys_role <= 3){ ?>
+                        <button type="submit" id="reviewSubmit" value="" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                    <?php } ?>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- 互動視窗 edit_modal -->
     <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
@@ -500,11 +537,13 @@
     var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
     var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
-    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn範圍
+    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
+    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+    var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
     var staff_inf        = [];

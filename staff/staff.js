@@ -272,14 +272,7 @@
     }
     // p-2 批次儲存員工清單...
     async function storeForReview(){
-        // const bat_storeStaff_value = staff_inf;
-        const bat_storeStaff_value = {
-            staff_inf   : staff_inf,
-            currentYear : currentYear
-        };
-        await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
-        await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
-        location.reload();
+
     }
     // [p2 函數-3] 設置事件監聽器和MutationObserver
     async function p2_eventListener() {
@@ -1056,11 +1049,17 @@
     // [p1 函數-1] 動態生成所有按鈕，並重新綁定事件監聽器
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
+            console.log('selectedDeptNo =>',selectedDeptNo);
+
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
+
+
+                
                 Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
+                    // console.log('emp_sub_scope:',emp_sub_scope)
                     let ostext_btns = `
                         <div class="col-lm-3">
                             <div class="card">
@@ -1097,7 +1096,7 @@
                         resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
-                        console.log('selectedValues_str...',selectedValues_str);
+                        // console.log('selectedValues_str...',selectedValues_str);
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
@@ -1117,7 +1116,7 @@
     function filtApprove(_docs) {
         return new Promise((resolve) => {
             _docs_inf = _docs;      // 帶入inf
-            console.log(_docs_inf)
+            console.log('filtApprove =>',_docs_inf)
             _docs.forEach( _doc => {
                 if(_doc.idty >= 4){
                     const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
@@ -1153,12 +1152,48 @@
             // [步驟-1] 初始化設置
             let parm = { _year : currentYear };
             load_fun('load_staff_dept_nos', JSON.stringify(parm), p1_init);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
-            load_fun('load_document', JSON.stringify(parm), filtApprove);            // load_fun的變數傳遞要用字串
+            load_fun('load_document', JSON.stringify(parm), filtApprove);       // load_fun的變數傳遞要用字串
 
             reload_postMemoMsg_btn_Listeners();
 
+            // p1-3. 增加簽核[Agree]鈕的監聽動作...// p-2 批次儲存員工清單...
+            reviewSubmit_btn.addEventListener('click', async function() {
+                
+                const action = this.getAttribute('value');              // 使用 getAttribute 獲取 value
+                const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
+                const submitValue   = JSON.stringify({
+                        updated_emp_id  : auth_emp_id,
+                        updated_cname   : auth_cname,
+                        currentYear     : currentYear,
+                        action          : action,
+                        sign_comm       : getCommValue('sign_comm'),
+                        staff_inf       : staff_inf
+                    })
+                    console.log('submitValue =>', JSON.parse(submitValue)); 
+        
+                await load_fun('bat_storeStaff', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+                await load_fun('storeForReview', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+        
+                submit_modal.hide();
+                location.reload();
+
+            })
+
             resolve();      // 當所有設置完成後，resolve Promise
         });
+    }
+
+    // 簽核類型渲染
+    function mk_submitItem(idty, idty_title){
+        $('#idty_title').empty().append(idty_title);
+        reviewSubmit_btn.value = idty;
+
+        const forwarded_div = document.getElementById('forwarded'); // 轉呈
+        if(forwarded_div && (idty == 5)){
+            forwarded_div.classList.remove('unblock');           // 按下轉呈 = 解除 加簽
+        }else{
+            forwarded_div.classList.add('unblock');              // 按下其他 = 隱藏
+        }
     }
 
 // [default fun]

@@ -426,8 +426,8 @@
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
-    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn範圍
-    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn範圍
+    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
+    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
     // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });

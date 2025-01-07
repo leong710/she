@@ -497,9 +497,9 @@
                         $logs_request = array (
                             "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
                             "cname"  => $auth_cname." (".$auth_emp_id.")",
-                            "action" => $status ?? '送出 (Submit)',
+                            "action" => $status ?? "送出 (Submit)",
                             "logs"   => $row_data["logs"] ?? "",
-                            "remark" => $sign_comm ?? 'sign_comm'
+                            "remark" => $parm_array["sign_comm"] ?? ""
                         ); 
                         // 呼叫toLog製作log檔
                             $logs_enc = toLog($logs_request);

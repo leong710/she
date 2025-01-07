@@ -568,6 +568,7 @@
         return new Promise((resolve) => {
             // init
             _docs_inf = docDeptNo;      // 套取docs
+            console.log('docDeptNo =>',docDeptNo);
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(Object.entries(docDeptNo).length > 0){     // 判斷使否有長度值
@@ -685,7 +686,7 @@
     // 生成簽核btn
     async function mk_form_btn (docDeptNo) {
         const btn_s = `<button type="button" class="btn `;
-        const btn_m = `" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
+        const btn_m = ` add_btn" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
         const btn_e = `" onclick="mk_submitItem(this.value, this.innerHTML);" disable>`;
     
         const btn_0  = btn_s +"btn-outline-danger"  + btn_m +"0" + btn_e +"作廢 (Abort)</button>";
@@ -697,7 +698,7 @@
 
         const formBtnDiv = document.getElementById("form_btn_div");
         formBtnDiv.innerHTML = "";
-        formBtnDiv.insertAdjacentHTML('beforeend', btn_6 +'&nbsp;'+ btn_5 +'&nbsp;'+ btn_4 +'&nbsp;'+ btn_0);
+        formBtnDiv.insertAdjacentHTML('beforeend', btn_6 +'&nbsp;'+ btn_5 +'&nbsp;'+ btn_4);
 
     }
     // 簽核類型渲染
