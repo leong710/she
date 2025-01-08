@@ -106,8 +106,12 @@
 
                 let responseData = await response.json();
                 let result_obj = responseData['result_obj'];    // 擷取主要物件
-                return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
-                                                                // myCallback：form = bring_form() 、document = edit_show() 、
+
+                if(parm === 'return'){
+                    return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
+                }else{
+                    return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
+                }                                               // myCallback：form = bring_form() 、document = edit_show() 、
             } catch (error) {
                 $("body").mLoading("hide");
                 throw error;                                    // 載入失敗，reject
@@ -1049,33 +1053,30 @@
     // [p1 函數-1] 動態生成所有按鈕，並重新綁定事件監聽器
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
-            console.log('selectedDeptNo =>',selectedDeptNo);
+            // console.log('selectedDeptNo =>',selectedDeptNo);
 
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
-            if(Object.entries(selectedDeptNo).length > 0){     // 判斷使否有長度值
-
-
-                
-                Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
-                    // console.log('emp_sub_scope:',emp_sub_scope)
-                    let ostext_btns = `
-                        <div class="col-lm-3">
-                            <div class="card">
-                                <div class="card-header">${emp_sub_scope}</div>
-                                <div class="card-body p-2">
-                                    ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                        `<div class="form-check px-1">
-                                            <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-outline-secondary add_btn " >
-                                            ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>
-                                        </div>`
-                                    ).join('')}
+            if(selectedDeptNo.length > 0){     // 判斷使否有長度值
+                // Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
+                for (const _item of selectedDeptNo) {
+                    Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
+                        let ostext_btns = `
+                            <div class="col-lm-3 p-1">
+                                <div class="card">
+                                    <div class="card-header">${emp_sub_scope}</div>
+                                    <div class="card-body p-2">
+                                        ${Object.entries(oh_value).map(([o_key, o_value]) =>
+                                            `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" disabled>
+                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
+                                        ).join('')}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>`;
-                    $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
-                });
+                            </div>`;
+                        $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
+                    })
+                };
             }else{
                 let ostext_btns = `
                     <div class="col-md-3">
@@ -1113,48 +1114,62 @@
         });
     }
     // [p1 函數-2] 241213 將送審的百分比改成送審中
-    function filtApprove(_docs) {
-        return new Promise((resolve) => {
-            _docs_inf = _docs;      // 帶入inf
-            console.log('filtApprove =>',_docs_inf)
-            _docs.forEach( _doc => {
-                if(_doc.idty >= 4){
-                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
-                    for (const [key, node_i] of Object.entries(deptNo_sups)) {
-                        node_i.innerHTML = "(送審中)";
-                    }
-                } else if(_doc.idty == 2){
-                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
-                    for (const [key, node_i] of Object.entries(deptNo_sups)) {
-                        node_i.innerHTML = "(退回編輯)";
-                    }
-                }
-            })
+    async function filtApprove(_docs) {
+        _docs_inf = _docs;      // 帶入inf
+        const reviewStep = await load_fun('reviewStep', 'return', );     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+        const _step = reviewStep.step;
 
-            resolve();      // 當所有設置完成後，resolve Promise
-        });
+        _docs.forEach( _doc => {
+            const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
+
+            let innerHTMLValue = "";
+            innerHTMLValue = (_doc.idty == 2) ? "退回編輯" : _step[_doc.idty].approvalStep;
+            
+            // 更新所有符合條件的節點的 innerHTML
+            deptNo_sups.forEach(node => {
+                node.innerHTML = `(${innerHTMLValue})`;
+            });
+            
+            const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
+            // 如果 idty 大於 4，則更新按鈕樣式
+            if (_doc.idty == 2) {
+                deptNo_btns.forEach(deptNo_btn => {
+                    deptNo_btn.classList.remove('btn-info');
+                    deptNo_btn.classList.remove('add_btn');
+                    deptNo_btn.classList.add('btn-warning');
+                })
+            }
+            // 如果 idty 大於 4，則更新按鈕樣式
+            if (_doc.idty >= 4) {
+                deptNo_btns.forEach(deptNo_btn => {
+                    deptNo_btn.classList.remove('btn-info');
+                    deptNo_btn.classList.add('btn-outline-secondary');
+                })
+            }
+            // 編輯權限
+            deptNo_btns.forEach(deptNo_btn => {
+                deptNo_btn.disabled = (_doc.dept_no !== auth_sign_code);
+            })
+            
+        })
     }
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init(deptNosObj) {
-        return new Promise((resolve) => {
-            rework_staff(deptNosObj);
-            mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
-
-            resolve();      // 當所有設置完成後，resolve Promise
-        });
+        await rework_staff(deptNosObj);
+        await mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
     }
     // [p1 函數-3] 設置事件監聽器和MutationObserver
     async function p1_eventListener() {
-        return new Promise((resolve) => {
+        // return new Promise((resolve) => {
             // p1. [通用]在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
 
             // [步驟-1] 初始化設置
             let parm = { _year : currentYear };
-            load_fun('load_staff_dept_nos', JSON.stringify(parm), p1_init);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
-            load_fun('load_document', JSON.stringify(parm), filtApprove);       // load_fun的變數傳遞要用字串
+            await load_fun('load_staff_dept_nos', JSON.stringify(parm), p1_init);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+            await load_fun('load_document', JSON.stringify(parm), filtApprove);       // load_fun的變數傳遞要用字串
 
-            reload_postMemoMsg_btn_Listeners();
+            await reload_postMemoMsg_btn_Listeners();
 
             // p1-3. 增加簽核[Agree]鈕的監聽動作...// p-2 批次儲存員工清單...
             reviewSubmit_btn.addEventListener('click', async function() {
@@ -1179,8 +1194,8 @@
 
             })
 
-            resolve();      // 當所有設置完成後，resolve Promise
-        });
+            // resolve();      // 當所有設置完成後，resolve Promise
+        // });
     }
 
     // 簽核類型渲染
@@ -1197,15 +1212,16 @@
     }
 
 // [default fun]
-    $(function() {
+    $(async function() {
         
-        p1_eventListener();                     // 呼叫函數-3 建立監聽
-        p2_eventListener();                     // 呼叫函數-3 建立監聽
+        await p1_eventListener();                     // 呼叫函數-3 建立監聽
+        await p2_eventListener();                     // 呼叫函數-3 建立監聽
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
         if(message) {
             Balert( message, 'warning')
         }
+        $("body").mLoading("hide");
 
     });

@@ -382,18 +382,26 @@
                             FROM _staff
                             WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no') IS NOT NULL
                         ) AS expanded_shCase
-                        GROUP BY year_key, dept_no, emp_sub_scope, emp_dept ";
+                        GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
                 $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
                 try {
                     $stmt->execute();
                     $staff_deptNos = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $staff_deptNos_arr = [];
+                    $staff_deptNos_obj = [];
                     foreach($staff_deptNos as $deptNo_i){
-                        $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]           = $deptNo_i["emp_dept"];
-                        $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_count"]           = $deptNo_i["_count"];
-                        $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
-                        $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
+                        $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]           = $deptNo_i["emp_dept"];
+                        $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_count"]           = $deptNo_i["_count"];
+                        $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
+                        $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
                     }
+
+                    foreach($staff_deptNos_obj as $key => $value){
+                        $i = [];
+                        $i[$key] = $value;
+                        array_push($staff_deptNos_arr, $i);
+                    }
+
                     // 製作返回文件
                     $result = [
                         'result_obj' => $staff_deptNos_arr,
@@ -602,6 +610,20 @@
                     // 製作返回文件
                     $result = [
                         'result_obj' => $_documents,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+            break;
+            case 'reviewStep':
+                require_once("load_function.php");
+                $step_arr = reviewStep();                         // 取得reviewStep
+                if ($step_arr) {
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $step_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];

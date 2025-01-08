@@ -138,6 +138,9 @@
             .btn {
                 padding: 4px 4px;
             }
+            .btn-info {
+                background-color: rgba(23, 162, 184, 0.3); /* 這是 Bootstrap 中 btn-info 的顏色，0.5 表示透明度50% */
+            }
     </style>
 </head>
 <body>
@@ -170,10 +173,10 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9">
+                                    <div class="col-8 col-md-9 py-1">
                                         <snap for="deptNo_opts" class="form-label"><h5>審查名單：</h5></snap>
                                     </div>
-                                    <div class="col-4 col-md-3 text-end">
+                                    <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
                                             <div class="input-group">
                                                 <span class="input-group-text">篩選</span>
@@ -190,11 +193,11 @@
                                         </form>
                                     </div>
                                 </div>
-                                <div id="deptNo_opts" class="col-12 px-2 py-1 form-control">
-                                    <div id="deptNo_opts_inside" class="row">
+                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
+                                    <div id="deptNo_opts_inside" class="row p-0">
                                         <!-- 放checkbox按鈕的地方 -->
                                     </div> 
-                                </div>
+                                <!-- </div> -->
                             </div>
 
                         </div>
@@ -453,6 +456,7 @@
     const sys_role    = '<?=$sys_role?>';
     const auth_emp_id = '<?=$auth_emp_id?>';
     const auth_cname  = '<?=$auth_cname?>';
+    const auth_sign_code = '<?=$auth_sign_code?>';
     // const currentYear = String(new Date().getFullYear());    // 取得當前年份
     const currentYear = '<?=$_year?>';                       // 取得當前年份
     const preYear     = String(currentYear - 1);             // 取得去年年份
