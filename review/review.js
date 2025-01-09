@@ -121,7 +121,8 @@
             staff_inf     = [];
             shLocal_inf   = [];
             loadStaff_tmp = [];
-            _doc_inf.idty = null;
+            _doc_inf      = [];
+            // _doc_inf.idty = null;
 
             await release_dataTable();
             $('#form_btn_div').empty();
@@ -154,10 +155,8 @@
             
                 // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
                 // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
-
                 // loadExcel_btn.disabled   = (_doc_inf.idty >= 4);  // 讓 新增 按鈕啟停
                 // importStaff_btn.disabled = (_doc_inf.idty >= 4);  // 讓 上傳 按鈕啟停
-
                 // if(_doc_inf.idty >= 4){
                 //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
                 //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
@@ -486,12 +485,12 @@
         // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
     }
     // 鋪設表頭訊息及待簽人員
-    async function post_reviewInfo(){
+    function post_reviewInfo(_doc_inf){
         return new Promise((resolve) => {
             const divs = '<div class="row p-2">';
             const divm = '<div class="col-md-6 bg-light border rounded">';
             const reviewItem_txt   = `<b>Step：</b>${_doc_inf.idty}<br><b>審核：</b>${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
-            const reviewInsign_txt = `<b>待簽：</b>`+(_doc_inf.idty > 0 && _doc_inf.idty < 5 ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
+            const reviewInsign_txt = `<b>待簽：</b>`+((_doc_inf.idty > 0 && _doc_inf.idty < 5) && _doc_inf.in_sign !='' ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
             const reviewflow_txt   = `<b>Flow：</b>${_doc_inf.flow}<br><b>Remark：</b>${_doc_inf.flow_remark.remark}<br><b>Group：</b>${_doc_inf.flow_remark.group}`;
             $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
 
@@ -548,8 +547,8 @@
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
     async function rework_staff(loadStaff_arr){
-        return new Promise((resolve) => {
-            Object.entries(loadStaff_arr).forEach(([index, staffValue]) => {
+        // return new Promise((resolve) => {
+            for (const [index, staffValue] of Object.entries(loadStaff_arr)) {
                 const age = staffValue.year_key;    // 提取資料年分
                 // 將指定的欄位提取到最外圍
                     loadStaff_arr[index].HIRED         = staffValue.shCase_logs[age].HIRED
@@ -558,18 +557,18 @@
                     loadStaff_arr[index].emp_sub_scope = staffValue.shCase_logs[age].emp_sub_scope
                     loadStaff_arr[index].gesch         = staffValue.shCase_logs[age].gesch
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
-            })
+            }
             staff_inf = loadStaff_arr;      // 套取staff的表單
             loadStaff_tmp = loadStaff_arr;  // 套取staff的表單 = for 比對功能，來決定是否儲存
-            console.log('loadStaff_arr...',loadStaff_arr);
-            post_hrdb(loadStaff_arr);       // 鋪設--人員資料
-            post_shCase(loadStaff_arr);     // 鋪設--特作資料
-            post_reviewInfo();              // 鋪設表頭訊息及待簽人員
+            // console.log('loadStaff_arr...',loadStaff_arr);
+            await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
+            await post_shCase(loadStaff_arr);     // 鋪設--特作資料
+            await post_reviewInfo(_doc_inf);              // 鋪設表頭訊息及待簽人員
 
-            resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
+            await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
-            resolve();  // 當所有設置完成後，resolve Promise
-        });
+            // resolve();  // 當所有設置完成後，resolve Promise
+        // });
     }
 
     
@@ -578,7 +577,7 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             _docs_inf = docDeptNo;      // 套取docs
-            // console.log('docDeptNo =>',docDeptNo);
+            console.log('docDeptNo =>',docDeptNo);
             
             // init
             $('#deptNo_opts_inside').empty();
@@ -592,7 +591,7 @@
                                     <div class="card-header">${emp_sub_scope}</div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" >
+                                            `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" disabled>
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value.check_list.length}人<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.idty})</sup></button>`
                                         ).join('')}
                                     </div>
@@ -620,27 +619,28 @@
                 deptNo_btn.addEventListener('click', async function() {
                     // 工作一 清空暫存
                         await resetINF(true); // 清空
-                    // 工作二 依部門代號撈取員工資料 後 進行鋪設
-                        const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
-                        load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                    // 工作三 
+
+                    // 工作二 
                         const thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
                         // const select_year     = thisValue_arr[0];           // 取出陣列0=年份
                         const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
                         const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
-                        
-                        // const _doc = _docs_inf[select_subScope][select_deptNo];     // 從_docs_inf中取出對應 廠區/部門代號 的表單                           
                         // 使用 .find() 找到滿足條件的物件
                         const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
                         // 從 result 中取出對應的廠區/部門代號
                         const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
 
+                        // 採用淺拷貝的方式來合併物件
+                        // _doc_inf = Object.assign( {}, _doc_inf, _doc );
                         _doc_inf = _doc;
                         _doc_inf['subScope'] = select_subScope;
                         _doc_inf['deptNo']   = select_deptNo;
-                    
-                        mk_form_btn(docDeptNo);     // 建立簽核按鈕
-                        post_logs(_doc.logs);       // 鋪設文件歷程
+
+                    // 工作三 依部門代號撈取員工資料 後 進行鋪設
+                        const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
+                        await load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        await mk_form_btn(docDeptNo);     // 建立簽核按鈕
+                        await post_logs(_doc_inf.logs);       // 鋪設文件歷程
 
                     $('#nav-p2-tab').tab('show');
                 });
@@ -653,29 +653,30 @@
     }
     // [p1 函數-2] 241213 將送審的百分比改成送審中
     async function filtApprove(_docs) {
-        const reviewStep = await load_fun('reviewStep', 'return', );     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+        const reviewStep = await load_fun('reviewStep', 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
         const _step = reviewStep.step;
+
         for (const _doc of _docs) {
             for (const [emp_sub_scope, dept_no_value] of Object.entries(_doc)) {
                 for (const [dept_no, value] of Object.entries(dept_no_value)) {
-                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${dept_no}[]"]`);
-    
-                    let innerHTMLValue = "";
-                    innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
-        
+                    const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"] sup[name="sup_${dept_no}[]"]`);
+                    const innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
+
                     // 更新所有符合條件的節點的 innerHTML
-                    deptNo_sups.forEach(node => {
-                        node.innerHTML = `(${innerHTMLValue})`;
-                    });
+                    deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
         
-                    // 如果 idty 大於 4，則更新按鈕樣式
-                    if (value.idty > 4) {
-                        const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*="${emp_sub_scope},${dept_no}"]`);
-                        deptNo_btns.forEach(deptNo_btn => {
+                    const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
+                    deptNo_btns.forEach(deptNo_btn => {
+                        // 如果 idty 大於 4，則更新按鈕樣式
+                        if (value.idty > 4) {
                             deptNo_btn.classList.remove('btn-info');
                             deptNo_btn.classList.add('btn-outline-secondary');
-                        });
-                    }
+                        }
+                        // 編輯權限
+                        deptNo_btn.disabled = (dept_no !== auth_sign_code);
+                    });
+                    // deptNo_btns.forEach(deptNo_btn => {
+                    // })
                 }
             }
         }

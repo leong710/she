@@ -1131,26 +1131,21 @@
             });
             
             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
-            // 如果 idty 大於 4，則更新按鈕樣式
-            if (_doc.idty == 2) {
-                deptNo_btns.forEach(deptNo_btn => {
+            deptNo_btns.forEach(deptNo_btn => {
+                // 如果 idty 等於 2 退件，則更新按鈕樣式
+                if (_doc.idty == 2) {
                     deptNo_btn.classList.remove('btn-info');
                     deptNo_btn.classList.remove('add_btn');
                     deptNo_btn.classList.add('btn-warning');
-                })
-            }
-            // 如果 idty 大於 4，則更新按鈕樣式
-            if (_doc.idty >= 4) {
-                deptNo_btns.forEach(deptNo_btn => {
+                }
+                // 如果 idty 大於 4，則更新按鈕樣式
+                if (_doc.idty >= 4) {
                     deptNo_btn.classList.remove('btn-info');
                     deptNo_btn.classList.add('btn-outline-secondary');
-                })
-            }
-            // 編輯權限
-            deptNo_btns.forEach(deptNo_btn => {
+                }
+                // 編輯權限
                 deptNo_btn.disabled = (_doc.dept_no !== auth_sign_code);
             })
-            
         })
     }
     // [p1 函數-1] 設置事件監聽器和MutationObserver

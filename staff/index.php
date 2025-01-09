@@ -245,7 +245,6 @@
                                     <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
                                         value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
                                         <!-- value="" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button> -->
-
                                 </div>
                             </div>
                             <hr>

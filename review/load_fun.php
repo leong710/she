@@ -378,7 +378,7 @@
                     $conditions = [];
                     $stmt_arr   = [];    
 
-                    $conditions[] = "idty in (4, 5)";
+                    $conditions[] = "idty in (4, 5, 6)";
 
                 if (!empty($_year)) {
                     $conditions[] = "age = ?";
