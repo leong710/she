@@ -56,7 +56,7 @@
                 // edit_myTodo_btn.click();
                 var add_btn = '<input type="submit" name="edit_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
                 // var del_btn = '<input type="submit" name="delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
-                var del_btn ='<button type="submit" name="delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)"><i class="fa-regular fa-trash-can"></i></button>';
+                var del_btn ='<button type="submit" name="delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)" onsubmit="this.site_id.required=false; this.sign_code.required=false; this.fab_title.required=false; this.fab_remark.required=false; this.osha_id.required=false; this.BTRTL.required=false;"><i class="fa-regular fa-trash-can"></i></button>';
                 $('#'+to_module+'_modal_action').append('編輯');          // model標題
                 $('#'+to_module+'_modal_delect_btn').append(del_btn);     // 刪除鈕
                 $('#'+to_module+'_modal_button').append(add_btn);         // 儲存鈕
@@ -221,11 +221,11 @@
         }
     }
     // // // 第三頁：searchUser function 
-
-    $(function () {
+    
+    $(document).ready(function(){
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
-
+    
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 
@@ -248,9 +248,6 @@
                 } 
             } 
         };
-    })
-
-    $(document).ready(function(){
         // 切換指定NAV分頁 // 激活选项卡
         $('.nav-tabs button:eq(' + activeTab + ')').tab('show');
 

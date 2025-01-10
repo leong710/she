@@ -88,7 +88,7 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col_xl_8 col-8 bg-light rounded my-0 p-3" >
+            <div class="col_xl_10 col-10 bg-light rounded my-0 p-3" >
                 <!-- NAV title -->
                 <div class="row">
                     <!-- 分頁標籤 -->
@@ -175,6 +175,7 @@
                                             <th>ai</th>
                                             <th>site_id</th>
                                             <th>fab_title (remark)</th>
+                                            <th>BTRTL</th>
                                             <th>osha_id</th>
                                             <th>sign_code</th>
                                             <th style="width: 25%;">pm_emp_id</th>
@@ -190,6 +191,7 @@
                                                 <td style="font-size: 12px;"><?php echo $fab['id']; ?></td>
                                                 <td class="text-start"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
                                                 <td class="text-start"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
+                                                <td class="text-center"><?php echo $fab['BTRTL']; ?></td>
                                                 <td class="text-center"><?php echo $fab['osha_id']; ?></td>
                                                 <td class="text-center"><?php echo $fab['sign_code']; ?></td>
                                                 <td class="word_bk"><?php echo $fab['pm_emp_id']; ?></td>
@@ -248,7 +250,7 @@
                                         <option value="" hidden>-- [請選擇 棟別] --</option>
                                         <option value="0" selected >-- All Fab --</option>
                                         <?php foreach($fabs as $fab){
-                                            echo "<option value='{$fab["id"]}' title='{$fab["fab_title"]}' ".((isset($_REQUEST["fab_id"]) && $_REQUEST["fab_id"] == $fab["id"]) ? "selected":"" ) .">";
+                                            echo "<option value='{$fab["id"]}' title='{$fab["fab_title"]}' ".((isset($_REQUEST["fab_id"]) && $_REQUEST["fab_id"] == $fab["id"]) ? "selected":"" ) ." class='".($fab["flag"] == "Off" ? "text-danger":"")."'>";
                                             echo "{$fab["id"]}：{$fab["site_title"]}&nbsp{$fab["fab_title"]}&nbsp({$fab["fab_remark"]})".($fab["flag"] == "Off" ? "&nbsp(已關閉)":"")."</option>";
                                         } ?>
                                     </select>
@@ -375,19 +377,16 @@
     </div>
 <!-- 模組 新增編輯fab-->
     <div class="modal fade" id="edit_fab" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header border rounded p-3 m-2">
-                    <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> <span id="fab_modal_action"></span>fab資訊</h5>
-                    <form action="" method="post">
-                        <input type="hidden" name="id" id="fab_delete_id">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp
-                        <span id="fab_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
-                    </form>
-                    <button type="button" class="btn-close border rounded mx-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-
-                <form action="" method="post">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+            <form action="" method="post">
+                <div class="modal-content">
+                    <div class="modal-header border rounded p-3 m-2">
+                        <h5 class="modal-title"><i class="fa-solid fa-circle-info"></i> <span id="fab_modal_action"></span>fab資訊</h5>
+                            <input type="hidden" name="id" id="fab_delete_id">
+                                &nbsp&nbsp&nbsp&nbsp&nbsp
+                            <span id="fab_modal_delect_btn" class="<?php echo ($sys_role == 0) ? "":" unblock ";?>"></span>
+                        <button type="button" class="btn-close border rounded mx-1" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                     <div class="modal-body px-4">
                         <!-- Line 1 -->
                         <div class="row">
@@ -436,13 +435,25 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Line 3 -->
+                        <!-- Line 3-1 -->
                         <div class="row">
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <input type="text" name="osha_id" class="form-control" id="edit_osha_id" required placeholder="職安署事業單位編號" maxlength="12" oninput="if(value.length>12)value=value.slice(0,12)">
                                     <label for="edit_osha_id" class="form-label">osha_id/職安署事業單位編號：<sup class="text-danger"> * (12碼)</sup></label>
                                 </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 py-1">
+                                <div class="form-floating">
+                                    <input type="text" name="BTRTL" class="form-control" id="edit_BTRTL" required placeholder="HRDB建物編號" maxlength="4" oninput="if(value.length>12)value=value.slice(0,4)">
+                                    <label for="edit_BTRTL" class="form-label">BTRTL/HRDB建物編號：<sup class="text-danger"> * (4碼)</sup></label>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Line 3-2 -->
+                        <div class="row">
+                            <div class="col-12 col-md-6 py-1">
                             </div>
 
                             <div class="col-12 col-md-6 py-1">
@@ -498,9 +509,8 @@
                             <button type="reset" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
-                </form>
-    
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 <!-- 模組 新增編輯Local-->
@@ -592,7 +602,7 @@
     var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
     var local       = <?=json_encode($locals)?>;                                                // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
-    var fab_item    = ['id','site_id','fab_title','fab_remark','osha_id','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
+    var fab_item    = ['id','site_id','fab_title','fab_remark','osha_id','BTRTL','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
     var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     var sortFab_id  = '<?=$sortFab_id?>';
 

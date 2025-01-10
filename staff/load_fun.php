@@ -343,6 +343,36 @@
                     ];
                 }
             break;
+            case 'update_workTarget':
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "update_workTarget",
+                    "content"   => "更新作業年度--"
+                );
+                $workTargetFile = "workTarget.json";                                     // 預設sw.json檔案位置
+                $workTarget_json = isset($_REQUEST['parm']) ? $_REQUEST['parm'] : null;
+                if(!empty($workTarget_json)){
+                    $fop = fopen($workTargetFile,"w");  //開啟檔案
+                    fputs($fop, $workTarget_json);     //初始化sw+寫入
+                    fclose($fop);                   //關閉檔案
+                    // 製作返回文件
+                    $swal_json["action"]   = "success";
+                    $swal_json["content"] .= '儲存成功';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                }else{
+                    // echo "<script>alert('參數sw_json_data異常，請重新確認~')</script>";
+                    $swal_json["action"]   = "error";
+                    $swal_json["content"] .= '儲存失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
+            break;
             
             case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號
                 $pdo = pdo();

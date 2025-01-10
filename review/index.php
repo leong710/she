@@ -9,8 +9,9 @@
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // tidy query condition：
-        $_year        = $_REQUEST["_year"] ?? date('Y');    // 開起年份
-        $_years = [ $_year+1, $_year, $_year-1, $_year-2];
+        $get_year = load_workTarget("_year");
+        $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
+        $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
 
     // default fab_scope
         $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";               // All :allMy

@@ -1065,10 +1065,11 @@
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
-                                    <div class="card-header">${emp_sub_scope}</div>
+                                    <div class="card-header"><b>>>&nbsp;${emp_sub_scope}</b></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" disabled>
+                                            `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
+                                                + ((sys_role <= 1) ? "": "disabled") +` >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
                                         ).join('')}
                                     </div>
@@ -1118,17 +1119,14 @@
         _docs_inf = _docs;      // 帶入inf
         const reviewStep = await load_fun('reviewStep', 'return', );     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
         const _step = reviewStep.step;
-
+        
         _docs.forEach( _doc => {
             const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
-
-            let innerHTMLValue = "";
-            innerHTMLValue = (_doc.idty == 2) ? "退回編輯" : _step[_doc.idty].approvalStep;
+            const innerHTMLValue = (_doc.idty == 2) ? "退回編輯" : _step[_doc.idty].approvalStep;
+            const doc_Role = (!((_doc.dept_no == auth_sign_code) || (sys_role <= 1)));  // 決定開啟的權限
             
             // 更新所有符合條件的節點的 innerHTML
-            deptNo_sups.forEach(node => {
-                node.innerHTML = `(${innerHTMLValue})`;
-            });
+            deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
             
             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
             deptNo_btns.forEach(deptNo_btn => {
@@ -1143,8 +1141,8 @@
                     deptNo_btn.classList.remove('btn-info');
                     deptNo_btn.classList.add('btn-outline-secondary');
                 }
-                // 編輯權限
-                deptNo_btn.disabled = (_doc.dept_no !== auth_sign_code);
+                // 點擊編輯權限
+                deptNo_btn.disabled = doc_Role;
             })
         })
     }

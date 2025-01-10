@@ -9,8 +9,9 @@
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // tidy query condition：
-        $_year        = $_REQUEST["_year"] ?? date('Y');    // 開起年份
-        $_years = [ $_year+1, $_year, $_year-1, $_year-2];
+        $get_year = load_workTarget("_year");
+        $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
+        $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
       
     // default fab_scope
         $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
@@ -180,6 +181,7 @@
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
                             <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
+                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled";?>" value="workTarget.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;指定作業年度</button>
                         </div>
                     </nav>
                 </div>

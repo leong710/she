@@ -111,10 +111,10 @@
     function store_fab($request){
         $pdo = pdo();
         extract($request);
-        $sql = "INSERT INTO _fab(site_id, fab_title, fab_remark, osha_id, sign_code, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,  ?,?,now(),now())";
+        $sql = "INSERT INTO _fab(site_id, fab_title, fab_remark, BTRTL, osha_id, sign_code, flag, updated_user, created_at, updated_at)VALUES(?,?,?,?,?,?,  ?,?,now(),now())";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$site_id, $fab_title, $fab_remark, $osha_id, $sign_code, $flag, $updated_user]);
+            $stmt->execute([$site_id, $fab_title, $fab_remark, $BTRTL, $osha_id, $sign_code, $flag, $updated_user]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -145,11 +145,11 @@
         }
 
         $sql = "UPDATE _fab
-                SET site_id=?, fab_title=?, fab_remark=?, osha_id=? ,sign_code=?, pm_emp_id=?, flag=?, updated_user=?, updated_at=now()
+                SET site_id=?, fab_title=?, fab_remark=?, BTRTL=? ,osha_id=? ,sign_code=?, pm_emp_id=?, flag=?, updated_user=?, updated_at=now()
                 WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$site_id, $fab_title, $fab_remark, $osha_id,$sign_code, $pm_emp_id, $flag, $updated_user, $id]);
+            $stmt->execute([$site_id, $fab_title, $fab_remark, $BTRTL, $osha_id, $sign_code, $pm_emp_id, $flag, $updated_user, $id]);
         }catch(PDOException $e){
             echo $e->getMessage();
         }

@@ -236,4 +236,26 @@
         }
     }
 
+    // load workTarget.json
+    function load_workTarget($parm) {
+        $workTarget_file = "../staff/workTarget.json";
+        $workTarget_arr = [];
 
+        if(file_exists($workTarget_file)){
+            $workTarget_json = file_get_contents($workTarget_file); // 从JSON文件加载内容
+            // 嘗試解碼 JSON，並檢查是否成功
+            $decoded_data = json_decode($workTarget_json, true);    // 解析JSON数据并将其存储在$变量中，如果想解析为陣列，请传入true，否则将解析为物件
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $workTarget_arr = $decoded_data;                    // 直接賦值
+            } else {
+                // 處理 JSON 解碼錯誤，您可以在這裡記錄錯誤或拋出異常
+                // error_log('JSON Error: ' . json_last_error_msg());
+            }
+            // 假如有直取參數...
+            if($parm){
+                $workTarget_arr = (isset($workTarget_arr[$parm])) ? $workTarget_arr[$parm] : null;
+            }
+        }
+
+        return $workTarget_arr;
+    }
