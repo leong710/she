@@ -956,13 +956,14 @@
             empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
             // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
             // 241101 暫停取用hrdb進行更新。 改用下面：
-                empData.gesch          = s_value.gesch;
-                empData.natiotxt       = s_value.natiotxt;
-                empData.HIRED          = s_value.HIRED;
-                empData.dept_no        = s_value.dept_no;                 // 部門代號
-                empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍
-                empData.emp_dept       = s_value.emp_dept;                // 部門名稱
-                empData.currentYear    = currentYear;                     // 作業年度
+            empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍
+            empData.dept_no        = s_value.dept_no;                 // 部門代號
+            empData.emp_dept       = s_value.emp_dept;                // 部門名稱
+            empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
+            empData.gesch          = s_value.gesch;
+            empData.HIRED          = s_value.HIRED;
+            empData.natiotxt       = s_value.natiotxt;
+            empData.currentYear    = currentYear;                     // 作業年度
         }
         mgInto_staff_inf(loadStaff_arr);
         inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
@@ -974,15 +975,16 @@
             Object.entries(searchStaff_arr).forEach(([index, staffValue]) => {
                 const rework_staff = {
                     // 'emp_sub_scope' : staffValue.emp_sub_scope.replace(/ /g, '&nbsp;'),
-                    'emp_sub_scope' : staffValue.emp_sub_scope,     // 人事子範圍名稱
-                    'emp_id'        : staffValue.emp_id,
+                    'BTRTL'         : staffValue.BTRTL,             // 人事子範圍
                     'cname'         : staffValue.cname,
-                    'dept_no'       : staffValue.dept_no,           // 簽核部門代碼
-                    'emp_dept'      : staffValue.emp_dept,          // 簽核部門物件長名
-                    'HIRED'         : staffValue.HIRED,             // 到職日
                     'cstext'        : staffValue.cstext,            // 職稱物件長名
-                    'gesch'         : staffValue.gesch,             // 性別
+                    'dept_no'       : staffValue.dept_no,           // 簽核部門代碼
+                    'emp_id'        : staffValue.emp_id,
+                    'emp_dept'      : staffValue.emp_dept,          // 簽核部門物件長名
                     'emp_group'     : staffValue.emp_group,         // 員工群組名稱
+                    'emp_sub_scope' : staffValue.emp_sub_scope,     // 人事子範圍名稱
+                    'gesch'         : staffValue.gesch,             // 性別
+                    'HIRED'         : staffValue.HIRED,             // 到職日
                     'natiotxt'      : staffValue.natiotxt,          // 國籍名稱
                     'schkztxt'      : staffValue.schkztxt,          // 工作時程表規則名稱
                     'currentYear'   : currentYear                   // 作業年度
@@ -1053,7 +1055,7 @@
     // [p1 函數-1] 動態生成所有按鈕，並重新綁定事件監聽器
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
-            // console.log('selectedDeptNo =>',selectedDeptNo);
+            console.log('selectedDeptNo =>',selectedDeptNo);
 
             // init
             $('#deptNo_opts_inside').empty();

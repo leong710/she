@@ -6,8 +6,14 @@
     </div>
     <?php if(isset($_REQUEST["debug"])){
         echo "<div class='text-start text-white'><pre>";
-            if(isset($_SESSION["AUTH"])){print_r($_SESSION["AUTH"]);}
-            if(isset($_SESSION[$sys_id])){print_r($_SESSION[$sys_id]);}
+            if(isset($_SESSION["AUTH"])){
+                echo "AUTH：";
+                print_r($_SESSION["AUTH"]);
+            }
+            if(isset($_SESSION[$sys_id])){
+                echo "{$sys_id}：";
+                print_r($_SESSION[$sys_id]);
+            }
         echo "</pre></div>";
     } ?>
 </footer>

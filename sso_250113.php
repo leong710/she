@@ -23,48 +23,41 @@
                 
             }else{                                                          // sys_id還沒建立，就導入
                 $user = $_SESSION["AUTH"]["user"];
-                $user = strtoupper($_SESSION["AUTH"]["user"]);  // strtoupper(大寫)
-
-                    $pdo = pdo();
-                    $sql = "SELECT u.role, GROUP_CONCAT(f.BTRTL SEPARATOR ',') AS BTRTL
-                            FROM `_users` u
-                            LEFT JOIN `_fab` f ON FIND_IN_SET(u.emp_id, f.pm_emp_id) > 0
-                            WHERE u.user = ? 
-                            GROUP BY u.emp_id;";
-                    $stmt = $pdo -> prepare($sql);
-                    $stmt -> execute([$user]);
-                    $sys_local_row = $stmt -> fetch(PDO::FETCH_ASSOC);
-
-                    // 20240527_確認是否是環安處成員~
-                    $pdo_hrdb = pdo_hrdb();
-                    $sql_hrdb = "SELECT s.*, d.plant AS plant
-                            FROM [dbo].[STAFF] AS s
-                            LEFT JOIN [dbo].[DEPT] AS d ON s.dept_no = d.sign_code
-                            WHERE s.[user] = ? ";
-                    $stmt_hrdb = $pdo_hrdb -> prepare($sql_hrdb);
-                    $stmt_hrdb -> execute([$user]);
-                    $esh_mb = $stmt_hrdb -> fetch(PDO::FETCH_ASSOC);
+                $pdo = pdo();
+                // $sql = "SELECT u.* FROM _users u WHERE u.user = ? ";
+                $sql = "SELECT u.*, GROUP_CONCAT(f.BTRTL SEPARATOR ',') AS BTRTL
+                        FROM `_users` u
+                        LEFT JOIN `_fab` f ON FIND_IN_SET(u.emp_id, f.pm_emp_id) > 0
+                        WHERE u.user = ? 
+                        GROUP BY u.emp_id;";
+                $stmt = $pdo -> prepare($sql);
+                $stmt -> execute([$user]);
+                $sys_local_row = $stmt -> fetch(PDO::FETCH_ASSOC);
     
                 if($sys_local_row){                                         // 有sys_id的人員權限資料
                     if($sys_local_row["role"] != ""){                       // 權限沒被禁用
                         $_SESSION[$sys_id] = $sys_local_row;                // 導入$sys_id指定權限
-                        
-                        if(!empty($esh_mb["BTRTL"])){                       // 組合BTRTL
-                            $b_BTRTL_arr = explode(",", $_SESSION[$sys_id]["BTRTL"]);
-                            array_push($b_BTRTL_arr, $esh_mb["BTRTL"]);
-                            $_SESSION[$sys_id]["BTRTL"] = array_unique($b_BTRTL_arr);
-                        }
 
                     }else{                                                  // 權限被禁用
                         echo "<script>alert('{$sys_local_row["cname"]} Local帳號停用，請洽管理員')</script>";
                     }
-
                 }else{                                                      // 沒有sys_id的人員權限資料
+                    // echo "<script>alert('{$user} local無資料，請洽管理員')</script>";
+                    // header("location:../auth/register.php?user=$user");     // 沒有local資料，帶入註冊頁面
+
+                    // 20240527_確認是否是環安處成員~
+                    $user = strtoupper($_SESSION["AUTH"]["user"]);  // strtoupper(大寫)
+                    $pdo = pdo_hrdb();
+                    $sql = "SELECT s.*, d.plant AS plant
+                            FROM [dbo].[STAFF] AS s
+                            LEFT JOIN [dbo].[DEPT] AS d ON s.dept_no = d.sign_code
+                            WHERE s.[user] = ? ";
+                    $stmt = $pdo -> prepare($sql);
+                    $stmt -> execute([$user]);
+                    $esh_mb = $stmt -> fetch(PDO::FETCH_ASSOC);
                     $_SESSION[$sys_id]["role"]  = !empty($esh_mb["plant"]) ? 2.5 : 3;      // 2.5 = tnESH_user    // 3 = 外部user  
-                    $_SESSION[$sys_id]["BTRTL"] = explode(",",$esh_mb["BTRTL"]) ?? [];
-                    
-                    header("refresh:0;url={$url}{$sys_id}");
-                    exit;
+                    $_SESSION[$sys_id]["BTRTL"] = $esh_mb["BTRTL"] ?? null;
+                    return;
                 }
                 
                 // 20230906_set this point to log logs

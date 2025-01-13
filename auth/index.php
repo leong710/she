@@ -18,8 +18,6 @@
     // 這裡讀取狀態：none正常、new新人、pause停用
     $showAllUsers = showAllUsers("all");
 
-    $depts = show_dept();
-
 ?>
 <?php include("../template/header.php"); ?>
 <?php include("../template/nav.php"); ?>
@@ -80,9 +78,7 @@
                             <th>id</th>
                             <th class="unblock">role</th>
                             <th data-toggle="tooltip" data-placement="bottom" title="** 紅色字體為非在職名單 ~">emp_id / cName / user</th>
-                            <th>sign_code</th>
                             <th>role▼</th>
-                            <th>idty</th>
                             <th>created_at</th>
                             <th>action</th>
                         </tr>
@@ -94,21 +90,12 @@
                                 <td><?php echo $user_row["id"];?></td>
                                 <td class="unblock"><?php echo $user_row["role"];?></td>
                                 <td class="t_left" id="<?php echo 'emp_id_'.$user_row["emp_id"];?>"><?php echo $user_row["emp_id"]." / ".$user_row["cname"]." / ";?><a href="#" data-bs-toggle="modal" data-bs-target="#user_modal" onclick="edit_module('user',<?php echo $user_row['id'];?>)"><?php echo $user_row["user"]; ?></a></td>
-                                <td><?php echo $user_row["sign_code"]; ?></td>
                                 <td class="text-start" <?php if($user_row["role"] == "0"){ ?> style="background-color:yellow" <?php } ?>>
                                     <?php switch($user_row["role"]){
                                         case "0": echo "0.&nbsp管理"; break;
                                         case "1": echo "1.&nbspPM"; break;
                                         case "2": echo "2.&nbspsiteUser"; break;
                                         case "3": echo "3.&nbspnoBody"; break;
-                                        default: echo "【&nbsp停用&nbsp】";} ?></td>
-                                <td class="text-start"><?php echo $user_row["idty"];?>
-                                    <?php switch($user_row["idty"]){
-                                        case "0": echo ".&nbsp管理"; break;
-                                        case "1": echo ".&nbsp工程師"; break;
-                                        case "2": echo ".&nbsp課副理"; break;
-                                        case "3": echo ".&nbsp部經理"; break;
-                                        case "4": echo ".&nbsp廠處長"; break;
                                         default: echo "【&nbsp停用&nbsp】";} ?></td>
                                 <td title="<?php echo $user_row["created_at"];?>"><?php echo substr($user_row["created_at"],0,10);?></td>
                                 <td>
@@ -276,18 +263,6 @@
                         <div class="row">
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
-                                    <select name="idty" id="idty" class="form-select">
-                                        <option value=""  >停用</option>
-                                        <option value="1" selected >1_工程師</option>
-                                        <option value="2" >2_課副理</option>
-                                        <option value="3" >3_部經理層</option>
-                                        <option value="4" >4_廠處長層</option>
-                                    </select>
-                                    <label for="idty" class="form-label">身份定義：<sup class="text-danger"> *</sup></label>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-6 py-1">
-                                <div class="form-floating">
                                     <select name="role" id="role" class="form-select">
                                         <option value=""  for="role">停用</option>
                                         <option value="0" for="role" <?php echo $sys_role > 0 ? "hidden":"";?>>0_管理</option>
@@ -298,34 +273,16 @@
                                     <label for="role" class="form-label">權限：<sup class="text-danger"> *</sup></label>
                                 </div>
                             </div>
-                        </div>
-                        <!-- line 4 -->
-                        <div class="row">
-                            <div class="col-12 col-md-6 py-2">
-                                <div class="form-floating">
-                                    <select name="sign_code" id="sign_code" class="form-select" required>
-                                        <option value="" selected hidden>--請選擇所屬部門--</option>
-                                        <!-- <php if($depts['up_sign_code']){ ?>
-                                            <option value="<php echo $depts['up_sign_code'];?>" ><php echo $depts['up_sign_dept']."(".$depts['up_sign_code'].")";?></option>
-                                        <php } ?> -->
-                                        <?php foreach($depts as $dept){ ?>
-                                            <option value="<?php echo $dept['sign_code'];?>" ><?php echo $dept['up_sign_dept'] != "" ? $dept['up_sign_dept']." / ":""; echo $dept['sign_dept']." (".$dept['sign_code'].")";?></option>
-                                        <?php } ?>
-                                    </select>
-                                    <label for="sign_code" class="form-label">部門代號：<sup class="text-danger"> *</sup></label>
-                                </div>
+                            <div class="col-12 col-md-6 py-1 text-end" id="edit_user_info">
                             </div>
                         </div>
-                        <div class="col-12 text-end p-0" id="edit_user_info"></div>
                     </div>
                     <div class="modal-footer">
                         <div class="text-end">
-                            
                             <span id="activeTab" ></span>
                             <input type="hidden" name="id" id="user_edit_id" >
-                            
                             <span id="user_modal_button" class="<?php echo ($sys_role <= 1) ? "":" unblock ";?>"></span>
-                            <input type="reset" class="btn btn-info" id="user_reset_btn" onclick="$('#emp_id, #cname, #user, #idty').removeClass('autoinput');" value="清除">
+                            <input type="reset" class="btn btn-info" id="user_reset_btn" onclick="$('#emp_id, #cname, #user').removeClass('autoinput');" value="清除">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
                         </div>
                     </div>
@@ -369,7 +326,7 @@
 <script>    
     // modal
     var user        = <?=json_encode($showAllUsers)?>;
-    var user_item   = ['id','user','cname','emp_id','idty','role','sign_code'];                 // 交給其他功能帶入
+    var user_item   = ['id','user','cname','emp_id','role'];                                    // 交給其他功能帶入
     var tags        = [];                                                                       // fun3-1：search Key_word
     var swal_json   = <?=json_encode($sw_json)?>;
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）

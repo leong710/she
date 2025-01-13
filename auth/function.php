@@ -27,19 +27,11 @@
         if(!isset($role)){
             $role = 2;
         }
-        if(!isset($idty)){
-            $idty = 1;
-        }
-        if(!empty($sfab_id)){
-            $sfab_id = implode(",",$sfab_id);       //副fab是陣列，要儲存前要轉成字串
-        }else{
-            $sfab_id = "";
-        }
 
-        $sql = "INSERT INTO _users(emp_id, user, cname, sign_code, role, idty, created_at)VALUES(?,?,?,?,?,?,now())";
+        $sql = "INSERT INTO _users(emp_id, user, cname, role, created_at)VALUES(?,?,?,?,now())";
         $stmt = $pdo -> prepare($sql);
         try{
-            $stmt -> execute([$emp_id, $user, $cname, $sign_code, $role, $idty]);
+            $stmt -> execute([$emp_id, $user, $cname, $role]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '儲存成功';
         }catch(PDOException $e){
@@ -74,16 +66,11 @@
         );
 
         $user = trim($user);
-        if(!empty($sfab_id)){
-            $sfab_id = implode(",",$sfab_id);       //副pm是陣列，要儲存前要轉成字串
-        }else{
-            $sfab_id = "";
-        }
 
-        $sql = "UPDATE _users SET emp_id=?, user=?, cname=?, sign_code=?, role=?, idty=? WHERE id=?";
+        $sql = "UPDATE _users SET emp_id=?, user=?, cname=?, role=? WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
-            $stmt->execute([$emp_id, $user, $cname, $sign_code, $role, $idty, $id]);
+            $stmt->execute([$emp_id, $user, $cname, $role, $id]);
             $swal_json["action"]   = "success";
             $swal_json["content"] .= '儲存成功';
         }catch(PDOException $e){

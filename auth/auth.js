@@ -14,7 +14,7 @@
         })
 
         // 監聽表單內 input 變更事件
-        $('#emp_id, #cname, #user, #idty').change(function() {
+        $('#emp_id, #cname, #user').change(function() {
             $(this).removeClass('autoinput');   // 當有變更時，對該input加上指定的class
         });
 
@@ -152,32 +152,10 @@
             let obj_val = JSON.parse(val);                  // 將JSON字串轉成Object物件
             // 渲染
             Object.entries(obj_val).forEach(function([user_key, user_value]){
-                if(user_key == "cstext"){
-                    // 使用正则表达式的 exec 方法来查找目标字符串中的匹配项
-                    var idty = document.getElementById('idty');
-                    if(idty){
-                        // 创建正则表达式模式和对应的数值映射
-                        const patterns = {
-                            "副理": 2,
-                            "經理": 3,
-                            "處長": 4
-                        };
-                        let match;
-                        for (const [pattern, value] of Object.entries(patterns)) {
-                            const regex = new RegExp(pattern, 'gi');
-                            if ((match = regex.exec(obj_val.cstext)) !== null) {
-                                document.querySelector('#user_modal #idty').value = value; // 将字段带入值 = 职称.副理
-                                break;          // 找到匹配项后，跳出循环
-                            }
-                        }
-                        $("#idty").addClass("autoinput");
-                    }
-                }else{
-                    var tag_key = document.getElementById(user_key);
-                    if(tag_key){
-                        tag_key.value = user_value;
-                        $("#"+user_key).addClass("autoinput");
-                    }
+                var tag_key = document.getElementById(user_key);
+                if(tag_key){
+                    tag_key.value = user_value;
+                    $("#"+user_key).addClass("autoinput");
                 }
             })
             resetMain()                                                             // 清除搜尋頁面資料
@@ -224,22 +202,10 @@
             if(row['id'] == row_id){
                 // step2.鋪畫面到module
                 Object(window[to_module+'_item']).forEach(function(item_key){
+                    console.log('item_key...',item_key);
                     if(item_key == 'id'){
                         document.querySelector('#'+to_module+'_delete_id').value = row['id'];       // 鋪上delete_id = this id.no for delete form
                         document.querySelector('#'+to_module+'_edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form
-                    }else if(item_key == 'flag'){
-                        document.querySelector('#edit_'+to_module+' #edit_'+to_module+'_'+row[item_key]).checked = true;
-                    }else if(item_key == 'sfab_id'){                          // 20231108_pm_emp_id多名單
-                        // 第0階段：套用既有數據
-                        var intt_val_str = row['sfab_id'];                    // 引入PM資料
-                        var intt_val = [];
-                        // if(intt_val_str.length !== 0){                       // 過濾原本pm字串不能為空
-                        if(intt_val_str){                                       // 過濾原本pm字串不能為空
-                            intt_val = intt_val_str.split(',');                 // 直接使用 split 方法得到陣列
-                            intt_val.forEach(function(sfab_val){
-                                document.querySelector('#'+to_module+'_modal #sfab_id_'+sfab_val).checked = true;
-                            })
-                        }
                     }else{
                         document.querySelector('#'+to_module+'_modal #'+item_key).value = row[item_key]; 
                     }
