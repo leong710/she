@@ -642,7 +642,7 @@
                             checkList = checkList.replace(/\"/g, "'");
 
                         thisValue_arr.push(checkList)
-                        const selectedValues_str = JSON.stringify(thisValue_arr) // .replace(/[\[\]]/g, '');
+                        const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
                         console.log('selectedValues_str =>',selectedValues_str);
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
