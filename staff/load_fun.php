@@ -458,8 +458,8 @@
                     "content" => "批次送審名單--"
                 ];
 
-                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
+                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? AND BTRTL = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, BTRTL, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
                                 check_list      = VALUES(check_list), 
                                 in_sign         = VALUES(in_sign), 
@@ -494,6 +494,7 @@
                     $dept_no   = $parm_i_arr["dept_no"];
                     $emp_dept  = $parm_i_arr["emp_dept"];
                     $sub_scope = $parm_i_arr["emp_sub_scope"];
+                    $BTRTL     = $parm_i_arr["BTRTL"];
                     
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
@@ -508,7 +509,7 @@
                 if (!empty($new_check_list_in)) {
                     foreach ($new_check_list_in as $new_check_deptNo => $new_check_valueArr) {
                         $stmt_select = $pdo->prepare(SQL_SELECT_DOC);   // 預先動作：找是否已經有送件
-                        if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope])) {
+                        if (executeQuery($stmt_select, [$age, $new_check_deptNo, $sub_scope, $BTRTL])) {
                             $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                             // 如果資料存在則更新
                             if ($row_data) {
@@ -594,11 +595,11 @@
                         $_content_str    = json_encode($_content, JSON_UNESCAPED_UNICODE);
 
                         // 準備 SQL 和參數
-                        $values[] = "(?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
+                        $values[] = "(?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
                         $params = array_merge($params, [
-                            $uuid, $age, $new_check_deptNo, $emp_dept, $sub_scope, $new_form[$new_check_deptNo]["omager"],
-                            $check_list_str, $in_sign, $in_signName, $idty, $flow, $flow_remark_str, $_content_str,
-                            $auth_emp_id, $auth_cname, $auth_cname, $logs_enc
+                            $uuid,           $age,        $new_check_deptNo, $emp_dept, $sub_scope, $BTRTL,           $new_form[$new_check_deptNo]["omager"],
+                            $check_list_str, $in_sign,    $in_signName,      $idty,     $flow,      $flow_remark_str, $_content_str,
+                            $auth_emp_id,    $auth_cname, $auth_cname,       $logs_enc
                         ]);
                     }
                 }

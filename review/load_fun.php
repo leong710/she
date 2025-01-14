@@ -37,21 +37,16 @@
                 if(isset($parm)){
                     $pdo = pdo_hrdb();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                    
-                    $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.updated_at, _E.HIRED
+                    $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.updated_at, _E.HIRED, _E.BTRTL
                             FROM STAFF _S 
                             LEFT JOIN HCM_VW_EMP01_hiring _E ON _S.emp_id = _E.PERNR
                             WHERE _S.dept_no IN ({$parm_re}) ";
-
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY _S.dept_no ASC, _S.emp_id ASC ";
-
                     $stmt = $pdo->prepare($sql);
                     try {
-
                         $stmt->execute();                                   //處理 byAll
                         $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                         // 製作返回文件
                         $result = [
                             'result_obj' => $shStaffs,
@@ -172,6 +167,57 @@
                             ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
+                    $stmt = $pdo->prepare($sql);
+                    try {
+                        $stmt->execute();
+                        $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach($shStaffs as $index => $shStaff){
+                            $shStaffs[$index]['shCase_logs'] = json_decode($shStaffs[$index]['shCase_logs'], true);
+                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$year]['shCase'];
+                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$year]['shCondition'];
+                            $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
+                        }
+
+                    // 製作返回文件
+                        $result = [
+                            'result_obj' => $shStaffs,
+                            'fun'        => $sql,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+
+                    } catch (PDOException $e) {
+                        echo $e->getMessage();
+                        $result = [
+                            'result_obj' => $shStaffs,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        ];
+                    }
+                }else{
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+            break;
+            case 'load_staff_byCheckList':      // 主要參考_doc中的checkList名單，不會亂抓!
+                if(isset($parm)){
+                    $pdo = pdo();
+                    $parm = str_replace(['[', ']', '"'], '', $parm);
+                    // 分拆參數
+                    $year          = explode(',', $parm)[0];
+                    $deptNo        = explode(',', $parm)[1];
+                    $emp_sub_scope = explode(',', $parm)[2];
+                    $checkList     = explode(',', $parm)[3];
+                        $checkList = str_replace(';', ',', $checkList);
+
+                    // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
+                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, shCase_logs, _content
+                            FROM _staff
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                              AND JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
+                              AND _staff.emp_id IN ({$checkList})
+                            ";
+                    // 後段-堆疊查詢語法：加入排序
+                    $sql .= " ORDER BY _staff.emp_id ASC ";
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
@@ -409,6 +455,7 @@
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["uuid"]        = $deptNo_i["uuid"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]      = $deptNo_i["emp_dept"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["check_list"]  = json_decode($deptNo_i["check_list"], true);
+                        $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["BTRTL"]       = $deptNo_i["BTRTL"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["idty"]        = $deptNo_i["idty"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["omager"]      = $deptNo_i["omager"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_sign"]     = $deptNo_i["in_sign"];
@@ -451,16 +498,16 @@
 
                 define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE uuid = ? ");
                 define('SQL_UPDATE_DOC', "UPDATE _document SET in_sign = ?, in_signName = ?, idty = ?, flow = ?, flow_remark = ?, _content = ?, updated_cname = ?, logs = ?, updated_at = now() WHERE uuid = ? " );
-                $values   = [];
-                $params   = [];
-                $parm_array          = parseJsonParams($parm); // 使用新的函數解析JSON
-                $current_year        = $parm_array['currentYear'] ?? date('Y');
-                $staff_inf           = $parm_array['_staff']      ?? [];
-                $forwarded           = $parm_array['forwarded']   ?? [];
-                $doc_inf             = $parm_array['_doc']        ?? [];
-                $deptNo              = $doc_inf["deptNo"];
-                $uuid                = $doc_inf["uuid"];
-                $_content            = $doc_inf["_content"]       ?? [];  
+                $values       = [];
+                $params       = [];
+                $parm_array   = parseJsonParams($parm); // 使用新的函數解析JSON
+                $current_year = $parm_array['currentYear'] ?? date('Y');
+                $staff_inf    = $parm_array['_staff']      ?? [];
+                $forwarded    = $parm_array['forwarded']   ?? [];
+                $doc_inf      = $parm_array['_doc']        ?? [];
+                $deptNo       = $doc_inf["deptNo"];
+                $uuid         = $doc_inf["uuid"];
+                $_content     = $doc_inf["_content"]       ?? [];  
 
                 // 簽核步驟
                 $reviewStep_arr = reviewStep();                         // 取得reviewStep

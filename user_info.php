@@ -10,5 +10,6 @@
     $auth_idty      = (isset($_SESSION["AUTH"]["idty"]))      ? $_SESSION["AUTH"]["idty"]      : false ;
     $auth_sign_code = (isset($_SESSION["AUTH"]["sign_code"])) ? $_SESSION["AUTH"]["sign_code"] : false ;
     $sys_role       = (isset($_SESSION[$sys_id]["role"]))     ? $_SESSION[$sys_id]["role"]     : false ;
+    $sys_BTRTL      = (isset($_SESSION[$sys_id]["BTRTL"]))    ? $_SESSION[$sys_id]["BTRTL"]    : false ;
     $sys_auth       = (isset($_SESSION[$sys_id]))             ? true                           : false ; 
 

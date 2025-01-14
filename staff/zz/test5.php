@@ -1,8 +1,8 @@
 <?php
 
-    $test = "0000,0007";
+    $test = "";
 
-    $test_arr = explode(",", $test);
+    $test_arr = !empty($test) ? explode(",", $test) : [];
 
     array_push($test_arr, "0004");
 

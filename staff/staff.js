@@ -330,7 +330,10 @@
         release_dataTable();
         $('#hrdb_table tbody').empty();
         if(emp_arr.length === 0){
-            $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
+            const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
+            const columnCount = table.columns().count();                    // 獲取每行的欄位數量
+            const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
+            $('#hrdb_table tbody').append(tr1);
         }else{
             const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
             await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
@@ -430,19 +433,19 @@
     // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
     async function show_preYearShCase(select_empId){
         const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+            const thead = document.querySelector('#shCase_table thead');        // 獲取表格的 thead
+            const columnCount = thead.rows[0].cells.length;                     // 獲取每行的欄位數量
 
-        let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
+        let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
         if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
             // console.log('show_preYearShCase...empData...', empData.shCase_logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
-
                 tr1 = '<tr>';
                 tr1 += tdClass + ` id="emp_id`        + empId_preYear;
                 tr1 += tdClass + ` id="emp_sub_scope` + empId_preYear;
                 tr1 += tdClass + ` id="emp_dept`      + empId_preYear;
-
                 tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
                 tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
 
@@ -477,9 +480,7 @@
                     const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
                     let index = 1;
                     for (const [sh_key, sh_value] of Object.entries(shCase)) {
-                        
                         const empData_shCase_Noise = Object.values(sh_value['HE_CATE']).includes('噪音');
-
                         // step.2 將shLocal_item_arr循環逐項進行更新
                         shLocal_item_arr.forEach((sh_item) => {
                             // step.2a 項目渲染...
@@ -563,7 +564,10 @@
     async function post_shLocal(shLocal_arr){
         $('#shLocal_table tbody').empty();
         if(shLocal_arr.length === 0){
-            $('#shLocal_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
+            const thead = document.querySelector('#shLocal_table thead');        // 獲取表格的 thead
+            const columnCount = thead.rows[0].cells.length;                      // 獲取每行的欄位數量
+            const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
+            $('#shLocal_table tbody').append(tr1);
         }else{
             shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
             Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
@@ -956,7 +960,7 @@
             empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
             // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
             // 241101 暫停取用hrdb進行更新。 改用下面：
-            empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍
+            empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍-建物代號
             empData.dept_no        = s_value.dept_no;                 // 部門代號
             empData.emp_dept       = s_value.emp_dept;                // 部門名稱
             empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
@@ -975,7 +979,7 @@
             Object.entries(searchStaff_arr).forEach(([index, staffValue]) => {
                 const rework_staff = {
                     // 'emp_sub_scope' : staffValue.emp_sub_scope.replace(/ /g, '&nbsp;'),
-                    'BTRTL'         : staffValue.BTRTL,             // 人事子範圍
+                    'BTRTL'         : staffValue.BTRTL,             // 人事子範圍-建物代號
                     'cname'         : staffValue.cname,
                     'cstext'        : staffValue.cstext,            // 職稱物件長名
                     'dept_no'       : staffValue.dept_no,           // 簽核部門代碼
@@ -1071,7 +1075,7 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ((sys_role <= 1) ? "": "disabled") +` >
+                                                + ((sys_role <= 1) ? "": (sys_BTRTL.includes(o_value.BTRTL) ? "" : "disabled")) +` >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
                                         ).join('')}
                                     </div>
@@ -1186,7 +1190,6 @@
         
                 submit_modal.hide();
                 location.reload();
-
             })
 
             // resolve();      // 當所有設置完成後，resolve Promise
@@ -1213,7 +1216,8 @@
         await p2_eventListener();                     // 呼叫函數-3 建立監聽
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
+        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
+        let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
         if(message) {
             Balert( message, 'warning')
         }

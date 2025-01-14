@@ -315,8 +315,10 @@
     // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
     async function show_preYearShCase(select_empId){
         const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+            const thead = document.querySelector('#shCase_table thead');        // 獲取表格的 thead
+            const columnCount = thead.rows[0].cells.length;                     // 獲取每行的欄位數量
 
-        let tr1 = `<div class="col-12 text-center"> ~ 無 ${preYear} 儲存紀錄 ~ </div>`;
+        let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
         if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
             // console.log('show_preYearShCase...empData...', empData.shCase_logs);
             // 鋪設t-body
@@ -327,7 +329,6 @@
                 tr1 += tdClass + ` id="emp_id`        + empId_preYear;
                 tr1 += tdClass + ` id="emp_sub_scope` + empId_preYear;
                 tr1 += tdClass + ` id="emp_dept`      + empId_preYear;
-
                 tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
                 tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
 
@@ -362,9 +363,7 @@
                     const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
                     let index = 1;
                     for (const [sh_key, sh_value] of Object.entries(shCase)) {
-                        
                         const empData_shCase_Noise = Object.values(sh_value['HE_CATE']).includes('噪音');
-
                         // step.2 將shLocal_item_arr循環逐項進行更新
                         shLocal_item_arr.forEach((sh_item) => {
                             // step.2a 項目渲染...
@@ -622,24 +621,31 @@
                         await resetINF(true); // 清空
 
                     // 工作二 
-                        const thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
-                        // const select_year     = thisValue_arr[0];           // 取出陣列0=年份
+                        let thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
+                        // const select_year  = thisValue_arr[0];           // 取出陣列0=年份
                         const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
                         const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
                         // 使用 .find() 找到滿足條件的物件
                         const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
                         // 從 result 中取出對應的廠區/部門代號
                         const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
-
+                        // console.log('result =>',result);
                         // 採用淺拷貝的方式來合併物件
                         // _doc_inf = Object.assign( {}, _doc_inf, _doc );
                         _doc_inf = _doc;
                         _doc_inf['subScope'] = select_subScope;
                         _doc_inf['deptNo']   = select_deptNo;
 
-                    // 工作三 依部門代號撈取員工資料 後 進行鋪設
-                        const selectedValues_str = JSON.stringify(this.value).replace(/[\[\]]/g, '');
-                        await load_fun('load_staff_byDeptNo', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        // 工作三 依部門代號撈取員工資料 後 進行鋪設
+                        let checkList = JSON.stringify(_doc['check_list']).replace(/[\/\[\]]/g, '');
+                            checkList = checkList.replace(/\,/g, ';');
+                            checkList = checkList.replace(/\"/g, "'");
+
+                        thisValue_arr.push(checkList)
+                        const selectedValues_str = JSON.stringify(thisValue_arr) // .replace(/[\[\]]/g, '');
+                        console.log('selectedValues_str =>',selectedValues_str);
+
+                        await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                         await mk_form_btn(docDeptNo);     // 建立簽核按鈕
                         await post_logs(_doc_inf.logs);       // 鋪設文件歷程
 
@@ -774,9 +780,10 @@
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        // if(message) {
-        //     Balert( message, 'warning')
-        // }
+        let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
+        if(message) {
+            Balert( message, 'warning')
+        }
         $("body").mLoading("hide");
 
     });

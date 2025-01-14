@@ -454,13 +454,14 @@
     // const deptNosObj = <=json_decode($doc_deptNos)?>;
     // console.log('deptNosObj...', deptNosObj);
 
-    const sys_role    = '<?=$sys_role?>';
-    const auth_emp_id = '<?=$auth_emp_id?>';
-    const auth_cname  = '<?=$auth_cname?>';
+    const sys_role       = '<?=$sys_role?>';
+    const sys_BTRTL      = ('<?=$sys_BTRTL?>').split(',');      // 人事子範圍-建物代號
+    const auth_emp_id    = '<?=$auth_emp_id?>';
+    const auth_cname     = '<?=$auth_cname?>';
     const auth_sign_code = '<?=$auth_sign_code?>';
     // const currentYear = String(new Date().getFullYear());    // 取得當前年份
-    const currentYear = '<?=$_year?>';                       // 取得當前年份
-    const preYear     = String(currentYear - 1);             // 取得去年年份
+    const currentYear    = '<?=$_year?>';                       // 取得當前年份
+    const preYear        = String(currentYear - 1);             // 取得去年年份
 
 </script>
 <script src="review.js?v=<?=time()?>"></script>

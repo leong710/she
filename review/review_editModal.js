@@ -109,29 +109,24 @@
                             break;
 
                         case 'text':
-                            
-                            let sh_value_arr = sh_value.split(';').filter(e => e !== "");   // 去除空格
+                            let sh_value_arr = sh_value ? sh_value.split(';').filter(e => e !== "") : [];   // 去除空格
                             // console.log('sh_value_arr...',sh_value_arr)
-
-                            // 生成 檢查類別代號+項目類別代號
-                            // console.log('he_cate_obj...',he_cate_obj)
-                            for (const [he_cate_i, he_cate_v] of Object.entries(he_cate_obj)) {
-                                tr += `<div class="form-check form-check-inline">`;
-                                tr += `<input name="${sh_key}[]" id="${sh_key},${he_cate_i},${he_cate_v}" value="${he_cate_v}" type="checkbox" class="form-check-input" `; 
-                                
-                                tr += ((Object.values(sh_value_arr).includes(`${he_cate_v}`)) ? 'checked' : '');
-
-                                tr += ` ><label class="form-check-label" for="${sh_key},${he_cate_i},${he_cate_v}">${he_cate_v}</label></div>`;
-                            }
-                            // 生成 資格驗證裡的舊項目
-                            for (const sh_v of sh_value_arr) {
-                                if (!Object.values(he_cate_obj).includes(`${sh_v}`) && `${sh_v}` != 'undefined') {
+                                // 生成 檢查類別代號+項目類別代號
+                                // console.log('he_cate_obj...',he_cate_obj)
+                                for (const [he_cate_i, he_cate_v] of Object.entries(he_cate_obj)) {
                                     tr += `<div class="form-check form-check-inline">`;
-                                    tr += `<input name="${sh_key}[]" id="${sh_key},${sh_v}" value="${sh_v}" type="checkbox" class="form-check-input" checked `; 
-                                    tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
+                                    tr += `<input name="${sh_key}[]" id="${sh_key},${he_cate_i},${he_cate_v}" value="${he_cate_v}" type="checkbox" class="form-check-input" `; 
+                                    tr += ((Object.values(sh_value_arr).includes(`${he_cate_v}`)) ? 'checked' : '');
+                                    tr += ` ><label class="form-check-label" for="${sh_key},${he_cate_i},${he_cate_v}">${he_cate_v}</label></div>`;
                                 }
-                            }
-    
+                                // 生成 資格驗證裡的舊項目
+                                for (const sh_v of sh_value_arr) {
+                                    if (!Object.values(he_cate_obj).includes(`${sh_v}`) && `${sh_v}` != 'undefined') {
+                                        tr += `<div class="form-check form-check-inline">`;
+                                        tr += `<input name="${sh_key}[]" id="${sh_key},${sh_v}" value="${sh_v}" type="checkbox" class="form-check-input" checked `; 
+                                        tr += ` ><label class="form-check-label" for="${sh_key},${sh_v}">${sh_v}</label></div>`;
+                                    }
+                                }
                             tr += `</td></tr>`
                             break;
                         default:

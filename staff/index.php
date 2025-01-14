@@ -564,13 +564,14 @@
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
-    const sys_role    = '<?=$sys_role?>';
-    const auth_emp_id = '<?=$auth_emp_id?>';
-    const auth_cname  = '<?=$auth_cname?>';
+    const sys_role       = '<?=$sys_role?>';
+    const sys_BTRTL      = ('<?=$sys_BTRTL?>').split(',');     // 人事子範圍-建物代號
+    const auth_emp_id    = '<?=$auth_emp_id?>';
+    const auth_cname     = '<?=$auth_cname?>';
     const auth_sign_code = '<?=$auth_sign_code?>';
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
-    const currentYear = '<?=$_year?>';                       // 取得當前年份
-    const preYear     = String(currentYear - 1);            // 取得去年年份
+    const currentYear    = '<?=$_year?>';                      // 取得當前年份
+    const preYear        = String(currentYear - 1);            // 取得去年年份
 
 </script>
 <script src="staff.js?v=<?=time()?>"></script>
