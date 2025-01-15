@@ -34,7 +34,7 @@
                 "idty"          : "2",
                 "approvalStep"  : "工作維護",
                 "remark"        : "勾選特危、填暴露時數",
-                "group"         : "單位窗口,ESH工安",
+                "group"         : "課副理,ESH工安",
                 "edit"          : true,
                 "returnTo"      : false,
                 "approveTo"     : false
@@ -43,7 +43,7 @@
                 "idty"          : "3",
                 "approvalStep"  : "名單送審",
                 "remark"        : "100%的名單按下送審，將鎖定不可編輯",
-                "group"         : "單位窗口,護理師",
+                "group"         : "課副理,護理師",
                 "edit"          : false,
                 "returnTo"      : "2",
                 "approveTo"     : "4"
@@ -52,7 +52,7 @@
                 "idty"          : "4",
                 "approvalStep"  : "簽核審查",
                 "remark"        : "簽核主管可維調暴露時數",
-                "group"         : "上層主管,單位窗口,護理師",
+                "group"         : "上層主管,課副理,護理師",
                 "edit"          : true,
                 "returnTo"      : "2",
                 "approveTo"     : "5"

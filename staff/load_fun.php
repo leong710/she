@@ -632,7 +632,7 @@
                 $parm = isset($parm) ? json_decode($parm, true) : [];
                 $year = $parm['_year'] ?? date('Y');
 
-                $sql = "SELECT id, uuid, age as year_key, sub_scope as emp_sub_scope, dept_no, emp_dept, check_list, idty FROM `_document` WHERE age = '{$year}' ";
+                $sql = "SELECT id, uuid, age as year_key, sub_scope as emp_sub_scope, dept_no, emp_dept, BTRTL, check_list, idty FROM `_document` WHERE age = '{$year}' ";
 
                 $stmt = $pdo->prepare($sql);
                 if (executeQuery($stmt, '')) {

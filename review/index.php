@@ -140,7 +140,13 @@
                 padding: 4px 4px;
             }
             .btn-info {
-                background-color: rgba(23, 162, 184, 0.3); /* 這是 Bootstrap 中 btn-info 的顏色，0.5 表示透明度50% */
+                background-color: rgba(23, 162, 184, 0.4);
+            }
+            .btn-info:hover {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+            .btn-info[disabled] {
+                background-color: rgba(23, 162, 184, 0.2);
             }
     </style>
 </head>
@@ -151,7 +157,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
-                            <h4 class="mb-0">step.4 各站點審核<sup>(上層主管,單位窗口,護理師)</sup>  step.5收單review<sup>(ESH工安,護理師)</sup>  step.6 名單總匯整<sup>(總窗護理師)</sup></h4>
+                            <h4 class="mb-0">step.4 各站點審核<sup>(上層主管,課副理,護理師)</sup>  step.5收單review<sup>(ESH工安,護理師)</sup>  step.6 名單總匯整<sup>(總窗護理師)</sup></h4>
                         </div>
                     </div>
                 </div>
@@ -433,15 +439,13 @@
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
-    // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
-    // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
     var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
-    var staff_inf        = [];
-    var shLocal_inf      = [];
-    var loadStaff_tmp    = [];
+    var staff_inf       = [];
+    var shLocal_inf     = [];
+    var loadStaff_tmp   = [];
 
     var _docsIdty_inf   = '';
     var _docs_inf       = [];

@@ -155,7 +155,13 @@
                 background-color: $indigo-900;
             } */
             .btn-info {
-                background-color: rgba(23, 162, 184, 0.3); /* 這是 Bootstrap 中 btn-info 的顏色，0.5 表示透明度50% */
+                background-color: rgba(23, 162, 184, 0.5); /* 這是 Bootstrap 中 btn-info 的顏色，0.5 表示透明度50% */
+            }
+            .btn-info:hover {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+            .btn-info[disabled] {
+                background-color: rgba(23, 162, 184, 0.2);
             }
             .btn-warning {
                 background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
@@ -169,7 +175,7 @@
                 <div class="col-12">
                     <div class="row">
                         <div class="col-12 border rounded bg-light ">
-                            <h4 class="mb-0">step.1 建立特檢名單<sup>(總窗護理師)</sup>  step.2 指定特別危害工作內容、填暴露時數<sup>(單位窗口,護理師,ESH工安)</sup>  step.3 名單送審<sup>(單位窗口,護理師)</sup></h4>
+                            <h4 class="mb-0">step.1 建立特檢名單<sup>(總窗護理師)</sup>  step.2 指定特別危害工作內容、填暴露時數<sup>(課副理,護理師,ESH工安)</sup>  step.3 名單送審<sup>(課副理,護理師)</sup></h4>
                         </div>
                     </div>
                 </div>

@@ -1060,7 +1060,6 @@
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
             console.log('selectedDeptNo =>',selectedDeptNo);
-
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
@@ -1068,6 +1067,16 @@
                 // Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
                 for (const _item of selectedDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
+                        // console.log(emp_sub_scope, oh_value);
+                        for(const [i_index, i_value] of Object.entries(oh_value) ){
+                            // console.log(i_index, i_value.BTRTL);
+                            let i_BTRTL = i_value.BTRTL;
+                            if(i_BTRTL != 'null'){
+                                console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
+                                break;
+                            }
+                        }
+
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -1075,7 +1084,7 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ((sys_role <= 1) ? "": (sys_BTRTL.includes(o_value.BTRTL) ? "" : "disabled")) +` >
+                                                + ((sys_role <= 1) ? "": (sys_BTRTL.includes(o_value.BTRTL) ? "" : "disabled")) + ` >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
                                         ).join('')}
                                     </div>
@@ -1129,11 +1138,18 @@
         _docs.forEach( _doc => {
             const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
             const innerHTMLValue = (_doc.idty == 2) ? "退回編輯" : _step[_doc.idty].approvalStep;
-            const doc_Role = (!((_doc.dept_no == auth_sign_code) || (sys_role <= 1)));  // 決定開啟的權限
-            
             // 更新所有符合條件的節點的 innerHTML
             deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
             
+            // 決定開啟的權限
+            const doc_Role = !(
+                                (sys_role <= 1) ||
+                                // (_doc.dept_no == auth_sign_code) ||
+                                // (sys_role == 2 || sys_role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(_doc.BTRTL)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                            );  
+            // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
+            // console.log('_doc.BTRTL =>',_doc.BTRTL);
             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
             deptNo_btns.forEach(deptNo_btn => {
                 // 如果 idty 等於 2 退件，則更新按鈕樣式
@@ -1216,7 +1232,7 @@
         await p2_eventListener();                     // 呼叫函數-3 建立監聽
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
+        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
         let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
         if(message) {
             Balert( message, 'warning')

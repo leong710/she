@@ -584,6 +584,7 @@
             if(docDeptNo.length > 0){     // 判斷使否有長度值
                 for (const _item of docDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
+                        console.log(emp_sub_scope,oh_value)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -591,7 +592,8 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ((sys_role <= 1) ? "": "disabled") +` >
+                                                // + ((sys_role <= 1) ? "": "disabled") +` >
+                                                + ` disabled >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value.check_list.length}人<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.idty})</sup></button>`
                                         ).join('')}
                                     </div>
@@ -638,8 +640,7 @@
 
                         // 工作三 依部門代號撈取員工資料 後 進行鋪設
                         let checkList = JSON.stringify(_doc['check_list']).replace(/[\/\[\]]/g, '');
-                            checkList = checkList.replace(/\,/g, ';');
-                            checkList = checkList.replace(/\"/g, "'");
+                            checkList = checkList.replace(/\,/g, ';').replace(/\"/g, "'");
 
                         thisValue_arr.push(checkList)
                         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
@@ -664,14 +665,23 @@
         const _step = reviewStep.step;
 
         for (const _doc of _docs) {
+                    console.log('_doc =>',_doc);
             for (const [emp_sub_scope, dept_no_value] of Object.entries(_doc)) {
                 for (const [dept_no, value] of Object.entries(dept_no_value)) {
+                            console.log(dept_no,' => value:',value);
                     const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"] sup[name="sup_${dept_no}[]"]`);
                     const innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
-                    const doc_Role = (!((_doc.dept_no == auth_sign_code) || (sys_role <= 1)));  // 決定開啟的權限
-
                     // 更新所有符合條件的節點的 innerHTML
-                    deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
+                    deptNo_sups.forEach(node => { node.innerHTML = `(${value.idty}-${innerHTMLValue})`; });
+
+                    // 決定開啟的權限
+                    const doc_Role = !( 
+                                        (sys_role <= 1) ||                  // 大PM.1 => 全開
+                                        // (dept_no == auth_sign_code) ||      // 同部門 ??    
+                                        // (value.BTRTL == sys_BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
+                                        ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                        (value.in_sign == auth_emp_id)      // 待簽人員 = 上層主管 /轉呈
+                                    );
         
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
                     deptNo_btns.forEach(deptNo_btn => {
@@ -779,7 +789,7 @@
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
-        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>單位窗口,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>單位窗口,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,單位窗口,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
+        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
         let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
         if(message) {
             Balert( message, 'warning')
