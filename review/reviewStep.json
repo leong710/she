@@ -52,7 +52,7 @@
                 "idty"          : "4",
                 "approvalStep"  : "簽核審查",
                 "remark"        : "簽核主管可維調暴露時數",
-                "group"         : "上層主管,課副理,護理師",
+                "group"         : "上層主管/課副理,護理師",
                 "edit"          : true,
                 "returnTo"      : "2",
                 "approveTo"     : "5"
@@ -63,7 +63,7 @@
                 "remark"        : "檢查名單及特檢資料是否完備",
                 "group"         : "ESH工安,護理師",
                 "edit"          : false,
-                "returnTo"      : "2",
+                "returnTo"      : "4",
                 "approveTo"     : "6"
             },
         "6" : {

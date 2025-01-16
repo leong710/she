@@ -1146,7 +1146,7 @@
                                 (sys_role <= 1) ||
                                 // (_doc.dept_no == auth_sign_code) ||
                                 // (sys_role == 2 || sys_role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(_doc.BTRTL)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == auth_sign_code)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
                             );  
             // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
             // console.log('_doc.BTRTL =>',_doc.BTRTL);

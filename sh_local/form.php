@@ -253,7 +253,7 @@
                                         <input type="hidden"  name="action"          id="action"          value="<?php echo $action;?>">
                                         <snap id="submit_action">
                                             <?php if($sys_role <= 3){ ?>
-                                                <button type="submit" value="Submit" name="submit_shLocal" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
+                                                <button type="submit" name="submit_shLocal" class="btn btn-primary" id="submitBtn" value="Submit" ><i class="fa fa-paper-plane" aria-hidden="true"></i> 送出 (Submit)</button>
                                             <?php } ?>
                                         </snap>
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -319,11 +319,19 @@
 
 <script>
     // init
-    var action = '<?=$action?>';
-    var id     = '<?=$id?>';
-    var searchModal = new bootstrap.Modal(document.getElementById('searchModal'), { keyboard: false });
-    const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';        // nurse
-                
+    const action = '<?=$action?>';
+    const id     = '<?=$id?>';
+    const searchModal = new bootstrap.Modal(document.getElementById('searchModal'), { keyboard: false });
+    const uuid   = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';   // nurse
+
+    const userInfo = {
+            'role'     : '<?=$sys_role?>',
+            'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
+            'empId'    : '<?=$auth_emp_id?>',
+            'cname'    : '<?=$auth_cname?>',
+            'signCode' : '<?=$auth_sign_code?>'
+        };
+
 </script>
 <script src="form.js?v=<?=time()?>"></script>
 

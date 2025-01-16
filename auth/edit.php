@@ -16,7 +16,7 @@
         exit;
     }
     // $sites = show_site();
-    $depts = show_dept();
+    // $depts = show_dept();
 
     $user = editUser($_REQUEST);
 
@@ -86,18 +86,6 @@
                     <div class="row">
                         <div class="col-12 col-md-6 py-2">
                             <div class="form-floating">
-                                <select name="idty" id="idty" class="form-select" <?php echo ($sys_role >= 2) ? "disabled":"";?>>
-                                    <option value="" <?php  echo ($user["idty"] == "" ) ? "selected":"";?> >停用</option>
-                                    <option value="1" <?php echo ($user["idty"] == "1" ) ? "selected":"";?> >1_工程師</option>
-                                    <option value="2" <?php echo ($user["idty"] == "2" ) ? "selected":"";?> >2_課副理</option>
-                                    <option value="3" <?php echo ($user["idty"] == "3" ) ? "selected":"";?> >3_部經理層</option>
-                                    <option value="4" <?php echo ($user["idty"] == "4" ) ? "selected":"";?> >4_廠處長層</option>
-                                </select>
-                                <label for="idty" class="form-label">idty/身份定義：<sup class="text-danger"><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-6 py-2">
-                            <div class="form-floating">
                                 <select name="role" id="role" class="form-select" <?php echo ($sys_role >= 2) ? "disabled":"";?>>
                                     <option value=""  for="role" <?php echo ($user["role"] == "") ? "selected":"";?>>停用</option>
                                     <option value="0" for="role" <?php echo ($user["role"] == "0") ? "selected":"";?>
@@ -109,33 +97,7 @@
                                 <label for="role" class="form-label">role/權限：<sup class='text-danger'><?php echo ($sys_role >= 2) ? " - disabled":" *";?></sup></label>
                             </div>
                         </div>
-                    </div>
-                    <!-- line 4 -->
-                    <div class="row">
                         <div class="col-12 col-md-6 py-2">
-                            <div class="form-floating">
-                                <select name="sign_code" id="sign_code" class="form-select" required>
-                                    <option value="" selected hidden>--請選擇所屬部門--</option>
-                                    <?php 
-                                        if($depts['up_sign_code']){ 
-                                            echo "<option value='".$depts['up_sign_code']."' ";
-                                            echo ($depts['up_sign_code'] == $user["sign_code"]) ? "selected class='alert_it'" : "" ;
-                                            echo " >".$depts['up_sign_dept']."(".$depts['up_sign_code'].")</option>";
-                                        } 
-                                        foreach($depts as $dept){
-                                            echo "<option value='".$dept['sign_code']."' ";
-                                            echo ($dept['sign_code'] == $user["sign_code"]) ? "selected class='alert_it'" : "" ;
-                                            echo ">";
-                                            echo $dept['up_sign_dept'] != "" ? $dept['up_sign_dept']." / ":""; 
-                                            echo $dept['sign_dept']." (".$dept['sign_code'].")</option>";
-                                        } 
-                                    ?>
-                                </select>
-                                <label for="sign_code" class="form-label">部門代號：<sup class="text-danger"> *</sup></label>
-                            </div>
-                        </div>
-
-                        <div class="col-12 py-2">
 
                         </div>
                     </div>

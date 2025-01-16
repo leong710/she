@@ -155,6 +155,7 @@
 // function
     // [p1 函數-1-1] 動態生成步驟2的所有按鈕，並重新綁定事件監聽器
     function mk_OSHORTs_btn(selectedOSHORTs) {
+        console.log('selectedOSHORTs...',selectedOSHORTs);
         $('#OSHORTs_opts_inside').empty();
         if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
             Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
@@ -164,10 +165,10 @@
                             <div class="card-header">${ohtext_30}</div>
                             <div class="card-body p-2">
                                 ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                    // <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
+                                    // <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
                                     `<div class="form-check px-4">
                                         <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" check >
-                                        <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
+                                        <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
                                     </div>`
                                 ).join('')}
                             </div>
@@ -247,16 +248,16 @@
                         alert('請勾選要刪除的部門代號!');
                     }
                 });
-                // 241018 已改成checkbox，舊按鈕監聽暫停
-                    // const shLocal_table = $('#shLocal').DataTable();
-                    // const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
-                    // OSHORTs_btns.forEach(btn => {
-                    //     btn.addEventListener('click', function() {
-                    //         // console.log(this.value)
-                    //         shLocal_table.search(this.value).draw();     // 在特危作業清單的search帶入部門代號，他會過濾出符合的清單
-                    //         $('#nav-p2-tab').tab('show');                // 挑轉頁面到[特危作業清單]
-                    //     })
-                    // })
+                // 按鈕監聽
+                const shLocal_table = $('#shLocal').DataTable();
+                const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
+                OSHORTs_btns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        // console.log(this.value)
+                        shLocal_table.search(this.value).draw();     // 在特危作業清單的search帶入部門代號，他會過濾出符合的清單
+                        $('#nav-p2-tab').tab('show');                // 挑轉頁面到[特危作業清單]
+                    })
+                })
             // 文件載入成功，resolve
             resolve();
         });

@@ -343,6 +343,13 @@
             const noiseCheckbox = document.querySelector('#HE_CATE input[type="checkbox"][value="噪音"]');
             checkAVG(noiseCheckbox.checked);
 
+        // 確認權限是否呈現submitBtn...
+            const actionRole = shLocal_row.OSHORT == userInfo.signCode && (userInfo.role <= 3 && userInfo.role >= 0 && userInfo.role != '');
+            if(!actionRole){
+                const submitBtn = document.getElementById("submitBtn");
+                submitBtn.classList.add('unblock');
+            }
+
         let sinn = action + '&nbsp模式開啟，表單套用成功&nbsp!!';
         inside_toast(sinn);
         return true;

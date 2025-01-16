@@ -9,7 +9,7 @@
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // default fab_scope
-        $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";               // All :allMy
+        $fab_scope = ($sys_role <= 1 ) ? "All" : "All";               // All :allMy
     // tidy query condition：
         $OSHORT      = (isset($_REQUEST["OSHORT"]))      ? $_REQUEST["OSHORT"]      : "All";        // 部門代碼
         $flag        = (isset($_REQUEST["flag"]))        ? $_REQUEST["flag"]        : "All";        // 開關狀態
@@ -44,7 +44,7 @@
 
 
     // echo "<pre>";
-    // print_r($shLocal_OSHORTs);
+    // print_r($shLocals);
     // echo "</pre>";
             
 ?>
@@ -104,6 +104,9 @@
             }
         .h6 {
             font-size: 12px;
+        }
+        .btn {
+            padding: 4px 4px;
         }
     </style>
 </head>
@@ -209,7 +212,7 @@
                                                 ?></td>
                                             <td class="h6"><?php 
                                                     echo substr($shLocal["updated_at"],0,10)."<br>".$shLocal['updated_cname'];
-                                                    if($sys_role <= 1){ 
+                                                    if(($sys_role <= 1) || ($shLocal['OSHORT'] == $auth_sign_code && $sys_role != '')){ 
                                                         echo "&nbsp;<button type='button' value='../sh_local/form.php?action=edit&id={$shLocal["id"]}' class='btn btn-sm btn-xs btn-outline-success add_btn'";
                                                         echo " onclick='openUrl(this.value)' data-toggle='tooltip' data-placement='bottom' title='編輯'><i class='fa-solid fa-pen-to-square'></i></button>";
                                                     } 

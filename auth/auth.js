@@ -202,7 +202,6 @@
             if(row['id'] == row_id){
                 // step2.鋪畫面到module
                 Object(window[to_module+'_item']).forEach(function(item_key){
-                    console.log('item_key...',item_key);
                     if(item_key == 'id'){
                         document.querySelector('#'+to_module+'_delete_id').value = row['id'];       // 鋪上delete_id = this id.no for delete form
                         document.querySelector('#'+to_module+'_edit_id').value = row['id'];         // 鋪上edit_id = this id.no for edit form
