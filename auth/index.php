@@ -18,9 +18,11 @@
     // 這裡讀取狀態：none正常、new新人、pause停用
     $showAllUsers = showAllUsers("all");
 
+    include("../template/header.php");
+    include("../template/nav.php"); 
+
 ?>
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
+
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>

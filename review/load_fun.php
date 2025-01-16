@@ -511,7 +511,7 @@
 
                 // 簽核步驟
                 $reviewStep_arr = reviewStep();                         // 取得reviewStep
-                $action         = $parm_array["action"] ?? "3";                       // 3 = 送出
+                $action         = $parm_array["action"] ?? "3";         // 3 = 送出
                 // 簽核欄位數據整理：by $action
                 $action_arr     = $reviewStep_arr['action'];            // getAction arr
                     $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
@@ -533,17 +533,6 @@
                     // $rowStep_arr['returnTo'];          // 節點-返回
                     // $rowStep_arr['approveTo'];         // 節點-進步
 
-                // 製作log紀錄前處理：塞進去製作元素
-                $logs_request = array (
-                    "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
-                    "cname"  => $auth_cname." (".$auth_emp_id.")",
-                    "action" => $status ?? '送出 (Submit)',
-                    "logs"   => $row_data["logs"] ?? "",
-                    "remark" => $parm_array["sign_comm"] ?? ""
-                ); 
-                // 呼叫toLog製作log檔
-                    $logs_enc = toLog($logs_request);
-
                 switch ($action) {
                     case "0":       // 作廢
                         $idty = "0";
@@ -558,6 +547,7 @@
                     break;
                     case "4":       // 退回
                         $idty = $rowStep_arr['returnTo'];
+                        $status .= " {$rowStep} => {$idty}";
                         break;
                     case "6":       // 同意
                     case "10":      // 結案
@@ -566,6 +556,17 @@
                     default:
                         $idty = 4;  // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
                 }
+
+                // 製作log紀錄前處理：塞進去製作元素
+                    $logs_request = array (
+                        "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
+                        "cname"  => $auth_cname." (".$auth_emp_id.")",
+                        "action" => $status ?? '送出 (Submit)',
+                        "logs"   => $row_data["logs"] ?? "",
+                        "remark" => $parm_array["sign_comm"] ?? ""
+                    ); 
+                // 呼叫toLog製作log檔
+                    $logs_enc = toLog($logs_request);
 
                 // 簽核欄位數據整理：by $idty = 下一步狀態
                 $nextStep_arr = $reviewStep_arr['step'][$idty];   // getStep arr 取得下一步狀態節點

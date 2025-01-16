@@ -107,7 +107,7 @@
                 let responseData = await response.json();
                 let result_obj = responseData['result_obj'];    // 擷取主要物件
 
-                if(parm === 'return'){
+                if(parm === 'return' || myCallback === 'return'){
                     return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
                 }else{
                     return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
@@ -267,11 +267,11 @@
     }
     // p-2 批次儲存員工清單...
     async function bat_storeStaff(){
-        const bat_storeStaff_value = {
-            staff_inf   : staff_inf,
-            currentYear : currentYear
-        };
-        await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);   // load_fun的變數傳遞要用字串
+        const bat_storeStaff_value = JSON.stringify({
+                staff_inf   : staff_inf,
+                currentYear : currentYear
+            });
+        await load_fun('bat_storeStaff', bat_storeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
         location.reload();
     }
     // p-2 批次儲存員工清單...
@@ -1068,14 +1068,14 @@
                 for (const _item of selectedDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
                         // console.log(emp_sub_scope, oh_value);
+
+                        let i_BTRTL = null;
                         for(const [i_index, i_value] of Object.entries(oh_value) ){
                             // console.log(i_index, i_value.BTRTL);
-                            let i_BTRTL = i_value.BTRTL;
-                            if(i_BTRTL != 'null'){
-                                console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
-                                break;
-                            }
+                            i_BTRTL = i_value.BTRTL;
+                            if(i_BTRTL != 'null') break;
                         }
+                        console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
 
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
@@ -1084,7 +1084,7 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ((sys_role <= 1) ? "": (sys_BTRTL.includes(o_value.BTRTL) ? "" : "disabled")) + ` >
+                                                + ((sys_role <= 1) || (sys_BTRTL.includes(o_value.BTRTL)) || (sys_BTRTL.includes(i_BTRTL)) || (o_key == auth_sign_code) ? "" : "disabled") + ` >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
                                         ).join('')}
                                     </div>
@@ -1146,7 +1146,7 @@
                                 (sys_role <= 1) ||
                                 // (_doc.dept_no == auth_sign_code) ||
                                 // (sys_role == 2 || sys_role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == auth_sign_code)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                ((sys_role == 2 || sys_role == 2.5 || sys_role == 3) && (sys_BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == auth_sign_code)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
                             );  
             // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
             // console.log('_doc.BTRTL =>',_doc.BTRTL);
@@ -1201,8 +1201,8 @@
                     })
                     console.log('submitValue =>', JSON.parse(submitValue)); 
         
-                await load_fun('bat_storeStaff', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
-                await load_fun('storeForReview', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+                await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
+                await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
         
                 submit_modal.hide();
                 location.reload();

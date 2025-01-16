@@ -288,7 +288,10 @@
                                 input_value += cell_i.checked ? br + cell_i.value : '';
                             // }
                         }
-                        input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
+                        console.log('input_value...',input_value);
+                        if(input_value !== undefined){
+                            input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
+                        }
                     }
                     result[key] = input_value; // 存入結果物件
                 }else{

@@ -99,7 +99,7 @@
                 let responseData = await response.json();
                 let result_obj = responseData['result_obj'];    // 擷取主要物件
 
-                if(parm === 'return'){
+                if(parm === 'return' || myCallback === 'return'){
                     return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
                 }else{
                     return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
@@ -198,9 +198,9 @@
     }
     // p-2 處理審查工作...
     async function storeForReview(){
-        const bat_storeStaff_value = staff_inf;
-        await load_fun('bat_storeStaff', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
-        await load_fun('storeForReview', JSON.stringify(bat_storeStaff_value), show_swal_fun);      // load_fun的變數傳遞要用字串
+        const bat_storeStaff_value = JSON.stringify(staff_inf);
+        await load_fun('bat_storeStaff', bat_storeStaff_value, 'return');           // load_fun的變數傳遞要用字串
+        await load_fun('storeForReview', bat_storeStaff_value, show_swal_fun);      // load_fun的變數傳遞要用字串
         location.reload();
     }
     // 
@@ -576,15 +576,14 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             _docs_inf = docDeptNo;      // 套取docs
-            console.log('docDeptNo =>',docDeptNo);
-            
+            // console.log('docDeptNo =>',docDeptNo);
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(docDeptNo.length > 0){     // 判斷使否有長度值
                 for (const _item of docDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
-                        console.log(emp_sub_scope,oh_value)
+                        // console.log(emp_sub_scope,oh_value)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -644,7 +643,7 @@
 
                         thisValue_arr.push(checkList)
                         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
-                        console.log('selectedValues_str =>',selectedValues_str);
+                        // console.log('selectedValues_str =>',selectedValues_str);
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                         await mk_form_btn(docDeptNo);     // 建立簽核按鈕

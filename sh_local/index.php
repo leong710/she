@@ -42,15 +42,13 @@
         $shLocal_OSHORTs_str = "";
     }
 
-
     // echo "<pre>";
     // print_r($shLocals);
     // echo "</pre>";
             
+    include("../template/header.php");
+    include("../template/nav.php"); 
 ?>
-
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
 
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
@@ -123,7 +121,7 @@
                             <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">特危作業管理</button>
                             <button type="button" class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false">特危作業清單</button>
                             <!-- <button type="button" class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false">p3</button> -->
-                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;危害類別管理</button>
+                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;危害類別管理</button>
                         </div>
                     </nav>
                 </div>
@@ -193,8 +191,8 @@
                                             <td><?php echo $shLocal['OSHORT'];?></td>
                                             <td><?php echo $shLocal['OSTEXT'];?></td>
                                             <td><?php 
-                                                    $HE_CATE = trim($shLocal['HE_CATE'], '{}');  // 去除開頭和結尾的 {} 字符
-                                                    $HE_CATE = str_replace('"', '', $HE_CATE);   // 去除所有的 " 字符
+                                                    $HE_CATE = trim($shLocal['HE_CATE'], '{}');    // 去除開頭和結尾的 {} 字符
+                                                    $HE_CATE = str_replace('"', '', $HE_CATE);     // 去除所有的 " 字符
                                                     $HE_CATE = str_replace(',', '<br>', $HE_CATE); // 替換逗號為 <br>
                                                     echo $HE_CATE;
                                             ?></td>

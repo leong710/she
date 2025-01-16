@@ -491,10 +491,10 @@
 
                 foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
-                    $dept_no   = $parm_i_arr["dept_no"];
-                    $emp_dept  = $parm_i_arr["emp_dept"];
-                    $sub_scope = $parm_i_arr["emp_sub_scope"];
-                    $BTRTL     = $parm_i_arr["BTRTL"];
+                    $dept_no   = $parm_i_arr["dept_no"] ?? "";
+                    $emp_dept  = $parm_i_arr["emp_dept"] ?? "";
+                    $sub_scope = $parm_i_arr["emp_sub_scope"] ?? "";
+                    $BTRTL     = $parm_i_arr["BTRTL"] ?? "";
                     
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
@@ -582,8 +582,8 @@
                         $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
                         
                         $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);              // 查詢部門主管簽核代理人
-                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? $result["OMAGER"]);  
-                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? $result["cname"]);  
+                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? ($result["OMAGER"] ?? ""));  
+                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? ($result["cname"] ?? ""));  
                         
                         // 防呆，使用預設值
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
@@ -603,28 +603,42 @@
                         ]);
                     }
                 }
-                
-                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
-                $stmt = $pdo->prepare($sql);
 
-                if (executeQuery($stmt, $params)) {
-                    // 製作返回文件
-                    $swal_json["action"] = "success";
-                    $swal_json["content"] .= '送審成功';
-                    $result = [
-                        'result_obj' => $swal_json,
-                        'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.'
-                    ];
-                } else {
+                if (empty($new_check_deptNo) || empty($sub_scope) || (count($new_form[$new_check_deptNo]["check_list"]) == 0 )) {
+
                     $swal_json["action"] = "error";
-                    $swal_json["content"] .= '送審失敗';
+                    $swal_json["content"] .= '送審失敗...表單內容有誤';
                     $result = [
                         'result_obj' => $swal_json,
                         'fun'        => $fun,
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
+
+                } else {
+
+                    $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
+                    $stmt = $pdo->prepare($sql);
+    
+                    if (executeQuery($stmt, $params)) {
+                        // 製作返回文件
+                        $swal_json["action"] = "success";
+                        $swal_json["content"] .= '送審成功';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.'
+                        ];
+                    } else {
+                        $swal_json["action"] = "error";
+                        $swal_json["content"] .= '送審失敗';
+                        $result = [
+                            'result_obj' => $swal_json,
+                            'fun'        => $fun,
+                            'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        ];
+                    }
                 }
+                
             break;
             // 241212 取得_document送審清單
             case 'load_document':
