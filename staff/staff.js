@@ -142,7 +142,7 @@
         await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-        if(sys_role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(uesrInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -369,10 +369,10 @@
                 tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition`+(sys_role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
-                // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                tr1 += `<td class="shCondition`+(uesrInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                // tr1 += `<td ` + (uesrInfo.role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
 
-                // tr1 += `<td ` + (sys_role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
+                // tr1 += `<td ` + (uesrInfo.role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
                 // tr1 += `<td><div class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>&nbsp;
                 //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
                 //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
@@ -380,7 +380,7 @@
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td class="${importItem}`+(sys_role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
+                    tr1 += `<td class="${importItem}`+(uesrInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
@@ -627,8 +627,8 @@
                                 <div class="col-md-9 p-1">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h5 class="card-title mb-0" title="${memo_i.emp_id}" >${memo_i.cname}</h5>
-                                        <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== auth_emp_id && sys_role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
-                                            + (memo_i.emp_id !== auth_emp_id && sys_role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
+                                        <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== uesrInfo.empId && uesrInfo.role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
+                                            + (memo_i.emp_id !== uesrInfo.empId && uesrInfo.role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
                                     </div>
                                     <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
             resolve(memoCard);      // 當所有設置完成後，resolve Promise
@@ -651,8 +651,8 @@
                 }
                 //打包物件
                 const memoObj = {
-                    'cname'     : auth_cname,
-                    'emp_id'    : auth_emp_id,
+                    'cname'     : uesrInfo.cname,
+                    'emp_id'    : uesrInfo.empId,
                     'msg'       : (memoMsg_input.value).trim(),
                     'timeStamp' : getTimeStamp()
                 }
@@ -967,6 +967,7 @@
             empData.gesch          = s_value.gesch;
             empData.HIRED          = s_value.HIRED;
             empData.natiotxt       = s_value.natiotxt;
+            empData.omager         = s_value.omager;
             empData.currentYear    = currentYear;                     // 作業年度
         }
         mgInto_staff_inf(loadStaff_arr);
@@ -991,6 +992,7 @@
                     'HIRED'         : staffValue.HIRED,             // 到職日
                     'natiotxt'      : staffValue.natiotxt,          // 國籍名稱
                     'schkztxt'      : staffValue.schkztxt,          // 工作時程表規則名稱
+                    'omager'        : staffValue.omager,            // 上級主管
                     'currentYear'   : currentYear                   // 作業年度
                 };
                 loadStaff_tmp = loadStaff_tmp.concat(rework_staff);   // 合併2個陣列到combined
@@ -1068,15 +1070,13 @@
                 for (const _item of selectedDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
                         // console.log(emp_sub_scope, oh_value);
-
                         let i_BTRTL = null;
                         for(const [i_index, i_value] of Object.entries(oh_value) ){
                             // console.log(i_index, i_value.BTRTL);
                             i_BTRTL = i_value.BTRTL;
                             if(i_BTRTL != 'null') break;
                         }
-                        console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
-
+                        // console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -1084,7 +1084,12 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ((sys_role <= 1) || (sys_BTRTL.includes(o_value.BTRTL)) || (sys_BTRTL.includes(i_BTRTL)) || (o_key == auth_sign_code) ? "" : "disabled") + ` >
+                                                + ( (uesrInfo.role <= 1) ||                         // 大PM/總窗
+                                                    (uesrInfo.BTRTL.includes(o_value.BTRTL)) ||     // 我的廠區是否包含..
+                                                    (uesrInfo.BTRTL.includes(i_BTRTL)) ||           // 我的廠區是否包含..
+                                                    ((o_key == uesrInfo.signCode) &&                 // 部門代號
+                                                    (o_value.omager == uesrInfo.empId))              // 部門主管
+                                                        ? "" : "disabled") + ` >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
                                         ).join('')}
                                     </div>
@@ -1143,10 +1148,10 @@
             
             // 決定開啟的權限
             const doc_Role = !(
-                                (sys_role <= 1) ||
-                                // (_doc.dept_no == auth_sign_code) ||
-                                // (sys_role == 2 || sys_role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                ((sys_role == 2 || sys_role == 2.5 || sys_role == 3) && (sys_BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == auth_sign_code)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                (uesrInfo.role <= 1) ||
+                                // (_doc.dept_no == uesrInfo.signCode) ||
+                                // (uesrInfo.role == 2 || uesrInfo.role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                ((uesrInfo.role == 2 || uesrInfo.role == 2.5 || uesrInfo.role == 3) && (uesrInfo.BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == uesrInfo.signCode)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
                             );  
             // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
             // console.log('_doc.BTRTL =>',_doc.BTRTL);
@@ -1192,8 +1197,8 @@
                 const action = this.getAttribute('value');              // 使用 getAttribute 獲取 value
                 const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
                 const submitValue   = JSON.stringify({
-                        updated_emp_id  : auth_emp_id,
-                        updated_cname   : auth_cname,
+                        updated_emp_id  : uesrInfo.empId,
+                        updated_cname   : uesrInfo.cname,
                         currentYear     : currentYear,
                         action          : action,
                         sign_comm       : getCommValue('sign_comm'),
@@ -1233,7 +1238,7 @@
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
+        let message  = `uesrInfo.signCode：${uesrInfo.signCode}、.role：${uesrInfo.role}、.BTRTL：${uesrInfo.BTRTL}`;
         if(message) {
             Balert( message, 'warning')
         }

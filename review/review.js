@@ -135,7 +135,7 @@
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
-        if(sys_role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(uesrInfo.role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -209,8 +209,8 @@
         const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
         const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
         const submitValue   = {
-            updated_emp_id  : auth_emp_id,
-            updated_cname   : auth_cname,
+            updated_emp_id  : uesrInfo.empId,
+            updated_cname   : uesrInfo.cname,
             action          : action,
             forwarded       : {
                 in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
@@ -265,11 +265,11 @@
                 tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition`+(sys_role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                tr1 += `<td class="shCondition`+(uesrInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td class="${importItem}`+(sys_role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
+                    tr1 += `<td class="${importItem}`+(uesrInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
@@ -591,7 +591,7 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                // + ((sys_role <= 1) ? "": "disabled") +` >
+                                                // + ((uesrInfo.role <= 1) ? "": "disabled") +` >
                                                 + ` disabled >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value.check_list.length}人<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.idty})</sup></button>`
                                         ).join('')}
@@ -675,11 +675,11 @@
 
                     // 決定開啟的權限
                     const doc_Role = !( 
-                                        (sys_role <= 1) ||                  // 大PM.1 => 全開
-                                        // (dept_no == auth_sign_code) ||      // 同部門 ??    
-                                        // (value.BTRTL == sys_BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
-                                        ((sys_role == 2 || sys_role == 2.5) && (sys_BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                        (value.in_sign == auth_emp_id)      // 待簽人員 = 上層主管 /轉呈
+                                        (uesrInfo.role <= 1) ||                  // 大PM.1 => 全開
+                                        // (dept_no == uesrInfo.signCode) ||      // 同部門 ??    
+                                        // (value.BTRTL == uesrInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
+                                        ((uesrInfo.role == 2 || uesrInfo.role == 2.5) && (uesrInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                        (value.in_sign == uesrInfo.empId)      // 待簽人員 = 上層主管 /轉呈
                                     );
         
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
@@ -719,8 +719,8 @@
                     const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
                     const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
                     const submitValue   = JSON.stringify({
-                            updated_emp_id  : auth_emp_id,
-                            updated_cname   : auth_cname,
+                            updated_emp_id  : uesrInfo.empId,
+                            updated_cname   : uesrInfo.cname,
                             currentYear     : currentYear,
                             action          : action,
                             forwarded       : {
@@ -789,7 +789,7 @@
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        let message  = `sys_role：${sys_role}、BTRTL：${sys_BTRTL}`;
+        let message  = `uesrInfo.signCode：${uesrInfo.signCode}、.role：${uesrInfo.role}、.BTRTL：${uesrInfo.BTRTL}`;
         if(message) {
             Balert( message, 'warning')
         }

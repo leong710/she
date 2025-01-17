@@ -76,8 +76,8 @@
                     const app_key = $("#"+this.value+"_key").val();             // 取得內為內容
                     const app_value = $("#"+this.value+"_value").val();         
 
-                    const missingValues = [];                                   // 建立確認陣列
-                    if (!app_key) missingValues.push('key 沒有填值');          // 確認app_key
+                    const missingValues = {};                                  // 建立確認陣列
+                    if (!app_key) missingValues.push('key 沒有填值');           // 確認app_key
                     if (!app_value) missingValues.push('年度 沒有填值');        // 確認app_value
             
                     if (missingValues.length > 0) {
@@ -109,9 +109,14 @@
         // 240814 監聽 append_submit 是否有點擊
             const append_submit = document.getElementById('append_submit');
             append_submit.addEventListener('click', () => {
-                // console.log('append_submit...',workTargetObj);
-                const workTargetStr = JSON.stringify(workTargetObj);
-                load_fun('update_workTarget', workTargetStr, show_swal_fun);   // step_2 load_shLocal(id);
+                if(Object.entries(workTargetObj).length){
+                    const workTargetStr = JSON.stringify(workTargetObj);
+                    // console.log('append_submit-workTargetObj...',workTargetObj);
+                    // console.log('append_submit-workTargetStr...',workTargetStr);
+                    load_fun('update_workTarget', workTargetStr, show_swal_fun);   // step_2 load_shLocal(id);
+                }else{
+                    alert('沒有設定值...請確認!!!');
+                }
             })
         // 240814 監聽 append_submit 是否有點擊
 

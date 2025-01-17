@@ -36,7 +36,7 @@
             case 'load_hrdb':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo_hrdb();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.updated_at, _E.HIRED, _E.BTRTL
+                $sql = "SELECT _S.emp_sub_scope, _S.dept_no, _S.emp_dept, _S.emp_id, _S.cname, _S.cstext, _S.gesch, _S.emp_group, _S.natiotxt, _S.schkztxt, _S.omager, _S.updated_at, _E.HIRED, _E.BTRTL
                         FROM STAFF _S 
                         LEFT JOIN HCM_VW_EMP01_hiring _E ON _S.emp_id = _E.PERNR
                         WHERE _S.dept_no IN ({$parm_re}) ";
@@ -229,7 +229,8 @@
                         "HIRED"         => $HIRED         ?? ( $row_shCase_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
                         "BTRTL"         => $BTRTL         ?? ( $row_shCase_logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍
                         "gesch"         => $gesch         ?? ( $row_shCase_logs[$current_year]["gesch"]         ?? null ),    // 性別
-                        "natiotxt"      => $natiotxt      ?? ( $row_shCase_logs[$current_year]["natiotxt"]      ?? null )     // 國籍
+                        "natiotxt"      => $natiotxt      ?? ( $row_shCase_logs[$current_year]["natiotxt"]      ?? null ),    // 國籍
+                        "omager"        => $omager        ?? ( $row_shCase_logs[$current_year]["omager"]        ?? null )     // 所屬主管
                     ];
                     // 檢查並串接新的 _content
                     if (isset($_content[$current_year])) {
@@ -389,7 +390,7 @@
                 $parm = isset($parm) ? json_decode($parm, true) : [];
                 $year = $parm['_year'] ?? date('Y');
                                 
-                $sql = "SELECT year_key, emp_sub_scope, BTRTL, dept_no, emp_dept, COUNT(*) AS _count,
+                $sql = "SELECT year_key, emp_sub_scope, BTRTL, dept_no, emp_dept, omager, COUNT(*) AS _count,
                             SUM( CASE 
                                     WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
                                         AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
@@ -410,6 +411,7 @@
                                 JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_sub_scope')) AS emp_sub_scope,
                                 JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_dept')) AS emp_dept,
                                 JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.BTRTL')) AS BTRTL,
+                                JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.omager')) AS omager,
                                 shCase_logs
                             FROM _staff
                             WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no') IS NOT NULL
@@ -425,6 +427,7 @@
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["OSTEXT"]           = $deptNo_i["emp_dept"];
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["BTRTL"]            = $deptNo_i["BTRTL"];
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_count"]           = $deptNo_i["_count"];
+                        $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["omager"]           = $deptNo_i["omager"];
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
                     }

@@ -277,7 +277,7 @@ use Mockery\Undefined;
     // load workTarget.json
     function load_workTarget($parm) {
         $workTarget_file = "../staff/workTarget.json";
-        $workTarget_arr = [];
+        $workTarget_arr = "{}";
 
         if(file_exists($workTarget_file)){
             $workTarget_json = file_get_contents($workTarget_file); // 从JSON文件加载内容

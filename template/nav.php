@@ -81,7 +81,7 @@
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
                                     <i class="fa-solid fa-map-location-dot"></i>&nbsp;危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
                                               
-                                <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>特殊危害健康作業管理</b></a></li>
                                     <?php if($sys_role <= 2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
@@ -94,7 +94,7 @@
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
                                     <i class="fa-solid fa-users"></i>&nbsp;職業病預防管理<span class="badge rounded-pill bg-danger"></span></a>
                                               
-                                <ul class="dropdown-menu" aria-labelledby="navbarDD_2">
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核</b></a></li>
@@ -106,7 +106,7 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
                                     <i class="fa-solid fa-gear"></i>&nbsp;管理員專區</a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_3">
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp;<i class="fas fa-th-large"></i>&nbsp;表單管理</a></li>
@@ -135,7 +135,7 @@
                                   echo "&nbsp;".$auth_cname .($sys_auth ? '<sup class="text-danger"> - '.$sys_role.'</sup>':'').'&nbsp;你好'; 
                             ?>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDD_reg">
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                             <?php if($sys_auth){  
                                     if($sys_role <= 1){
                                         echo "<li><a class='dropdown-item' href='{$webroot}/auth/edit.php?user={$auth_user}'><i class='fa fa-user-circle' aria-hidden='true'></i> 編輯User資訊</a></li>";

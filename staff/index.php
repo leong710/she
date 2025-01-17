@@ -300,7 +300,7 @@
                 <div class="modal-body px-4">
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
-                            <div class="col-6 col-md-8 py-0">
+                            <div class="col-6 col-md-7 py-0">
                                 <label for="excelFile" class="form-label">特作員工清單 <span>&nbsp<a href="../_Format/shStaff_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
@@ -308,9 +308,10 @@
                                     <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaff">上傳</button>
                                 </div>
                             </div>
-                            <div class="col-6 col-md-4 py-0">
-                                <p id="warningText_1" name="warning" >＊請上傳[特危作業人員清單]Excel檔</p>
-                                <p id="warningText_2" name="warning" >＊請確認Excel中的資料</p>
+                            <div class="col-6 col-md-5 py-0">
+                                <p id="warningText_0" name="warning" class="mb-1 text-danger">＊作業年度[<b><?php echo $_year;?></b>]...上傳儲存有覆蓋風險，請務必確認!!</p>
+                                <p id="warningText_1" name="warning" class="mb-1">＊請上傳[特危作業人員清單]Excel檔</p>
+                                <p id="warningText_2" name="warning" class="mb-1">＊請確認Excel中的資料</p>
                             </div>
                         </div>
                             
@@ -570,11 +571,13 @@
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
-    const sys_role       = '<?=$sys_role?>';
-    const sys_BTRTL      = ('<?=$sys_BTRTL?>').split(',');     // 人事子範圍-建物代號
-    const auth_emp_id    = '<?=$auth_emp_id?>';
-    const auth_cname     = '<?=$auth_cname?>';
-    const auth_sign_code = '<?=$auth_sign_code?>';
+    const uesrInfo = {
+        'role'     : '<?=$sys_role?>',
+        'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
+        'empId'    : '<?=$auth_emp_id?>',
+        'cname'    : '<?=$auth_cname?>',
+        'signCode' : '<?=$auth_sign_code?>',
+    }
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
     const currentYear    = '<?=$_year?>';                      // 取得當前年份
     const preYear        = String(currentYear - 1);            // 取得去年年份
