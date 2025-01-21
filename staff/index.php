@@ -536,21 +536,22 @@
 
 // // // 開局導入設定檔
 // 以下為控制 iframe
-    var realName           = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
-    var iframe             = document.getElementById('api');                // 清冊的iframe介面
-    var warningText_1      = document.getElementById('warningText_1');      // 未上傳的提示
-    var warningText_2      = document.getElementById('warningText_2');      // 資料有誤的提示
-    var excel_json         = document.getElementById('excel_json');         // 清冊中有誤的提示
-    var excelFile          = document.getElementById('excelFile');          // 上傳檔案名稱
-    var excelUpload        = document.getElementById('excelUpload');        // 上傳按鈕
-    var import_excel_btn   = document.getElementById('import_excel_btn');   // 載入按鈕
-    var download_excel_btn = document.getElementById('download_excel_btn'); // 下載按鈕
-    var bat_storeStaff_btn = document.getElementById('bat_storeStaff_btn'); // 儲存按鈕
-    var resetINF_btn       = document.getElementById('resetINF_btn');       // 清空按鈕
+    var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
+    var iframe              = document.getElementById('api');                   // 清冊的iframe介面
+    var warningText_1       = document.getElementById('warningText_1');         // 未上傳的提示
+    var warningText_2       = document.getElementById('warningText_2');         // 資料有誤的提示
+    var excel_json          = document.getElementById('excel_json');            // 清冊中有誤的提示
+    var excelFile           = document.getElementById('excelFile');             // 上傳檔案名稱
+    var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
+    var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
+    var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
+    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
+    var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
     var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
+    const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
@@ -571,7 +572,7 @@
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
-    const uesrInfo = {
+    const userInfo = {
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
         'empId'    : '<?=$auth_emp_id?>',
