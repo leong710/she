@@ -135,7 +135,7 @@
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
-        if(uesrInfo.role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(userInfo.role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -151,19 +151,21 @@
         return new Promise((resolve) => {
             download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
-            postMemoMsg_btn.disabled     = (_doc_inf.idty >= 4);    // 讓 貼上備註 按鈕啟停
-            
-                // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
-                // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
-                // loadExcel_btn.disabled   = (_doc_inf.idty >= 4);  // 讓 新增 按鈕啟停
-                // importStaff_btn.disabled = (_doc_inf.idty >= 4);  // 讓 上傳 按鈕啟停
-                // if(_doc_inf.idty >= 4){
-                //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
-                //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
-                // }
-                // bat_storeStaff_btn.disabled  = (_doc_inf.idty >= 4);  // 讓 儲存 按鈕啟停
-                // SubmitForReview_btn.disabled = (_doc_inf.idty >= 4);  // 讓 送審 按鈕啟停
+            // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 儲存 按鈕啟停
+            // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 送審 按鈕啟停
 
+            // loadExcel_btn.disabled       = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 新增 按鈕啟停
+            // importStaff_btn.disabled     = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 上傳 按鈕啟停
+
+            // if(_doc_inf.idty >= 4){
+            //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
+            //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
+            // }
+            
+            document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled   = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
+            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));   // 讓所有eraseStaff btn啟停 = 主要for已送審
+            postMemoMsg_btn.disabled     = (_doc_inf.idty >= 4);    // 讓 貼上備註 按鈕啟停
+            memoMsg_input.disabled       = (_doc_inf.idty >= 4)
             resolve();
         });
     }
@@ -209,8 +211,8 @@
         const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
         const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
         const submitValue   = {
-            updated_emp_id  : uesrInfo.empId,
-            updated_cname   : uesrInfo.cname,
+            updated_emp_id  : userInfo.empId,
+            updated_cname   : userInfo.cname,
             action          : action,
             forwarded       : {
                 in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
@@ -265,11 +267,11 @@
                 tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition`+(uesrInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                tr1 += `<td class="shCondition`+(userInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td class="${importItem}`+(uesrInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
+                    tr1 += `<td class="${importItem}`+(userInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
@@ -591,7 +593,7 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                // + ((uesrInfo.role <= 1) ? "": "disabled") +` >
+                                                // + ((userInfo.role <= 1) ? "": "disabled") +` >
                                                 + ` disabled >
                                                 ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value.check_list.length}人<sup class="text-danger" name="sup_${o_key}[]"> (${o_value.idty})</sup></button>`
                                         ).join('')}
@@ -644,9 +646,12 @@
                         thisValue_arr.push(checkList)
                         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
                         // console.log('selectedValues_str =>',selectedValues_str);
+                        
+                        // 增加判斷式，取_doc_inf.in_sign == userInfo.empId 來啟閉簽核按鈕
+                        const reviewRole = (userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId )
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                        await mk_form_btn(docDeptNo);     // 建立簽核按鈕
+                        await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         await post_logs(_doc_inf.logs);       // 鋪設文件歷程
 
                     $('#nav-p2-tab').tab('show');
@@ -675,11 +680,11 @@
 
                     // 決定開啟的權限
                     const doc_Role = !( 
-                                        (uesrInfo.role <= 1) ||                  // 大PM.1 => 全開
-                                        // (dept_no == uesrInfo.signCode) ||      // 同部門 ??    
-                                        // (value.BTRTL == uesrInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
-                                        ((uesrInfo.role == 2 || uesrInfo.role == 2.5) && (uesrInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                        (value.in_sign == uesrInfo.empId)      // 待簽人員 = 上層主管 /轉呈
+                                        (userInfo.role <= 1) ||                  // 大PM.1 => 全開
+                                        // (dept_no == userInfo.signCode) ||      // 同部門 ??    
+                                        // (value.BTRTL == userInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
+                                        ((userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5) && (userInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                        (value.in_sign == userInfo.empId)      // 待簽人員 = 上層主管 /轉呈
                                     );
         
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
@@ -719,8 +724,8 @@
                     const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
                     const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
                     const submitValue   = JSON.stringify({
-                            updated_emp_id  : uesrInfo.empId,
-                            updated_cname   : uesrInfo.cname,
+                            updated_emp_id  : userInfo.empId,
+                            updated_cname   : userInfo.cname,
                             currentYear     : currentYear,
                             action          : action,
                             forwarded       : {
@@ -747,22 +752,23 @@
         });
     }
     // 生成簽核btn
-    async function mk_form_btn (docDeptNo) {
-        const btn_s = `<button type="button" class="btn `;
-        const btn_m = ` add_btn" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
-        const btn_e = `" onclick="mk_submitItem(this.value, this.innerHTML);" disable>`;
-    
-        const btn_0  = btn_s +"btn-outline-danger"  + btn_m +"0" + btn_e +"作廢 (Abort)</button>";
-        const btn_4  = btn_s +"btn-outline-warning" + btn_m +"4" + btn_e +"退回 (Reject)</button>";
-        const btn_5  = btn_s +"btn-outline-info"    + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
-        const btn_6  = btn_s +"btn-outline-success" + btn_m +"6" + btn_e +"同意 (Approve)</button>";
-        const btn_11 = btn_s +"btn-outline-primary" + btn_m +"11"+ btn_e +"承辦同意 (Approve)</button>";
-        const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
-
+    async function mk_form_btn (reviewRole) {
         const formBtnDiv = document.getElementById("form_btn_div");
         formBtnDiv.innerHTML = "";
-        formBtnDiv.insertAdjacentHTML('beforeend', btn_6 +'&nbsp;'+ btn_5 +'&nbsp;'+ btn_4);
-
+        if(reviewRole){
+            const btn_s = `<button type="button" class="btn `;
+            const btn_m = ` add_btn" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
+            const btn_e = `" onclick="mk_submitItem(this.value, this.innerHTML);" disable>`;
+        
+            const btn_0  = btn_s +"btn-outline-danger"  + btn_m +"0" + btn_e +"作廢 (Abort)</button>";
+            const btn_4  = btn_s +"btn-outline-warning" + btn_m +"4" + btn_e +"退回 (Reject)</button>";
+            const btn_5  = btn_s +"btn-outline-info"    + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
+            const btn_6  = btn_s +"btn-outline-success" + btn_m +"6" + btn_e +"同意 (Approve)</button>";
+            const btn_11 = btn_s +"btn-outline-primary" + btn_m +"11"+ btn_e +"承辦同意 (Approve)</button>";
+            const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
+    
+            formBtnDiv.insertAdjacentHTML('beforeend', btn_6 +'&nbsp;'+ btn_5 +'&nbsp;'+ btn_4);
+        }
     }
     // 簽核類型渲染
     function mk_submitItem(idty, idty_title){
@@ -789,7 +795,7 @@
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        let message  = `uesrInfo.signCode：${uesrInfo.signCode}、.role：${uesrInfo.role}、.BTRTL：${uesrInfo.BTRTL}`;
+        let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
         if(message) {
             Balert( message, 'warning')
         }

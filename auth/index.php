@@ -96,7 +96,8 @@
                                     <?php switch($user_row["role"]){
                                         case "0": echo "0.&nbsp管理"; break;
                                         case "1": echo "1.&nbspPM"; break;
-                                        case "2": echo "2.&nbspsiteUser"; break;
+                                        case "2": echo "2.&nbspsiteNurse"; break;
+                                        case "2.2": echo "2.2&nbspsiteEsh"; break;
                                         case "3": echo "3.&nbspnoBody"; break;
                                         default: echo "【&nbsp停用&nbsp】";} ?></td>
                                 <td title="<?php echo $user_row["created_at"];?>"><?php echo substr($user_row["created_at"],0,10);?></td>
@@ -166,9 +167,21 @@
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td>siteUser</td>
+                                    <td>siteNurse</td>
                                     <td>廠區業務人員</td>
                                     <td>各site指定業務窗口</td>
+                                </tr>
+                                <tr>
+                                    <td>2.2</td>
+                                    <td>siteESH</td>
+                                    <td>廠區環安人員</td>
+                                    <td>各site指定業務窗口</td>
+                                </tr>
+                                <tr>
+                                    <td>2.5</td>
+                                    <td>ESH_user</td>
+                                    <td>環安人員</td>
+                                    <td>環安人員</td>
                                 </tr>
                                 <tr>
                                     <td>3</td>
@@ -266,11 +279,12 @@
                             <div class="col-12 col-md-6 py-1">
                                 <div class="form-floating">
                                     <select name="role" id="role" class="form-select">
-                                        <option value=""  for="role">停用</option>
-                                        <option value="0" for="role" <?php echo $sys_role > 0 ? "hidden":"";?>>0_管理</option>
-                                        <option value="1" for="role" <?php echo $sys_role > 1 ? "hidden":"";?>>1_PM</option>
-                                        <option value="2" for="role" selected >2_siteUser</option>
-                                        <option value="3" for="role" >3_noBody</option>
+                                        <option value=""    for="role">停用</option>
+                                        <option value="0"   for="role" <?php echo $sys_role > 0 ? "hidden":"";?>>0_管理</option>
+                                        <option value="1"   for="role" <?php echo $sys_role > 1 ? "hidden":"";?>>1_PM</option>
+                                        <option value="2"   for="role" selected >2_siteNurse</option>
+                                        <option value="2.2" for="role" >2.2_siteESH</option>
+                                        <option value="3"   for="role" >3_noBody</option>
                                     </select>
                                     <label for="role" class="form-label">權限：<sup class="text-danger"> *</sup></label>
                                 </div>

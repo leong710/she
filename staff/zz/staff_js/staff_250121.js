@@ -142,7 +142,7 @@
         await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
-        if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(uesrInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -159,16 +159,14 @@
             download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
             bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
-            // 改在post_hrdb下進行判斷
-            // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+            SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
 
-            loadExcel_btn.disabled       = (_docsIdty_inf >= 4) || (userInfo.role >= 2);    // 讓 新增 按鈕啟停
-            importStaff_btn.disabled     = (_docsIdty_inf >= 4) || (userInfo.role >= 2);    // 讓 上傳 按鈕啟停
+            loadExcel_btn.disabled   = (_docsIdty_inf >= 4);  // 讓 新增 按鈕啟停
+            importStaff_btn.disabled = (_docsIdty_inf >= 4);  // 讓 上傳 按鈕啟停
 
             document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled = (_docsIdty_inf >= 4));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
-            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_docsIdty_inf >= 4));   // 讓所有eraseStaff btn啟停 = 主要for已送審
-            postMemoMsg_btn.disabled     = (_docsIdty_inf >= 4);  // 讓 貼上備註 按鈕啟停
-            memoMsg_input.disabled       = (_docsIdty_inf >= 4)
+            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_docsIdty_inf >= 4));     // 讓所有eraseStaff btn啟停 = 主要for已送審
+            postMemoMsg_btn.disabled = (_docsIdty_inf >= 4);  // 讓 貼上備註 按鈕啟停
 
             resolve();
         });
@@ -331,8 +329,6 @@
         // 停止並銷毀 DataTable
         release_dataTable();
         $('#hrdb_table tbody').empty();
-        let emp_i_omager = false;
-
         if(emp_arr.length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
@@ -373,10 +369,10 @@
                 tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition`+(userInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
-                // tr1 += `<td ` + (userInfo.role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                tr1 += `<td class="shCondition`+(uesrInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                // tr1 += `<td ` + (uesrInfo.role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
 
-                // tr1 += `<td ` + (userInfo.role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
+                // tr1 += `<td ` + (uesrInfo.role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
                 // tr1 += `<td><div class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>&nbsp;
                 //             <button class="btn btn-outline-success btn-sm btn-xs add_btn" type="button" value="${emp_i.cname},${emp_i.emp_id}" 
                 //             data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">紀錄</button></div></br>`;
@@ -384,15 +380,11 @@
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
-                    tr1 += `<td class="${importItem}`+(userInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
+                    tr1 += `<td class="${importItem}`+(uesrInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                 })
 
                 tr1 += '</tr>';
                 $('#hrdb_table tbody').append(tr1);
-                // 增加判斷式，取staff.omager = user.empId 來啟閉SubmitForReview_btn
-                if(!emp_i_omager){
-                    emp_i_omager = emp_i.omager == userInfo.empId;
-                }
             })
         }
         await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
@@ -416,9 +408,6 @@
                     show_preYearShCase(select_empId);
                 });
             });
-            
-        // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
-        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager ) || (emp_arr.length === 0 || _docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
 
         $("body").mLoading("hide");
     }
@@ -638,8 +627,8 @@
                                 <div class="col-md-9 p-1">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h5 class="card-title mb-0" title="${memo_i.emp_id}" >${memo_i.cname}</h5>
-                                        <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== userInfo.empId && userInfo.role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
-                                            + (memo_i.emp_id !== userInfo.empId && userInfo.role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
+                                        <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== uesrInfo.empId && uesrInfo.role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
+                                            + (memo_i.emp_id !== uesrInfo.empId && uesrInfo.role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
                                     </div>
                                     <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
             resolve(memoCard);      // 當所有設置完成後，resolve Promise
@@ -662,8 +651,8 @@
                 }
                 //打包物件
                 const memoObj = {
-                    'cname'     : userInfo.cname,
-                    'emp_id'    : userInfo.empId,
+                    'cname'     : uesrInfo.cname,
+                    'emp_id'    : uesrInfo.empId,
                     'msg'       : (memoMsg_input.value).trim(),
                     'timeStamp' : getTimeStamp()
                 }
@@ -1073,22 +1062,6 @@
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
             console.log('selectedDeptNo =>',selectedDeptNo);
-
-                // 驗證並取得開啟btn的權限disabled or none
-                function getButtonDisabledStatus(oKey, oValue, iBTRTL, uInfo) {
-                    if (uInfo.role <= 1) {
-                        return "";
-                    } else if ((uInfo.role == 2 || uInfo.role == 2.2) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {
-                        return "";
-                    } else if ((uInfo.role == 2.5) && (oKey == uInfo.signCode)) {
-                        return "";
-                    } else if ((uInfo.role == 3)   && (oKey == uInfo.signCode) && (oValue.omager == uInfo.empId)) {
-                        return "";
-                    } else {
-                        return "disabled";
-                    }
-                }
-
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
@@ -1096,26 +1069,33 @@
                 // Object.entries(selectedDeptNo).forEach(([emp_sub_scope, oh_value]) => {
                 for (const _item of selectedDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
-                        // 獲取有效的 BTRTL
-                        const i_BTRTL = Object.values(oh_value).map(i_value => i_value.BTRTL).find(btrtl => btrtl !== 'null');
+                        // console.log(emp_sub_scope, oh_value);
+                        let i_BTRTL = null;
+                        for(const [i_index, i_value] of Object.entries(oh_value) ){
+                            // console.log(i_index, i_value.BTRTL);
+                            i_BTRTL = i_value.BTRTL;
+                            if(i_BTRTL != 'null') break;
+                        }
                         // console.log(emp_sub_scope,'i_BTRTL =>',i_BTRTL)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
                                     <div class="card-header"><b>>>&nbsp;${emp_sub_scope}</b></div>
                                     <div class="card-body p-2">
-                                        ${Object.entries(oh_value).map(([o_key, o_value]) =>{
-                                            let disabledStatus = getButtonDisabledStatus(o_key, o_value, i_BTRTL, userInfo);
-                                            return `
-                                                <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" 
-                                                    style="width: 100%; text-align: start;" ${disabledStatus}>
-                                                    ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup>
-                                                </button>`;
-                                        }).join('')}
+                                        ${Object.entries(oh_value).map(([o_key, o_value]) =>
+                                            `<button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
+                                                +   ((uesrInfo.role <= 1)  ||                                                                                                                           // 大PM/總窗
+                                                     (uesrInfo.role == 2   && (uesrInfo.BTRTL.includes(o_value.BTRTL)) || (uesrInfo.BTRTL.includes(i_BTRTL)) ) ||                                       // 廠區護理師/工安
+                                                     (uesrInfo.role == 2.5 && (uesrInfo.BTRTL.includes(o_value.BTRTL)) || (uesrInfo.BTRTL.includes(i_BTRTL)) && dept_no == auth_sign_code ) ||          // 一般廠區工安
+                                                     (uesrInfo.role <= 3   && (o_key == uesrInfo.signCode) && (o_value.omager  == uesrInfo.empId) )     // ||                                           // 課副理
+                                                    //  (                                                        (o_value.in_Sign == uesrInfo.empId) )  // 在step1~3中沒有inSign待簽                     // 簽核人
+                                                    ? "" : "disabled")
+                                                + ` >
+                                                ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup></button>`
+                                        ).join('')}
                                     </div>
                                 </div>
                             </div>`;
-                            
                         $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
                     })
                 };
@@ -1142,7 +1122,7 @@
                         // console.log('selectedValues_str...',selectedValues_str);
                         load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
-                        const thisId_arr    = this.id.split(',');   // 分割this.id成陣列
+                        const thisId_arr   = this.id.split(',');    // 分割this.id成陣列
                         const emp_sub_scope = thisId_arr[1];        // 取出陣列 1=emp_sub_scope
                         const dept_no       = thisId_arr[2];        // 取出陣列 2=dept_no
                         const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.emp_sub_scope == emp_sub_scope );
@@ -1169,10 +1149,10 @@
             
             // 決定開啟的權限
             const doc_Role = !(
-                                (userInfo.role <= 1) ||
-                                // (_doc.dept_no == userInfo.signCode) ||
-                                // (userInfo.role == 2 || userInfo.role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                (( userInfo.role == 2 || userInfo.role == 2.5 || userInfo.role == 3 ) && ( userInfo.BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == userInfo.signCode) ))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                (uesrInfo.role <= 1) ||
+                                // (_doc.dept_no == uesrInfo.signCode) ||
+                                // (uesrInfo.role == 2 || uesrInfo.role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                ((uesrInfo.role == 2 || uesrInfo.role == 2.5 || uesrInfo.role == 3) && (uesrInfo.BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == uesrInfo.signCode)))   // (廠護理師.2 || 廠工安.2.5) & 同建物
                             );  
             // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
             // console.log('_doc.BTRTL =>',_doc.BTRTL);
@@ -1190,7 +1170,7 @@
                     deptNo_btn.classList.add('btn-outline-secondary');
                 }
                 // 點擊編輯權限
-                // deptNo_btn.disabled = doc_Role;
+                deptNo_btn.disabled = doc_Role;
             })
         })
     }
@@ -1218,8 +1198,8 @@
                 const action = this.getAttribute('value');              // 使用 getAttribute 獲取 value
                 const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
                 const submitValue   = JSON.stringify({
-                        updated_emp_id  : userInfo.empId,
-                        updated_cname   : userInfo.cname,
+                        updated_emp_id  : uesrInfo.empId,
+                        updated_cname   : uesrInfo.cname,
                         currentYear     : currentYear,
                         action          : action,
                         sign_comm       : getCommValue('sign_comm'),
@@ -1259,7 +1239,7 @@
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
+        let message  = `uesrInfo.signCode：${uesrInfo.signCode}、.role：${uesrInfo.role}、.BTRTL：${uesrInfo.BTRTL}`;
         if(message) {
             Balert( message, 'warning')
         }

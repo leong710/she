@@ -33,7 +33,7 @@
     }
     // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeHE_CATEmode(){
-        const isHECate = uesrInfo.role <= 3 && _docsIdty_inf < 4;
+        const isHECate = userInfo.role <= 3 && _docsIdty_inf < 4;
         const targetCate = document.querySelectorAll(isHECate ? '.xHE_CATE' : '.HE_CATE');  
         targetCate.forEach(tdItem => {
             tdItem.classList.toggle(isHECate ? 'HE_CATE'  : 'xHE_CATE');
@@ -153,7 +153,7 @@
     }
     // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeShConditionMode(){
-        const isShCondition = uesrInfo.role <= 3 && _docsIdty_inf < 4;
+        const isShCondition = userInfo.role <= 3 && _docsIdty_inf < 4;
         const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
         targetCate.forEach(tdItem => {
             tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
@@ -209,7 +209,7 @@
     }
     // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeYearHeMode(){
-        const isYearHe = uesrInfo.role <= 3 && _docsIdty_inf < 4 ;
+        const isYearHe = userInfo.role <= 3 && _docsIdty_inf < 4 ;
         const targetCate = document.querySelectorAll(isYearHe ? '.xyearHe' : '.yearHe');  
         targetCate.forEach(tdItem => {
             tdItem.classList.toggle(isYearHe ? 'yearHe'  : 'xyearHe');

@@ -436,6 +436,7 @@
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+    const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
@@ -458,7 +459,7 @@
     // const deptNosObj = <=json_decode($doc_deptNos)?>;
     // console.log('deptNosObj...', deptNosObj);
 
-    const uesrInfo = {
+    const userInfo = {
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
         'empId'    : '<?=$auth_emp_id?>',
