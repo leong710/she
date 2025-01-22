@@ -135,7 +135,7 @@
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
-        if(userInfo.role <= '3' && _doc_inf.idty >= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(userInfo.role <= '2.2' && _doc_inf.idty <= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
@@ -267,7 +267,7 @@
                 tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="shCondition`+(userInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                tr1 += `<td class="shCondition`+(userInfo.role <='2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
@@ -491,7 +491,7 @@
             const divs = '<div class="row p-2">';
             const divm = '<div class="col-md-6 bg-light border rounded">';
             const reviewItem_txt   = `<b>Step：</b>${_doc_inf.idty}<br><b>審核：</b>${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
-            const reviewInsign_txt = `<b>待簽：</b>`+((_doc_inf.idty > 0 && _doc_inf.idty < 5) && _doc_inf.in_sign !='' ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
+            const reviewInsign_txt = `<b>待簽：</b>`+((_doc_inf.idty > 0 && _doc_inf.idty <= 6) && _doc_inf.in_sign !='' ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
             const reviewflow_txt   = `<b>Flow：</b>${_doc_inf.flow}<br><b>Remark：</b>${_doc_inf.flow_remark.remark}<br><b>Group：</b>${_doc_inf.flow_remark.group}`;
             $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
 
@@ -560,7 +560,10 @@
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
             }
             staff_inf = loadStaff_arr;      // 套取staff的表單
-            loadStaff_tmp = loadStaff_arr;  // 套取staff的表單 = for 比對功能，來決定是否儲存
+            // 套取staff的表單 = for 比對功能，來決定是否儲存
+                // loadStaff_tmp = loadStaff_arr;  
+            loadStaff_tmp = Object.assign( {}, loadStaff_arr ); // 淺拷貝
+
             // console.log('loadStaff_arr...',loadStaff_arr);
             await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             await post_shCase(loadStaff_arr);     // 鋪設--特作資料
@@ -680,17 +683,21 @@
 
                     // 決定開啟的權限
                     const doc_Role = !( 
-                                        (userInfo.role <= 1) ||                  // 大PM.1 => 全開
-                                        // (dept_no == userInfo.signCode) ||      // 同部門 ??    
-                                        // (value.BTRTL == userInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
-                                        ((userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5) && (userInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                        (value.in_sign == userInfo.empId)      // 待簽人員 = 上層主管 /轉呈
-                                    );
+                                    (userInfo.role <= 1) ||                  // 大PM.1 => 全開
+                                    // (dept_no == userInfo.signCode) ||      // 同部門 ??    
+                                    // (value.BTRTL == userInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
+                                    ((userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5) && (userInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                    (value.in_sign == userInfo.empId)      // 待簽人員 = 上層主管 /轉呈
+                                );
         
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
                     deptNo_btns.forEach(deptNo_btn => {
                         // 如果 idty 大於 4，則更新按鈕樣式
-                        if (value.idty > 4) {
+                        if (value.idty == 5) {
+                            deptNo_btn.classList.remove('btn-info');
+                            deptNo_btn.classList.remove('add_btn');
+                            deptNo_btn.classList.add('btn-success');
+                        } else if (value.idty == 6) {
                             deptNo_btn.classList.remove('btn-info');
                             deptNo_btn.classList.add('btn-outline-secondary');
                         }
@@ -736,9 +743,9 @@
                             _doc            : _doc_inf,
                             _staff          : staff_inf
                         })
-                        console.log('submitValue =>', JSON.parse(submitValue)); 
-
-                    if( staff_inf !== loadStaff_tmp){   // for 比對功能，來決定是否儲存
+                        // console.log('submitValue =>', JSON.parse(submitValue)); 
+                    
+                    if( staff_inf != loadStaff_tmp){   // for 比對功能，來決定是否儲存
                         await load_fun('bat_storeStaff', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
                     }
                     await load_fun('processReview', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串

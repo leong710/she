@@ -140,6 +140,7 @@
                 padding: 4px 4px;
             }
             .btn-info {
+                color: black;
                 background-color: rgba(23, 162, 184, 0.4);
             }
             .btn-info:hover {
@@ -147,6 +148,17 @@
             }
             .btn-info[disabled] {
                 background-color: rgba(23, 162, 184, 0.2);
+            }
+            .btn-success {
+                color: black;
+                background-color: rgba(40, 167, 69, 0.4);
+            }
+            .btn-success:hover {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            }
+            .btn-success[disabled] {
+                color: black;
+                background-color: rgba(40, 167, 69, 0.2);
             }
     </style>
 </head>
@@ -247,7 +259,7 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
+                                        <th title="shCondition" <?php echo ($sys_role <= '2') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
                                         <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >去年檢查項目</th>

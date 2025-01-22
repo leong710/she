@@ -656,7 +656,7 @@
                     $_documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     // JSON解碼
                     foreach($_documents as $index => $_doc){
-                        $_documents[$index]['check_list']     = json_decode($_documents[$index]['check_list'], true);
+                        $_documents[$index]['check_list'] = json_decode($_documents[$index]['check_list'], true);
                     }
                     // 製作返回文件
                     $result = [

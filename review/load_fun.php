@@ -462,7 +462,7 @@
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = json_decode($deptNo_i["flow_remark"], true);
-                        $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
+                        $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = json_decode($deptNo_i["_content"], true);
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }
 
@@ -496,7 +496,9 @@
                     "content" => "批次送審名單--"
                 ];
 
-                define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE uuid = ? ");
+                // define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE uuid = ? ");
+                define('SQL_SELECT_PM', "SELECT GROUP_CONCAT(CONCAT(_u.emp_id, ',', _u.cname) SEPARATOR ',') AS pm_empId FROM _users _u WHERE _u.role = 1 AND _u.emp_id < 90000000 LIMIT 3;");
+                define('SQL_SELECT_DOC', "SELECT _d.*, _f.pm_emp_id AS pm_empId, _f.osha_id FROM `_document` _d LEFT JOIN `_fab` _f ON REPLACE(_f.fab_title, '棟', '') = _d.sub_scope AND _f.BTRTL = _d.BTRTL WHERE uuid = ? ");
                 define('SQL_UPDATE_DOC', "UPDATE _document SET in_sign = ?, in_signName = ?, idty = ?, flow = ?, flow_remark = ?, _content = ?, updated_cname = ?, logs = ?, updated_at = now() WHERE uuid = ? " );
                 $values       = [];
                 $params       = [];
@@ -589,11 +591,22 @@
 
                 } else {
                     if($idty === "5"){
-                        $in_sign     = "";  
-                        $in_signName = "";  
+                        $pm_empId_arr = explode(",", $row_data["pm_empId"]);    // 資料表是字串，要炸成陣列
+                        $in_sign      = $pm_empId_arr[0] ?? NULL;               // 由 4->5時，即業務窗口簽核，未到主管
+                        $in_signName  = $pm_empId_arr[1] ?? NULL;               // 由 存換成 NULL
+                    }else if($idty === "6"){
+                        $pm_select = $pdo->prepare(SQL_SELECT_PM);              // 預先動作：找出大PM
+                        if (executeQuery($pm_select, '' )) {
+                            $pm_data = $pm_select->fetch(PDO::FETCH_ASSOC);
+                        }else{
+                            $pm_data = array ( "pm_empId" => "" );
+                        }
+                        $pm_empId_arr = explode(",", $pm_data["pm_empId"]);    // 資料表是字串，要炸成陣列
+                        $in_sign      = $pm_empId_arr[0] ?? NULL;               // 由 4->5時，即業務窗口簽核，未到主管
+                        $in_signName  = $pm_empId_arr[1] ?? NULL;               // 由 存換成 NULL
                     }else{
-                        $in_sign     = ($action === "5") ? $forwarded["in_sign"]     : ($row_data["in_sign"]     ?? "");  
-                        $in_signName = ($action === "5") ? $forwarded["in_signName"] : ($row_data["in_signName"] ?? "");  
+                        $in_sign     = ($action === "5") ? $forwarded["in_sign"]     : ($row_data["in_sign"]     ?? NULL);  
+                        $in_signName = ($action === "5") ? $forwarded["in_signName"] : ($row_data["in_signName"] ?? NULL);  
                     }
                 }
                 
@@ -674,7 +687,7 @@
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["in_signName"] = $deptNo_i["in_signName"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow"]        = $deptNo_i["flow"];
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["flow_remark"] = json_decode($deptNo_i["flow_remark"], true);
-                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = $deptNo_i["_content"];
+                        $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = json_decode($deptNo_i["_content"], true);
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }
 
