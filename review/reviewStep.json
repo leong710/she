@@ -79,7 +79,7 @@
                 "idty"          : "10",
                 "approvalStep"  : "名單存檔",
                 "remark"        : "健檢名單存檔",
-                "group"         : "",
+                "group"         : "總窗護理師",
                 "edit"          : false,
                 "returnTo"      : false,
                 "approveTo"     : false

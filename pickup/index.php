@@ -179,13 +179,13 @@
             }
             .banner {
                 /* 若綠 わかみどり */
-                background-color: #98D98E;
+                /* background-color: #98D98E; */
                 /* 若草色 わかくさいろ */
                 /* background-color: #C3D825; */
                 /* 若竹色 わかたけいろ */
                 /* background-color: #68BE8D; */
                 /* 若芽色 わかめいろ */
-                /* background-color: #E0EBAF; */
+                background-color: #E0EBAF;
             }
             .banner-img{
                 width: auto;
@@ -508,9 +508,9 @@
     const preYear        = String(currentYear - 1);             // 取得去年年份
 
 </script>
-<script src="review.js?v=<?=time()?>"></script>
-<script src="review_excel.js?v=<?=time()?>"></script>
-<script src="review_check.js?v=<?=time()?>"></script>
-<script src="review_editModal.js?v=<?=time()?>"></script>
+<script src="pickup.js?v=<?=time()?>"></script>
+<script src="pickup_excel.js?v=<?=time()?>"></script>
+<script src="pickup_check.js?v=<?=time()?>"></script>
+<script src="pickup_editModal.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

@@ -8,15 +8,15 @@
         alertPlaceholder.append(wrapper)
     }
     // fun.0-2：吐司顯示字條 +堆疊
-    function inside_toast(sinn){
+    function inside_toast(sinn, delayTime, type){
         // 創建一個新的 toast 元素
         var newToast = document.createElement('div');
-            newToast.className = 'toast align-items-center bg-warning';
+            newToast.className = 'toast align-items-center bg-'+type;
             newToast.setAttribute('role', 'alert');
             newToast.setAttribute('aria-live', 'assertive');
             newToast.setAttribute('aria-atomic', 'true');
             newToast.setAttribute('autohide', 'true');
-            newToast.setAttribute('delay', '1000');
+            newToast.setAttribute('delay', delayTime);
 
             // 設置 toast 的內部 HTML
             newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
@@ -311,7 +311,7 @@
                         // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
                         // searchWorkCaseAll(excel_json_value_arr);
 
-                        inside_toast(`批次匯入Excel資料...Done&nbsp;!!`);
+                        inside_toast(`批次匯入Excel資料...Done&nbsp;!!`, 1000, 'info');
 
                     } else if(stopUpload) {
                         console.log('請確認資料是否正確');
@@ -948,7 +948,7 @@
             staff_inf = Array.from(uniqueStaffMap.values());
 
             resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
-            inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`);
+            inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`, 1000, 'info');
         }
     }
     // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
@@ -982,7 +982,7 @@
             empData.currentYear    = currentYear;                     // 作業年度
         }
         mgInto_staff_inf(loadStaff_arr);
-        inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!');
+        inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
         $('#nav-p2-tab').tab('show');                                       // 切換頁面
     }
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
@@ -1160,22 +1160,26 @@
         _docs_inf = _docs;      // 帶入inf
         const reviewStep = await load_fun('reviewStep', 'return', );     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
         const _step = reviewStep.step;
+        let rejectList = '!! 退回編輯：';
         
         _docs.forEach( _doc => {
             const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside sup[name="sup_${_doc.dept_no},${_doc.emp_sub_scope}[]"]`);
             const innerHTMLValue = (_doc.idty == 2) ? "退回編輯" : _step[_doc.idty].approvalStep;
+                if(_doc.idty == 2){
+                    rejectList += `${_doc.emp_sub_scope}&nbsp;${_doc.dept_no},${_doc.emp_dept}&nbsp;`
+                }
+
             // 更新所有符合條件的節點的 innerHTML
             deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
             
             // 決定開啟的權限
             const doc_Role = !(
-                                (userInfo.role <= 1) ||
-                                // (_doc.dept_no == userInfo.signCode) ||
-                                // (userInfo.role == 2 || userInfo.role == 2.5)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                                (( userInfo.role == 2 || userInfo.role == 2.5 || userInfo.role == 3 ) && ( userInfo.BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == userInfo.signCode) ))   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                            );  
-            // console.log(_doc.dept_no,' doc_Role =>',doc_Role)
-            // console.log('_doc.BTRTL =>',_doc.BTRTL);
+                    (userInfo.role <= 1) ||
+                    // (_doc.dept_no == userInfo.signCode) ||
+                    // (userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5 || userInfo.role == 3)   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                    (( userInfo.role >= 2 || userInfo.role <= 3 ) && ( userInfo.BTRTL.includes(_doc.BTRTL) || 
+                        (_doc.dept_no == userInfo.signCode) ))   // (廠護理師.2 || 廠工安.2.5) & 同建物
+                );  
             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
             deptNo_btns.forEach(deptNo_btn => {
                 // 如果 idty 等於 2 退件，則更新按鈕樣式
@@ -1193,9 +1197,34 @@
                 // deptNo_btn.disabled = doc_Role;
             })
         })
+
+        if(rejectList !== '!! 退回編輯：'){
+            Balert( rejectList, 'warning');
+            inside_toast(rejectList, 5000, 'warning');
+        }
+    }
+    async function postBanner() {
+        const reviewStep = await load_fun('reviewStep', 'reviewStep', 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+        let banner = 'sorry! reviewStep error ...';
+        if(reviewStep){
+            const banS = '<span><h5><ul class="mb-0">';
+            const banM = '&nbsp;<sup class="text-danger">- ';
+            const banli= '</sup></li>';
+            const banE = '</ul></h5></span>';
+            banner = banS;
+            for (let i = 1; i <= 3; i++) {
+                if(reviewStep.step[i] != undefined){
+                    banner += `<li>step.${reviewStep.step[i].idty}&nbsp;${reviewStep.step[i].approvalStep}&nbsp;(${reviewStep.step[i].remark})`+ banM + `${reviewStep.step[i].group}` + banli ;
+                }
+            }
+            // banner += banE + `<img src="../image/banner-1-2.png" alt="banner pic" class="img-thumbnail banner-img" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
+            banner += banE + `<img src="../image/pic-1-2.png" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
+        }
+        document.getElementById(`banner`).insertAdjacentHTML('beforeend', banner);     // 渲染各項目
     }
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init(deptNosObj) {
+        postBanner();
         await rework_staff(deptNosObj);
         await mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
     }
@@ -1261,7 +1290,8 @@
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
         let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
         if(message) {
-            Balert( message, 'warning')
+            // Balert( message, 'warning')
+            document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目
         }
         $("body").mLoading("hide");
 

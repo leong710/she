@@ -89,12 +89,6 @@
                 align-items: center;
                 pointer-events: none;
             }
-            .banner {
-                width: 100%;
-                height: auto;
-                position: relative;
-                overflow: hidden;
-            }
             p {
                 /* 對齊方式 */
                 text-align: center;    
@@ -117,7 +111,7 @@
                 font-style: bolder;
             }
     </style>
-    <link rel="stylesheet" href="zz/wave.css">
+    <link rel="stylesheet" href="wave.css">
 </head>
 
 <body>
@@ -143,8 +137,33 @@
                                     <div class="bar"></div>
                                 </div>
                             </div>
-                            <div class="col-12 seed text-center">
-                                <img src="../image/safetyFirst.jfif" alt="tnESH Logo">
+                            <div class="col-12 seed">
+                                <h4>垂老別</h4>
+                                <strong>作者：唐朝 杜甫</strong><br>
+                                原文：<br>
+                                <p>
+                                    四郊未寧靜，垂老不得安。<br>子孫陣亡盡，焉用身獨完。<br>
+                                    投杖出門去，同行爲辛酸。<br>幸有牙齒存，所悲骨髓幹。<br>
+                                    男兒既介冑，長揖別上官。<br>老妻臥路啼，歲暮衣裳單。<br>
+                                    孰知是死別，且復傷其寒。<br>此去必不歸，還聞勸加餐。<br>
+                                    土門壁甚堅，杏園度亦難。<br>勢異鄴城下，縱死時猶寬。<br>
+                                    人生有離合，豈擇衰老端。<br>憶昔少壯日，遲迴竟長嘆。<br>
+                                    萬國盡征戍，烽火被岡巒。<br>積屍草木腥，流血川原丹。<br>
+                                    何鄉爲樂土，安敢尚盤桓。<br>棄絕蓬室居，塌然摧肺肝。
+                                </p>
+                                <hr>
+                                <strong>譯文作者：佚名</strong><br>
+                                <P>
+                                    四野的戰爭還沒得到安平，我已經老了卻得不到安寧。
+                                    子孫們在戰場上盡都殉難，兵荒馬亂又何需老命苟全。
+                                    扔掉柺杖出門去拼搏一番，同行的人也爲我流淚辛酸。
+                                    慶幸牙齒完好胃口還不減，悲傷身骨瘦如柴枯槁不堪。
+                                    男兒既披戴盔甲從戎征戰，也只好長揖不拜辭別長官。
+                                    聽到老伴睡路上聲聲哀喚，嚴冬臘月仍然是褲薄衣單。
+                                    明知道死別最後一次見面，貧賤夫妻怎麼不憐她飢寒。
+                                    今朝離去永不能回返家園，猶聽她再三勸我努力加餐。
+                                    土門關深溝高壘防守堅嚴，杏園鎮天險足恃偷渡...
+                                </P>
                             </div>
                         </div>
                     </div>
@@ -159,7 +178,7 @@
                         <!-- 說明欄 -->
                         <div class="col-12 bg-white border rounded p-3 my-2 bs-b" id="remark">
                             <div class="text-center">
-                                <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
+                                <img src="image.jfif" alt="tnESH Logo">
                             </div>
             
                             <hr>
@@ -167,12 +186,12 @@
            
                             <div class="col-12 py-0 px-3 text-end">
                                 <a href="sys_role.php?sys_id=she&role=0"    class="btn btn-outline-success add_btn">0 管理員</a>
-                                <a href="sys_role.php?sys_id=she&role=1"    class="btn btn-outline-success add_btn">1 大PM/總窗護理師</a>
-                                <a href="sys_role.php?sys_id=she&role=2"    class="btn btn-outline-success add_btn">2 廠-護理師</a>
-                                <a href="sys_role.php?sys_id=she&role=2.2"  class="btn btn-outline-success add_btn">2.2 廠-工安</a>
-                                <a href="sys_role.php?sys_id=she&role=2.5"  class="btn btn-outline-success add_btn">2.5 ESH工安</a>
+                                <a href="sys_role.php?sys_id=she&role=1"    class="btn btn-outline-success add_btn">1 PM</a>
+                                <a href="sys_role.php?sys_id=she&role=2"    class="btn btn-outline-success add_btn">2 site窗口</a>
+                                <a href="sys_role.php?sys_id=she&role=2.5"  class="btn btn-outline-success add_btn">2.5 ESH</a>
                                 <a href="sys_role.php?sys_id=she&role=3"    class="btn btn-outline-success add_btn">3 現場窗口</a>
-                                <a href="sys_role.php?sys_id=she&role=3.5"  class="btn btn-outline-success add_btn">3.5 unknow</a>
+                                <a href="sys_role.php?sys_id=she&role=3.5"  class="btn btn-outline-success add_btn">3.5 現場主管</a>
+        
                             </div>
                         </div>
                     </div>

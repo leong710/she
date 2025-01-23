@@ -78,6 +78,9 @@
         .body > ul {
             padding-left: 0px;
         }
+        #banner li {
+            margin: 15px 0;
+        }
         tr, td{
             text-align: start; 
         }
@@ -98,6 +101,10 @@
             .inf {
                 display: inline-flex;
             }
+            .infb {
+                justify-content: space-between;
+                /* justify-content: space-around; */
+            }
         .h6 {
             font-size: 12px;
         }
@@ -105,7 +112,7 @@
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
-            text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+            text-shadow: 3px 3px 5px rgba(0, 0, 0, .5);
         }
             .split-td {
                 display: flex;
@@ -140,20 +147,6 @@
             .btn {
                 padding: 4px 4px;
             }
-            .cover {
-                width: 100%;
-                height: 100px;
-            }
-            .cover img{
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                object-position: left;
-            }
-            /* .memoCard {
-                color: $yellow-300;
-                background-color: $indigo-900;
-            } */
             .btn-info {
                 background-color: rgba(23, 162, 184, 0.5); /* 這是 Bootstrap 中 btn-info 的顏色，0.5 表示透明度50% */
             }
@@ -166,19 +159,41 @@
             .btn-warning {
                 background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
             }
+            .cover {
+                width: 100%;
+                height: 100px;
+            }
+            .cover-img{
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                object-position: left;
+            }
+            .banner {
+                /* 若綠 わかみどり */
+                /* background-color: #98D98E; */
+                /* 若草色 わかくさいろ */
+                background-color: #C3D825;
+                /* 若竹色 わかたけいろ */
+                /* background-color: #68BE8D; */
+                /* 若芽色 わかめいろ */
+                /* background-color: #E0EBAF; */
+            }
+            .banner-img{
+                width: auto;
+                height: 150px;
+            }
+            /* .memoCard {
+                color: $yellow-300;
+                background-color: $indigo-900;
+            } */
     </style>
 </head>
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
             <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .8);">
-                <div class="col-12">
-                    <div class="row">
-                        <div class="col-12 border rounded bg-light ">
-                            <h4 class="mb-0">step.1 建立特檢名單<sup>(總窗護理師)</sup>  step.2 指定特別危害工作內容、填暴露時數<sup>(課副理,護理師,ESH工安)</sup>  step.3 名單送審<sup>(課副理,護理師)</sup></h4>
-                        </div>
-                    </div>
-                </div>
+                <div id="banner" class="col-12 my-3 p-1 border rounded banner inf infb"></div>
                 <div class="col-12 p-0">
                     <!-- Bootstrap Alarm -->
                     <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>

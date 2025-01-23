@@ -9,7 +9,7 @@
         alertPlaceholder.append(wrapper)
     }
     // fun.0-2：吐司顯示字條 +堆疊
-    function inside_toast(sinn, type){
+    function inside_toast(sinn, delayTime, type){
         // 創建一個新的 toast 元素
         var newToast = document.createElement('div');
             newToast.className = 'toast align-items-center bg-'+type;
@@ -17,7 +17,7 @@
             newToast.setAttribute('aria-live', 'assertive');
             newToast.setAttribute('aria-atomic', 'true');
             newToast.setAttribute('autohide', 'true');
-            newToast.setAttribute('delay', '1000');
+            newToast.setAttribute('delay', delayTime);
             // 設置 toast 的內部 HTML
             newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
                     <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
@@ -162,8 +162,8 @@
             //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
             // }
             
-            document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled   = (_doc_inf.idty == 5 || _doc_inf.in_sign != userInfo.empId ));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
-            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_doc_inf.idty == 5 || _doc_inf.in_sign != userInfo.empId ));   // 讓所有eraseStaff btn啟停 = 主要for已送審
+            document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled   = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));     // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
+            document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));   // 讓所有eraseStaff btn啟停 = 主要for已送審
             postMemoMsg_btn.disabled     = (_doc_inf.idty >= 4);    // 讓 貼上備註 按鈕啟停
             memoMsg_input.disabled       = (_doc_inf.idty >= 4)
             resolve();
@@ -651,7 +651,7 @@
                         // console.log('selectedValues_str =>',selectedValues_str);
                         
                         // 增加判斷式，取_doc_inf.in_sign == userInfo.empId 來啟閉簽核按鈕
-                        const reviewRole = ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty <= 5)
+                        const reviewRole = (userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId )
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                         await mk_form_btn(reviewRole);        // 建立簽核按鈕
@@ -683,12 +683,12 @@
 
                     // 決定開啟的權限
                     const doc_Role = !( 
-                            (userInfo.role <= 1) ||                  // 大PM.1 => 全開
-                            // (dept_no == userInfo.signCode) ||      // 同部門 ??    
-                            // (value.BTRTL == userInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
-                            ((userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5) && (userInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
-                            (value.in_sign == userInfo.empId)      // 待簽人員 = 上層主管 /轉呈
-                        );
+                                    (userInfo.role <= 1) ||                  // 大PM.1 => 全開
+                                    // (dept_no == userInfo.signCode) ||      // 同部門 ??    
+                                    // (value.BTRTL == userInfo.BTRTL) ||       // 同建物 = 廠護理師.2 /廠工安.2.5
+                                    ((userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5) && (userInfo.BTRTL.includes(value.BTRTL))) ||  // (廠護理師.2 || 廠工安.2.5) & 同建物
+                                    (value.in_sign == userInfo.empId)      // 待簽人員 = 上層主管 /轉呈
+                                );
         
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
                     deptNo_btns.forEach(deptNo_btn => {
@@ -697,7 +697,7 @@
                             deptNo_btn.classList.remove('btn-info');
                             deptNo_btn.classList.remove('add_btn');
                             deptNo_btn.classList.add('btn-success');
-                        } else if (value.idty >= 6) {
+                        } else if (value.idty == 6) {
                             deptNo_btn.classList.remove('btn-info');
                             deptNo_btn.classList.add('btn-outline-secondary');
                         }
@@ -720,13 +720,13 @@
                 const banli= '</sup></li>';
                 const banE = '</ul></h5></span>';
                 banner = banS;
-                for (let i = 4; i <= 5; i++) {
+                for (let i = 6; i <= 10; i++) {
                     if(reviewStep.step[i] != undefined){
                         banner += `<li>step.${reviewStep.step[i].idty}&nbsp;${reviewStep.step[i].approvalStep}&nbsp;(${reviewStep.step[i].remark})`+ banM + `${reviewStep.step[i].group}` + banli ;
                     }
                 }
             // banner += banE + `<img src="../image/banner-1-2.png" alt="banner pic" class="img-thumbnail banner-img" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
-            banner += banE + `<img src="../image/pic-2-2.png" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
+            banner += banE + `<img src="../image/safetyFirst.jfif" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
             }
             document.getElementById(`banner`).insertAdjacentHTML('beforeend', banner);     // 渲染各項目
             // resolve();      // 當所有設置完成後，resolve Promise

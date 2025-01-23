@@ -544,11 +544,8 @@
                         $idty = "2";
                         break;
                     case "3":       // 送出
-                        $idty = "4";
-                        break;
                     case "5":       // 轉呈
                         $idty = "4";
-                        $status .= " => {$forwarded["in_signName"]} ({$forwarded["in_sign"]})";
                     break;
                     case "4":       // 退回
                         $idty = $rowStep_arr['returnTo'];
