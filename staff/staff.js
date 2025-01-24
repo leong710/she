@@ -352,7 +352,7 @@
                             // <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;
                             + `<div class="col-12 pt-1 pb-0 px-0" >
                                 <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn eraseStaff" value="${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
-                                    onclick="eraseStaff(this.value)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
+                                    onclick="eraseStaff(this)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
                                 <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " value="${emp_i.cname},${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
                                     onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
                             </div>
@@ -927,14 +927,14 @@
         resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
     }
     // 240826 單筆刪除Staff資料
-    async function eraseStaff(removeEmpId){
-        if(!confirm(`確認移除此筆(${removeEmpId})資料？`)){
+    async function eraseStaff(removeEmp){
+        if(!confirm(`確認移除此筆(${removeEmp.value})資料？`)){
             return;
         }else{
             // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
             let uniqueStaffMap = new Map();
             staff_inf.forEach(item => {
-                if (item.emp_id === removeEmpId) {      // 跳過這個 emp_id，達到刪除的效果
+                if (item.emp_id === removeEmp.value) {      // 跳過這個 emp_id，達到刪除的效果
                     return;
                 }
                 if (uniqueStaffMap.has(item.emp_id)) {  // 如果 emp_id 已經存在，則合併 shCase
@@ -948,8 +948,11 @@
             // 將 Map 轉換回陣列
             staff_inf = Array.from(uniqueStaffMap.values());
 
-            resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
-            inside_toast(`刪除單筆資料${removeEmpId}...Done&nbsp;!!`, 1000, 'info');
+            release_dataTable();                                            // 銷毀dataTable
+                var row = removeEmp.parentNode.parentNode.parentNode;       // 找到按鈕所在的行
+                row.parentNode.removeChild(row);                            // 刪除該行
+                inside_toast(`刪除單筆資料${removeEmp.value}...Done&nbsp;!!`, 1000, 'info');
+            await reload_dataTable();                                       // 重新載入dataTable   
         }
     }
     // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
