@@ -136,7 +136,7 @@
     // fun.2-2a：search Key_word
     async function search_fun(fun, searchkeyWord){
         return new Promise((resolve) => {
-            mloading("show");                                               // 啟用mLoading
+            // mloading("show");                                               // 啟用mLoading
             // 製作查詢包裝：
             var request = {
                 uuid         : 'e65fccd1-79e7-11ee-92f1-1c697a98a75f',      // nurse

@@ -614,7 +614,8 @@
                     $result = [
                         'result_obj' => $swal_json,
                         'fun'        => $fun,
-                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)',
+                        'check'      => count($new_form[$new_check_deptNo]["check_list"])
                     ];
 
                 } else {

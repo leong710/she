@@ -50,7 +50,8 @@
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
 
                 } else {                                        // error
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 手動保留在本業; 載入成功，resolve
                 }
             }else{
                 console.error("Invalid swal_value:", swal_value);
@@ -346,8 +347,8 @@
                 const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
 
                 tr1 += `<td class="">
-                            <div class="col-12 p-0">${emp_i.emp_id}</br><button type="button" class="btn btn-outline-primary add_btn " name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
-                            + (emp_i.HIRED ? ` title="到職日：${emp_i.HIRED}" ` : ``) +` data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
+                            <div class="col-12 p-0 ">${emp_i.emp_id}</br><button type="button" class="btn `+ (emp_i.dept_no ? `btn-outline-primary add_btn` : `bg-warning`)+`" name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
+                            + `title="`+(emp_i.HIRED ? `到職日：${emp_i.HIRED}` : `已離職`) +`" data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
                             // <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;
                             + `<div class="col-12 pt-1 pb-0 px-0" >
                                 <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn eraseStaff" value="${emp_i.emp_id}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
@@ -953,6 +954,7 @@
     }
     // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
     async function rework_loadStaff(loadStaff_arr){
+        mloading("show");                                               // 啟用mLoading
         loadStaff_tmp = [];     // 清空臨時陣列...
         //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
         for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
@@ -982,6 +984,7 @@
             empData.currentYear    = currentYear;                     // 作業年度
         }
         mgInto_staff_inf(loadStaff_arr);
+        $("body").mLoading("hide");
         inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
         $('#nav-p2-tab').tab('show');                                       // 切換頁面
     }
@@ -1225,7 +1228,7 @@
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init(deptNosObj) {
         postBanner();
-        await rework_staff(deptNosObj);
+        // await rework_staff(deptNosObj);
         await mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
     }
     // [p1 函數-3] 設置事件監聽器和MutationObserver
@@ -1256,11 +1259,17 @@
                     })
                     console.log('submitValue =>', JSON.parse(submitValue)); 
         
-                await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
-                await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
-        
+                const result = await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
+                if(result.action === 'success') {
+                    console.log(result.fun,'=> result...', result.content)
+                    await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
+
+                }else{
+                    alert(result.content+' & 尚未提交 !!');
+                    $("body").mLoading("hide");
+                }
                 submit_modal.hide();
-                location.reload();
+                // location.reload();
             })
 
             // resolve();      // 當所有設置完成後，resolve Promise
