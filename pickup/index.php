@@ -37,15 +37,6 @@
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
 
-        // p1
-        // $doc_deptNos = load_doc_deptNos();                                        // step1.取得存檔員工的部門代號
-        // $doc_deptNos_str = json_encode($doc_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        // $doc_deptNos_str = trim($doc_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
-
-        // echo "<pre>";
-        // print_r($doc_deptNos);
-        // echo "</pre>";
-
     include("../template/header.php"); 
     include("../template/nav.php"); 
 
@@ -107,12 +98,12 @@
         .h6 {
             font-size: 12px;
         }
-        .shCondition:hover ,.yearHe:hover {
+        /* .shCondition:hover ,.yearHe:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0,0,0,.5);
-        }
+        } */
             .split-td {
                 display: flex;
                 flex-direction: column;
@@ -205,7 +196,7 @@
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
                             <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取送審名單</button>
-                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-check"></i> 審核特檢名單</button>
+                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-check"></i> 彙整特檢名單</button>
                         </div>
                     </nav>
                 </div>
@@ -217,15 +208,19 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9 py-1">
-                                        <snap for="deptNo_opts" class="form-label"><h5>審查名單：</h5></snap>
+                                    <div class="col-8 col-md-9 py-1 inf">
+                                        <snap for="subScopes_opts" class="form-label"><h5>審查名單：</h5></snap>
+                                        <snap>
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
                                             <div class="input-group">
-                                                <span class="input-group-text">篩選</span>
+                                                <span class="input-group-text">操作年度</span>
                                                 <select name="_year" id="_year" class="form-select" >
-                                                    <option value="" hidden selected >-- 請選擇 問卷年度 --</option>
+                                                    <option value="" hidden selected >-- 請選擇 操作年度 --</option>
                                                     <?php 
                                                         echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' hidden >-- All 所有年度 --</option>';
                                                         foreach($_years as $_y){
@@ -237,11 +232,9 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
-                                    <div id="deptNo_opts_inside" class="row p-0">
-                                        <!-- 放checkbox按鈕的地方 -->
-                                    </div> 
-                                <!-- </div> -->
+                                <div id="deptNo_opts_inside" class="row p-0">
+                                    <!-- 放checkbox按鈕的地方 -->
+                                </div> 
                             </div>
 
                         </div>
@@ -250,8 +243,6 @@
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
-                            <!-- L1：單位訊息 -->
-                            <div class="col-12 p-0" id="reviewInfo"></div>
                             <!-- 人員名單： -->
                             <div class="row">
                                 <!-- L2：左側function -->
@@ -260,32 +251,30 @@
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="review_myForm" method="post" action="../_Format/download_excel.php">
-                                            <input  type="hidden" name="htmlTable" id="review_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="review" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
+                                            <input  type="hidden" name="htmlTable" id="pickup_htmlTable" value="">
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="pickup" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                         </form>
                                     </div>
                                 </div>
                                 <!-- L2：右側function -->
-                                <div class="col-8 col-md-9 pb-0 pt-2 text-end" id="form_btn_div">
- 
-                                </div>
+                                <div class="col-8 col-md-9 pb-0 pt-2 text-end" id="form_btn_div"></div>
                             </div>
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="emp_id+cname">工號姓名</th>
-                                        <th title="emp_sub_scope">年份_廠區</th>
-                                        <th title="dept_no">部門代碼名稱</th>
-                                        <th title="MONIT_LOCAL">工作場所</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="特殊作業"            >工作內容</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="HE_CATE 選擇特作項目" style="width: 90px;">檢查類別代號</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="AVG_VOL"             style="width: 50px;">A權音壓級(dBA)</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
-                                        <th title="shCondition" <?php echo ($sys_role <= '2') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
-                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
+                                        <th title="emp_id+cname"        >工號姓名</th>
+                                        <th title="emp_sub_scope"       >年份_廠區</th>
+                                        <th title="dept_no"             >部門代碼名稱</th>
+                                        <th title="MONIT_LOCAL"         >工作場所</th>
+                                        <th title="特殊作業"            >工作內容</th>
+                                        <th title="HE_CATE 選擇特作項目" >檢查類別代號</th>
+                                        <th title="AVG_VOL"             >A權音壓級(dBA)</th>
+                                        <th title="AVG_8HR 工作日8小時"  >日時量平均(dBA)</th>
+                                        <th title="eh_time 累計暴露"     >每日曝露時數</th>
+                                        <th title="noiseCheck"          >噪音資格</th>
+                                        <th title="shCondition" <?php echo ($sys_role <= '2') ? "":"class='unblock'";?>>特檢資格</th>
+                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >項目類別代號</th>
                                         <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >檢查項目</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >去年檢查項目</th>
                                     </tr>
@@ -293,36 +282,6 @@
                                 <tbody>
                                 </tbody>
                             </table>
-                        </div>
-                        <hr>
-                        <!-- 尾段logs訊息 -->
-                        <div id="logs_div" class="col-12 pt-0 rounded bg-light block">
-                            <div class="row">
-                                <div class="col-6 col-md-6">
-                                    表單記錄：
-                                </div>
-                                <div class="col-6 col-md-6">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12 py-1 px-4">
-                                    <table class="for-table logs table table-sm table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Step</th>
-                                                <th>Signer</th>
-                                                <th>Time Signed</th>
-                                                <th>Status</th>
-                                                <th>Comment</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                                <div style="font-size: 12px;" class="text-end">
-                                    logs-end
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -446,7 +405,6 @@
                 </div>
                 <div class="modal-body px-4"></div>
                 <div class="modal-footer">
-                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
                     <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
@@ -491,10 +449,6 @@
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-    // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
-    // const deptNosObj = <=json_decode($doc_deptNos)?>;
-    // console.log('deptNosObj...', deptNosObj);
 
     const userInfo = {
         'role'     : '<?=$sys_role?>',
@@ -511,6 +465,6 @@
 <script src="pickup.js?v=<?=time()?>"></script>
 <script src="pickup_excel.js?v=<?=time()?>"></script>
 <script src="pickup_check.js?v=<?=time()?>"></script>
-<script src="pickup_editModal.js?v=<?=time()?>"></script>
+<!-- <script src="pickup_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

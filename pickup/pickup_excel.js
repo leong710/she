@@ -12,16 +12,17 @@
             "emp_id"        : "工號",
             "cname"         : "姓名",
             "shCase"        : "特作項目",
-            "eh_time"       : "每日暴露時數",
             "shCondition"   : "特檢資格",
             "_content"      : "import"
         };
         const shCase_keys = {
+            "OSTEXT_30"     : "工作廠區",
             "MONIT_LOCAL"   : "工作場所",
             "WORK_DESC"     : "工作內容",
             "HE_CATE"       : "檢查類別代號",
             "AVG_VOL"       : "均能音量",
-            "AVG_8HR"       : "平均音壓"
+            "AVG_8HR"       : "平均音壓",
+            "eh_time"       : "每日暴露時數"
         };
         const import_keys = {
             "yearHe"        : "項目類別代號",
@@ -44,6 +45,8 @@
                                     sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${heCate}` : heCate;
                                 } else if(value !== undefined){                                 // 240909 這裡要追加過濾 沒有HE_CATE的項目...
                                     sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${(value || '')}` : (value || '');
+                                } else if(value === undefined) {
+                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${''}` : '';
                                 }
                             });
                         });

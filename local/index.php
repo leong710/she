@@ -37,7 +37,7 @@
     $dept_lists = show_dept();
 
     // 切換指定NAV分頁
-    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "2";       // 1 = fab ; 2 = Local
+    $activeTab = (isset($_REQUEST["activeTab"])) ? $_REQUEST["activeTab"] : "1";       // 1 = fab ; 2 = Local
 
     if(isset($_GET["make_server_window"])){ make_server_window($fabs); }
     $sw_arr = (array) json_decode($sw_json);                // service window 物件轉陣列

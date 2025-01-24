@@ -651,7 +651,7 @@
                         // console.log('selectedValues_str =>',selectedValues_str);
                         
                         // 增加判斷式，取_doc_inf.in_sign == userInfo.empId 來啟閉簽核按鈕
-                        const reviewRole = ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty <= 5)
+                        const reviewRole = ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty <= 5);
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                         await mk_form_btn(reviewRole);        // 建立簽核按鈕

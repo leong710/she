@@ -127,23 +127,23 @@
             await release_dataTable();
             $('#form_btn_div').empty();
             $('#hrdb_table tbody').empty();
-            // $('#logs_div .logs tbody').empty();
-            // $('#reviewInfo').empty();
+            $('#logs_div .logs tbody').empty();
+            $('#reviewInfo').empty();
         }
         // await release_dataTable();                  // 停止並銷毀 DataTable
         // await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
         // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
         // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
-        // if(userInfo.role <= '2.2' && _doc_inf.idty <= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
+        if(userInfo.role <= '2.2' && _doc_inf.idty <= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
-            // await reload_shConditionTable_Listeners();
-            // await reload_yearHeTable_Listeners();
-        // }else{
+            await reload_shConditionTable_Listeners();
+            await reload_yearHeTable_Listeners();
+        }else{
             // changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
-            // changeShConditionMode();
-            // changeYearHeMode();
-        // }
+            changeShConditionMode();
+            changeYearHeMode();
+        }
         await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
     }
     // 讓指定按鈕 依照staff_inf.length 啟停
@@ -232,8 +232,8 @@
     // [p1 函數-6] 渲染hrdb
     async function post_hrdb(emp_arr){
         // 停止並銷毀 DataTable
-            // release_dataTable();
-            // $('#hrdb_table tbody').empty();
+            release_dataTable();
+            $('#hrdb_table tbody').empty();
 
         if(emp_arr.length === 0){
             $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
@@ -277,7 +277,7 @@
                 $('#hrdb_table tbody').append(tr1);
             })
         }
-        // await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
+        await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
 
         // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
         const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="aboutStaff"]'));
@@ -438,58 +438,58 @@
         }
     }
 
-                        // 渲染到shLocal互動視窗 for shLocal modal互動視窗
-                        async function post_shLocal(shLocal_arr){
-                            $('#shLocal_table tbody').empty();
-                            if(shLocal_arr.length === 0){
-                                $('#shLocal_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
-                            }else{
-                                shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
-                                Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                                    let tr = '<tr>';
-                                    Object.entries(sh_i).forEach(([s_key, s_value]) => {
-                                        if(s_key == 'HE_CATE'){
-                                            s_value = JSON.stringify(s_value).replace(/[{"}]/g, '');
-                                            s_value = s_value.replace(/,/g, '<br>');
+    // 渲染到shLocal互動視窗 for shLocal modal互動視窗
+    async function post_shLocal(shLocal_arr){
+        $('#shLocal_table tbody').empty();
+        if(shLocal_arr.length === 0){
+            $('#shLocal_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
+        }else{
+            shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
+            Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                let tr = '<tr>';
+                Object.entries(sh_i).forEach(([s_key, s_value]) => {
+                    if(s_key == 'HE_CATE'){
+                        s_value = JSON.stringify(s_value).replace(/[{"}]/g, '');
+                        s_value = s_value.replace(/,/g, '<br>');
 
-                                        }else if(s_key == 'eh_time'){          // mgInto_shLocal_inf(new_shLocal_arr) 在二次導入時有摻雜到"eh_time"...應予以排除
-                                            return;
-                                        }
-                                        tr += '<td>' + s_value + '</td>';
-                                    })
-                                    tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
-                                    tr += '</tr>';
-                                    $('#shLocal_table tbody').append(tr);
-                                })
-                            }
-                            // await reload_shLocalTable_Listeners();      // 重新建立監聽~shLocalTable的checkbox
-                            $("body").mLoading("hide");
-                        }
-                        // 鋪設logs紀錄
-                        async function post_logs(logsJson){
-                            const logsTable = document.querySelector('#logs_div .logs tbody');
-                            logsTable.innerHTML = '';
-                            for (let i = 0, len = logsJson.length; i < len; i++) {
-                                logsJson[i].remark = logsJson[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
-                                logsTable.innerHTML += 
-                                    '<tr><td>' + logsJson[i].step + '</td><td>' + logsJson[i].cname + '</td><td>' + logsJson[i].datetime + '</td><td>' + logsJson[i].action + 
-                                        '</td><td style="text-align: left; word-break: break-all;">' + logsJson[i].remark + '</td></tr>';
-                            }
-                            // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
-                        }
-                        // 鋪設表頭訊息及待簽人員
-                        function post_reviewInfo(_doc_inf){
-                            return new Promise((resolve) => {
-                                const divs = '<div class="row p-2">';
-                                const divm = '<div class="col-md-6 bg-light border rounded">';
-                                const reviewItem_txt   = `<b>Step：</b>${_doc_inf.idty}<br><b>審核：</b>${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
-                                const reviewInsign_txt = `<b>待簽：</b>`+((_doc_inf.idty > 0 && _doc_inf.idty <= 6) && _doc_inf.in_sign !='' ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
-                                const reviewflow_txt   = `<b>Flow：</b>${_doc_inf.flow}<br><b>Remark：</b>${_doc_inf.flow_remark.remark}<br><b>Group：</b>${_doc_inf.flow_remark.group}`;
-                                $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
+                    }else if(s_key == 'eh_time'){          // mgInto_shLocal_inf(new_shLocal_arr) 在二次導入時有摻雜到"eh_time"...應予以排除
+                        return;
+                    }
+                    tr += '<td>' + s_value + '</td>';
+                })
+                tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
+                tr += '</tr>';
+                $('#shLocal_table tbody').append(tr);
+            })
+        }
+        // await reload_shLocalTable_Listeners();      // 重新建立監聽~shLocalTable的checkbox
+        $("body").mLoading("hide");
+    }
+    // 鋪設logs紀錄
+    async function post_logs(logsJson){
+        const logsTable = document.querySelector('#logs_div .logs tbody');
+        logsTable.innerHTML = '';
+        for (let i = 0, len = logsJson.length; i < len; i++) {
+            logsJson[i].remark = logsJson[i].remark.replaceAll('_rn_', '<br>');   // *20231205 加入換行符號
+            logsTable.innerHTML += 
+                '<tr><td>' + logsJson[i].step + '</td><td>' + logsJson[i].cname + '</td><td>' + logsJson[i].datetime + '</td><td>' + logsJson[i].action + 
+                    '</td><td style="text-align: left; word-break: break-all;">' + logsJson[i].remark + '</td></tr>';
+        }
+        // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
+    }
+    // 鋪設表頭訊息及待簽人員
+    function post_reviewInfo(_doc_inf){
+        return new Promise((resolve) => {
+            const divs = '<div class="row p-2">';
+            const divm = '<div class="col-md-6 bg-light border rounded">';
+            const reviewItem_txt   = `<b>Step：</b>${_doc_inf.idty}<br><b>審核：</b>${_doc_inf.subScope} -- ${_doc_inf.deptNo}&nbsp;${_doc_inf.OSTEXT}`;
+            const reviewInsign_txt = `<b>待簽：</b>`+((_doc_inf.idty > 0 && _doc_inf.idty <= 6) && _doc_inf.in_sign !='' ? `${_doc_inf.in_signName}&nbsp;(${_doc_inf.in_sign})`:``);
+            const reviewflow_txt   = `<b>Flow：</b>${_doc_inf.flow}<br><b>Remark：</b>${_doc_inf.flow_remark.remark}<br><b>Group：</b>${_doc_inf.flow_remark.group}`;
+            $('#reviewInfo').empty().append(divs +divm+reviewItem_txt+'<br>'+reviewInsign_txt+'</div>' +divm+reviewflow_txt+'</div></div>');
 
-                                resolve();  // 當所有設置完成後，resolve Promise
-                            });
-                        }
+            resolve();  // 當所有設置完成後，resolve Promise
+        });
+    }
 
 
     // 開啟memoModal的預設工作
@@ -550,18 +550,16 @@
                     loadStaff_arr[index].emp_sub_scope = staffValue.shCase_logs[age].emp_sub_scope
                     loadStaff_arr[index].gesch         = staffValue.shCase_logs[age].gesch
                     loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
-
-                    staff_inf.push(loadStaff_arr[index]);      // 套取staff的表單
             }
-            // staff_inf = loadStaff_arr;      // 套取staff的表單
+            staff_inf = loadStaff_arr;      // 套取staff的表單
             // 套取staff的表單 = for 比對功能，來決定是否儲存
                 // loadStaff_tmp = loadStaff_arr;  
-            // loadStaff_tmp = Object.assign( {}, loadStaff_arr ); // 淺拷貝
-            loadStaff_tmp = Object.assign( {}, staff_inf ); // 淺拷貝
+            loadStaff_tmp = Object.assign( {}, loadStaff_arr ); // 淺拷貝
 
-            await post_hrdb(loadStaff_arr);       // step.1 鋪設--人員資料
-            await post_shCase(loadStaff_arr);     // step.2 鋪設--特作資料
-            // await post_reviewInfo(_doc_inf);   // 鋪設表頭訊息及待簽人員
+            // console.log('loadStaff_arr...',loadStaff_arr);
+            await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
+            await post_shCase(loadStaff_arr);     // 鋪設--特作資料
+            await post_reviewInfo(_doc_inf);              // 鋪設表頭訊息及待簽人員
 
             await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
@@ -624,14 +622,35 @@
                         await resetINF(true); // 清空
 
                     // 工作二 
-                        release_dataTable();
-                        await load_staff_byCheckList(this.value);
-                        await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
+                        let thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
+                        // const select_year  = thisValue_arr[0];           // 取出陣列0=年份
+                        const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
+                        const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
+                        // 使用 .find() 找到滿足條件的物件
+                        const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
+                        // 從 result 中取出對應的廠區/部門代號
+                        const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
+                        // console.log('result =>',result);
+                        // 採用淺拷貝的方式來合併物件
+                        // _doc_inf = Object.assign( {}, _doc_inf, _doc );
+                        _doc_inf = _doc;
+                        _doc_inf['subScope'] = select_subScope;
+                        _doc_inf['deptNo']   = select_deptNo;
 
+                        // 工作三 依部門代號撈取員工資料 後 進行鋪設
+                        let checkList = JSON.stringify(_doc['check_list']).replace(/[\/\[\]]/g, '');
+                            checkList = checkList.replace(/\,/g, ';').replace(/\"/g, "'");
+
+                        thisValue_arr.push(checkList)
+                        const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
+                        console.log('selectedValues_str =>',selectedValues_str);
+                        
+                        await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        
                         // 增加判斷式，取_doc_inf.in_sign == userInfo.empId 來啟閉簽核按鈕
-                        // const reviewRole = ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty == 6);
-                        // await mk_form_btn(reviewRole);        // 建立簽核按鈕
-                        // await post_logs(_doc_inf.logs);       // 鋪設文件歷程
+                        const reviewRole = ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty == 6);
+                        await mk_form_btn(reviewRole);        // 建立簽核按鈕
+                        await post_logs(_doc_inf.logs);       // 鋪設文件歷程
 
                     $('#nav-p2-tab').tab('show');
                 });
@@ -782,7 +801,7 @@
         const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
         // 從 result 中取出對應的廠區/部門代號
         const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
-
+        // console.log('result =>',result);
         // 採用淺拷貝的方式來合併物件
         // _doc_inf = Object.assign( {}, _doc_inf, _doc );
         _doc_inf = _doc;
@@ -795,12 +814,12 @@
 
         thisValue_arr.push(checkList)
         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
+        console.log('selectedValues_str =>',selectedValues_str);
         
         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
     }
     // [p1 函數-4] 重新綁定事件監聽器給step2 #subScopes_opts內的checkbox
     function rebindsubScopesOptsListeners() {
-        // 驗證提醒監聽
         const subScopes_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[id*="cb,"]'));
         subScopes_opts_arr.forEach(checkbox => {
             checkbox.addEventListener('change', () => {
@@ -813,19 +832,12 @@
         });
         // step-4. 綁定load_subScopes_btn進行撈取員工資料
         const load_subScopes_btn = document.getElementById('load_subScopes_btn');
-        load_subScopes_btn.addEventListener('click', async function() {
+        load_subScopes_btn.addEventListener('click', function() {
             const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-            // const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-            // 工作一 清空暫存
-            await resetINF(true); // 清空
-            release_dataTable();
-            // 工作二 
+            const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
+
+            console.log('selectedValues_str...', selectedValues);
             // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-            for (const [index, selectedValue] of Object.entries(selectedValues)) {
-                await load_staff_byCheckList(selectedValue);
-            }
-            await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
-            $('#nav-p2-tab').tab('show');
         })
 
     }
