@@ -693,9 +693,13 @@
                             deptNo_btn.classList.remove('btn-info');
                             deptNo_btn.classList.add('btn-outline-secondary');
                         }
-                        // 點擊編輯權限
+                        // 點擊閱讀權限
                         deptNo_btn.disabled = doc_Role;
                     });
+
+                    const subScopes_opts_arr = Array.from(document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${emp_sub_scope},${dept_no}"]`));
+                    // 點擊閱讀權限
+                    subScopes_opts_arr.forEach(subScope_opt => subScope_opt.disabled = doc_Role );
                     // deptNo_btns.forEach(deptNo_btn => {
                     // })
                 }
@@ -818,12 +822,12 @@
             // const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
             // 工作一 清空暫存
             await resetINF(true); // 清空
-            release_dataTable();
             // 工作二 
-            // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-            for (const [index, selectedValue] of Object.entries(selectedValues)) {
-                await load_staff_byCheckList(selectedValue);
-            }
+            release_dataTable();
+                // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                for (const [index, selectedValue] of Object.entries(selectedValues)) {
+                    await load_staff_byCheckList(selectedValue);
+                }
             await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
             $('#nav-p2-tab').tab('show');
         })

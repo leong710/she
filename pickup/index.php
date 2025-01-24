@@ -312,15 +312,6 @@
             <label for="memoMsg" class="form-label text-danger"><h6>* 任何編輯備註行為，最後請記得按[儲存]！</h6></label>
         </div>
     </div>
-    <!-- canvas上側欄 -->
-    <div class="offcanvas offcanvas-top" id="offcanvasTop" tabindex="-1" aria-labelledby="offcanvasTopLabel" aria-hidden="true">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title" id="offcanvasTopLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-        </div>
-        <div class="offcanvas-body small py-0">
-        </div>
-    </div>
     <!-- full互動視窗 歷史紀錄 -->
     <div class="modal fade" id="aboutStaff" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
@@ -360,57 +351,66 @@
             </div>
         </div>
     </div>
-    <!-- 模組 submitModal-->
-    <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                
-                <div class="modal-body px-4 pt-1">
-                    <!-- 第二排的功能 : 搜尋功能 -->
-                    <div class="row unblock" id="forwarded">
-                        <div class="col-12" id="searchUser_table">
-                            <div class="input-group search" id="select_inSign_Form">
-                                <span class="input-group-text form-label">轉呈</span>
-                                <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
-                                        aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
-                                <div id="in_signBadge"></div>
-                                <input type="hidden" name="in_signName" id="in_signName" >
+                    <!-- 模組 submitModal-->
+                    <div class="modal fade" id="submitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable ">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                
+                                <div class="modal-body px-4 pt-1">
+                                    <!-- 第二排的功能 : 搜尋功能 -->
+                                    <div class="row unblock" id="forwarded">
+                                        <div class="col-12" id="searchUser_table">
+                                            <div class="input-group search" id="select_inSign_Form">
+                                                <span class="input-group-text form-label">轉呈</span>
+                                                <input type="text" name="in_sign" id="in_sign" class="form-control" placeholder="請輸入工號"
+                                                        aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">
+                                                <div id="in_signBadge"></div>
+                                                <input type="hidden" name="in_signName" id="in_signName" >
+                                            </div>
+                                        </div>
+                                        <hr>
+                                    </div>
+                                    <label for="sign_comm" id="sign_comm_label" class="form-check-label" >command：</label>
+                                    <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
+                                </div>
+                                <div class="modal-footer">
+                                    <?php if($sys_role <= 3){ ?>
+                                        <button type="submit" id="reviewSubmit" value="" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                                    <?php } ?>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
                             </div>
                         </div>
-                        <hr>
                     </div>
-                    <label for="sign_comm" id="sign_comm_label" class="form-check-label" >command：</label>
-                    <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <?php if($sys_role <= 3){ ?>
-                        <button type="submit" id="reviewSubmit" value="" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
-                    <?php } ?>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- 互動視窗 edit_modal -->
-    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4"></div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
+                    <!-- 互動視窗 edit_modal -->
+                    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body px-4"></div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
+                                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                    <!-- canvas上側欄 -->
+                    <div class="offcanvas offcanvas-top" id="offcanvasTop" tabindex="-1" aria-labelledby="offcanvasTopLabel" aria-hidden="true">
+                        <div class="offcanvas-header">
+                            <h5 class="offcanvas-title" id="offcanvasTopLabel">歷史紀錄查閱 <snap id="offcanvas_title"></snap></h5>
+                            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body small py-0">
+                        </div>
+                    </div>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -428,15 +428,16 @@
 // 以下為控制 iframe
 
     var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
-    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
-    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+    
+            var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
+            var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+            const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+            var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+            var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
 
-    var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
-    var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
     var staff_inf       = [];
