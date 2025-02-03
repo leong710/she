@@ -307,6 +307,9 @@
                         document.getElementById('excelTable').value = excel_json.value;
                         const excel_json_value_arr = JSON.parse(excel_json.value);
                         
+                        // 250203 在匯入的時候就直接補上對應欄位資料
+                        await rework_omager(excel_json_value_arr);
+                        
                         // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
                         await mgInto_staff_inf(excel_json_value_arr)         // 呼叫[fun] 
                         // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
@@ -357,10 +360,10 @@
                                     onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
                             </div>
                         </td>`;
-                tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
+                tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i._logs[currentYear].emp_sub_scope )) +`</td>`;
                                                 
-                tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
-                                + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i.shCase_logs[currentYear].emp_dept )) +`</td>`;
+                tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i._logs[currentYear].dept_no )) +`<br>`
+                                + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i._logs[currentYear].emp_dept )) +`</td>`;
                 tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
@@ -407,10 +410,10 @@
                     $('#aboutStaff #aboutStaff_title').empty().append('( '+ this.value +' )');     // 更新 header title  
                     // const empData = staff_inf.find(emp => emp.emp_id === select_empId);
                     // let emp_shCase_log = '< ~ 無儲存紀錄 ~ >';
-                    // if(empData && empData.shCase_logs != undefined && ( Object.keys(empData.shCase_logs).length > 0 )){
+                    // if(empData && empData._logs != undefined && ( Object.keys(empData._logs).length > 0 )){
                     //     // 使用 JSON.stringify 來轉換物件成為格式化的JSON字符串，第二個參數設為null，第三個參數 2 表示每層縮進兩個空格。
                     //     // 使用 <pre> 標籤來確保格式化的結果在 HTML 中正確顯示。這樣的輸出會與 PHP 的 print_r 效果相似。
-                    //     emp_shCase_log = JSON.stringify(empData.shCase_logs, null ,3);
+                    //     emp_shCase_log = JSON.stringify(empData._logs, null ,3);
                     // }
                     // $('#shCase_table tbody').empty().append('<pre>' + emp_shCase_log + '</pre>');
                     // $('#shCase_table tbody').empty().append(emp_shCase_log);
@@ -449,8 +452,8 @@
             const columnCount = thead.rows[0].cells.length;                     // 獲取每行的欄位數量
 
         let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
-        if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
-            // console.log('show_preYearShCase...empData...', empData.shCase_logs);
+        if(empData._logs != undefined && (empData._logs[preYear] != undefined)){
+            // console.log('show_preYearShCase...empData...', empData._logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -475,8 +478,8 @@
                 tr1 += '</tr>';
             $('#shCase_table tbody').empty().append(tr1);
 
-            const { shCase_logs , _content } = empData;
-            const preYear_shCaseLog = shCase_logs[preYear];
+            const { _logs , _content } = empData;
+            const preYear_shCaseLog = _logs[preYear];
 
             if(preYear_shCaseLog){
                 const { shCase ,shCondition, emp_dept, emp_sub_scope, dept_no } = preYear_shCaseLog;
@@ -842,12 +845,15 @@
                 }
             });
 
-            // 241028 補強提取資料後原本只抓最外層的部門代號'shCase，補上shCase_logs內當年度'shCase
-            if(source_json_value_arr[e_key]['shCase_logs'] !== undefined && source_json_value_arr[e_key]['shCase_logs'][currentYear]){
-                if(source_json_value_arr[e_key]['shCase_logs'][currentYear]['dept_no']){
-                    source_OSHORT_arr.push(source_json_value_arr[e_key]['shCase_logs'][currentYear]['dept_no']);    // 241104 抓取shCase_logs 年度 下的部門代號 => 抓特危場所清單用
+            // 241028 補強提取資料後原本只抓最外層的部門代號'shCase，補上_logs內當年度'shCase
+            if(source_json_value_arr[e_key]['_logs'] !== undefined && source_json_value_arr[e_key]['_logs'][currentYear]){
+                if(source_json_value_arr[e_key]['_logs'][currentYear]['dept_no']){
+                    source_OSHORT_arr.push(source_json_value_arr[e_key]['_logs'][currentYear]['dept_no']);    // 241104 抓取_logs 年度 下的部門代號 => 抓特危場所清單用
+                        // if(source_json_value_arr[e_key]['dept_no'] == undefined){
+                        //     source_json_value_arr[e_key]['dept_no'] = source_json_value_arr[e_key]['_logs'][currentYear]['dept_no'];
+                        // }
                 }
-                let i_shCase = source_json_value_arr[e_key]['shCase_logs'][currentYear]['shCase'];
+                let i_shCase = source_json_value_arr[e_key]['_logs'][currentYear]['shCase'];
                 if(i_shCase != null && i_shCase.length > 0){
                     for (const [i_shCase_key, i_shCase_value] of Object.entries(i_shCase)) {
                         source_OSHORT_arr.push(i_shCase_value.OSHORT)               // extra: 取得部門代號 => 抓特危場所清單用
@@ -879,7 +885,7 @@
                     // 如果 emp_id 已經存在，則合併 shCase 和 shCondition
                     let existingShCase       = uniqueStaffMap.get(item.emp_id).shCase;
                     let existingShCondition  = uniqueStaffMap.get(item.emp_id).shCondition || {};    // 初始化 shCondition 為空物件
-                    let existingShCase_logs  = uniqueStaffMap.get(item.emp_id).shCase_logs || {};    // 初始化 shCase_logs 為空物件
+                    let existing_logs  = uniqueStaffMap.get(item.emp_id)._logs || {};                // 初始化 _logs 為空物件
                     let existing_content     = uniqueStaffMap.get(item.emp_id)._content || {};       // 初始化 _content 為空物件
 
                     // 合併 shCase
@@ -890,10 +896,10 @@
                         Object.assign(existingShCondition, item.shCondition);
                         uniqueStaffMap.get(item.emp_id).shCondition = existingShCondition;
                     }
-                    // 合併 shCase_logs
-                    if (item.shCase_logs) {
-                        Object.assign(existingShCase_logs, item.shCase_logs);
-                        uniqueStaffMap.get(item.emp_id).shCase_logs = existingShCase_logs;
+                    // 合併 _logs
+                    if (item._logs) {
+                        Object.assign(existing_logs, item._logs);
+                        uniqueStaffMap.get(item.emp_id)._logs = existing_logs;
                     }
                     // 合併 _content
                     if (item._content) {
@@ -908,8 +914,8 @@
                     // 確保 shCondition 被初始化
                     // 獲取當年年份currentYear
                     if (!item.shCondition) {  item.shCondition = {};  }
-                    if (!item.shCase_logs) {  item.shCase_logs = {};  }
-                    if (!item._content) {  item._content = {};  }
+                    if (!item._logs)       {  item._logs       = {};  }
+                    if (!item._content)    {  item._content    = {};  }
                     if (!item._content[`${currentYear}`]) {  item._content[`${currentYear}`] = {};  }
                     if (!item._content[`${currentYear}`]['import']) {  item._content[`${currentYear}`]['import'] = {};  }
                 }
@@ -955,42 +961,43 @@
             await reload_dataTable();                                       // 重新載入dataTable   
         }
     }
-    // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
-    async function rework_loadStaff(loadStaff_arr){
-        mloading("show");                                               // 啟用mLoading
-        loadStaff_tmp = [];     // 清空臨時陣列...
-        //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
-        for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
-            const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step1-1.取出emp_id
-            const empData = staff_inf.find(emp => emp.emp_id === select_empId);                     // step1-2.查找staff_inf內該員工是否存在
-            // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6/FAB6
-            if(!empData){                                                                           // step1-3.沒資料就進行hrdb查詢..241101 暫停取用hrdb進行更新。???
-                await search_fun('rework_loadStaff', select_empId);                                 // 確保每次search_fun都等待完成
+            // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
+            async function rework_loadStaff(loadStaff_arr){
+                mloading("show");                                               // 啟用mLoading
+                loadStaff_tmp = [];     // 清空臨時陣列...
+                //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
+                // for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
+                //     const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step1-1.取出emp_id
+                //     const empData = staff_inf.find(emp => emp.emp_id === select_empId);                     // step1-2.查找staff_inf內該員工是否存在
+                //     // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6/FAB6
+                //     if(!empData){                                                                           // step1-3.沒資料就進行hrdb查詢..241101 暫停取用hrdb進行更新。??? 250203停更
+                //         await search_fun('rework_loadStaff', select_empId);                                 // 確保每次search_fun都等待完成
+                //     }
+                // }
+
+                // step2.等待上面搜尋與合併臨時欄位loadStaff_tmp完成後...
+                for (const [s_index, s_value] of Object.entries(loadStaff_tmp)) {
+                    const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step2-1.取出emp_id
+                    let empData = loadStaff_arr.find(emp => emp.emp_id === select_empId);                   // step2-2. 先取得select_empId的個人資料=>empData
+                    // empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
+                    empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
+                    // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
+                    // 241101 暫停取用hrdb進行更新。 改用下面：
+                    empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍-建物代號
+                    empData.dept_no        = s_value.dept_no;                 // 部門代號
+                    empData.emp_dept       = s_value.emp_dept;                // 部門名稱
+                    empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
+                    empData.gesch          = s_value.gesch;
+                    empData.HIRED          = s_value.HIRED;
+                    empData.natiotxt       = s_value.natiotxt;
+                    empData.omager         = s_value.omager;
+                    empData.currentYear    = currentYear;                     // 作業年度
+                }
+                mgInto_staff_inf(loadStaff_arr);
+                $("body").mLoading("hide");
+                inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
+                $('#nav-p2-tab').tab('show');                                       // 切換頁面
             }
-        }
-        // step2.等待上面搜尋與合併臨時欄位loadStaff_tmp完成後...
-        for (const [s_index, s_value] of Object.entries(loadStaff_tmp)) {
-            const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step2-1.取出emp_id
-            let empData = loadStaff_arr.find(emp => emp.emp_id === select_empId);                   // step2-2. 先取得select_empId的個人資料=>empData
-            // empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
-            empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
-            // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
-            // 241101 暫停取用hrdb進行更新。 改用下面：
-            empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍-建物代號
-            empData.dept_no        = s_value.dept_no;                 // 部門代號
-            empData.emp_dept       = s_value.emp_dept;                // 部門名稱
-            empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
-            empData.gesch          = s_value.gesch;
-            empData.HIRED          = s_value.HIRED;
-            empData.natiotxt       = s_value.natiotxt;
-            empData.omager         = s_value.omager;
-            empData.currentYear    = currentYear;                     // 作業年度
-        }
-        mgInto_staff_inf(loadStaff_arr);
-        $("body").mLoading("hide");
-        inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
-        $('#nav-p2-tab').tab('show');                                       // 切換頁面
-    }
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
     async function rework_staff(searchStaff_arr){
         return new Promise((resolve) => {
@@ -1017,6 +1024,29 @@
 
             resolve();  // 當所有設置完成後，resolve Promise
         });
+    }
+
+    // 250203 在匯入的時候就直接補上對應欄位資料
+    async function rework_omager(excelStaff_arr){
+        if(excelStaff_arr.length >0){
+            for(const [index, i_value] of Object.entries(excelStaff_arr)){
+                // step.1 匯入時套上部門代號所屬主管
+                if(i_value.dept_no){
+                    const signDept = await search_fun('showSignDept', i_value.dept_no);             // 確保每次search_fun都等待完成
+                    excelStaff_arr[index]['omager'] = signDept.emp_id ?? null;
+                }
+                // step.2 匯入時套上最最基本的訊息
+                const select_empId = (i_value.emp_id !== undefined) ? i_value.emp_id : null;        // step1-1.取出emp_id
+                if(select_empId){
+                    const empInfo = await search_fun('showEmpInfo', i_value.emp_id);                // 確保每次search_fun都等待完成
+                    const empData = empInfo.find(emp => emp.emp_id === select_empId);               // step1-2.查找staff_inf內該員工是否存在
+                    excelStaff_arr[index]['gesch']    = empData.gesch ?? null;                // 性別
+                    excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;                // 到職日
+                    excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;             // 國籍名稱
+                }
+            }
+        }
+        loadStaff_tmp = loadStaff_tmp.concat(excelStaff_arr);   // 合併2個陣列到combined
     }
 
     // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()

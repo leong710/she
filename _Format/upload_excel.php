@@ -34,7 +34,7 @@
                         }
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '均能音量', '8小時平均', '監測編號', '監測處所(10)', '作業描述(20)');  //工作日8小時平均音壓值
+                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', 'A權音壓級(dBA)', '日時量平均(dBA)', '監測編號', '監測處所(255)', '作業描述(255)');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -76,10 +76,10 @@
                                 $OSHORT_check = !empty($row[1]);
                             // 2. 檢查 HE_CATE $row[3] 是否包含 "噪音作業"，必須填 AVG_VAL 或 AVG_8HR
                                 $noise_check = preg_match("/噪音/i", $row[3]) ? ($row[4] || $row[5]) : true;
-                            // 3. MONIT_LOCAL_check: 檢查字串長度是否小於等於 10
-                                $MONIT_LOCAL_check = mb_strlen($row[7], 'UTF-8') <= 10;
-                            // 4. WORK_DESC_check: 檢查字串長度是否小於等於 20
-                                $WORK_DESC_check = mb_strlen($row[8], 'UTF-8') <= 20;
+                            // 3. MONIT_LOCAL_check: 檢查字串長度是否小於等於 255
+                                $MONIT_LOCAL_check = mb_strlen($row[7], 'UTF-8') <= 255;
+                            // 4. WORK_DESC_check: 檢查字串長度是否小於等於 255
+                                $WORK_DESC_check = mb_strlen($row[8], 'UTF-8') <= 255;
                             // 5. HE_CATE_check: 檢查 HE_CATE 是否包含 ":"
                                 $HE_CATE_check = strpos($row[3], ':') !== false;
                             
@@ -361,7 +361,7 @@
                     $conCount++;
                 }
                 if (!$row_result["noise_check"]) {
-                    foreach (['4' => '均能音量', '5' => '工作日8小時平均音壓值'] as $index => $message) {
+                    foreach (['4' => 'A權音壓級(dBA)', '5' => '日時量平均(dBA)'] as $index => $message) {
                         if (empty($row[$index])) {
                             if ($errorMsg !== '') {
                                 $errorMsg .= '錯誤與';
@@ -375,17 +375,18 @@
                     if ($errorMsg !== '') {
                         $errorMsg .= '錯誤與';
                     }
-                    $errorMsg .= $spans.'監測處所(10)'.$spane;
+                    $errorMsg .= $spans.'監測處所(255)'.$spane;
                     $conCount++;
                 }
                 if(!$row_result["WORK_DESC_check"]){
                     if ($errorMsg !== '') {
                         $errorMsg .= '錯誤與';
                     }
-                    $errorMsg .= $spans.'作業描述(20)'.$spane;
+                    $errorMsg .= $spans.'作業描述(255)'.$spane;
                     $conCount++;
                 }
                 break;
+
             case "supp":
                 break;
 

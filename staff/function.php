@@ -46,10 +46,10 @@ use Mockery\Undefined;
     function load_staff_dept_nos(){
         $pdo = pdo();
         // $sql = "SELECT
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]')) AS year_key,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(shCase_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
+            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
             //             COUNT(*) AS _count
             //         FROM _staff
             //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
@@ -57,29 +57,29 @@ use Mockery\Undefined;
         $year = $year ?? date('Y');
         $sql = "SELECT year_key, emp_sub_scope, dept_no, emp_dept, COUNT(*) AS _count,
                     SUM( CASE 
-                            WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
-                                AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
-                                AND JSON_LENGTH(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) > 0 
+                            WHEN JSON_EXTRACT(_logs, '$.{$year}.shCase') IS NOT NULL 
+                                AND JSON_TYPE(JSON_EXTRACT(_logs, '$.{$year}.shCase')) = 'ARRAY' 
+                                AND JSON_LENGTH(JSON_EXTRACT(_logs, '$.{$year}.shCase')) > 0 
                             THEN 1 ELSE 0 
                         END
                     ) AS shCaseNotNull,
                     -- concat( ROUND( SUM( CASE 
                     ROUND( SUM( CASE 
-                                    WHEN JSON_EXTRACT(shCase_logs, '$.{$year}.shCase') IS NOT NULL 
-                                        AND JSON_TYPE(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) = 'ARRAY' 
-                                        AND JSON_LENGTH(JSON_EXTRACT(shCase_logs, '$.{$year}.shCase')) > 0 
+                                    WHEN JSON_EXTRACT(_logs, '$.{$year}.shCase') IS NOT NULL 
+                                        AND JSON_TYPE(JSON_EXTRACT(_logs, '$.{$year}.shCase')) = 'ARRAY' 
+                                        AND JSON_LENGTH(JSON_EXTRACT(_logs, '$.{$year}.shCase')) > 0 
                                     THEN 1 ELSE 0 
                                 END
                     -- ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
                     ) * 100 / COUNT(*), 0 ) AS shCaseNotNull_pc
                 FROM (
                     SELECT '{$year}' AS year_key,
-                        JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no')) AS dept_no,
-                        JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_sub_scope')) AS emp_sub_scope,
-                        JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, '$.{$year}.emp_dept')) AS emp_dept,
-                        shCase_logs
+                        JSON_UNQUOTE(JSON_EXTRACT(_logs, '$.{$year}.dept_no')) AS dept_no,
+                        JSON_UNQUOTE(JSON_EXTRACT(_logs, '$.{$year}.emp_sub_scope')) AS emp_sub_scope,
+                        JSON_UNQUOTE(JSON_EXTRACT(_logs, '$.{$year}.emp_dept')) AS emp_dept,
+                        _logs
                     FROM _staff
-                    WHERE JSON_EXTRACT(shCase_logs, '$.{$year}.dept_no') IS NOT NULL
+                    WHERE JSON_EXTRACT(_logs, '$.{$year}.dept_no') IS NOT NULL
                 ) AS expanded_shCase
                 GROUP BY year_key, dept_no, emp_sub_scope, emp_dept;
                 ";

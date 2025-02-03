@@ -4,6 +4,7 @@
 
     use PhpOffice\PhpSpreadsheet\Spreadsheet;
     use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+    use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
         function numberToLetters($number) {
             $letters = '';
@@ -81,6 +82,13 @@
     // 調整欄列寬高換行
     $sheet->getStyle('1:1')->getAlignment()->setWrapText(true);
     $sheet->getRowDimension(1)->setRowHeight(-1);
+
+    // 假設 $sheet 為您的工作表對象，這裡的 1 代表第一行
+    $totalRows = $sheet->getHighestRow(); // 獲取工作表的總行數
+    $sheet->getStyle("2:$totalRows")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);  // 從第二行開始
+        // for ($row = 2; $row <= $totalRows; $row++) { // 從第二行開始
+        //     $sheet->getStyle("$row:$row")->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+        // }
 
     $filename = $filename_head . "_" . $now . '.xlsx';  // 設定檔名
 

@@ -252,10 +252,10 @@
                                         onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
                                 </div>` : ``)
                             +`</td>`;
-                tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i.shCase_logs[currentYear].emp_sub_scope )) +`</td>`;
+                tr1 += `<td><b>${currentYear}：</b><br>`+ ((emp_i.emp_sub_scope != undefined ? emp_i.emp_sub_scope : emp_i._logs[currentYear].emp_sub_scope )) +`</td>`;
                                                 
-                tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i.shCase_logs[currentYear].dept_no )) +`<br>`
-                                + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i.shCase_logs[currentYear].emp_dept )) +`</td>`;
+                tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i._logs[currentYear].dept_no )) +`<br>`
+                                + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i._logs[currentYear].emp_dept )) +`</td>`;
                 tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
                 tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
@@ -319,7 +319,7 @@
             const columnCount = thead.rows[0].cells.length;                     // 獲取每行的欄位數量
 
         let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
-        if(empData.shCase_logs != undefined && (empData.shCase_logs[preYear] != undefined)){
+        if(empData._logs != undefined && (empData._logs[preYear] != undefined)){
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -345,8 +345,8 @@
                 tr1 += '</tr>';
             $('#shCase_table tbody').empty().append(tr1);
 
-            const { shCase_logs , _content } = empData;
-            const preYear_shCaseLog = shCase_logs[preYear];
+            const { _logs , _content } = empData;
+            const preYear_shCaseLog = _logs[preYear];
 
             if(preYear_shCaseLog){
                 const { shCase ,shCondition, emp_dept, emp_sub_scope, dept_no } = preYear_shCaseLog;
@@ -544,12 +544,12 @@
             for (const [index, staffValue] of Object.entries(loadStaff_arr)) {
                 const age = staffValue.year_key;    // 提取資料年分
                 // 將指定的欄位提取到最外圍
-                    loadStaff_arr[index].HIRED         = staffValue.shCase_logs[age].HIRED
-                    loadStaff_arr[index].dept_no       = staffValue.shCase_logs[age].dept_no
-                    loadStaff_arr[index].emp_dept      = staffValue.shCase_logs[age].emp_dept
-                    loadStaff_arr[index].emp_sub_scope = staffValue.shCase_logs[age].emp_sub_scope
-                    loadStaff_arr[index].gesch         = staffValue.shCase_logs[age].gesch
-                    loadStaff_arr[index].natiotxt      = staffValue.shCase_logs[age].natiotxt
+                    loadStaff_arr[index].HIRED         = staffValue._logs[age].HIRED
+                    loadStaff_arr[index].dept_no       = staffValue._logs[age].dept_no
+                    loadStaff_arr[index].emp_dept      = staffValue._logs[age].emp_dept
+                    loadStaff_arr[index].emp_sub_scope = staffValue._logs[age].emp_sub_scope
+                    loadStaff_arr[index].gesch         = staffValue._logs[age].gesch
+                    loadStaff_arr[index].natiotxt      = staffValue._logs[age].natiotxt
 
                     staff_inf.push(loadStaff_arr[index]);      // 套取staff的表單
             }

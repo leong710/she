@@ -78,7 +78,7 @@
                     });
 
                 } else {
-                    sortedData[label] = staff[key] ? staff[key] : staff['shCase_logs'][currentYear][key];
+                    sortedData[label] = staff[key] ? staff[key] : staff['_logs'][currentYear][key];
                 }
             });
     

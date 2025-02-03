@@ -120,7 +120,7 @@
                     });
 
                 } else {
-                    sortedData[label] = staff[key] ? staff[key] : staff['shCase_logs'][currentYear][key];
+                    sortedData[label] = staff[key] ? staff[key] : staff['_logs'][currentYear][key];
                 }
             });
     
@@ -157,16 +157,39 @@
                 request['search']       = search;
 
             }else if(fun=='rework_loadStaff'){      // from rework_loadStaff
+                searchkeyWord = (searchkeyWord).trim();
                 if(!searchkeyWord || (searchkeyWord.length < 8)){
                     $("body").mLoading("hide");
                     alert("查詢工號字數最少 8 個字!!");
                     resolve(false);
                     return false;
-                }else{
-                    // 製作查詢包裝：
-                    request['functionname'] = 'search';         // 將fun切換功能成search
-                    request['search']       = searchkeyWord;    // 將searchkeyWord帶入search
                 }
+                // 製作查詢包裝：
+                request['functionname'] = 'search';         // 將fun切換功能成search
+                request['search']       = searchkeyWord;    // 將searchkeyWord帶入search
+
+            }else if(fun=='showSignDept'){          // from 搜尋部門主管
+                searchkeyWord = (searchkeyWord).trim();
+                if(!searchkeyWord || (searchkeyWord.length < 8)){
+                    $("body").mLoading("hide");
+                    alert("查詢字數最少 8 個字以上!!");
+                    resolve(false);
+                    return false;
+                } 
+                // 製作查詢包裝：
+                request['sign_code'] = searchkeyWord;    // 將searchkeyWord帶入search
+
+            }else if(fun=='showEmpInfo'){          // from 搜尋員工資料
+                searchkeyWord = (searchkeyWord).trim();
+                if(!searchkeyWord || (searchkeyWord.length < 8)){
+                    $("body").mLoading("hide");
+                    alert("查詢字數最少 8 個字以上!!");
+                    resolve(false);
+                    return false;
+                } 
+                // 製作查詢包裝：
+                request['functionname'] = 'search';         // 將fun切換功能成search
+                request['search'] = searchkeyWord;    // 將searchkeyWord帶入search
 
             }else{                                  // fun錯誤返回
                 resolve(false);
@@ -191,6 +214,12 @@
                         rework_staff(res["result"]).then(() => {
                             resolve();  // 等待 rework_staff 完成後再解析 Promise
                         });
+
+                    }else if(fun=='showSignDept'){
+                        resolve(res["result"]);  // 等待  完成後再解析 Promise
+
+                    }else if(fun=='showEmpInfo'){
+                        resolve(res["result"]);  // 等待  完成後再解析 Promise
                     }
                 },
                 error (err){

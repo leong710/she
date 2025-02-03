@@ -95,22 +95,22 @@
                 }
             }
         }
-        // step.4c 取shCase_logs裡的部門代號工作：preYear
-        if(empData.shCase_logs !== undefined && Object.keys(empData.shCase_logs).length > 0){
+        // step.4c 取_logs裡的部門代號工作：preYear
+        if(empData._logs !== undefined && Object.keys(empData._logs).length > 0){
             // // 只取今年 currentYear 、去年 preYear
             const getYearArr = [currentYear, preYear];
             for (const getYear of getYearArr) {
                 // 確認年分紀錄存在 且 有內容
-                if(empData.shCase_logs[getYear] != undefined && Object.keys(empData.shCase_logs[getYear]).length > 0 ){
+                if(empData._logs[getYear] != undefined && Object.keys(empData._logs[getYear]).length > 0 ){
                     if(asIs_deptNo_arr[getYear] == undefined){ asIs_deptNo_arr[getYear] = []; }
-                    // step.4c1 取shCase_logs裡的[外層]部門代號工作：
-                    asIs_deptNo_arr[getYear].push((empData.shCase_logs[getYear].dept_no) ? empData.shCase_logs[getYear].dept_no : 'undefined_c1')
+                    // step.4c1 取_logs裡的[外層]部門代號工作：
+                    asIs_deptNo_arr[getYear].push((empData._logs[getYear].dept_no) ? empData._logs[getYear].dept_no : 'undefined_c1')
 
-                    // step.4c2 取shCase_logs裡的[shCase]部門代號工作：
-                    if(empData.shCase_logs[getYear].shCase != undefined){
+                    // step.4c2 取_logs裡的[shCase]部門代號工作：
+                    if(empData._logs[getYear].shCase != undefined){
                         let preYearChange = (getYear !== currentYear) ? '_轉出':'';             // 241030--特檢資格串接4c_change_前置作業
 
-                        for (const [log_sc_key, log_sc_value] of Object.entries(empData.shCase_logs[getYear].shCase)) {
+                        for (const [log_sc_key, log_sc_value] of Object.entries(empData._logs[getYear].shCase)) {
                             asIs_deptNo_arr[getYear].push((log_sc_value.OSHORT) ? log_sc_value.OSHORT : 'undefined_c2')
                             
                             let HE_CATE_value = Object.values(log_sc_value.HE_CATE)[0];

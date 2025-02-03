@@ -160,10 +160,10 @@
                     $deptNo        = explode(',', $parm)[1];
                     $emp_sub_scope = explode(',', $parm)[2];
                     // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
-                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, shCase_logs, _content
+                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, gesch, natiotxt, HIRED, _logs, _content
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
-                              AND JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                              AND JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
                             ";
                     // 後段-堆疊查詢語法：加入排序
                     $sql .= " ORDER BY emp_id ASC ";
@@ -173,9 +173,9 @@
                         $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['shCase_logs'] = json_decode($shStaffs[$index]['shCase_logs'], true);
-                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$year]['shCase'];
-                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$year]['shCondition'];
+                            $shStaffs[$index]['_logs'] = json_decode($shStaffs[$index]['_logs'], true);
+                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['_logs'][$year]['shCase'];
+                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['_logs'][$year]['shCondition'];
                             $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
                         }
 
@@ -210,10 +210,10 @@
                         $checkList = str_replace(';', ',', $checkList);
 
                     // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
-                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, shCase_logs, _content
+                    $sql = "SELECT '{$year}' AS year_key, emp_id, cname, _logs, _content
                             FROM _staff
-                            WHERE JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
-                              AND JSON_UNQUOTE(JSON_EXTRACT(shCase_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
+                            WHERE JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                              AND JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
                               AND _staff.emp_id IN ({$checkList})
                             ";
                     // 後段-堆疊查詢語法：加入排序
@@ -224,9 +224,9 @@
                         $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         foreach($shStaffs as $index => $shStaff){
-                            $shStaffs[$index]['shCase_logs'] = json_decode($shStaffs[$index]['shCase_logs'], true);
-                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['shCase_logs'][$year]['shCase'];
-                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['shCase_logs'][$year]['shCondition'];
+                            $shStaffs[$index]['_logs'] = json_decode($shStaffs[$index]['_logs'], true);
+                            $shStaffs[$index]['shCase']      = $shStaffs[$index]['_logs'][$year]['shCase'];
+                            $shStaffs[$index]['shCondition'] = $shStaffs[$index]['_logs'][$year]['shCondition'];
                             $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
                         }
 
@@ -257,15 +257,15 @@
                     "content"   => "批次儲存名單--"
                 );
                 
-                define('SQL_SELECT_DOC', "SELECT shCase_logs, _content FROM _staff WHERE emp_id = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, shCase_logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
+                define('SQL_SELECT_DOC', "SELECT _logs, _content FROM _staff WHERE emp_id = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, _logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
                 // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
                                 cname            = VALUES(cname),
                                 gesch            = VALUES(gesch),
                                 natiotxt         = VALUES(natiotxt),
                                 HIRED            = VALUES(HIRED),
-                                shCase_logs      = VALUES(shCase_logs),
+                                _logs      = VALUES(_logs),
                                 _content         = VALUES(_content),
                                 updated_cname    = VALUES(updated_cname),
                                 updated_at       = now()");
@@ -287,35 +287,36 @@
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                 
                     // step.2 解析現有資料為陣列
-                    $row_shCase_logs = isset($row_data['shCase_logs']) ? json_decode($row_data['shCase_logs'], true) : [];
+                    $row__logs = isset($row_data['_logs']) ? json_decode($row_data['_logs'], true) : [];
                     $row_content     = isset($row_data['_content'])    ? json_decode($row_data['_content']   , true) : [];
                 
                     // step.3b 更新或新增該年份的資料
-                        $row_shCase_logs[$current_year] = [
-                            "cstext"        => $cstext        ?? ( $row_shCase_logs[$current_year]["cstext"]        ?? null ),
-                            "dept_no"       => $dept_no       ?? ( $row_shCase_logs[$current_year]["dept_no"]       ?? null ),
-                            "eh_time"       => $eh_time       ?? ( $row_shCase_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
-                            "emp_dept"      => $emp_dept      ?? ( $row_shCase_logs[$current_year]["emp_dept"]      ?? null ),
-                            "emp_group"     => $emp_group     ?? ( $row_shCase_logs[$current_year]["emp_group"]     ?? null ),
-                            "emp_sub_scope" => $emp_sub_scope ?? ( $row_shCase_logs[$current_year]["emp_sub_scope"] ?? null ),
-                            "schkztxt"      => $schkztxt      ?? ( $row_shCase_logs[$current_year]["schkztxt"]      ?? null ),
-                            "shCase"        => $shCase        ?? ( $row_shCase_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
-                            "shCondition"   => $shCondition   ?? ( $row_shCase_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
-                            "HIRED"         => $HIRED         ?? ( $row_shCase_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
-                            "BTRTL"         => $BTRTL         ?? ( $row_shCase_logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍
-                            "gesch"         => $gesch         ?? ( $row_shCase_logs[$current_year]["gesch"]         ?? null ),    // 性別
-                            "natiotxt"      => $natiotxt      ?? ( $row_shCase_logs[$current_year]["natiotxt"]      ?? null )     // 國籍
+                        $row__logs[$current_year] = [
+                            "cstext"        => $cstext        ?? ( $row__logs[$current_year]["cstext"]        ?? null ),
+                            "dept_no"       => $dept_no       ?? ( $row__logs[$current_year]["dept_no"]       ?? null ),
+                            "eh_time"       => $eh_time       ?? ( $row__logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
+                            "emp_dept"      => $emp_dept      ?? ( $row__logs[$current_year]["emp_dept"]      ?? null ),
+                            "emp_group"     => $emp_group     ?? ( $row__logs[$current_year]["emp_group"]     ?? null ),
+                            "emp_sub_scope" => $emp_sub_scope ?? ( $row__logs[$current_year]["emp_sub_scope"] ?? null ),
+                            "schkztxt"      => $schkztxt      ?? ( $row__logs[$current_year]["schkztxt"]      ?? null ),
+                            "shCase"        => $shCase        ?? ( $row__logs[$current_year]["shCase"]        ?? null ),    // 特作區域
+                            "shCondition"   => $shCondition   ?? ( $row__logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
+                            "BTRTL"         => $BTRTL         ?? ( $row__logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍-建物代碼
+                            "omager"        => $omager        ?? ( $row_logs[$current_year]["omager"]         ?? null ),    // 所屬主管
+                            // "gesch"         => $gesch         ?? ( $row__logs[$current_year]["gesch"]         ?? null ),    // 性別
+                            // "HIRED"         => $HIRED         ?? ( $row__logs[$current_year]["HIRED"]         ?? null ),    // 到職日
+                            // "natiotxt"      => $natiotxt      ?? ( $row__logs[$current_year]["natiotxt"]      ?? null )     // 國籍
                         ];
                     // //  241021 針對 
-                        //     if(!empty($row_shCase_logs[$current_year]["shCase"])){
+                        //     if(!empty($row__logs[$current_year]["shCase"])){
                         //         if(!empty($shCase)){
-                        //             $get_shCase = (array) $row_shCase_logs[$current_year]["shCase"];
+                        //             $get_shCase = (array) $row__logs[$current_year]["shCase"];
                         //             array_push($get_shCase, $shCase);
-                        //             // array_push($row_shCase_logs[$current_year]["shCase"], $shCase);
-                        //             $row_shCase_logs[$current_year]["shCase"] = $get_shCase;
+                        //             // array_push($row__logs[$current_year]["shCase"], $shCase);
+                        //             $row__logs[$current_year]["shCase"] = $get_shCase;
                         //         }
                         //     }else{
-                        //         $row_shCase_logs[$current_year]["shCase"] = $shCase;
+                        //         $row__logs[$current_year]["shCase"] = $shCase;
                         //     }
                         
                     // $row_content[$current_year] = isset($_content) ? $_content : null;
@@ -353,7 +354,7 @@
                     }
                 
                     // step.4 將更新後的資料編碼為 JSON 字串
-                    $shCase_logs_str = json_encode($row_shCase_logs, JSON_UNESCAPED_UNICODE);
+                    $_logs_str = json_encode($row__logs, JSON_UNESCAPED_UNICODE);
                     $_content_str    = json_encode($row_content,     JSON_UNESCAPED_UNICODE);
                 
                     // 防呆
@@ -365,7 +366,7 @@
                     $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
                     $params = array_merge($params, [
                         $emp_id, $cname, $gesch, $natiotxt, $HIRED,
-                        $shCase_logs_str, $_content_str, 
+                        $_logs_str, $_content_str, 
                         $auth_cname, $auth_cname
                     ]);
                 }
