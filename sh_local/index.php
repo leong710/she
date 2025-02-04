@@ -175,11 +175,11 @@
                                         <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
                                         <th title="OSTEXT">部門名稱</th>
                                         <th title="HE_CATE">類別</th>
+                                        <th title="MONIT_NO">監測編號</th>
+                                        <th title="MONIT_LOCAL">監測處所</th>
+                                        <th title="WORK_DESC">作業描述</th>
                                         <th title="AVG_VOL">A權音壓級(dBA)</th>
                                         <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均(dBA)</th>
-                                        <th title="MONIT_NO">監測編號</th>
-                                        <th title="MONIT_LOCAL">監測處所(10)</th>
-                                        <th title="WORK_DESC">作業描述(20)</th>
                                         <th title="flag">開關</th>
                                         <th title="updated">最後更新</th>
                                     </tr>
@@ -196,13 +196,12 @@
                                                     $HE_CATE = str_replace(',', '<br>', $HE_CATE); // 替換逗號為 <br>
                                                     echo $HE_CATE;
                                             ?></td>
-
-                                            <td><?php echo $shLocal['AVG_VOL'];?></td>
-                                            <td><?php echo $shLocal['AVG_8HR'];?></td>
                                             <td><?php echo $shLocal["MONIT_NO"];?></td>
                                             <td><?php echo $shLocal['MONIT_LOCAL'];?></td>
-
                                             <td class="word_bk"><?php echo $shLocal['WORK_DESC'];?></td>
+                                            <td><?php echo $shLocal['AVG_VOL'];?></td>
+                                            <td><?php echo $shLocal['AVG_8HR'];?></td>
+
                                             <td><?php 
                                                     echo "<span class='badge rounded-pill ";
                                                     echo ($shLocal['flag'] == "On") ? "bg-success ":" bg-danger ";
@@ -254,7 +253,7 @@
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
                             <div class="col-6 col-md-8 py-0">
-                                <label for="excelFile" class="form-label">特作管理清單 <span>&nbsp<a href="../_Format/shLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">特作管理清單 <span>&nbsp<a href="../_Format/snLocal_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
                                     <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">

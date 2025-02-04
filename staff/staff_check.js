@@ -4,7 +4,11 @@
         return new Promise((resolve) => {
             targetYear = (targetYear == undefined) ? currentYear : targetYear;
             // 使用屬性選擇器選取所有包含 empId 的 td 元素 // 遍歷這些選取到的元素並清空內容
-            document.querySelectorAll(`div[id*=",${empId},${targetYear}"]`).forEach(div => div.innerHTML = '');
+            document.querySelectorAll(`div[id*=",${empId},${targetYear}"]`).forEach(div => {
+                if(!div.id.includes('eh_time')){
+                    div.innerHTML = ''
+                }
+            });
 
             resolve();  // 當所有設置完成後，resolve Promise
         });
@@ -189,10 +193,11 @@
                     "change"  : false           // 變更
                 };   
             }
-            const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');
+            // const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');   // 250204 改回每一筆都要有一個 eh_time
+            const empData_ehTime = (empData['eh_time'] !== undefined);   // 250204 改回每一筆都要有一個 eh_time
 
             // step.2 欲更新的欄位陣列
-            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];
+            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];     // , 'eh_time' ==> 250204 改回每一筆都要有一個 eh_time
             // step.2 將shLocal_item_arr循環逐項進行更新
             shLocal_item_arr.forEach((sh_item) => {
                 // step.2a 項目渲染...
@@ -206,11 +211,16 @@
                     let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
                     inner_Value = `${br}${avg_str}`;
 
-                }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位
-                    let eh_time = sh_value[sh_item] ? sh_value[sh_item] : '';
-                    let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear},${sh_key_up}" name="eh_time" class="form-control text-center" value="${eh_time}" 
-                                            min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
-                    inner_Value = `${eh_time_input}`;
+                // }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
+                }else if(sh_item == 'eh_time' && empData_ehTime ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
+
+                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                    if(!eh_time_input){
+                        let eh_time = empData['eh_time'] ?? '';
+                        let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear}" name="eh_time" class="form-control text-center" value="${eh_time}" 
+                                                min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
+                        inner_Value = `${eh_time_input}`;
+                    }
 
                 }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
                     inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
@@ -230,7 +240,7 @@
 
                 // step.2b 噪音驗證
                 if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
-                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear},${sh_key_up}"]`);
+                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
                     // 2b1. 檢查元素是否存在+是否有值
                         // eh_time_input.removeAttribute('disabled');
                         const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
@@ -238,7 +248,7 @@
                         // const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
                         const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
                         const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-                        const eh_time = (sh_value['eh_time']) ? sh_value['eh_time'] : eh_time_input_value;
+                        const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
                         // eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
 
                     // 2b3. 呼叫[fun]checkNoise 取得判斷結果

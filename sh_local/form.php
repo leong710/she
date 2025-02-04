@@ -168,7 +168,7 @@
                                 </div>
                                 <hr>
 
-                                <span class="from-label"><b>點位資訊：</b></span><br>
+                                <span class="from-label"><b>作業資訊：</b></span><br>
                                 <div class="col-12 p-3 border rounded bg-white">
                                     <div class="row">
                                         <!-- line b1 -->
@@ -187,6 +187,28 @@
                                         <!-- line b2 -->
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
+                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder  >
+                                                <label for="MONIT_NO" class="form-label">MONIT_NO/監測編號：<sup class="text-danger"> *</sup></label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-6 py-1">
+                                            <div class="form-floating">
+                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" maxlength="10" placeholder required>
+                                                <label for="MONIT_LOCAL" class="form-label">MONIT_LOCAL/監測處所：<sup class="text-danger"> * (限10字)</sup></label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- line b3 -->
+                                        <div class="col-12 py-1">
+                                            <div class="form-floating">
+                                                <input type="text" name="WORK_DESC" id="WORK_DESC" class="form-control" maxlength="20" placeholder required></input>
+                                                <label for="WORK_DESC" class="form-label">WORK_DESC/作業描述：<sup class="text-danger"> * (限20字)</sup></label>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- line b4 -->
+                                        <div class="col-6 col-md-6 py-1">
+                                            <div class="form-floating">
                                                 <input type="text" name="AVG_VOL" id="AVG_VOL" class="form-control" placeholder  >
                                                 <label for="AVG_VOL" class="form-label">AVG_VOL/均能音量：<sup class="text-danger"> --</sup></label>
                                                 <div class="invalid-feedback" id="AVG_VOL_feedback">* 音量、音壓二擇一填寫 ~ </div>
@@ -200,27 +222,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- line b3 -->
-                                        <div class="col-6 col-md-6 py-1">
-                                            <div class="form-floating">
-                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder  >
-                                                <label for="MONIT_NO" class="form-label">MONIT_NO/監測編號：<sup class="text-danger"> *</sup></label>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-6 py-1">
-                                            <div class="form-floating">
-                                                <input type="text" name="MONIT_LOCAL" id="MONIT_LOCAL" class="form-control" maxlength="10" placeholder required>
-                                                <label for="MONIT_LOCAL" class="form-label">MONIT_LOCAL/監測處所：<sup class="text-danger"> * (限10字)</sup></label>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- line b4 -->
-                                        <div class="col-12 py-1">
-                                            <div class="form-floating">
-                                                <input type="text" name="WORK_DESC" id="WORK_DESC" class="form-control" maxlength="20" placeholder required></input>
-                                                <label for="WORK_DESC" class="form-label">WORK_DESC/作業描述：<sup class="text-danger"> * (限20字)</sup></label>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-12">

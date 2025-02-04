@@ -60,14 +60,14 @@
 
     // 根據模組設定檔名和欄位寬度
     $moduleSettings = [
-        "shLocal" => ["特殊危害健康作業管理_",  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P']],
+        "shLocal" => ["特殊危害健康作業管理_",  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']],
         "staff"   => ["變更作業特殊健檢_",      ['B', 'C', 'F', 'G', 'H', 'L', 'N']],
         "review"  => ["審查特殊健檢名單_",      ['B', 'C', 'F', 'G', 'H', 'L', 'N']],
         "pickup"  => ["彙整特殊健檢名單_",      ['B', 'C', 'F', 'G', 'H', 'I', 'M', 'N']],
     ];
 
     $filename_head = $moduleSettings[$to_module][0] ?? $to_module;
-    $columns = $moduleSettings[$to_module][1] ?? [];
+    $columns       = $moduleSettings[$to_module][1] ?? [];
 
     // 定義 sheet 名稱
     if (!empty($_REQUEST["tab_name"])) {

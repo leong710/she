@@ -180,7 +180,8 @@
         // step-1 將每日暴露時數eh_time存到指定staff_inf
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
             if (empData) {
-                empData.shCase[shCase_index]['eh_time'] = Number(this_value);
+                // empData.shCase[shCase_index]['eh_time'] = Number(this_value);
+                empData['eh_time'] = Number(this_value);
             }
 
         // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段

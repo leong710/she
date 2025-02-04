@@ -277,16 +277,16 @@
                                     <th title="emp_id+cname">工號姓名</th>
                                         <th title="emp_sub_scope">年份_廠區</th>
                                         <th title="dept_no">部門代碼名稱</th>
+                                        <th data-toggle="tooltip" data-placement="bottom" title="HE_CATE 選擇特作項目" style="width: 90px;"><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別代號</th>
                                         <th title="MONIT_LOCAL">工作場所</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="特殊作業"            >工作內容</th>
-                                        <th data-toggle="tooltip" data-placement="bottom" title="HE_CATE 選擇特作項目" style="width: 90px;"><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別代號</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_VOL"             style="width: 50px;">A權音壓級(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="AVG_8HR 工作日8小時"  style="width: 50px;">日時量平均(dBA)</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="eh_time 累計暴露"     style="width: 50px;">每日曝露時數</th>
                                         <th data-toggle="tooltip" data-placement="bottom" title="noiseCheck"          >噪音資格</th>
                                         <th title="shCondition" <?php echo ($sys_role <= '1') ? "":"class='unblock'";?>><i class="fa-regular fa-square-check"></i>&nbsp;特檢資格</th>
-                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;項目類別代號</th>
-                                        <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >檢查項目</th>
+                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      ><i class="fa-regular fa-square-check"></i>&nbsp;檢查類別</th>
+                                        <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >檢查代號</th>
                                         <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >去年檢查項目</th>
                                     </tr>
                                 </thead>

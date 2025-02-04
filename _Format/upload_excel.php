@@ -34,7 +34,7 @@
                         }
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', 'A權音壓級(dBA)', '日時量平均(dBA)', '監測編號', '監測處所(255)', '作業描述(255)');  //工作日8小時平均音壓值
+                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '監測編號', '監測處所(255)', '作業描述(255)', 'A權音壓級(dBA)', '日時量平均(dBA)');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -94,21 +94,20 @@
 
                             if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check && $HE_CATE_check) {
                                 foreach ($row as $index => $value) {
-                                    if ($index > 7) break;
-                                    echo '<td>' . htmlspecialchars($value) . '</td>';                       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
+                                    // row 6 作業敘述需要特殊顯示word_bk處理
+                                    echo (($index === 6) ? '<td class="word_bk">' : '<td>'). htmlspecialchars($value) .'</td>';             // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
-                                echo '<td class="word_bk">' . htmlspecialchars($row[8]) . '</td>';
 
                                 $process = [
                                     "OSTEXT_30"     => $row[0],
                                     "OSHORT"        => $row[1],
                                     "OSTEXT"        => $row[2],
                                     "HE_CATE"       => (preg_match("/:/i",$row[3])) ? parseString($row[3]) : explode(',', $row[3]),        // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
-                                    "AVG_VOL"       => $row[4],
-                                    "AVG_8HR"       => $row[5],
-                                    "MONIT_NO"      => $row[6],
-                                    "MONIT_LOCAL"   => $row[7],
-                                    "WORK_DESC"     => $row[8],
+                                    "MONIT_NO"      => $row[4],
+                                    "MONIT_LOCAL"   => $row[5],
+                                    "WORK_DESC"     => $row[6],
+                                    "AVG_VOL"       => $row[7],
+                                    "AVG_8HR"       => $row[8],
                                 ];
                                 $result[] = $process;
                             }else {
@@ -132,9 +131,6 @@
                             echo '</div>';
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
-                            // echo '<div><pre>';
-                            // print_r($errLog);
-                            // echo '</pre></div>';
                             echo '</div>';
                         }
                     }
@@ -142,7 +138,7 @@
                 } else if ($submit === 'shStaff') {             // 240822_特危健康作業人員
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('NO', '廠區', '工號', '姓名', '部門代碼', '部門名稱', '檢查類別代號', '今年檢查項目', '去年檢查項目');  //工作日8小時平均音壓值
+                    $theadTitles = array('NO', '廠區', '工號', '姓名', '部門代碼', '部門名稱', '檢查類別', '檢查代號', '去年檢查項目');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
