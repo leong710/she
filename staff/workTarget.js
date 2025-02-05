@@ -151,7 +151,7 @@
                 formData.append('fun', fun);
                 formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
 
-            let response = await fetch('load_fun.php', {
+            let response = await fetch('../mvc/load_fun.php', {
                 method : 'POST',
                 body   : formData
             });

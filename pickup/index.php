@@ -246,7 +246,7 @@
                             <!-- 人員名單： -->
                             <div class="row">
                                 <!-- L2：左側function -->
-                                <div class="col-4 col-md-3 pb-0 pt-2 ">
+                                <div class="col-4 col-md-3 py-0">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除編輯清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -257,7 +257,7 @@
                                     </div>
                                 </div>
                                 <!-- L2：右側function -->
-                                <div class="col-8 col-md-9 pb-0 pt-2 text-end" id="form_btn_div"></div>
+                                <div class="col-8 col-md-9 py-0 text-end" id="form_btn_div"></div>
                             </div>
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
@@ -266,17 +266,17 @@
                                         <th title="emp_id+cname"        >工號姓名</th>
                                         <th title="emp_sub_scope"       >年份_廠區</th>
                                         <th title="dept_no"             >部門代碼名稱</th>
-                                        <th title="MONIT_LOCAL"         >工作場所</th>
-                                        <th title="特殊作業"            >工作內容</th>
                                         <th title="HE_CATE 選擇特作項目" >檢查類別代號</th>
+                                        <th title="MONIT_LOCAL"         >工作場所</th>
+                                        <th title="特殊作業"             >工作內容</th>
                                         <th title="AVG_VOL"             >A權音壓級(dBA)</th>
                                         <th title="AVG_8HR 工作日8小時"  >日時量平均(dBA)</th>
                                         <th title="eh_time 累計暴露"     >每日曝露時數</th>
                                         <th title="noiseCheck"          >噪音資格</th>
                                         <th title="shCondition" <?php echo ($sys_role <= '2') ? "":"class='unblock'";?>>特檢資格</th>
-                                        <th title="匯入1" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>      >項目類別代號</th>
-                                        <th title="匯入2" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >檢查項目</th>
-                                        <th title="匯入3" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>     >去年檢查項目</th>
+                                        <th title="匯入1"       <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>>檢查類別</th>
+                                        <th title="匯入2"       <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>>檢查代號</th>
+                                        <th title="匯入3"       <?php echo ($sys_role <= '3') ? "":"class='unblock'";?>>去年檢查項目</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -324,21 +324,21 @@
                     <table id="shCase_table" class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <th title="emp_id+cname">工號姓名</th>
-                                <th title="emp_sub_scope">年份_廠區</th>
-                                <th title="dept_no">部門代碼名稱</th>
-                                <th title="">工作場所</th>
-                                <th title="點選特殊作業">工作內容</th>
-                                <th title="HE_CATE"             style="width: 90px;">檢查類別代號</th>
-                                <th title="AVG_VOL"             style="width: 50px;">A權音壓級</th>
-                                <th title="AVG_8HR 工作日8小時" style="width: 50px;">日時量平均</th>
-                                <th title="eh_time 累計暴露"    style="width: 50px;">每日曝露時數</th>
+                                <th title="emp_id+cname"        >工號姓名</th>
+                                <th title="emp_sub_scope"       >年份_廠區</th>
+                                <th title="dept_no"             >部門代碼名稱</th>
+                                <th title="HE_CATE"             >檢查類別代號</th>
+                                <th title="MONIT_LOCAL"         >工作場所</th>
+                                <th title="特殊作業"            >工作內容</th>
+                                <th title="AVG_VOL"             >A權音壓級(dBA)</th>
+                                <th title="AVG_8HR 工作日8小時" >日時量平均(dBA)</th>
+                                <th title="eh_time 累計暴露"    >每日曝露時數</th>
                                 <th title="NC"                 >噪音資格</th>
                                 <th title="shCondition"        >特檢資格</th>
                                 <th title="change"             >轉調</th>
-                                <th title="匯入1yearHe" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
+                                <th title="匯入1yearHe"      <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
                                 <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
-                                <th title="匯入3yearPre" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
+                                <th title="匯入3yearPre"     <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -463,9 +463,10 @@
     const preYear        = String(currentYear - 1);             // 取得去年年份
 
 </script>
+<script src="../mvc/utility.js?v=<?=time()?>"></script>
+<script src="../mvc/excel.js?v=<?=time()?>"></script>
+<script src="../mvc/check.js?v=<?=time()?>"></script>
 <script src="pickup.js?v=<?=time()?>"></script>
-<script src="pickup_excel.js?v=<?=time()?>"></script>
-<script src="pickup_check.js?v=<?=time()?>"></script>
 <!-- <script src="pickup_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

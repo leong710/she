@@ -304,8 +304,8 @@
                             "BTRTL"         => $BTRTL         ?? ( $row__logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍-建物代碼
                             "omager"        => $omager        ?? ( $row_logs[$current_year]["omager"]         ?? null ),    // 所屬主管
                             // "gesch"         => $gesch         ?? ( $row__logs[$current_year]["gesch"]         ?? null ),    // 性別
-                            // "HIRED"         => $HIRED         ?? ( $row__logs[$current_year]["HIRED"]         ?? null ),    // 到職日
                             // "natiotxt"      => $natiotxt      ?? ( $row__logs[$current_year]["natiotxt"]      ?? null )     // 國籍
+                            // "HIRED"         => $HIRED         ?? ( $row__logs[$current_year]["HIRED"]         ?? null ),    // 到職日
                         ];
                     // //  241021 針對 
                         //     if(!empty($row__logs[$current_year]["shCase"])){
