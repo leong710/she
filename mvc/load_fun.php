@@ -617,10 +617,10 @@
 
                 foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
-                    $dept_no   = $parm_i_arr["dept_no"] ?? "";
-                    $emp_dept  = $parm_i_arr["emp_dept"] ?? "";
-                    $sub_scope = $parm_i_arr["emp_sub_scope"] ?? "";
-                    $BTRTL     = $parm_i_arr["BTRTL"] ?? "";
+                    $dept_no   = $parm_i_arr['_logs'][$current_year]["dept_no"] ?? "";
+                    $emp_dept  = $parm_i_arr['_logs'][$current_year]["emp_dept"] ?? "";
+                    $sub_scope = $parm_i_arr['_logs'][$current_year]["emp_sub_scope"] ?? "";
+                    $BTRTL     = $parm_i_arr['_logs'][$current_year]["BTRTL"] ?? "";
                     
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
@@ -767,7 +767,7 @@
                 }
                 
             break;
-            // 241211 送嬸
+            // 241211 送嬸--簽核
             case 'processReview':  
                 require_once("../user_info.php");
                 require_once("../mvc/load_function.php");
@@ -874,10 +874,17 @@
                 //     $in_signName = $forwarded["in_signName"] ?? ($row_data["in_signName"] ?? "");  
 
                 } else {
-                    if($idty === "5"){
+                    if($idty === "4" && $row_data["idty"] === "5"){     // 從idty5(收單review)退到idty4(簽核審查)...要把簽核主管找回來
+                        $result = queryHrdb("showSignCode",   $deptNo);                        // 查詢signCode部門主管
+                        $DEPUTY = queryHrdb("showDelegation", $result["OMAGER"]);              // 查詢部門主管簽核代理人
+                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? $result["OMAGER"]);  
+                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? $result["cname"]);  
+
+                    }else if($idty === "5"){
                         $pm_empId_arr = explode(",", $row_data["pm_empId"]);    // 資料表是字串，要炸成陣列
                         $in_sign      = $pm_empId_arr[0] ?? NULL;               // 由 4->5時，即業務窗口簽核，未到主管
                         $in_signName  = $pm_empId_arr[1] ?? NULL;               // 由 存換成 NULL
+
                     }else if($idty === "6"){
                         $pm_select = $pdo->prepare(SQL_SELECT_PM);              // 預先動作：找出大PM
                         if (executeQuery($pm_select, '' )) {

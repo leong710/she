@@ -938,10 +938,7 @@
         
                 const result = await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
                 if(result.action === 'success') {
-                    console.log(result.fun,'=> result...', result.content)
-                    // await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
-                    let rtn = await load_fun('storeForReview', submitValue, 'return');       // load_fun的變數傳遞要用字串
-                    console.log('rtn =>', rtn);
+                    await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
                 }else{
                     alert(result.content+' & 尚未提交 !!');
                     $("body").mLoading("hide");

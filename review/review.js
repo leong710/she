@@ -4,7 +4,7 @@
         if(request){
             staff_inf     = [];
             shLocal_inf   = [];
-            loadStaff_tmp = [];
+            // loadStaff_tmp = [];
             _doc_inf      = [];
             // _doc_inf.idty = null;
 
@@ -56,35 +56,35 @@
     }
 
 // // phase 4 -- 
-    // p-2 處理審查工作...
-    async function storeForReview(){
-        const bat_storeStaff_value = JSON.stringify(staff_inf);
-        await load_fun('bat_storeStaff', bat_storeStaff_value, 'return');           // load_fun的變數傳遞要用字串
-        await load_fun('storeForReview', bat_storeStaff_value, show_swal_fun);      // load_fun的變數傳遞要用字串
-        location.reload();
-    }
-    // 
-    async function processSubmit(action){   // 已崁入監聽中
+                    // p-2 處理審查工作...
+                    async function storeForReview(){
+                        const bat_storeStaff_value = JSON.stringify(staff_inf);
+                        await load_fun('bat_storeStaff', bat_storeStaff_value, 'return');           // load_fun的變數傳遞要用字串
+                        await load_fun('storeForReview', bat_storeStaff_value, show_swal_fun);      // load_fun的變數傳遞要用字串
+                        location.reload();
+                    }
+                    // 
+                    async function processSubmit(action){   // 已崁入監聽中
 
-        const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
-        const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
-        const submitValue   = {
-            updated_emp_id  : userInfo.empId,
-            updated_cname   : userInfo.cname,
-            action          : action,
-            forwarded       : {
-                in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
-                in_signName : (action == '5') ? getInputValue('in_signName') : null
-            },
-            sign_comm       : getCommValue('sign_comm'),
-            _doc            : _doc_inf,
-            _staff          : staff_inf
-        }
-            console.log('submitValue =>', submitValue);
+                        const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
+                        const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
+                        const submitValue   = {
+                            updated_emp_id  : userInfo.empId,
+                            updated_cname   : userInfo.cname,
+                            action          : action,
+                            forwarded       : {
+                                in_sign     : (action == '5') ? getInputValue('in_sign')     : null ,
+                                in_signName : (action == '5') ? getInputValue('in_signName') : null
+                            },
+                            sign_comm       : getCommValue('sign_comm'),
+                            _doc            : _doc_inf,
+                            _staff          : staff_inf
+                        }
+                            console.log('submitValue =>', submitValue);
 
-        submit_modal.hide();
+                        submit_modal.hide();
 
-    }
+                    }
 
 
 // // phase 3 -- 渲染與鋪設
@@ -119,17 +119,17 @@
                 tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i._logs[currentYear].dept_no )) +`<br>`
                                 + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i._logs[currentYear].emp_dept )) +`</td>`;
 
-                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="MONIT_LOCAL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="WORK_DESC${empId_currentYear}</div></td>`;
 
-                tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="AVG_VOL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="AVG_8HR${empId_currentYear}</div></td>`;
 
-                tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="eh_time${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="NC${empId_currentYear}</div></td>`;
 
-                tr1 += `<td class="shCondition`+(userInfo.role <='2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                tr1 += `<td class="shCondition`+(userInfo.role <='2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition${empId_currentYear}</div></td>`;           // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
@@ -138,6 +138,11 @@
 
                 tr1 += '</tr>';
                 $('#hrdb_table tbody').append(tr1);
+
+                let eh_time_input = `<snap><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control text-center" value="${emp_i._logs[currentYear]['eh_time']}"
+                                min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
+    
+                document.getElementById(`eh_time,${emp_i.emp_id},${currentYear}`).insertAdjacentHTML('beforeend', eh_time_input);     // 渲染各項目
             })
         }
         await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
@@ -245,12 +250,12 @@
             staff_inf = loadStaff_arr;      // 套取staff的表單
             // 套取staff的表單 = for 比對功能，來決定是否儲存
                 // loadStaff_tmp = loadStaff_arr;  
-            loadStaff_tmp = Object.assign( {}, loadStaff_arr ); // 淺拷貝
+                // loadStaff_tmp = Object.assign( [], loadStaff_arr ); // 淺拷貝
 
             // console.log('loadStaff_arr...',loadStaff_arr);
             await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
             await post_shCase(loadStaff_arr);     // 鋪設--特作資料
-            await post_reviewInfo(_doc_inf);              // 鋪設表頭訊息及待簽人員
+            await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
 
             await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
 
@@ -264,7 +269,7 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             _docs_inf = docDeptNo;      // 套取docs
-            // console.log('docDeptNo =>',docDeptNo);
+            console.log('docDeptNo =>',docDeptNo);
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
@@ -314,6 +319,9 @@
                         // const select_year  = thisValue_arr[0];           // 取出陣列0=年份
                         const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
                         const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
+
+                        // // // ***** 250206 這裡要重寫....要重新抓db裡的_doc文件....避免抄寫衝突
+
                         // 使用 .find() 找到滿足條件的物件
                         const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
                         // 從 result 中取出對應的廠區/部門代號
@@ -426,17 +434,27 @@
                             },
                             sign_comm       : getCommValue('sign_comm'),
                             _doc            : _doc_inf,
-                            _staff          : staff_inf
+                            staff_inf       : staff_inf
                         })
                         // console.log('submitValue =>', JSON.parse(submitValue)); 
-                    
-                    if( staff_inf != loadStaff_tmp){   // for 比對功能，來決定是否儲存
-                        await load_fun('bat_storeStaff', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
+                        console.log('staff_inf =>', staff_inf); 
+                        // const staff_inf_str = JSON.stringify(staff_inf); 
+                        // console.log('loadStaff_tmp =>', loadStaff_tmp); 
+                        // const loadStaff_tmp_str = JSON.stringify(loadStaff_tmp); 
+                        // if(staff_inf_str != loadStaff_tmp_str){   // for 比對功能，來決定是否儲存
+                        //     console.log('有異動');
+                        // }
+
+                    const result = await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
+                    if(result.action === 'success') {
+                        await load_fun('processReview',  submitValue, show_swal_fun);     // load_fun的變數傳遞要用字串
+                    }else{
+                        alert(result.content+' & 尚未提交 !!');
+                        $("body").mLoading("hide");
                     }
-                    await load_fun('processReview', submitValue, show_swal_fun);      // load_fun的變數傳遞要用字串
             
                     submit_modal.hide();
-                    location.reload();
+                    // location.reload();
 
                 })
 

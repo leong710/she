@@ -483,7 +483,7 @@
 
     var staff_inf       = [];
     var shLocal_inf     = [];
-    var loadStaff_tmp   = [];
+    // var loadStaff_tmp   = [];
 
     var _docsIdty_inf   = '';
     var _docs_inf       = [];
