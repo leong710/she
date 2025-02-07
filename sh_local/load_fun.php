@@ -145,6 +145,7 @@
                 }
             break;
 
+            
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",

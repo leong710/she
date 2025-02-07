@@ -344,7 +344,7 @@
             checkAVG(noiseCheckbox.checked);
 
         // 確認權限是否呈現submitBtn...
-            const actionRole = shLocal_row.OSHORT == userInfo.signCode && (userInfo.role <= 3 && userInfo.role >= 0 && userInfo.role != '');
+            const actionRole = shLocal_row.OSHORT == userInfo.signCode && (userInfo.role <= 3 && userInfo.role >= 0 && userInfo.role != '') || userInfo.role <= 1;
             if(!actionRole){
                 const submitBtn = document.getElementById("submitBtn");
                 submitBtn.classList.add('unblock');

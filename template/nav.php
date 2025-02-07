@@ -97,10 +97,10 @@
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核</b></a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核與彙整</b></a></li>
                                     <?php if($sys_role <= 2.2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/pickup/"><i class="fa-brands fa-stack-overflow"></i>&nbsp;<b>名單總匯整</b></a></li>
+                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/pickup/"><i class="fa-brands fa-stack-overflow"></i>&nbsp;<b>名單總匯整</b></a></li>
                                     <?php } ?>
                                 </ul>
                             </li>

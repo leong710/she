@@ -64,7 +64,6 @@
     }
     // 
     async function processSubmit(action){   // 已崁入監聽中
-
         const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
         const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
         const submitValue   = {
@@ -89,11 +88,14 @@
     // [p1 函數-6] 渲染hrdb
     async function post_hrdb(emp_arr){
         // 停止並銷毀 DataTable
-            // release_dataTable();
+            release_dataTable();
             // $('#hrdb_table tbody').empty();
 
         if(emp_arr.length === 0){
-            $('#hrdb_table tbody').append('<div class="text-center text-dnager">沒有資料</div>');
+            const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
+            const columnCount = table.columns().count();                    // 獲取每行的欄位數量
+            const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
+            $('#hrdb_table tbody').append(tr1);
         }else{
             const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
             await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
@@ -113,17 +115,18 @@
                                                 
                 tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i._logs[currentYear].dept_no )) +`<br>`
                                 + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i._logs[currentYear].emp_dept )) +`</td>`;
-                tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
 
-                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
+                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="MONIT_LOCAL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="WORK_DESC${empId_currentYear}</div></td>`;
 
-                tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="AVG_VOL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="AVG_8HR${empId_currentYear}</div></td>`;
 
-                tr1 += `<td class="shCondition`+(userInfo.role <='2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
+                tr1 += `<td><div id="eh_time${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="NC${empId_currentYear}</div></td>`;
+
+                tr1 += `<td class="shCondition`+(userInfo.role <='2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition${empId_currentYear}</div></td>`;           // 特檢資格
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
@@ -132,6 +135,10 @@
 
                 tr1 += '</tr>';
                 $('#hrdb_table tbody').append(tr1);
+                // 250206 補上大PM想要的eh_time
+                let eh_time_input = `<snap><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control text-center" value="${emp_i._logs[currentYear]['eh_time']}"
+                                min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
+                document.getElementById(`eh_time,${emp_i.emp_id},${currentYear}`).insertAdjacentHTML('beforeend', eh_time_input);     // 渲染eh_time項目
             })
         }
         // await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染

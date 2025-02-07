@@ -150,9 +150,6 @@
                 color: black;
                 background-color: rgba(23, 162, 184, 0.4);
             }
-            .btn-info:hover {
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
             .btn-info[disabled] {
                 background-color: rgba(23, 162, 184, 0.2);
             }
@@ -160,12 +157,30 @@
                 color: black;
                 background-color: rgba(40, 167, 69, 0.4);
             }
-            .btn-success:hover {
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
             .btn-success[disabled] {
                 color: black;
                 background-color: rgba(40, 167, 69, 0.2);
+            }
+            .btn-warning {
+                background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
+            }
+            .btn-warning[disabled] {
+                color: black;
+                background-color: rgba(255, 193, 7, 0.2);
+            }
+            .btn-primary {
+                color: black;
+                background-color: rgba(13, 110, 253, 0.4); /* 這是 Bootstrap 中 btn-primary 的顏色，0.5 表示透明度50% */
+            }
+            .btn-primary[disabled] {
+                color: black;
+                background-color: rgba(13, 110, 253, 0.2);
+            }
+            .btn-info:hover
+            .btn-success:hover
+            .btn-primary:hover
+            .btn-warning:hover {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             }
             .cover {
                 width: 100%;
@@ -217,8 +232,12 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9 py-1">
+                                    <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>審查名單：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="名單總匯整">
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid unblock" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
@@ -293,36 +312,8 @@
                                 <tbody>
                                 </tbody>
                             </table>
-                        </div>
-                        <hr>
-                        <!-- 尾段logs訊息 -->
-                        <div id="logs_div" class="col-12 pt-0 rounded bg-light block">
-                            <div class="row">
-                                <div class="col-6 col-md-6">
-                                    表單記錄：
-                                </div>
-                                <div class="col-6 col-md-6">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-12 py-1 px-4">
-                                    <table class="for-table logs table table-sm table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Step</th>
-                                                <th>Signer</th>
-                                                <th>Time Signed</th>
-                                                <th>Status</th>
-                                                <th>Comment</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                                <div style="font-size: 12px;" class="text-end">
-                                    logs-end
-                                </div>
-                            </div>
+                            <!-- 尾段logs訊息 -->
+                            <div class="col-12 p-0" id="logsInfo"></div>
                         </div>
                     </div>
                 </div>
@@ -483,7 +474,7 @@
 
     var staff_inf       = [];
     var shLocal_inf     = [];
-    // var loadStaff_tmp   = [];
+    var loadStaff_tmp   = [];
 
     var _docsIdty_inf   = '';
     var _docs_inf       = [];
@@ -491,10 +482,6 @@
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-    // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
-    // const deptNosObj = <=json_decode($doc_deptNos)?>;
-    // console.log('deptNosObj...', deptNosObj);
 
     const userInfo = {
         'role'     : '<?=$sys_role?>',

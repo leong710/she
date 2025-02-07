@@ -116,11 +116,11 @@
     }
     // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeShConditionMode(){
-        const isShCondition = userInfo.role <= 3 && _docsIdty_inf < 4;
-        const targetCate = document.querySelectorAll(isShCondition ? '.xshCondition' : '.shCondition');  
+        const isShCondition_bool = userInfo.role <= 3 && _docsIdty_inf <= 4;
+        const targetCate = document.querySelectorAll(isShCondition_bool ? '.xshCondition' : '.shCondition');  
         targetCate.forEach(tdItem => {
-            tdItem.classList.toggle(isShCondition ? 'shCondition'  : 'xshCondition');
-            tdItem.classList.toggle(isShCondition ? 'xshCondition' : 'shCondition');
+            tdItem.classList.toggle(isShCondition_bool ? 'shCondition'  : 'xshCondition');
+            tdItem.classList.toggle(isShCondition_bool ? 'xshCondition' : 'shCondition');
         });
     }
 

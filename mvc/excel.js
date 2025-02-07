@@ -20,16 +20,16 @@
         };
         const shCase_keys = {
             "OSTEXT_30"     : "工作廠區",
+            "HE_CATE"       : "檢查類別代號",
             "MONIT_LOCAL"   : "工作場所",
             "WORK_DESC"     : "工作內容",
-            "HE_CATE"       : "檢查類別代號",
-            "AVG_VOL"       : "均能音量",
-            "AVG_8HR"       : "平均音壓",
+            "AVG_VOL"       : "A權音壓級(dBA)",
+            "AVG_8HR"       : "日時量平均(dBA)",
             "eh_time"       : "每日暴露時數"
         };
         const import_keys = {
-            "yearHe"        : "項目類別代號",
-            "yearCurrent"   : "檢查項目",
+            "yearHe"        : "檢查類別",
+            "yearCurrent"   : "檢查代號",
             "yearPre"       : "去年檢查項目"
         };
         let sort_listData = staff_inf.map((staff) => {
@@ -45,8 +45,15 @@
                                 if (subKey === 'HE_CATE' && value !== undefined) {
                                     const heCate = JSON.stringify(value).replace(/[{"}]/g, '');
                                     sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${heCate}` : heCate;
+
+                                }else if (subKey === 'eh_time') {
+                                    const eh_time = staff.eh_time ?? null;
+                                    // sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${eh_time}` : eh_time;
+                                    sortedData[subLabel] = eh_time;
+
                                 } else if(value !== undefined){                                 // 240909 這裡要追加過濾 沒有HE_CATE的項目...
                                     sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${(value || '')}` : (value || '');
+
                                 } else if(value === undefined) {
                                     sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${''}` : '';
                                 }
