@@ -195,9 +195,9 @@
             }
             // const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');   // 250204 改回每一筆都要有一個 eh_time
             const empData_ehTime = (empData['eh_time'] !== undefined);   // 250204 改回每一筆都要有一個 eh_time
-
+            
             // step.2 欲更新的欄位陣列
-            const shLocal_item_arr = ['MONIT_LOCAL', 'WORK_DESC', 'HE_CATE', 'AVG_VOL', 'AVG_8HR', 'eh_time'];     // , 'eh_time' ==> 250204 改回每一筆都要有一個 eh_time
+            const shLocal_item_arr = ['HE_CATE', 'MONIT_LOCAL', 'WORK_DESC', 'AVG_VOL', 'AVG_8HR', 'eh_time'];     // , 'eh_time' ==> 250204 改回每一筆都要有一個 eh_time
             // step.2 將shLocal_item_arr循環逐項進行更新
             shLocal_item_arr.forEach((sh_item) => {
                 // step.2a 項目渲染...
@@ -334,4 +334,18 @@
         });
     }
 
+    async function renewYearCurrent(empData){
+        empData['_content'][currentYear]['yearCurrent'] = [];   // 清空
 
+        for (const [key, shCase_i] of Object.entries(empData.shCase)) {
+            if(Object.entries(shCase_i.HE_CATE).length > 0){
+                for(const [he_cate_key, he_cate_value] of Object.entries(shCase_i.HE_CATE)){
+                    empData['_content'][currentYear]['yearCurrent'].push(he_cate_key);               // 以array_key方式帶入
+                    // empData['_content'][currentYear]['yearCurrent'][he_cate_key] = he_cate_value; // 以物件方式推入
+                }
+            }
+        }
+        const yearCurrent_str = JSON.stringify(empData['_content'][currentYear]['yearCurrent']).replace(/[\[\]\{"}]/g, ''); // 轉字串並去除特定符號~
+        document.getElementById(`${empData['cname']},${empData['emp_id']},yearCurrent`).innerHTML = yearCurrent_str;     // 渲染 匯入2-項目
+
+    }

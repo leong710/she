@@ -89,7 +89,11 @@
                             updateDOM(shLocal_inf[sov_value], select_empId, index);
                         });
                     }
-                    console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
+                    renewYearCurrent(empData);  // 250210 更新匯入2，生成檢查代碼
+                    // console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
+
+                    // const yearCurrent_str = JSON.stringify(empData['_content'][currentYear]['yearCurrent']).replace(/[\[\]\{"}]/g, '');
+                    // console.log(yearCurrent_str)
                 }
                 // 241118 選擇特危項目之保留沿用
                 if(!useImportShLocal_value.checked){
@@ -141,8 +145,8 @@
                         
                         // 250203 在匯入的時候就直接補上對應欄位資料
                         await rework_omager(excel_json_value_arr);
-
-                        await rework_BTRTL(excel_json_value_arr);
+                        // 250210 匯入時補上建物編號...
+                        // await rework_BTRTL(excel_json_value_arr);
                         
                         // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
                         await mgInto_staff_inf(excel_json_value_arr)         // 呼叫[fun] 
@@ -690,6 +694,7 @@
     // 250203 在匯入的時候就直接補上對應欄位資料
     async function rework_omager(excelStaff_arr){
         if(excelStaff_arr.length >0){
+            const _fabs = await load_fun('loadFabs', 'return', 'return' );                  // 呼叫通用函數load_fun 取得建物編號
             for(const [index, i_value] of Object.entries(excelStaff_arr)){
                 // step.1 匯入時套上部門代號所屬主管
                 if(i_value.dept_no){
@@ -701,39 +706,16 @@
                 if(select_empId){
                     const empInfo = await search_fun('showEmpInfo', i_value.emp_id);                // 確保每次search_fun都等待完成
                     const empData = empInfo.find(emp => emp.emp_id === select_empId);               // step1-2.查找staff_inf內該員工是否存在
-                    excelStaff_arr[index]['gesch']    = empData.gesch ?? null;                // 性別
-                    excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;                // 到職日
-                    excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;             // 國籍名稱
+                    excelStaff_arr[index]['gesch']    = empData.gesch ?? null;              // 性別
+                    excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;              // 到職日
+                    excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;           // 國籍名稱
+                    // 250210 匯入時補上建物編號...
+                    const thisFab = _fabs.find(_fab => _fab['fab_title'].includes(i_value.emp_sub_scope));
+                    excelStaff_arr[index]['BTRTL'] = thisFab.BTRTL ?? null;                 // 建物編號
                 }
             }
         }
         loadStaff_tmp = loadStaff_tmp.concat(excelStaff_arr);   // 合併2個陣列到combined
-    }
-    // 250203 在匯入的時候就直接補上對應欄位資料
-    async function rework_BTRTL(excelStaff_arr){
-        if(excelStaff_arr.length >0){
-
-            const _fabs = await load_fun('loadFabs', 'return', 'return' );     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
-            console.log('_fabs', _fabs);
-
-            // for(const [index, i_value] of Object.entries(excelStaff_arr)){
-            //     // step.1 匯入時套上部門代號所屬主管
-            //     if(i_value.dept_no){
-            //         const signDept = await search_fun('showSignCode', i_value.dept_no);             // 確保每次search_fun都等待完成
-            //         excelStaff_arr[index]['omager'] = signDept[0]['OMAGER'] ?? null;
-            //     }
-            //     // step.2 匯入時套上最最基本的訊息
-            //     const select_empId = (i_value.emp_id !== undefined) ? i_value.emp_id : null;        // step1-1.取出emp_id
-            //     if(select_empId){
-            //         const empInfo = await search_fun('showEmpInfo', i_value.emp_id);                // 確保每次search_fun都等待完成
-            //         const empData = empInfo.find(emp => emp.emp_id === select_empId);               // step1-2.查找staff_inf內該員工是否存在
-            //         excelStaff_arr[index]['gesch']    = empData.gesch ?? null;                // 性別
-            //         excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;                // 到職日
-            //         excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;             // 國籍名稱
-            //     }
-            // }
-        }
-        // loadStaff_tmp = loadStaff_tmp.concat(excelStaff_arr);   // 合併2個陣列到combined
     }
 
     // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()
@@ -898,14 +880,15 @@
             // 更新所有符合條件的節點的 innerHTML
             deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
             
-            // 決定開啟的權限
-            const doc_Role_bool = !(
-                    (userInfo.role <= 1) ||
-                    // (_doc.dept_no == userInfo.signCode) ||
-                    // (userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5 || userInfo.role == 3)   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                    (( userInfo.role >= 2 || userInfo.role <= 3 ) && ( userInfo.BTRTL.includes(_doc.BTRTL) || (_doc.dept_no == userInfo.signCode) )) ||   // (廠護理師.2 || 廠工安.2.5) & 同建物
-                    (_doc.omager == userInfo.empId)        // 部門主管 = 自己
-                );  
+            // 決定開啟的權限 --- 250210 這裡改到mk_deptNos_btn()裡面用getButtonDisabledStatus()去決定開關...
+            // const doc_Role_bool = !(
+            //         (userInfo.role <= 1) ||
+            //         // (_doc.dept_no == userInfo.signCode) ||
+            //         // (userInfo.role == 2 || userInfo.role == 2.2 || userInfo.role == 2.5 || userInfo.role == 3)   // (廠護理師.2 || 廠工安.2.5) & 同建物
+            //         (( userInfo.role >= 2 || userInfo.role <= 3 ) && (JSON.stringify(userInfo.BTRTL).includes(_doc.BTRTL) || (_doc.dept_no == userInfo.signCode) )) ||   // (廠護理師.2 || 廠工安.2.5) & 同建物
+            //         (_doc.omager == userInfo.empId)        // 部門主管 = 自己
+            //     );  
+
             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id*=",${_doc.emp_sub_scope},${_doc.dept_no}"]`);
             deptNo_btns.forEach(deptNo_btn => {
                 // 如果 idty 等於 2 退件，則更新按鈕樣式
@@ -919,8 +902,8 @@
                     deptNo_btn.classList.remove('btn-info');
                     deptNo_btn.classList.add('btn-outline-secondary');
                 }
-                // 點擊編輯權限
-                deptNo_btn.disabled = doc_Role_bool;
+                // 點擊編輯權限 --- 250210 這裡改到mk_deptNos_btn()裡面用getButtonDisabledStatus()去決定開關...
+                // deptNo_btn.disabled = doc_Role_bool;
             })
         })
 

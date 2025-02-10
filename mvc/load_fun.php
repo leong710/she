@@ -1053,8 +1053,7 @@
                     $result = [
                         'result_obj' => $_fabs,
                         'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.',
-                        'parm'       => $parm_re
+                        'success'    => 'Load '.$fun.' success.'
                     ];
                 }catch(PDOException $e){
                     echo $e->getMessage();
