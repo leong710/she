@@ -107,7 +107,9 @@
         .h6 {
             font-size: 12px;
         }
-        .shCondition:hover ,.yearHe:hover {
+        .shCondition:hover ,
+        .yearHe:hover ,
+        .yearPre:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;

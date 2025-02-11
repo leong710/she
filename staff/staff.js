@@ -15,10 +15,12 @@
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
+            await reload_yearPreTable_Listeners();
         }else{
             changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
             changeShConditionMode();
             changeYearHeMode();
+            changeYearPreMode();
         }
         await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
     }
@@ -628,7 +630,6 @@
     }
             // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
             async function rework_loadStaff(loadStaff_arr){
-                mloading("show");                                               // 啟用mLoading
                 loadStaff_tmp = [];     // 清空臨時陣列...
                 //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
                 // for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
@@ -644,7 +645,7 @@
                 for (const [s_index, s_value] of Object.entries(loadStaff_tmp)) {
                     const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step2-1.取出emp_id
                     let empData = loadStaff_arr.find(emp => emp.emp_id === select_empId);                   // step2-2. 先取得select_empId的個人資料=>empData
-                    // empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
+                    //  empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
                     empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
                     // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
                     // 241101 暫停取用hrdb進行更新。 改用下面：
@@ -659,9 +660,7 @@
                     empData.currentYear    = currentYear;                     // 作業年度
                 }
                 mgInto_staff_inf(loadStaff_arr);
-                $("body").mLoading("hide");
                 inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
-                $('#nav-p2-tab').tab('show');                                       // 切換頁面
             }
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
     async function rework_staff(searchStaff_arr){
@@ -706,9 +705,11 @@
                 if(select_empId){
                     const empInfo = await search_fun('showEmpInfo', i_value.emp_id);                // 確保每次search_fun都等待完成
                     const empData = empInfo.find(emp => emp.emp_id === select_empId);               // step1-2.查找staff_inf內該員工是否存在
-                    excelStaff_arr[index]['gesch']    = empData.gesch ?? null;              // 性別
-                    excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;              // 到職日
-                    excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;           // 國籍名稱
+                    if(empData) {
+                        excelStaff_arr[index]['gesch']    = empData.gesch ?? null;              // 性別
+                        excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;              // 到職日
+                        excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;           // 國籍名稱
+                    }
                     // 250210 匯入時補上建物編號...
                     const thisFab = _fabs.find(_fab => _fab['fab_title'].includes(i_value.emp_sub_scope));
                     excelStaff_arr[index]['BTRTL'] = thisFab.BTRTL ?? null;                 // 建物編號
@@ -840,6 +841,7 @@
             const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
             deptNo_btns.forEach(deptNo_btn => {
                 deptNo_btn.addEventListener('click', function() {
+                    mloading("show");                                               // 啟用mLoading
                     // 工作一 清空暫存
                         resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
@@ -854,6 +856,7 @@
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
 
                     $('#nav-p2-tab').tab('show');
+                    $("body").mLoading("hide");
                 });
             });
 

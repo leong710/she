@@ -24,10 +24,12 @@
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
             await reload_yearHeTable_Listeners();
+            await reload_yearPreTable_Listeners();
         }else{
             // changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
             changeShConditionMode();
             changeYearHeMode();
+            changeYearPreMode();
         }
         await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
     }

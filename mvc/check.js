@@ -183,90 +183,90 @@
     async function updateDOM(sh_value, select_empId, sh_key_up) {
         return new Promise((resolve) => {
             // step.1 先取得select_empId的個人資料=>empData
-            const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-            // 防止套入時錯誤，建立[資格驗證]shCondition紀錄判斷物件
-            if(empData['shCondition'] == undefined || empData['shCondition'].length == 0){
-                empData.shCondition = {
-                    "noise"   : false,          // 噪音判定
-                    "newOne"  : false,          // 新人
-                    "regular" : false,          // 定期
-                    "change"  : false           // 變更
-                };   
-            }
-            // const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');   // 250204 改回每一筆都要有一個 eh_time
-            const empData_ehTime = (empData['eh_time'] !== undefined);   // 250204 改回每一筆都要有一個 eh_time
+                const empData = staff_inf.find(emp => emp.emp_id === select_empId);
+                // 防止套入時錯誤，建立[資格驗證]shCondition紀錄判斷物件
+                if(empData['shCondition'] == undefined || empData['shCondition'].length == 0){
+                    empData.shCondition = {
+                        "noise"   : false,          // 噪音判定
+                        "newOne"  : false,          // 新人
+                        "regular" : false,          // 定期
+                        "change"  : false           // 變更
+                    };   
+                }
+                // const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');   // 250204 改回每一筆都要有一個 eh_time
+                const empData_ehTime = (empData['eh_time'] !== undefined);   // 250204 改回每一筆都要有一個 eh_time
             
             // step.2 欲更新的欄位陣列
-            const shLocal_item_arr = ['HE_CATE', 'MONIT_LOCAL', 'WORK_DESC', 'AVG_VOL', 'AVG_8HR', 'eh_time'];     // , 'eh_time' ==> 250204 改回每一筆都要有一個 eh_time
-            // step.2 將shLocal_item_arr循環逐項進行更新
-            shLocal_item_arr.forEach((sh_item) => {
-                // step.2a 項目渲染...
-                const br = sh_key_up > 0 ? '<br>' : ''; // 判斷 1以上=換行
-                let inner_Value = '';
-                if (sh_item === 'HE_CATE'){             // 3.類別代號 特別處理：1.物件轉字串、2.去除符號
-                    let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
-                    inner_Value = `${br}${he_cate_str}`;
+                const shLocal_item_arr = ['HE_CATE', 'MONIT_LOCAL', 'WORK_DESC', 'AVG_VOL', 'AVG_8HR', 'eh_time'];     // , 'eh_time' ==> 250204 改回每一筆都要有一個 eh_time
+                // step.2 將shLocal_item_arr循環逐項進行更新
+                shLocal_item_arr.forEach((sh_item) => {
+                    // step.2a 項目渲染...
+                    const br = sh_key_up > 0 ? '<br>' : ''; // 判斷 1以上=換行
+                    let inner_Value = '';
+                    if (sh_item === 'HE_CATE'){             // 3.類別代號 特別處理：1.物件轉字串、2.去除符號
+                        let he_cate_str = JSON.stringify(sh_value[sh_item]).replace(/[{"}]/g, '');
+                        inner_Value = `${br}${he_cate_str}`;
 
-                }else if(sh_item.includes('AVG')){      // 4.5.均能音壓AVG_VOL、平均音壓AVG_8HR 特別處理：判斷是空值，就給他一個$nbsp;佔位
-                    let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
-                    inner_Value = `${br}${avg_str}`;
+                    }else if(sh_item.includes('AVG')){      // 4.5.均能音壓AVG_VOL、平均音壓AVG_8HR 特別處理：判斷是空值，就給他一個$nbsp;佔位
+                        let avg_str = sh_value[sh_item] ? sh_value[sh_item] : '&nbsp;';
+                        inner_Value = `${br}${avg_str}`;
 
-                // }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
-                }else if(sh_item == 'eh_time' && empData_ehTime ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
+                    // }else if(sh_item.includes('eh_time') && empData_shCase_Noise ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
+                    }else if(sh_item == 'eh_time' && empData_ehTime ){      // 4.5.每日暴露時間：判斷是空值，就給他一個$nbsp;佔位  // 250204 改回每一筆都要有一個 eh_time
 
-                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
-                    if(!eh_time_input){
-                        let eh_time = empData['eh_time'] ?? '';
-                        let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear}" name="eh_time" class="form-control text-center" value="${eh_time}" 
-                                                min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
-                        inner_Value = `${eh_time_input}`;
-                    }
-
-                }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
-                    inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
-
-                }else{                                  // 1.6
-                    // 確認 sh_item 是否有定義的值
-                    inner_Value = (sh_value[sh_item] !== undefined) ? `${br}${sh_value[sh_item]}` : (() => {
-                        switch (sh_item) {
-                            case 'WORK_DESC':
-                                return `${br}${sh_value['HE_CATE_KEY']}`;
-                            default:
-                                return ''; // 預設空值
+                        const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                        if(!eh_time_input){
+                            let eh_time = empData['eh_time'] ?? '';
+                            let eh_time_input = `<snap><input type="number" id="eh_time,${select_empId},${currentYear}" name="eh_time" class="form-control text-center" value="${eh_time}" 
+                                                    min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" ></snap>`;
+                            inner_Value = `${eh_time_input}`;
                         }
-                    })();
-                }
-                document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
 
-                // step.2b 噪音驗證
-                if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
-                    const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
-                    // 2b1. 檢查元素是否存在+是否有值
-                        // eh_time_input.removeAttribute('disabled');
-                        const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
-                    // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
-                        // const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
-                        const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
-                        const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
-                        const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
-                        // eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
+                    }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
+                        inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
 
-                    // 2b3. 呼叫[fun]checkNoise 取得判斷結果
-                        const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
-                        // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
-                        const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
-                    document.getElementById(`NC,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
+                    }else{                                  // 1.6
+                        // 確認 sh_item 是否有定義的值
+                        inner_Value = (sh_value[sh_item] !== undefined) ? `${br}${sh_value[sh_item]}` : (() => {
+                            switch (sh_item) {
+                                case 'WORK_DESC':
+                                    return `${br}${sh_value['HE_CATE_KEY']}`;
+                                default:
+                                    return ''; // 預設空值
+                            }
+                        })();
+                    }
+                    document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
 
-                    // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
-                        // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
-                    empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+                    // step.2b 噪音驗證
+                    if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                        const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
+                        // 2b1. 檢查元素是否存在+是否有值
+                            // eh_time_input.removeAttribute('disabled');
+                            const eh_time_input_value = (eh_time_input && eh_time_input.value) ? eh_time_input.value : null;
+                        // 2b2. 個人shCase的噪音中，假如有含eh_time值，就導入使用。
+                            // const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
+                            const avg_vol = (sh_value['AVG_VOL']) ? sh_value['AVG_VOL'] : false;
+                            const avg_8hr = (sh_value['AVG_8HR']) ? sh_value['AVG_8HR'] : false;
+                            const eh_time = (empData['eh_time'])  ? empData['eh_time']  : eh_time_input_value;
+                            // eh_time_input.value = (!eh_time_input_value) ? eh_time : eh_time_input_value;    // 判斷eh_time輸入格是否一致，強行帶入顯示~
 
-                // } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
-                    // if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}
-                    // eh_time_input.setAttribute('disabled', 'true');
-                    // eh_time_input.value = "";
-                }
-            });
+                        // 2b3. 呼叫[fun]checkNoise 取得判斷結果
+                            const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
+                            // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
+                            const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
+                        document.getElementById(`NC,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
+
+                        // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
+                            // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : empData['shCondition']['noise'];
+                        empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;
+
+                    // } else if (sh_item === 'HE_CATE' && !Object.values(sh_value['HE_CATE']).includes('噪音')){
+                        // if(empData['shCondition']['noise'] != undefined ){empData['shCondition']['noise'] = false;}
+                        // eh_time_input.setAttribute('disabled', 'true');
+                        // eh_time_input.value = "";
+                    }
+                });
 
             resolve();  // 當所有設置完成後，resolve Promise
         });
@@ -335,17 +335,20 @@
     }
 
     async function renewYearCurrent(empData){
-        empData['_content'][currentYear]['yearCurrent'] = [];   // 清空
-
+        let yearCurrent = []
         for (const [key, shCase_i] of Object.entries(empData.shCase)) {
             if(Object.entries(shCase_i.HE_CATE).length > 0){
                 for(const [he_cate_key, he_cate_value] of Object.entries(shCase_i.HE_CATE)){
-                    empData['_content'][currentYear]['yearCurrent'].push(he_cate_key);               // 以array_key方式帶入
                     // empData['_content'][currentYear]['yearCurrent'][he_cate_key] = he_cate_value; // 以物件方式推入
+                    // empData['_content'][currentYear]['import']['yearCurrent'].push(he_cate_key);  // 以array_key方式帶入
+                    yearCurrent.push(he_cate_key);               // 以array_key方式帶入替代陣列
                 }
             }
         }
-        const yearCurrent_str = JSON.stringify(empData['_content'][currentYear]['yearCurrent']).replace(/[\[\]\{"}]/g, ''); // 轉字串並去除特定符號~
-        document.getElementById(`${empData['cname']},${empData['emp_id']},yearCurrent`).innerHTML = yearCurrent_str;     // 渲染 匯入2-項目
+        // const yearCurrent_str = JSON.stringify(empData['_content'][currentYear]['import']['yearCurrent']).replace(/[\[\]\{"}]/g, '').replace(/,/g, '<br>'); // 轉字串並去除特定符號~
+        let yearCurrent_str = JSON.stringify(yearCurrent).replace(/[\[\]\{"}]/g, '');  // 轉字串並去除特定符號~
+        empData['_content'][currentYear]['import']['yearCurrent'] = yearCurrent_str;   // 覆蓋
 
+            yearCurrent_str = yearCurrent_str.replace(/,/g, '<br>');                       // 轉字串並去除特定符號~
+        document.getElementById(`${empData['cname']},${empData['emp_id']},yearCurrent`).innerHTML = yearCurrent_str;     // 渲染 匯入2-項目
     }

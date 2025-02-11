@@ -95,8 +95,9 @@
                                     <i class="fa-solid fa-users"></i>&nbsp;職業病預防管理<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
+                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-people-arrows"></i>&nbsp;<b>變更管理</b></a></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核與彙整</b></a></li>
                                     <?php if($sys_role <= 2.2 ){ ?>
                                         <li><hr class="dropdown-divider"></li>

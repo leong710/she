@@ -76,13 +76,16 @@
             // 重新初始化 DataTable
             $('#hrdb_table').DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
-                "autoWidth": false,                                             // 自動寬度
+                "autoWidth": false,                                              // 自動寬度
                 "order": [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]],            // 排序
-                // "order": [[ 0, "asc" ], [ 1, "asc" ], [ 2, "asc" ]],            // 排序
                 "pageLength": 25,                                               // 顯示長度
                     // "paging": false,                                             // 分頁
                     // "searching": false,                                          // 搜尋
                     // "data": hrdb_data,
+                // "columnDefs": [
+                        // { "width": "60px", "targets": [0, 1, 2] },               // 設定第1~3欄的寬度為50px
+                        // { "width": "40px", "targets": [6, 7, 8, 9] },
+                    // ]
             });
 
             resolve();      // 當所有設置完成後，resolve Promise
@@ -326,6 +329,7 @@
     }
     // 渲染到shLocal互動視窗 for shLocal modal互動視窗
     async function post_shLocal(shLocal_arr){
+        const shLocal_keys = ['id', 'OSTEXT_30', 'OSHORT', 'OSTEXT', 'HE_CATE', 'MONIT_NO', 'MONIT_LOCAL', 'WORK_DESC', 'AVG_VOL', 'AVG_8HR'];
         $('#shLocal_table tbody').empty();
         if(shLocal_arr.length === 0){
             const thead = document.querySelector('#shLocal_table thead');        // 獲取表格的 thead
@@ -336,16 +340,16 @@
             shLocal_inf = shLocal_arr;                                           // 把shLocal_inf建立起來
             Object.entries(shLocal_arr).forEach(([sh_key, sh_i])=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 let tr = '<tr>';
-                Object.entries(sh_i).forEach(([s_key, s_value]) => {
+                for (const s_key of shLocal_keys) {
+                    let s_value = sh_i[s_key];
                     if(s_key == 'HE_CATE'){
                         s_value = JSON.stringify(s_value).replace(/[{"}]/g, '');
                         s_value = s_value.replace(/,/g, '<br>');
-
                     }else if(s_key == 'eh_time'){          // mgInto_shLocal_inf(new_shLocal_arr) 在二次導入時有摻雜到"eh_time"...應予以排除
                         return;
                     }
                     tr += '<td>' + s_value + '</td>';
-                })
+                }
                 tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
                 tr += '</tr>';
                 $('#shLocal_table tbody').append(tr);
