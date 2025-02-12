@@ -137,6 +137,7 @@
 
                 // p2-3. 監控按下[載入]鍵後----呼叫Excel載入
                 import_excel_btn.addEventListener('click', async function() {
+                    mloading("show");                                               // 啟用mLoading
                     var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                     var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
                     var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
@@ -176,15 +177,23 @@
         release_dataTable();
         $('#hrdb_table tbody').empty();
         let emp_i_omager = false;
+        const emp_arr_length = emp_arr.length;                                                  // 百分比#1
 
-        if(emp_arr.length === 0){
+        if(emp_arr_length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
             const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
             $('#hrdb_table tbody').append(tr1);
         }else{
             const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
-            await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+            let loading_pre = 0;                                                                // 百分比#2
+            // await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+            for (const [emp_key, emp_i] of emp_arr.entries() ) {        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                const loading = Math.round(((Number(emp_key) + 1) / emp_arr_length) * 100);     // 百分比#3
+                if(loading !== loading_pre){                                                    // 百分比#4
+                    loading_pre = loading;
+                    Adj_mLoading('post_hrdb', loading); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
+                }
                 let tr1 = '<tr>';
                 const empId_currentYear = `,${emp_i.emp_id},${currentYear}">`;
                 const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
@@ -238,7 +247,7 @@
                 if(!emp_i_omager){
                     emp_i_omager = emp_i.omager == userInfo.empId;
                 }
-            })
+            };
         }
         await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
         // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
@@ -265,7 +274,7 @@
         // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
         SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager ) || (emp_arr.length === 0 || _docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
 
-        $("body").mLoading("hide");
+        // $("body").mLoading("hide");
     }
  
 
@@ -468,6 +477,7 @@
     }
     // 240822 將匯入資料合併到staff_inf
     async function mgInto_staff_inf(source_json_value_arr){
+        Adj_mLoading('Data Sorting', ''); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
         const addIn_arr1 = ['HE_CATE', 'HE_CATE_KEY', 'no' ];                                        // 合併陣列1
         const addIn_arr2 = {'OSTEXT_30':'emp_sub_scope', 'OSHORT':'dept_no', 'OSTEXT':'emp_dept'};   // 合併陣列2
         const addIn_arr3 = ['yearHe', 'yearCurrent', 'yearPre'];                                     // 合併陣列3 匯入1、2、3
@@ -596,7 +606,7 @@
             if(source_OSHORTs_str !==''){
                 await load_fun('load_shLocal', source_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併shLocal_inf
             }
-
+            
         resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
     }
     // 240826 單筆刪除Staff資料
@@ -692,31 +702,60 @@
 
     // 250203 在匯入的時候就直接補上對應欄位資料
     async function rework_omager(excelStaff_arr){
-        if(excelStaff_arr.length >0){
+        const excelStaff_arr_length = excelStaff_arr.length;                                        // 百分比#1
+        if(excelStaff_arr_length > 0){
+            let signDept_tmp = [];
             const _fabs = await load_fun('loadFabs', 'return', 'return' );                  // 呼叫通用函數load_fun 取得建物編號
-            for(const [index, i_value] of Object.entries(excelStaff_arr)){
+            let loading_pre = 0;                                                                    // 百分比#2
+            for(const [index, i_value] of excelStaff_arr.entries()) {
+                const loading = Math.round(((Number(index) + 1) / excelStaff_arr_length) * 100);    // 百分比#3
+                if(loading !== loading_pre){                                                        // 百分比#4
+                    loading_pre = loading;
+                    // console.log(`${(Number(index) + 1)} / ${excelStaff_arr_length} (${loading}%)`);
+                    Adj_mLoading('rework', loading); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
+                }
+
                 // step.1 匯入時套上部門代號所屬主管
                 if(i_value.dept_no){
-                    const signDept = await search_fun('showSignCode', i_value.dept_no);             // 確保每次search_fun都等待完成
-                    excelStaff_arr[index]['omager'] = signDept[0]['OMAGER'] ?? null;
+                    let this_signDept_i = signDept_tmp.find(signDept_i => signDept_i.OSHORT === i_value.dept_no);               // step1-2.查找staff_inf內該員工是否存在
+
+                    if(this_signDept_i) {
+                        excelStaff_arr[index]['omager'] = this_signDept_i['OMAGER'] ?? null;
+
+                    }else{
+                        const signDept = await search_fun('showSignCode', i_value.dept_no);     // 確保每次search_fun都等待完成
+                        // signDept_tmp = signDept_tmp.concat(signDept);                           // 合併2個陣列
+                        signDept_tmp = [...signDept_tmp, ...signDept];                           // 合併2個陣列
+
+                        if(signDept.length > 0 && signDept[0]['OMAGER'] != undefined) {
+                            excelStaff_arr[index]['omager'] = signDept[0]['OMAGER'] ?? null;
+                        }
+                    }
                 }
+
                 // step.2 匯入時套上最最基本的訊息
-                const select_empId = (i_value.emp_id !== undefined) ? i_value.emp_id : null;        // step1-1.取出emp_id
+                const select_empId = i_value.emp_id ?? null;        // step1-1.取出emp_id
                 if(select_empId){
                     const empInfo = await search_fun('showEmpInfo', i_value.emp_id);                // 確保每次search_fun都等待完成
                     const empData = empInfo.find(emp => emp.emp_id === select_empId);               // step1-2.查找staff_inf內該員工是否存在
                     if(empData) {
-                        excelStaff_arr[index]['gesch']    = empData.gesch ?? null;              // 性別
-                        excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;              // 到職日
-                        excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;           // 國籍名稱
+                        // excelStaff_arr[index]['gesch']    = empData.gesch ?? null;              // 性別
+                        // excelStaff_arr[index]['HIRED']    = empData.HIRED ?? null;              // 到職日
+                        // excelStaff_arr[index]['natiotxt'] = empData.natiotxt ?? null;           // 國籍名稱
+                        const { gesch = null, HIRED = null, natiotxt = null } = empData;
+                        excelStaff_arr[index] = { ...excelStaff_arr[index], gesch, HIRED, natiotxt };
                     }
+
                     // 250210 匯入時補上建物編號...
                     const thisFab = _fabs.find(_fab => _fab['fab_title'].includes(i_value.emp_sub_scope));
-                    excelStaff_arr[index]['BTRTL'] = thisFab.BTRTL ?? null;                 // 建物編號
+                    if(thisFab && thisFab.BTRTL != undefined) {
+                        excelStaff_arr[index]['BTRTL'] = thisFab.BTRTL ?? null;                 // 建物編號
+                    }
                 }
             }
         }
-        loadStaff_tmp = loadStaff_tmp.concat(excelStaff_arr);   // 合併2個陣列到combined
+        // loadStaff_tmp = loadStaff_tmp.concat(excelStaff_arr);   // 合併2個陣列到combined
+        loadStaff_tmp = [...loadStaff_tmp, ...excelStaff_arr];   // 合併2個陣列到combined
     }
 
     // 240912 將Obj物件進行Key的排列...call from searchWorkCaseAll()
@@ -840,14 +879,14 @@
             // step-2. 綁定deptNo_opts事件監聽器
             const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
             deptNo_btns.forEach(deptNo_btn => {
-                deptNo_btn.addEventListener('click', function() {
-                    mloading("show");                                               // 啟用mLoading
+                deptNo_btn.addEventListener('click', async function() {
+                    mloading();                                               // 啟用mLoading
                     // 工作一 清空暫存
                         resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
                         // console.log('selectedValues_str...',selectedValues_str);
-                        load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        await load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     // 工作三 
                         const thisId_arr    = this.id.split(',');   // 分割this.id成陣列
                         const emp_sub_scope = thisId_arr[1];        // 取出陣列 1=emp_sub_scope
@@ -856,7 +895,7 @@
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
 
                     $('#nav-p2-tab').tab('show');
-                    $("body").mLoading("hide");
+                    // $("body").mLoading("hide");
                 });
             });
 
@@ -937,7 +976,7 @@
 
             // p1-3. 增加簽核[Agree]鈕的監聽動作...// p-2 批次儲存員工清單...
             reviewSubmit_btn.addEventListener('click', async function() {
-                
+                mloading();
                 const action = this.getAttribute('value');              // 使用 getAttribute 獲取 value
                 const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
                 const submitValue   = JSON.stringify({

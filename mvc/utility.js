@@ -93,7 +93,7 @@
     }
     // fun.0-5 多功能擷取fun 新版改用fetch
     async function load_fun(fun, parm, myCallback) {        // parm = 參數
-        mloading(); 
+        // mloading(); 
         if(parm){
             try {
                 let formData = new FormData();
@@ -134,6 +134,21 @@
             console.log("console_log: ", debug_value);
             resolve(); // 異常情況下也需要resolve
         });
+    }
+    // fun.0-7 修改mLoading文字提示...str1=訊息文字, str2=百分比%
+    function Adj_mLoading(str1, str2){
+        if(str1 || str2) {                          // 有內容才來做這件事...
+            const mloading_txt_div = document.querySelector('.mloading-body .mloading-bar .mloading-text'); // 取得mLoading_div
+            if(mloading_txt_div){
+                let adjText  = str1 ? `${str1}...` : ``;        // 組合文字...str1
+                    adjText += str2 ? `(${str2}%)` : '';        // 組合文字...str2
+                    mloading_txt_div.innerText = adjText;       // 渲染項目
+            }else{
+                console.error('mloading_txt_div...missed!');
+            }
+        }else{
+            console.error(`Adj_mLoading(str1 || str2) parm ... missed!`);
+        }
     }
 
 
@@ -310,7 +325,16 @@
 
     // 渲染 今年目前特危項目 for p-2特作欄位(arr_All)
     async function post_shCase(emp_arr){
-        for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
+        const emp_arr_length = emp_arr.length;                                              // 百分比#1
+        let loading_pre = 0;                                                                // 百分比#2
+        // for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
+        for (const [emp_key, emp_i] of emp_arr.entries() ) {        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+            const loading = Math.round(((Number(emp_key) + 1) / emp_arr_length) * 100);     // 百分比#3
+            if(loading !== loading_pre){                                                    // 百分比#4
+                loading_pre = loading;
+                Adj_mLoading('post_shCase', loading); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
+            }
+
             const { emp_id: select_empId, shCase ,shCondition} = emp_i;
             // doCheck(select_empId);          // 更新驗證項目(1by1)
             await clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
