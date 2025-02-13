@@ -64,15 +64,21 @@
     function release_dataTable(){
         return new Promise((resolve) => {
             let table = $('#hrdb_table').DataTable();
-                table.destroy();
+                if(table) {
+                    table.destroy();
+                }
+
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
     // fun.0-4a: dataTable
-    async function reload_dataTable(){
+    function reload_dataTable(){
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         return new Promise((resolve) => {
-            release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+            let table = $('#hrdb_table').DataTable();
+            if(table) {
+                release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+            }
             // 重新初始化 DataTable
             $('#hrdb_table').DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化

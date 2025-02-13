@@ -193,6 +193,10 @@
                 color: $yellow-300;
                 background-color: $indigo-900;
             } */
+            .noOmager {
+                border: 5px solid red;
+                /* padding: 5px; */
+            }
     </style>
 </head>
 <body>
@@ -266,8 +270,13 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="import_staff_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="load_excel_btn"   class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                    <button type="button" id="import_staff_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <!-- 指派主管 -->
+                                    <div class="inb">
+                                        <button type="button" id="assignOmager_btn" class="btn btn-outline-warning add_btn text-danger <?php echo ($sys_role <= 2.2) ? '':'disabled unblock';?>" disabled data-bs-toggle="modal" data-bs-target="#assignOmagerModal"><i class="fa-solid fa-user-tie"></i> 指派主管</button>
+                                        <snap id="newOmager"></snap>
+                                    </div>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
@@ -518,9 +527,7 @@
                     <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <?php if($sys_role <= 3){ ?>
-                        <button type="submit" id="reviewSubmit" value="" class="btn btn-primary" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
-                    <?php } ?>
+                    <button type="submit" id="reviewSubmit" value="" class="btn btn-primary <?php echo ($sys_role <= 2) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -543,6 +550,36 @@
             </div>
         </div>
     </div> 
+    <!-- 模組 assignOmagerModal-->
+    <div class="modal fade" id="assignOmagerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">指派所屬主管：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                
+                <div class="modal-body px-4 pt-1">
+                    <!-- 第二排的功能 : 搜尋功能 -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="input-group search">
+                                <span class="input-group-text form-label">指派</span>
+                                <input type="text" name="omager" id="assignOmager" class="form-control" placeholder="請輸入工號"
+                                        aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">&nbsp;&nbsp;
+                                <div id="assignOmagerBadge"></div>
+                                <input type="hidden" name="assignOmagerName" id="assignOmagerName" >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="assignOmagerSubmit" class="btn btn-primary <?php echo ($sys_role <= 2.2) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Submit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -576,11 +613,14 @@
     const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+    const assignOmager_btn  = document.getElementById('assignOmager_btn');      // 定義出assignOmager_btn
+    const assignOmagerSubmit_btn = document.getElementById('assignOmagerSubmit'); // 定義出assignOmagerSubmit_btn
 
     var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
     var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
     var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
+    var assignOmager_modal  = new bootstrap.Modal(document.getElementById('assignOmagerModal'), { keyboard: false });
     var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
     var staff_inf        = [];

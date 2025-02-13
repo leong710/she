@@ -6,11 +6,15 @@
             shLocal_inf   = [];
             loadStaff_tmp = [];
             _docsIdty_inf = null;
+            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
+        }else{
+            // await release_dataTable();                  // 停止並銷毀 DataTable
+            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+            // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
+            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
         }
-        // await release_dataTable();                  // 停止並銷毀 DataTable
-        await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
-        // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
-        await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
+
         if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();

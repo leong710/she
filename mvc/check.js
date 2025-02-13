@@ -291,7 +291,10 @@
             let inner_Value = JSON.stringify(ShCondition_value).replace(/[\[\]{"}]/g, '');
                 inner_Value = inner_Value.replace(/,/g, '<br>');
                 inner_Value = inner_Value.replace(/true/g, '&nbsp;<span class="badge bg-info">true</span>');
-            document.getElementById(`shCondition,${select_empId},${targetYear}`).insertAdjacentHTML('beforeend', inner_Value);
+            const this_shCondition = document.getElementById(`shCondition,${select_empId},${targetYear}`);
+            if(this_shCondition){
+                this_shCondition.insertAdjacentHTML('beforeend', inner_Value);
+            }
             
             // step2.處理[特檢資格]shIdentity欄位 // 球型標籤方式：
             // 'title':'對應名稱', 'bgc':'球型顏色', 'inScop':'成立項目'

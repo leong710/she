@@ -264,13 +264,13 @@
 
                     // step.3b 更新或新增該年份的資料
                     $row_logs[$current_year] = [
-                        "cstext"        => $cstext        ?? ( $row_logs[$current_year]["cstext"]        ?? null ),
-                        "dept_no"       => $dept_no       ?? ( $row_logs[$current_year]["dept_no"]       ?? null ),
+                        "cstext"        => $cstext        ?? ( $row_logs[$current_year]["cstext"]        ?? null ),     // 職稱
+                        "dept_no"       => $dept_no       ?? ( $row_logs[$current_year]["dept_no"]       ?? null ),     // 部門代號
                         "eh_time"       => $eh_time       ?? ( $row_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
-                        "emp_dept"      => $emp_dept      ?? ( $row_logs[$current_year]["emp_dept"]      ?? null ),
-                        "emp_group"     => $emp_group     ?? ( $row_logs[$current_year]["emp_group"]     ?? null ),
-                        "emp_sub_scope" => $emp_sub_scope ?? ( $row_logs[$current_year]["emp_sub_scope"] ?? null ),
-                        "schkztxt"      => $schkztxt      ?? ( $row_logs[$current_year]["schkztxt"]      ?? null ),
+                        "emp_dept"      => $emp_dept      ?? ( $row_logs[$current_year]["emp_dept"]      ?? null ),     // 部門名稱
+                        "emp_group"     => $emp_group     ?? ( $row_logs[$current_year]["emp_group"]     ?? null ),     // 
+                        "emp_sub_scope" => $emp_sub_scope ?? ( $row_logs[$current_year]["emp_sub_scope"] ?? null ),     // 棟別名稱
+                        "schkztxt"      => $schkztxt      ?? ( $row_logs[$current_year]["schkztxt"]      ?? null ),     // 工作時程表規則名稱
                         "shCase"        => $shCase        ?? ( $row_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
                         "shCondition"   => $shCondition   ?? ( $row_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
                         "BTRTL"         => $BTRTL         ?? ( $row_logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍-建物代碼
@@ -498,7 +498,7 @@
                 }
             break;
             
-            case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號
+            case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號...for 定期特殊健檢使用
                 $pdo = pdo();
                 // $sql = "SELECT
                     //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,

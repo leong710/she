@@ -6,11 +6,16 @@
             shLocal_inf   = [];
             loadStaff_tmp = [];
             _docsIdty_inf = null;
+            document.querySelector(`#nav-p2_table snap[id="newOmager"]`).innerText = '';    // 清空newOmager指派主管內容；
+            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
+        }else{
+            // await release_dataTable();                  // 停止並銷毀 DataTable
+            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+            // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
+            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
         }
-        // await release_dataTable();                  // 停止並銷毀 DataTable
-        await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
-        // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
-        await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
+
         if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();
@@ -174,7 +179,10 @@
     // [p1 函數-6] 渲染hrdb
     async function post_hrdb(emp_arr){
         // 停止並銷毀 DataTable
-        release_dataTable();
+        let table = $('#hrdb_table').DataTable();
+        if(table) {
+           await release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+        }
         $('#hrdb_table tbody').empty();
         let emp_i_omager = false;
         const emp_arr_length = emp_arr.length;                                                  // 百分比#1
@@ -245,11 +253,11 @@
                 $('#hrdb_table tbody').append(tr1);
                 // 增加判斷式，取staff.omager = user.empId 來啟閉SubmitForReview_btn
                 if(!emp_i_omager){
-                    emp_i_omager = emp_i.omager == userInfo.empId;
+                    emp_i_omager = emp_i._logs[currentYear].omager == userInfo.empId;
                 }
             };
         }
-        await reload_dataTable(emp_arr);               // 倒參數(陣列)，直接由dataTable渲染
+        await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
         // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
             const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="aboutStaff"]'));
             offcanvas_arr.forEach(canva_btn => {
@@ -607,7 +615,7 @@
                 await load_fun('load_shLocal', source_OSHORTs_str, mgInto_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單 => mgInto_shLocal_inf合併shLocal_inf
             }
             
-        resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
+        await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
     }
     // 240826 單筆刪除Staff資料
     async function eraseStaff(removeEmp){
@@ -631,7 +639,10 @@
             // 將 Map 轉換回陣列
             staff_inf = Array.from(uniqueStaffMap.values());
 
-            release_dataTable();                                            // 銷毀dataTable
+            let table = $('#hrdb_table').DataTable();
+            if(table) {
+                await release_dataTable();                                            // 銷毀dataTable
+            }
                 var row = removeEmp.parentNode.parentNode.parentNode;       // 找到按鈕所在的行
                 row.parentNode.removeChild(row);                            // 刪除該行
                 inside_toast(`刪除單筆資料${removeEmp.value}...Done&nbsp;!!`, 1000, 'info');
@@ -669,7 +680,7 @@
                     empData.omager         = s_value.omager;
                     empData.currentYear    = currentYear;                     // 作業年度
                 }
-                mgInto_staff_inf(loadStaff_arr);
+                await mgInto_staff_inf(loadStaff_arr);
                 inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
             }
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
@@ -819,19 +830,30 @@
         return new Promise((resolve) => {
             console.log('selectedDeptNo =>',selectedDeptNo);
 
-                // 驗證並取得開啟btn的權限disabled or none
+                // 驗證並取得開啟btn的權限disabled or none  // oKey:部門代號, oValue:單筆部門資料, iBTRTL:建物代碼, uInfo:userInfo
                 function getButtonDisabledStatus(oKey, oValue, iBTRTL, uInfo) {
                     if (uInfo.role <= 1) {
                         return "";
-                    } else if ((uInfo.role == 2 || uInfo.role == 2.2) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {
+                    } 
+                    
+                    if ((uInfo.role == 2 || uInfo.role == 2.2) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {
                         return "";
+
                     } else if ((uInfo.role == 2.5) && (oKey == uInfo.signCode)) {
                         return "";
+
                     } else if ((uInfo.role == 3)   && (oKey == uInfo.signCode) && (oValue.omager == uInfo.empId)) {
                         return "";
-                    } else {
-                        return "disabled";
+
+                    } else if ((uInfo.role <= 3)   && (oValue.omager == uInfo.empId)) {
+                        return "";
                     }
+
+                    return "disabled";
+                }
+                // 驗證是否有omager回饋noOmager or none
+                function checkOmager(oValue) {
+                    return ((oValue.omager == undefined) || (oValue.omager == null) || (oValue.omager == 'null')) ? 'noOmager' : '';
                 }
 
             // init
@@ -850,9 +872,10 @@
                                     <div class="card-header"><b>>>&nbsp;${emp_sub_scope}</b></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>{
-                                            let disabledStatus = getButtonDisabledStatus(o_key, o_value, i_BTRTL, userInfo);
+                                            const disabledStatus = getButtonDisabledStatus(o_key, o_value, i_BTRTL, userInfo);
+                                            const noOmager = checkOmager(o_value);
                                             return `
-                                                <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" 
+                                                <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info my-1 add_btn ${noOmager}" 
                                                     style="width: 100%; text-align: start;" data-toggle="tooltip" data-placement="bottom" title="omager: ${o_value.omager}" ${disabledStatus}>
                                                     ${o_key}&nbsp;${o_value.OSTEXT}&nbsp;${o_value._count}件<sup class="text-danger" name="sup_${o_key},${emp_sub_scope}[]"> (${o_value.shCaseNotNull_pc}%)</sup>
                                                 </button>`;
@@ -882,7 +905,7 @@
                 deptNo_btn.addEventListener('click', async function() {
                     mloading();                                               // 啟用mLoading
                     // 工作一 清空暫存
-                        resetINF(true); // 清空
+                        await resetINF(true); // 清空
                     // 工作二 依部門代號撈取員工資料 後 進行鋪設
                         const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
                         // console.log('selectedValues_str...',selectedValues_str);
@@ -893,6 +916,14 @@
                         const dept_no       = thisId_arr[2];        // 取出陣列 2=dept_no
                         const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.emp_sub_scope == emp_sub_scope );
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
+
+                    // 250213 指派主管開關                        
+                        // const noOmager = this.getAttribute('class').includes('noOmager');   // 使用 getAttribute 獲取 class value
+                        const noOmager = this.classList.contains('noOmager');   // 使用 classList.contains 檢查類別
+                        // console.log('noOmager =>', noOmager);
+                        assignOmager_btn.classList.toggle('block',   noOmager);  // 當 noOmager 為 true  時添加 'block'   類別
+                        assignOmager_btn.classList.toggle('unblock', !noOmager); // 當 noOmager 為 false 時添加 'unblock' 類別
+                        assignOmager_btn.disabled = !noOmager;                   // 啟閉指派主管
 
                     $('#nav-p2-tab').tab('show');
                     // $("body").mLoading("hide");
@@ -920,7 +951,7 @@
                 }
 
             // 更新所有符合條件的節點的 innerHTML
-            deptNo_sups.forEach(node => { node.innerHTML = `(${innerHTMLValue})`; });
+            deptNo_sups.forEach( node => { node.innerHTML = `(${innerHTMLValue})`; });
             
             // 決定開啟的權限 --- 250210 這裡改到mk_deptNos_btn()裡面用getButtonDisabledStatus()去決定開關...
             // const doc_Role_bool = !(
@@ -998,6 +1029,38 @@
                 }
                 submit_modal.hide();
                 // location.reload();
+            })
+
+            // p1-3. 增加簽核[Agree]鈕的監聽動作...// p-2 批次儲存員工清單...
+            assignOmagerSubmit_btn.addEventListener('click', async function() {
+                mloading();
+                const getValue = id => document.querySelector(`#assignOmagerModal input[id="${id}"]`).value;                            // 取得數值
+                const setValue = newOmger_str => document.querySelector(`#nav-p2_table snap[id="newOmager"]`).innerText = newOmger_str; // 指定內容
+                const newOmagerEmpID = getValue('assignOmager');        // 取得新主管工號
+                if (newOmagerEmpID) {
+                    // 每一筆繞出來更新omager
+                    for (const staff of await staff_inf) {
+                        const yearKey = staff['year_key']; // 取得作業年度
+                        const currentOmager = staff['_logs']?.[yearKey]?.['omager']; // 使用可選鏈結運算子取得omager
+                        if (currentOmager == null || userInfo.role <= 2.2) { // 合併檢查條件
+                            staff['_logs'][yearKey]['omager'] = newOmagerEmpID; // 更新omager -- 這裡改的是logs...
+                        }
+                        staff['omager'] = newOmagerEmpID; // 更新omager -- 這裡直接改在外層...儲存時會以這個值為主
+                    }
+                    const newOmagerName = getValue('assignOmagerName'); // 取得新主管姓名
+                    const newOmger_str = `指派主管：${newOmagerName} (${newOmagerEmpID})`; // 組合字串
+                    setValue(newOmger_str);                         // 指定snap顯示新主管訊息內容
+                    inside_toast(newOmger_str, 5000, 'warning');    // 調用toast顯示新主管訊息內容
+                    assignOmager_modal.hide();                      // 關閉modal
+
+                } else {
+                    alert('沒有新主管工號訊息 !!');
+                }
+                
+                $('#assignOmagerBadge').empty();                    // 清除modal畫面中Badge
+                $('#assignOmager, #assignOmagerName').val('');      // 清除modal中empId&cName
+                console.log('assignOmager =>', staff_inf);
+                $("body").mLoading("hide");
             })
 
             // resolve();      // 當所有設置完成後，resolve Promise

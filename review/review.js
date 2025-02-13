@@ -14,11 +14,13 @@
             $('#logs_div .logs tbody').empty();
             $('#reviewInfo').empty();
             $('#logsInfo').empty();
+
+        }else{
+            // await release_dataTable();                  // 停止並銷毀 DataTable
+            // await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+            // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
+            // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
         }
-        // await release_dataTable();                  // 停止並銷毀 DataTable
-        // await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
-        // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
-        // await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
         if(userInfo.role <= '2.2' && _doc_inf.idty <= 4 ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             // await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
@@ -577,7 +579,7 @@
             // 工作一 清空暫存
             await resetINF(true); // 清空
             // 工作二 
-            release_dataTable();
+            await release_dataTable();
                 // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                 for (const [index, selectedValue] of Object.entries(selectedValues)) {
                     await load_staff_byCheckList(selectedValue);
@@ -586,7 +588,6 @@
 
             // $('logsInfo').empty();
             console.log('staff_inf...', staff_inf);
-
 
             $('#nav-p2-tab').tab('show');
         })

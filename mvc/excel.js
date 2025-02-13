@@ -136,7 +136,7 @@
                 request['functionname'] = 'search';         // 將fun切換功能成search
                 request['search']       = searchkeyWord;    // 將searchkeyWord帶入search
 
-            }else if(fun=='in_sign'){      // from in_sign
+            }else if(fun=='in_sign' || fun=='assignOmager'){      // from in_sign
                 if(!searchkeyWord || (searchkeyWord.length < 8)){
                     $("body").mLoading("hide");
                     alert("查詢工號字數最少 8 個字!!");
@@ -196,13 +196,13 @@
                             resolve();  // 等待 rework_staff 完成後再解析 Promise
                         });
 
-                    }else if(fun=='in_sign'){      // from in_sign
+                    }else if(fun=='in_sign' || fun=='assignOmager'){      // from in_sign
                         let res_r = res["result"];
                         // 將結果進行渲染
                         if (res_r.length !== 0) {
                             let obj_val = res_r[0];                                         // 取Object物件0
                             $('#'+fun+'Badge').append('<div class="tag">' + obj_val.cname + '<span class="remove">x</span></div>');
-                            document.getElementById('in_signName').value = obj_val.cname;   // 帶入待簽人姓名
+                            document.getElementById(fun+'Name').value = obj_val.cname;   // 帶入待簽人姓名
                         }else{
                             alert('查無工號：'+ search +' !!');
                         }
@@ -288,5 +288,11 @@
         document.getElementById('in_sign').value = '';            // 將欄位cname清除
         document.getElementById('in_signName').value = '';        // 將欄位in_signName清除
         $('#in_signBadge').empty();
+    });
+    $('#assignOmagerBadge').on('click', '.remove', function() {
+        $(this).closest('.tag').remove();                         // 自畫面中移除
+        document.getElementById('assignOmager').value = '';            // 將欄位cname清除
+        document.getElementById('assignOmagerName').value = '';        // 將欄位assignOmagerName清除
+        $('#assignOmagerBadge').empty();
     });
 
