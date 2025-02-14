@@ -193,7 +193,7 @@
             const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
             $('#hrdb_table tbody').append(tr1);
         }else{
-            const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
+            const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];    // 檢查類別、檢查代號、去年檢查項目
             let loading_pre = 0;                                                                // 百分比#2
             // await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
             for (const [emp_key, emp_i] of emp_arr.entries() ) {        // 分解參數(陣列)，手工渲染，再掛載dataTable...
@@ -222,21 +222,21 @@
                 tr1 += `<td>`+ ((emp_i.dept_no != undefined ? emp_i.dept_no : emp_i._logs[currentYear].dept_no )) +`<br>`
                                 + ((emp_i.emp_dept != undefined ? emp_i.emp_dept : emp_i._logs[currentYear].emp_dept )) +`</td>`;
 
-                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="MONIT_LOCAL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="WORK_DESC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td class="HE_CATE" id="${emp_i.cname},${emp_i.emp_id},HE_CATE"><div id="HE_CATE${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="MONIT_LOCAL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="WORK_DESC${empId_currentYear}</div></td>`;
 
                 // 240918 因應流程圖三需求，將選擇特作功能移到[工作內容]...
-                tr1 += `<td><div id="AVG_VOL` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="AVG_8HR` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="AVG_VOL${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="AVG_8HR${empId_currentYear}</div></td>`;
 
                 // tr1 += `<td><input type="number" id="eh_time,${emp_i.emp_id},${currentYear}" name="eh_time" class="form-control" 
                 //             min="0" max="12" onchange="this.value = Math.min(Math.max(this.value, this.min), this.max); change_eh_time(this.id, this.value)" disabled></td>`;
-                tr1 += `<td><div id="eh_time` + empId_currentYear + `</div></td>`;
-                tr1 += `<td><div id="NC` + empId_currentYear + `</div></td>`;
+                tr1 += `<td><div id="eh_time${empId_currentYear}</div></td>`;
+                tr1 += `<td><div id="NC${empId_currentYear}</div></td>`;
 
-                tr1 += `<td class="shCondition`+(userInfo.role <='1' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition` + empId_currentYear + `</div></td>`;           // 特檢資格
-                // tr1 += `<td ` + (userInfo.role != '0' ? "class='block'":"") + `><div id="shCondition` + empId_currentYear + `</div></td>`;       // 資格驗證
+                tr1 += `<td class="shCondition`+(userInfo.role <='2.2' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},shCondition"><div id="shCondition${empId_currentYear}</div></td>`;           // 特檢資格
+                // tr1 += `<td ` + (userInfo.role != '0' ? "class='block'":"") + `><div id="shCondition${empId_currentYear}</div></td>`;       // 資格驗證
 
                 // tr1 += `<td ` + (userInfo.role != '0' ? "class='block'":"") + `><div id="change,${emp_i.emp_id},${currentYear}"></div></td>`;    // 轉調
                 // tr1 += `<td><div class="text-center"><button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn" value="${emp_i.emp_id}" onclick="eraseStaff(this.value)">刪除</button>&nbsp;
@@ -1031,7 +1031,7 @@
                 // location.reload();
             })
 
-            // p1-3. 增加簽核[Agree]鈕的監聽動作...// p-2 批次儲存員工清單...
+            // p1-3. 增加指派主管鈕的監聽動作...
             assignOmagerSubmit_btn.addEventListener('click', async function() {
                 mloading();
                 const getValue = id => document.querySelector(`#assignOmagerModal input[id="${id}"]`).value;                            // 取得數值

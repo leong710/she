@@ -613,14 +613,16 @@
                 // 簽核欄位數據整理：by $action
                 $action_arr     = $reviewStep_arr['action'];            // getAction arr
                     $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
-
+                // 250214 取出staff_inf內的主管
+                $omager         = ''; // 用來儲存找到的值
+                
                 foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
                     $dept_no   = $parm_i_arr['_logs'][$current_year]["dept_no"] ?? "";
                     $emp_dept  = $parm_i_arr['_logs'][$current_year]["emp_dept"] ?? "";
                     $sub_scope = $parm_i_arr['_logs'][$current_year]["emp_sub_scope"] ?? "";
                     $BTRTL     = $parm_i_arr['_logs'][$current_year]["BTRTL"] ?? "";
-                    
+                    $omager    = empty($omager) ? $parm_i_arr['_logs'][$current_year]["omager"] : $omager; // 250214 取出staff_inf內的主管 -- 取得值
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
             
@@ -704,11 +706,16 @@
                         ];
 
                         $result = queryHrdb("showSignCode", $new_check_deptNo);                                     // 查詢signCode部門主管
-                        $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? "");
+                        $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? $omager);
+                        // 250214 取出staff_inf內的主管 -- 取得值
+                        $showStaffOmager = [];
+                        if(empty($result["OMAGER"]) || !isset($result["OMAGER"])){
+                            $showStaffOmager = queryHrdb("showStaff", $omager);                                     // 查詢員工資訊for部門消滅
+                        }
                         
                         $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);              // 查詢部門主管簽核代理人
-                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? ($result["OMAGER"] ?? ""));  
-                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? ($result["cname"] ?? ""));  
+                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? ($result["OMAGER"] ?? ( $showStaffOmager["emp_id"] ?? "")) );  
+                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? ($result["cname"]  ?? ( $showStaffOmager["cname"]  ?? "")) );  
                         
                         // 防呆，使用預設值
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
@@ -729,7 +736,7 @@
                     }
                 }
 
-                if (empty($new_check_deptNo) || empty($sub_scope) || (count($new_form[$new_check_deptNo]["check_list"]) == 0 )) {
+                if (empty($new_check_deptNo) || empty($sub_scope) || (count($new_form[$new_check_deptNo]["check_list"]) == 0 ) || empty($in_sign) ) {
 
                     $swal_json["action"] = "error";
                     $swal_json["content"] .= '送審失敗...表單內容有誤';
@@ -737,7 +744,9 @@
                         'result_obj' => $swal_json,
                         'fun'        => $fun,
                         'error'      => 'Load '.$fun.' failed...(e or no parm)',
-                        'check'      => count($new_form[$new_check_deptNo]["check_list"])
+                        'check'      => count($new_form[$new_check_deptNo]["check_list"]),
+                        'omager'     => $omager,
+                        'showStaffOmager' => $showStaffOmager
                     ];
 
                 } else {
