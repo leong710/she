@@ -28,6 +28,8 @@
             changeYearPreMode();
         }
         await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
+
+        await reload_selectShLocalListeners();      // 250214 HE_CATE同一個item只能多選一
     }
     // 讓指定按鈕 依照staff_inf.length 啟停
     function btn_disabled(){
@@ -110,6 +112,44 @@
             };
             // 添加新的監聽器
             importShLocalBtn.addEventListener('click', importShLocalBtnListener);
+            resolve();
+        });
+    }
+
+    // 250214 HE_CATE同一個item只能多選一
+    let selectShLocalListener;
+    async function reload_selectShLocalListeners() {
+        return new Promise((resolve) => {
+            const shLocal_table = document.getElementById('shLocal_table');
+            const shLocal_cd_arr = Array.from(shLocal_table.querySelectorAll('#shLocal_table input[name="shLocal_id[]"]'));      //  定義出範圍
+
+            // 檢查並移除已經存在的監聽器
+            if (selectShLocalListener) {
+                shLocal_cd_arr.forEach(shLocal_cd => {                                // 遍歷範圍內容給shLocal_id
+                    shLocal_cd.removeEventListener('click', selectShLocalListener);   // 將每一個shLocal_id移除監聽, 當按下click
+                })
+            }
+            // 定義新的監聽器函數
+            selectShLocalListener = function () {
+                const this_index     = this.value;                                      // 取得已change的value值=index
+                const this_checked   = this.checked;                                    // 取得這次change的true/false
+                const HE_CATE_id_arr = Object.keys(shLocal_inf[this_index]['HE_CATE']); // 從shLocal_inf中對應的this_i取出它的HE_CATE內容(物件的key=HE_CATE_id)
+                let doDisabled_arr   = [];
+                for (const HE_CATE_id of HE_CATE_id_arr){                               // 把HE_CATE_id_arr繞出來...假動作
+                    doDisabled_arr = shLocal_inf.map((item, index) => Object.keys(item.HE_CATE).includes(HE_CATE_id) ? index : -1 ).filter(index => index !== -1);    // 找出shLocal_inf中相同HE_CATE_id的array key
+                }   
+                // console.log('doDisabled_arr =>', doDisabled_arr);
+                for (const doDisabled_index of doDisabled_arr) {
+                    if(doDisabled_index != this_index){
+                        shLocal_table.querySelector(`#shLocal_table input[value="${doDisabled_index}"]`).disabled = this_checked;
+                    }
+                }
+            }
+            // 添加新的監聽器
+            shLocal_cd_arr.forEach(shLocal_cd => {                                      // 遍歷範圍內容給shLocal_cd
+                shLocal_cd.addEventListener('change', selectShLocalListener);           // 將每一個shLocal_id增加監聽, 當按下click
+            })
+            
             resolve();
         });
     }
@@ -285,8 +325,6 @@
         // $("body").mLoading("hide");
     }
  
-
-
     
     // 開啟memoModal的預設工作
     async function memoModal(this_id){
@@ -829,7 +867,7 @@
     function mk_deptNos_btn(selectedDeptNo) {
         return new Promise((resolve) => {
             console.log('selectedDeptNo =>',selectedDeptNo);
-
+                let countNoOmager = 0;  // 250214 增加無主管noOmgaer的計數
                 // 驗證並取得開啟btn的權限disabled or none  // oKey:部門代號, oValue:單筆部門資料, iBTRTL:建物代碼, uInfo:userInfo
                 function getButtonDisabledStatus(oKey, oValue, iBTRTL, uInfo) {
                     if (uInfo.role <= 1) {
@@ -874,6 +912,7 @@
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>{
                                             const disabledStatus = getButtonDisabledStatus(o_key, o_value, i_BTRTL, userInfo);
                                             const noOmager = checkOmager(o_value);
+                                            if(noOmager){ countNoOmager++; }    // 250214 增加無主管noOmgaer的計數
                                             return `
                                                 <button type="button" name="deptNo[]" id="${currentYear},${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info my-1 add_btn ${noOmager}" 
                                                     style="width: 100%; text-align: start;" data-toggle="tooltip" data-placement="bottom" title="omager: ${o_value.omager}" ${disabledStatus}>
@@ -932,6 +971,11 @@
 
             // p1. [通用]在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
+            // 250214 增加無主管noOmgaer的橫幅提醒
+            if(countNoOmager && userInfo.role <= 2){
+                console.log('countNoOmager =>',countNoOmager);
+                Balert( `注意：目前有 ${countNoOmager} 個部門沒有主管(部門代號錯誤或已消滅)，如紅色粗框標示，請務必前往確認或指派主管！`, 'danger')
+            }
 
             resolve();      // 當所有設置完成後，resolve Promise
         });

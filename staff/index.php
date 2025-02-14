@@ -295,8 +295,8 @@
                                         <th title="HE_CATE 選擇特作項目" ><?php echo $faSquareCheck;?>檢查類別代號</th>
                                         <th title="MONIT_LOCAL"         >工作場所</th>
                                         <th title="特殊作業"            >工作內容</th>
-                                        <th title="AVG_VOL"             >A權音壓級(dBA)</th>
-                                        <th title="AVG_8HR 工作日8小時" >日時量平均(dBA)</th>
+                                        <th title="AVG_VOL"             >A權音壓級 <sup>(dBA)</sup></th>
+                                        <th title="AVG_8HR 工作日8小時" >日時量平均 <sup>(dBA)</sup></th>
                                         <th title="eh_time 累計暴露"    >每日曝露時數</th>
                                         <th title="noiseCheck"          >噪音資格</th>
                                         <th title="shCondition" <?php echo ($sys_role <= '2.2') ? "":"class='unblock'";?>><?php echo $faSquareCheck;?>特檢資格</th>
@@ -379,8 +379,8 @@
                             <th title="MONIT_LOCAL">監測處所</th>
                             <th title="WORK_DESC">作業描述</th>
                             
-                            <th title="AVG_VOL">A權音壓級(dBA)</th>
-                            <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均(dBA)</th>
+                            <th title="AVG_VOL">A權音壓級<br><sup>(dBA)</sup></th>
+                            <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均<br><sup>(dBA)</sup></th>
                             <th title="">選擇</th>
                         </thead>
                         <tbody>
@@ -479,8 +479,8 @@
                                 <th title="HE_CATE"             >檢查類別代號</th>
                                 <th title="MONIT_LOCAL"         >工作場所</th>
                                 <th title="特殊作業"            >工作內容</th>
-                                <th title="AVG_VOL"             >A權音壓級(dBA)</th>
-                                <th title="AVG_8HR 工作日8小時" >日時量平均(dBA)</th>
+                                <th title="AVG_VOL"             >A權音壓級 <sup>(dBA)</sup></th>
+                                <th title="AVG_8HR 工作日8小時" >日時量平均 <sup>(dBA)</sup></th>
                                 <th title="eh_time 累計暴露"    >每日曝露時數</th>
                                 <th title="NC"                 >噪音資格</th>
                                 <th title="shCondition"        >特檢資格</th>

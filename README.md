@@ -176,3 +176,14 @@ Particular Physical Checkup (PPC) - 特殊健康檢查
            2c. 保留編輯功能for總窗，可以用文字編輯。
 
         3. 變更管理 和 特殊健檢 table是否分開或合併，eshIT需要審慎評估。
+
+# 250214
+    A. SHE進度溝通：
+        1. 匯入Excel後，部門代號錯誤或部門消滅，導致無法找出omager所屬部門主管：
+            1a. 第一頁在無omager的部門增加紅框標示，提醒操作人。
+            1b. 增加指派主管功能。
+            1c. 調整開啟編輯權限for被指派之對象(主管)。
+        2. 無omgaer且已指派之申請單，在送出審查後無對應之簽核人員(單位主管)的問題...
+            2a. load_fun增加判斷$omager功能，進行查詢與引用的功能...
+            2b. load_fun_function增加showStaff的功能，為了帶出cname給inSign_cname~
+

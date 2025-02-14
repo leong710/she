@@ -1,38 +1,45 @@
 // // 1. 工具函數 (Utility Functions)
     // fun.0-1: Bootstrap Alarm function
     function Balert(message, type) {
-        var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
-        var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
-                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
-        alertPlaceholder.append(wrapper)
+        if(message){
+            type = type ?? 'warning';
+            var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+            var wrapper = document.createElement('div')
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}` 
+                                + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            alertPlaceholder.append(wrapper)
+        }
     }
     // fun.0-2：吐司顯示字條 +堆疊
     function inside_toast(sinn, delayTime, type){
-        // 創建一個新的 toast 元素
-        var newToast = document.createElement('div');
-            newToast.className = 'toast align-items-center bg-'+type;
-            newToast.setAttribute('role', 'alert');
-            newToast.setAttribute('aria-live', 'assertive');
-            newToast.setAttribute('aria-atomic', 'true');
-            newToast.setAttribute('autohide', 'true');
-            newToast.setAttribute('delay', delayTime);
-
-            // 設置 toast 的內部 HTML
-            newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
-                    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
-
-        // 將新 toast 添加到容器中
-        document.getElementById('toastContainer').appendChild(newToast);
-
-        // 初始化並顯示 toast
-        var toast = new bootstrap.Toast(newToast);
-        toast.show();
-
-        // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
-        newToast.addEventListener('hidden.bs.toast', function () {
-            newToast.remove();
-        });
+        if(sinn){
+            delayTime = delayTime ?? 3000;
+            type      = type ?? 'warning';
+            // 創建一個新的 toast 元素
+            var newToast = document.createElement('div');
+                newToast.className = 'toast align-items-center bg-'+type;
+                newToast.setAttribute('role', 'alert');
+                newToast.setAttribute('aria-live', 'assertive');
+                newToast.setAttribute('aria-atomic', 'true');
+                newToast.setAttribute('autohide', 'true');
+                newToast.setAttribute('delay', delayTime);
+    
+                // 設置 toast 的內部 HTML
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+    
+            // 將新 toast 添加到容器中
+            document.getElementById('toastContainer').appendChild(newToast);
+    
+            // 初始化並顯示 toast
+            var toast = new bootstrap.Toast(newToast);
+            toast.show();
+    
+            // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
+            newToast.addEventListener('hidden.bs.toast', function () {
+                newToast.remove();
+            });
+        }
     }
     // fun.0-3: swal
     function show_swal_fun(swal_value){
