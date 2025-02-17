@@ -527,7 +527,7 @@
                     <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="reviewSubmit" value="" class="btn btn-primary <?php echo ($sys_role <= 2.2) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                    <button type="submit" id="reviewSubmit" value="" class="btn btn-primary <?php echo ($sys_role <= 3) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>

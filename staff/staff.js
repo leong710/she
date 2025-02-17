@@ -247,7 +247,7 @@
                 const _content_import = emp_i._content[`${currentYear}`]['import'] !== undefined ? emp_i._content[`${currentYear}`]['import'] : {};
 
                 tr1 += `<td class="">
-                            <div class="col-12 p-0 ">${emp_i.emp_id}</br><button type="button" class="btn `+ (emp_i.dept_no ? `btn-outline-primary add_btn` : `bg-warning`)+`" name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
+                            <div class="col-12 p-0 ">${emp_i.emp_id}</br><button type="button" class="btn `+ (emp_i.stat2txt ? `btn-outline-primary add_btn` : `bg-warning`)+`" name="emp_id" value="${emp_i.cname},${emp_i.emp_id}" `
                             + `title="`+(emp_i.HIRED ? `到職日：${emp_i.HIRED}` : `已離職`) +`" data-bs-toggle="modal" data-bs-target="#aboutStaff" aria-controls="aboutStaff">${emp_i.cname}</button></div>`
                             // <input type="checkbox" id="empt,${emp_i.emp_id},${currentYear}" name="emp_ids[]" value="${emp_i.emp_id}" class="form-check-input unblock" >&nbsp;
                             + `<div class="col-12 pt-1 pb-0 px-0" >
@@ -293,7 +293,7 @@
                 $('#hrdb_table tbody').append(tr1);
                 // 增加判斷式，取staff.omager = user.empId 來啟閉SubmitForReview_btn
                 if(!emp_i_omager){
-                    emp_i_omager = emp_i._logs[currentYear].omager == userInfo.empId;
+                    emp_i_omager = (emp_i._logs[currentYear] != undefined) ? (emp_i._logs[currentYear].omager == userInfo.empId) : emp_i_omager;
                 }
             };
         }
@@ -687,40 +687,44 @@
             await reload_dataTable();                                       // 重新載入dataTable   
         }
     }
-            // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
-            async function rework_loadStaff(loadStaff_arr){
-                loadStaff_tmp = [];     // 清空臨時陣列...
-                //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
-                // for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
-                //     const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step1-1.取出emp_id
-                //     const empData = staff_inf.find(emp => emp.emp_id === select_empId);                     // step1-2.查找staff_inf內該員工是否存在
-                //     // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6/FAB6
-                //     if(!empData){                                                                           // step1-3.沒資料就進行hrdb查詢..241101 暫停取用hrdb進行更新。??? 250203停更
-                //         await search_fun('rework_loadStaff', select_empId);                                 // 確保每次search_fun都等待完成
-                //     }
-                // }
-
-                // step2.等待上面搜尋與合併臨時欄位loadStaff_tmp完成後...
-                for (const [s_index, s_value] of Object.entries(loadStaff_tmp)) {
-                    const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step2-1.取出emp_id
-                    let empData = loadStaff_arr.find(emp => emp.emp_id === select_empId);                   // step2-2. 先取得select_empId的個人資料=>empData
-                    //  empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
-                    empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
-                    // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
-                    // 241101 暫停取用hrdb進行更新。 改用下面：
-                    empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍-建物代號
-                    empData.dept_no        = s_value.dept_no;                 // 部門代號
-                    empData.emp_dept       = s_value.emp_dept;                // 部門名稱
-                    empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
-                    empData.gesch          = s_value.gesch;
-                    empData.HIRED          = s_value.HIRED;
-                    empData.natiotxt       = s_value.natiotxt;
-                    empData.omager         = s_value.omager;
-                    empData.currentYear    = currentYear;                     // 作業年度
+    // 240904 load_staff_byDeptNo       ；call from mk_dept_nos_btn()...load_fun(myCallback)...
+    async function rework_loadStaff(loadStaff_arr){
+        loadStaff_tmp = [];     // 清空臨時陣列...
+        //step1. 依工號查找hrdb，帶入最新員工資訊 到 staff_inf
+        for (const [s_index, s_value] of Object.entries(loadStaff_arr)) {
+            const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step1-1.取出emp_id
+            let empData = staff_inf.find(emp => emp.emp_id === select_empId);                     // step1-2.查找staff_inf內該員工是否存在
+            // 241022 -- 為了套入Excel後儲存原始資料，不進行強制套用hrdb資料....主要For T6/FAB6
+            // 250217 為了確認員工是否仍在職...
+            if(!empData){                                                                           // step1-3.沒資料就進行hrdb查詢..241101 暫停取用hrdb進行更新。??? 250203停更
+                // await search_fun('rework_loadStaff', select_empId);                                 // 確保每次search_fun都等待完成
+                const showEmpInfo = await search_fun('showEmpInfo', select_empId);                  // 依功號搜尋人事資料庫...
+                const showEmp = showEmpInfo.find(emp => emp.emp_id === select_empId);               // 從返回的陣列中取得正確的員工資料
+                if(showEmp){
+                    loadStaff_tmp = loadStaff_tmp.concat(showEmpInfo);   // 合併2個陣列到loadStaff_tmp
                 }
-                await mgInto_staff_inf(loadStaff_arr);
-                inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
             }
+        }
+
+        // step2.等待上面搜尋與合併臨時欄位loadStaff_tmp完成後...
+        for (const [s_index, s_value] of Object.entries(loadStaff_tmp)) {
+            const select_empId = (s_value['emp_id'] !== undefined) ? s_value['emp_id'] : null;      // step2-1.取出emp_id
+            let empData = loadStaff_arr.find(emp => emp.emp_id === select_empId);                   // step2-2. 先取得select_empId的個人資料=>empData
+            //  empData = empData.concat(loadStaff_tmp[s_index]);                                       // 合併2個陣列
+            empData = empData ? empData : {};                                                       // step2-3. 確保 empData 是陣列，否則初始化為空陣列
+            // Object.assign(empData, loadStaff_tmp[s_index]);                                         // step2-4. 如果 empData 是一個物件而不是陣列，需要將其轉換成陣列或合併物件 241101 暫停取用hrdb進行更新。???
+            // 241101 暫停取用hrdb進行更新。 改用下面：
+            // empData.BTRTL          = s_value.BTRTL;                   // 人事子範圍-建物代號
+            // empData.dept_no        = s_value.dept_no;                 // 部門代號
+            // empData.emp_dept       = s_value.emp_dept;                // 部門名稱
+            // empData.emp_sub_scope  = s_value.emp_sub_scope.replace(/ /g, '');     // 人事子範圍名稱
+            // empData.omager         = s_value.omager;
+            empData.stat2txt       = s_value.stat2txt;                  // 在職中
+            // empData.currentYear    = currentYear;                     // 作業年度
+        }
+        await mgInto_staff_inf(loadStaff_arr);
+        inside_toast('彙整&nbsp;員工資料...Done&nbsp;!!', 1000, 'info');
+    }
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
     async function rework_staff(searchStaff_arr){
         return new Promise((resolve) => {
@@ -1126,5 +1130,8 @@
             document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目
         }
         $("body").mLoading("hide");
+        
+
+
 
     });
