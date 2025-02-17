@@ -1,6 +1,81 @@
 <?php
 
 // 變更作業健檢
+    // // 250217 取得特作列管的部門代號 for index p1
+    function load_shLocal_OSHORTs(){
+        $pdo = pdo();
+        $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT 
+                FROM `_shlocal` _sh
+                WHERE _sh.flag = 'On'
+                GROUP BY _sh.OSHORT
+                ORDER BY _sh.OSHORT ";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();
+            $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $shLocal_OSHORTs_arr = [];
+            foreach($shLocal_OSHORTs as $OSHORT_i){
+                // array_push($shLocal_OSHORTs_arr, $OSHORT_i["OSHORT"]);
+                $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]] = $OSHORT_i["OSTEXT"];
+            }
+            return $shLocal_OSHORTs_arr;
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+    // 取得所有特作部門代號清單...同步存在load_fun
+    function load_shLocal_Lists(){
+        $pdo = pdo();
+        $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT  
+                FROM `_shlocal` _sh
+                WHERE _sh.flag = 'On'
+                GROUP BY _sh.OSHORT";
+        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
+        try {
+            $stmt->execute();
+            $shLocal_Lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            return $shLocal_Lists;
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+    // 從危害地圖中，取得所有特作部門代號，並從hrdb中撈出所有符合部門待號的員工(base=未排除)...同步存在load_fun
+    function all_shLocalStaff(){
+        $pdo = pdo();
+        $sql = "SELECT DATE_FORMAT(now(),'%Y') AS yy, DATE_FORMAT(now(), '%m') AS mm , _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT, _st.emp_id 
+                FROM `_shlocal` _sh
+                LEFT JOIN `hrdb`.`staff` _st ON _st.dept_no = _sh.OSHORT
+                WHERE _sh.flag = 'On'
+                GROUP BY _sh.OSHORT, _st.emp_id;";
+        $stmt = $pdo->prepare($sql);
+                
+        try {
+            $stmt->execute();
+            $all_shLocalStaff = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $allShLocalStaff_arr = [];      // 預設起始空陣列
+            foreach($all_shLocalStaff as $Staff_i){     // 進行彙整
+                if(!isset($allShLocalStaff_arr[$Staff_i["OSHORT"]])){
+                    $allShLocalStaff_arr[$Staff_i["OSHORT"]] = [];                                                          // 第一層：部門代號
+                }
+                if(!isset($allShLocalStaff_arr[$Staff_i["OSHORT"]][$Staff_i["yy"].$Staff_i["mm"]])){
+                    $allShLocalStaff_arr[$Staff_i["OSHORT"]][$Staff_i["yy"].$Staff_i["mm"]] = [];                           // 第二層：年月
+                }
+                array_push($allShLocalStaff_arr[$Staff_i["OSHORT"]][$Staff_i["yy"].$Staff_i["mm"]], $Staff_i["emp_id"]);    // 帶進去emp_id
+            }
+            return $allShLocalStaff_arr;    // 返回彙整後資料
+
+        }catch(PDOException $e){
+            echo $e->getMessage();
+        }
+    }
+
+
+
+
 
     function show_change($request){
         $pdo = pdo();
@@ -92,28 +167,7 @@ use Mockery\Undefined;
             echo $e->getMessage();
         }
     }
-    // 取得特作列管的部門代號
-    function load_shLocal_OSHORTs(){
-        $pdo = pdo();
-        $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT 
-                FROM `_shlocal` _sh
-                WHERE _sh.flag = 'On'
-                GROUP BY _sh.OSHORT
-                ORDER BY _sh.OSHORT ";
-        $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
-        try {
-            $stmt->execute();
-            $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $shLocal_OSHORTs_arr = [];
-            foreach($shLocal_OSHORTs as $OSHORT_i){
-                // array_push($shLocal_OSHORTs_arr, $OSHORT_i["OSHORT"]);
-                $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]] = $OSHORT_i["OSTEXT"];
-            }
-            return $shLocal_OSHORTs_arr;
-        }catch(PDOException $e){
-            echo $e->getMessage();
-        }
-    }
+
     
     // 取得已存檔的員工部門代號
     function load_staff_dept_nos(){

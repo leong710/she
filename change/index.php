@@ -6,51 +6,68 @@
     accessDenied($sys_id);
 
     // for return
-    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
+    // $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // tidy query condition：
         $get_year = load_workTarget("_year");
         $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
         $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
       
-    // default fab_scope
-        $fab_scope   = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
-        $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
-    // tidy sign_code scope 
-        $sfab_id_str = get_coverFab_lists("str");   // get signCode的管理轄區
-        $sfab_id_arr = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
-    // merge quesy array
-        $query_arr = array(
-            'fab_title' => $fab_title,
-            'sfab_id'   => $sfab_id_str,
-            'emp_id'    => "10008048",
-        );
-    // get mainData = shLocal
-        // $shLocals       = show_shLocal($query_arr);     // get case清單
+    // // default fab_scope
+    //     $fab_scope   = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
+    //     $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
+    // // tidy sign_code scope 
+    //     $sfab_id_str = get_coverFab_lists("str");   // get signCode的管理轄區
+    //     $sfab_id_arr = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
+    // // merge quesy array
+    //     $query_arr = array(
+    //         'fab_title' => $fab_title,
+    //         'sfab_id'   => $sfab_id_str,
+    //         'emp_id'    => "10008048",
+    //     );
+    // // get mainData = shLocal
+    //     // $shLocals       = show_shLocal($query_arr);     // get case清單
 
-        $shLocals       = [];     // get case清單
-        $per_total      = count($shLocals);             // 計算總筆數
-    // for select item
-        $fab_lists      = show_fab_lists();             // get 廠區清單
-        $OSHORT_lists   = show_OSHORT();                // get 部門代號
+    //     $shLocals       = [];     // get case清單
+    //     $per_total      = count($shLocals);             // 計算總筆數
+    // // for select item
+    //     $fab_lists      = show_fab_lists();             // get 廠區清單
+    //     $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
-        // p1
-        $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
-        $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
-        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
+    //     // p1
+    //     $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
+    //     $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
+    //     $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
 
         // p1
         // $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
         // $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
         // $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
 
-        $test = show_change($query_arr);
+        // $test = show_change($query_arr);
+
+        // $allShLocalStaff_arr = all_shLocalStaff();
+        // $_month = $_month ?? date('m');
+        // echo $_year.$_month;
 
         // echo "<pre>";
-        // print_r($test);
+        // print_r($allShLocalStaff_arr);
         // echo "</pre>";
 
         $faSquareCheck = `<i class="fa-regular fa-square-check"></i>&nbsp;`;
+        // 建立表頭
+        $table_th_arr = [
+            "OSTEXT_30"     => "廠區",
+            "OSHORT"        => "部門代碼",
+            "OSTEXT"        => "部門名稱",
+            "base"          => "部門全員",
+            "inCare"        => "特作關懷名單",
+            "remark"        => "備註說明",
+            "flag"          => "開關",
+            "created_at"    => "創建時間",
+            "updated_at"    => "更新時間",
+            "updated_cname" => "更新人員",
+        ];
 
 
     include("../template/header.php");
@@ -209,8 +226,8 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
-                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取特作部門資料</button>
+                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 特作部門名單維護</button>
                             <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" value="workTarget.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;指定作業年度</button>
                         </div>
                     </nav>
@@ -223,8 +240,12 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9 py-1">
+                                    <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特危部門員工清單維護">
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
@@ -243,13 +264,10 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
-                                    <div id="deptNo_opts_inside" class="row p-0">
-                                        <!-- 放checkbox按鈕的地方 -->
-                                    </div> 
-                                <!-- </div> -->
+                                <div id="deptNo_opts_inside" class="row p-0">
+                                    <!-- 放checkbox按鈕的地方 -->
+                                </div> 
                             </div>
-
                         </div>
                     </div>
 
@@ -282,21 +300,8 @@
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
-                                    <tr>
-                                        <th title="emp_id+cname"        >工號姓名</th>
-                                        <th title="emp_sub_scope"       >年份_廠區</th>
-                                        <th title="dept_no"             >部門代碼名稱</th>
-                                        <th title="HE_CATE 選擇特作項目" ><?php echo $faSquareCheck;?>檢查類別代號</th>
-                                        <th title="MONIT_LOCAL"         >工作場所</th>
-                                        <th title="特殊作業"            >工作內容</th>
-                                        <th title="AVG_VOL"             >A權音壓級 <sup>(dBA)</sup></th>
-                                        <th title="AVG_8HR 工作日8小時" >日時量平均 <sup>(dBA)</sup></th>
-                                        <th title="eh_time 累計暴露"    >每日曝露時數</th>
-                                        <th title="noiseCheck"          >噪音資格</th>
-                                        <th title="shCondition" <?php echo ($sys_role <= '2.2') ? "":"class='unblock'";?>><?php echo $faSquareCheck;?>特檢資格</th>
-                                        <th title="匯入1"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>><?php echo $faSquareCheck;?>檢查類別</th>
-                                        <th title="匯入2"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>>檢查代號</th>
-                                        <th title="匯入3"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>>去年檢查項目</th>
+                                    <tr><?php foreach($table_th_arr as $th => $thValue){
+                                                echo "<th title='{$th}'>{$thValue}</th>"; } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -559,39 +564,39 @@
 
 // // // 開局導入設定檔
 // 以下為控制 iframe
-    var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
-    var iframe              = document.getElementById('api');                   // 清冊的iframe介面
-    var warningText_1       = document.getElementById('warningText_1');         // 未上傳的提示
-    var warningText_2       = document.getElementById('warningText_2');         // 資料有誤的提示
-    var excel_json          = document.getElementById('excel_json');            // 清冊中有誤的提示
-    var excelFile           = document.getElementById('excelFile');             // 上傳檔案名稱
-    var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
-    var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
-    var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
-    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
-    var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
-    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
-    var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
-    var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
-    const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
-    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
-    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+    // var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
+    // var iframe              = document.getElementById('api');                   // 清冊的iframe介面
+    // var warningText_1       = document.getElementById('warningText_1');         // 未上傳的提示
+    // var warningText_2       = document.getElementById('warningText_2');         // 資料有誤的提示
+    // var excel_json          = document.getElementById('excel_json');            // 清冊中有誤的提示
+    // var excelFile           = document.getElementById('excelFile');             // 上傳檔案名稱
+    // var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
+    // var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
+    // var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
+    // var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
+    // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
+    // var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+    // var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
+    // var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
+    // var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
+    // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
+    // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
+    // const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
-    var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
-    var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
-    var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
-    var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
-    var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
+    // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
+    // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
+    // var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+    // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
+    // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
-    var staff_inf        = [];
-    var shLocal_inf      = [];
-    var loadStaff_tmp    = [];
-    var _docs_inf        = [];
-    var _docsIdty_inf    = null;
+    // var staff_inf        = [];
+    // var shLocal_inf      = [];
+    // var loadStaff_tmp    = [];
+    // var _docs_inf        = [];
+    // var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
-    const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
+    // const OSHORTsObj = <=json_encode($shLocal_OSHORTs_str)?>;
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
@@ -608,12 +613,12 @@
 
 </script>
 <script src="../mvc/utility.js?v=<?=time()?>"></script>
-<script src="../mvc/excel.js?v=<?=time()?>"></script>
-<script src="../mvc/check.js?v=<?=time()?>"></script>
-<script src="../mvc/editModal.js?v=<?=time()?>"></script>
+<!-- <script src="../mvc/excel.js?v=<=time()?>"></script> -->
+<!-- <script src="../mvc/check.js?v=<=time()?>"></script> -->
+<!-- <script src="../mvc/editModal.js?v=<=time()?>"></script> -->
 
 <script src="change.js?v=<?=time()?>"></script>
-<script src="change_excel.js?v=<?=time()?>"></script>
-<script src="change_editModal.js?v=<?=time()?>"></script>
+<!-- <script src="change_excel.js?v=<=time()?>"></script> -->
+<!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>
