@@ -70,6 +70,7 @@
         ];
 
 
+
     include("../template/header.php");
     include("../template/nav.php"); 
 
@@ -131,45 +132,12 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover ,
-        .shCondition:hover ,
-        .yearHe:hover ,
-        .yearPre:hover {
+        .import:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0, 0, 0, .5);
         }
-            .split-td {
-                display: flex;
-                flex-direction: column;
-                /* 設定高度以顯示效果 */
-                /* height: 100px; */
-                height: 100%;
-                padding: 0;
-            }
-            .top-half, .bottom-half {
-                height: 50%;
-                overflow: hidden;
-                /* padding: calc(1 * var(--spacing)); */
-                /* 平均分配空間 */
-                /* flex: 1;  */
-            }
-            .bottom-half {
-                background-color: #cceeff;
-                border-radius: 4px;
-                /* margin-top: calc(1 * var(--spacing)); */
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-            /* 轉調欄位 */
-            .change_ {      
-                background-color: #FFBFFF;
-                padding: calc(1 * var(--spacing));
-                border-radius: 4px;
-                height: 100%;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
             .btn {
                 padding: 4px 4px;
             }
@@ -288,7 +256,7 @@
                                         </form>
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="import_staff_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
@@ -300,8 +268,16 @@
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
-                                    <tr><?php foreach($table_th_arr as $th => $thValue){
-                                                echo "<th title='{$th}'>{$thValue}</th>"; } ?>
+                                    <tr>
+                                        <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
+                                        <th title="OSTEXT_30"             >廠區</th>
+                                        <th title="OSHORT/OSTEXT"         >部門代碼名稱</th>
+
+                                        <th title="base"                  >部門全員</th>
+                                        <th title="inCare"                >特作關懷名單</th>
+                                        <th title="remark"                >備註說明</th>
+                                        <th title="flag"                  >開關</th>
+                                        <th title="created_at/updated_at/updated_cname" >創建時間/更新時間/更新人員</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -398,12 +374,12 @@
             </div>
         </div>
     </div> 
-    <!--模組-新增Staff -->
-    <div class="modal fade" id="import_staff" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- 模組-維護部門員工名單 -->
+    <div class="modal fade" id="maintainDept" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-warning">
-                    <h5 class="modal-title" id="searchStaff">searchStaff</h5>
+                    <h5 class="modal-title">maintainDept</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -412,8 +388,11 @@
                         <div class="col-12 col-md-6"></div>
                         <div class="col-12 col-md-6 text-end py-1">
                             <div class="input-group">
-                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢對象 工號、姓名或NT帳號" required>
-                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                                <span class="input-group-text">部門代號</span>
+                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required>
+                                <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
+                                <button type="button" class="btn btn-outline-primary" onclick="resetMaintainDept()">清除</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                             </div>
                         </div>
                     </div>
@@ -426,7 +405,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+                    <button class="btn btn-outline-primary" id="submitDeptStaff">代入</button>
+                    <button class="btn btn-secondary"       data-bs-dismiss="modal">Back</button>
                 </div>
             </div>
         </div>
@@ -583,12 +563,13 @@
     // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     // const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
-    // var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
+    var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     // var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
+    var shLocalDept_inf      = [];
     // var staff_inf        = [];
     // var shLocal_inf      = [];
     // var loadStaff_tmp    = [];
@@ -596,6 +577,8 @@
     // var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
+    const table_th_arr = <?=json_encode($table_th_arr)?>;
+
     // const OSHORTsObj = <=json_encode($shLocal_OSHORTs_str)?>;
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件

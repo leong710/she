@@ -1117,10 +1117,11 @@
                 try {
                     $stmt->execute();
                     $shLocalDepts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach($shLocalDepts as $index => $staff){
-                        $shLocalDepts[$index]['base']   = json_decode($shLocalDepts[$index]['base'],   true);
-                        $shLocalDepts[$index]['inCare'] = json_decode($shLocalDepts[$index]['inCare'], true);
+                    // JSON解碼  true = 還原成陣列
+                    foreach($shLocalDepts as $index => $shLocalDept){
+                        $shLocalDepts[$index]['base']   = json_decode($shLocalDept['base']  , true);
+                        $shLocalDepts[$index]['inCare'] = json_decode($shLocalDept['inCare'], true);
+                        $shLocalDepts[$index]['remark'] = json_decode($shLocalDept['remark']);
                     }
 
                     // 製作返回文件
@@ -1185,6 +1186,43 @@
                     // 製作返回文件
                     $result = [
                         'result_obj' => $allShLocalStaff_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.',
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+    
+            break;
+
+            case 'load_deptStaff_formHrdb':     // 250218 從hrdb中撈出所有符合部門代號的員工(base=未排除)
+                $pdo = pdo_hrdb();
+                $sql = "SELECT u.* , _E.HIRED ,_E.BTRTL , REPLACE(u.emp_sub_scope, ' ', '') AS emp_sub_scope 
+                        --, DATE_FORMAT(now(),'%Y') AS yy, DATE_FORMAT(now(), '%m') AS mm
+                        FROM staff u
+                        LEFT JOIN HCM_VW_EMP01_hiring _E ON u.emp_id = _E.PERNR
+                        WHERE u.dept_no = ? 
+                        ORDER BY u.emp_id DESC ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute([$parm]);                                   //處理 byAll
+                    $load_deptStaff = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                    // $load_deptStaff_arr = [];      // 預設起始空陣列
+                    // foreach($load_deptStaff as $Staff_i){     // 進行彙整
+                    //     if(!isset($allShLocalStaff_arr[$Staff_i["dept_no"]])){
+                    //         $allShLocalStaff_arr[$Staff_i["dept_no"]] = [];                                                          // 第一層：部門代號
+                    //     }
+                    //     if(!isset($allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]])){
+                    //         $allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]] = [];                           // 第二層：年月
+                    //     }
+                    //     array_push($allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]], $Staff_i["emp_id"]);    // 帶進去emp_id
+                    // }
+                    
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $load_deptStaff,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
                     ];
