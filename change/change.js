@@ -230,6 +230,8 @@
             shLocalDept_inf = post_arr;
             console.log("post_arr =>", post_arr);
 
+                        await goTest(post_arr);
+
         if(post_arr.length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
@@ -322,6 +324,27 @@
                     tdItem.removeEventListener('click', baseInCareClickListener);   // 將每一個tdItem移除監聽, 當按下click
                 })
             }
+                // 整理陣列成我要的格式2....
+                function reworkArr(dataIn){
+                    return new Promise((resolve) => {
+                        let rework_arr = [];
+                        dataIn.forEach((emp_i) => {
+                            const this_arr = emp_i.split(',')       // 分割this.id成陣列
+                            const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
+                            const this_cname  = this_arr[1];        // 取出陣列 1 = cname
+                                // rework_arr.push({                // 傳統陣列...
+                                //         'cname'     : this_cname,
+                                //         'emp_id'    : this_emp_id
+                                //     })
+                            let obj = {};                           // 陣列包物件
+                            obj[this_emp_id] = this_cname;
+                            rework_arr.push(obj);
+                        })
+                        const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
+
+                        resolve(rework_str);
+                    });
+                }
             // 定義新的監聽器函數
             baseInCareClickListener = async function () {
                 // console.log("click this =>", this.id);
@@ -380,7 +403,7 @@
         // 將 部門代號下的員工 搜尋結果渲染到maintainDept_modal裡的table；from maintainDept function load_deptStaff()
         async function postResultTo_maintainDeptTable(res_r){
             return new Promise((resolve) => {
-                // console.log('res_r...', res_r);
+                console.log('res_r...', res_r);
                 // 鋪設表格thead
                 let Rinner = `<thead>
                                 <tr>
@@ -416,9 +439,26 @@
                         </tr>`;
                 })
                 
-                // 有2個監聽
-                reload_selectDeptStaff_Listeners();   // 呼叫監聽[select]全選功能...
-                reload_submitDeptStaff_Listeners();   // 呼叫監聽[代入]鈕功能
+                // 防止空值被帶入shLocalDept_inf
+                    const selectDeptStaff_btn = document.querySelector('#maintainDept #select_deptStaff');     //  定義出[全選]範圍
+                    const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出[代入]範圍
+                    if(res_r.length > 0) {
+                        // 有2個監聽
+                        reload_selectDeptStaff_Listeners();   // 呼叫監聽[select]全選功能...
+                        reload_submitDeptStaff_Listeners();   // 呼叫監聽[代入]鈕功能
+
+                    } else {
+                        // 檢查並移除已經存在的監聽器
+                        if (selectDeptStaffClickListener) {
+                            selectDeptStaff_btn.removeEventListener('click', selectDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                        }
+                        // 檢查並移除已經存在的監聽器
+                        if (submitDeptStaffClickListener) {
+                            submitDeptStaff_btn.removeEventListener('click', submitDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                        }   
+                    }
+                    submitDeptStaff_btn.disabled = (res_r.length == 0);
+                    submitDeptStaff_btn.classList.toggle('unblock', res_r.length == 0);
 
                 $("body").mLoading("hide");                                 // 關閉mLoading
                 // 當所有設置完成後，resolve Promise
@@ -428,9 +468,13 @@
         // 清除MaintainDept；from maintainDept_modal裡[清除]鈕的呼叫
         function resetMaintainDept(){
             let fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
-                fromInput.value = '';
+                // fromInput.value = '';
             let div_result_table = document.querySelector('#maintainDept #result_table');
                 div_result_table.innerHTML = '';
+
+            const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出[代入]範圍
+                submitDeptStaff_btn.disabled = true;
+                submitDeptStaff_btn.classList.toggle('unblock', true);
         }
         // (MaintainDept非主要功能)綁定select_deptStaff_btns事件監聽器 => head上的select全選btn
         let selectDeptStaffClickListener;
@@ -442,7 +486,6 @@
                 }
                 // 定義新的監聽器函數
                 selectDeptStaffClickListener = async function () {
-
                     const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
                     // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
                     let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
@@ -455,8 +498,8 @@
     
                 // 添加新的監聽器
                 selectDeptStaff_btn.addEventListener('click', selectDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
-    
         }
+    
         // 定義[代入]鈕功能~~；from maintainDept_modal裡[代入]鈕的呼叫...
         let submitDeptStaffClickListener;
         async function reload_submitDeptStaff_Listeners() {
@@ -465,7 +508,7 @@
             if (submitDeptStaffClickListener) {
                 submitDeptStaff_btn.removeEventListener('click', submitDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
             }   
-                // 整理陣列成我要的格式....
+                // 整理陣列成我要的格式1....
                 function reworkArr(dataIn){
                     return new Promise((resolve) => {
                         let rework_arr = [];
@@ -473,17 +516,16 @@
                             const this_arr = emp_i.split(',')       // 分割this.id成陣列
                             const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
                             const this_cname  = this_arr[1];        // 取出陣列 1 = cname
-                                let obj = {};
-                                obj[this_emp_id] = this_cname;
-
+                                // rework_arr.push({                // 傳統陣列...
+                                //         'cname'     : this_cname,
+                                //         'emp_id'    : this_emp_id
+                                //     })
+                            let obj = {};                           // 陣列包物件
+                            obj[this_emp_id] = this_cname;
                             rework_arr.push(obj);
-                            // rework_arr.push({
-                            //         'cname'     : this_cname,
-                            //         'emp_id'    : this_emp_id
-                            //     })
                         })
-                        const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工
-
+                        const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
+                        console.log(rework_str);
                         resolve(rework_str);
                     });
                 }
@@ -491,8 +533,8 @@
             submitDeptStaffClickListener = async function () {
                 mloading(); 
                 const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
-                const targetDeptNo = fromInput.value;
-                const deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);
+                const targetDeptNo = fromInput.value;                                           // 取得formInput = 部門代號
+                const deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);    // 自shLocalDept_inf找出對應的部門
 
                 if(deptData){
                     const deptStaff_opts_arr = Array.from(document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`));
@@ -500,15 +542,11 @@
                     const selectedValues = deptStaff_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得已選員工名單
                     // const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
                     // 把取得的數據送去reworkArr整理...
-                    const allValues_str      = await reworkArr(allValues);
-                    const selectedValues_str = await reworkArr(selectedValues);
-                    // console.log('allValues_str =>', allValues_str)
-                    // console.log('selectedValues_str =>', selectedValues_str)
-                    deptData.base   = allValues_str;
-                    deptData.inCare = selectedValues_str;
-                }
+                    deptData.base   = await reworkArr(allValues);
+                    deptData.inCare = await reworkArr(selectedValues);
 
-                post_hrdb(shLocalDept_inf);
+                    post_hrdb(shLocalDept_inf); // 鋪設
+                }
                 // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
                 // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
                 // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
@@ -517,7 +555,8 @@
                 //     // 手動觸發 change 事件
                 //     // checkbox.dispatchEvent(new Event('change'));
                 // });
-
+                resetMaintainDept();        // 清除
+                maintainDept_modal.hide();  // 關閉modal
                 $("body").mLoading("hide");
 
             }
@@ -642,7 +681,7 @@
     // [p1 函數-3] 設置p1事件監聽器和
     async function p1_eventListener() {
         return new Promise((resolve) => {
-            // step-p1-1. 綁定deptNo_opts事件監聽器
+            // step-p1-1. 綁定deptNo_opts事件監聽器(單選)
                 const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
                 deptNo_btns.forEach(deptNo_btn => {
                     deptNo_btn.addEventListener('click', async function() {
@@ -658,7 +697,7 @@
                         //     await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         //     await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
                         //     await post_logs(_doc_inf.logs);       // 鋪設文件歷程
-                        //     await reload_dataTable();             // 呼叫dataTable
+                        //     await reload_dataTable();             // 呼叫dataTable                        
 
                         $('#nav-p2-tab').tab('show');
                     });
@@ -710,6 +749,46 @@
                         load_subScopes_btn.disabled = selectedOptsValues.length === 0;
                     });
                 });
+
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
+
+    function goTest(post_arr){
+        return new Promise((resolve) => {
+
+            if(post_arr.length > 0){
+                // 找出陣列差異：舊,新 = 轉入; 新,舊 = 轉出 
+                function findDifference(array1, array2) { // array1=舊的，array2=新的
+                    return array2.filter(item => !array1.includes(item));
+                }
+                // 脫殼，找出所有物件key
+                function deArrayKeys(getInArr){
+                    let allKeys_arr = []
+                    getInArr.forEach((i) => {
+                        allKeys_arr = [...allKeys_arr, ...Object.keys(i)]
+                    })
+                    return allKeys_arr;
+                }
+            
+                console.log('post_arr =>',post_arr)
+                const deptData = post_arr.find(dept => dept.OSHORT == '9T041502');
+                console.log('deptData', deptData)
+
+                const { base , inCare } = deptData;
+
+                const base202501_arr = base['202501'];
+                const base202502_arr = base['202502'];
+                console.log('base202501_arr', base202501_arr)
+                console.log('base202502_arr', base202502_arr)
+      
+                const base202501_arrKey = deArrayKeys(base202501_arr)
+                const base202502_arrKey = deArrayKeys(base202502_arr)
+
+                const difference = findDifference(base202501_arrKey, base202502_arrKey);
+                console.log(difference); // 輸出: ['grape', 'kiwi']
+                
+            }
 
             resolve();      // 當所有設置完成後，resolve Promise
         });

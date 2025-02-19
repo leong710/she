@@ -389,7 +389,7 @@
                         <div class="col-12 col-md-6 text-end py-1">
                             <div class="input-group">
                                 <span class="input-group-text">部門代號</span>
-                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required>
+                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required disabled>
                                 <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
                                 <button type="button" class="btn btn-outline-primary" onclick="resetMaintainDept()">清除</button>
                                 <button type="button" class="btn btn-outline-primary" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
@@ -405,7 +405,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-outline-primary" id="submitDeptStaff">代入</button>
+                    <button class="btn btn-outline-primary unblock" id="submitDeptStaff" disabled >代入</button>
                     <button class="btn btn-secondary"       data-bs-dismiss="modal">Back</button>
                 </div>
             </div>

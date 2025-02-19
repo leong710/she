@@ -1119,8 +1119,8 @@
                     $shLocalDepts = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     // JSON解碼  true = 還原成陣列
                     foreach($shLocalDepts as $index => $shLocalDept){
-                        $shLocalDepts[$index]['base']   = json_decode($shLocalDept['base']  , true);
-                        $shLocalDepts[$index]['inCare'] = json_decode($shLocalDept['inCare'], true);
+                        $shLocalDepts[$index]['base']   = json_decode($shLocalDept['base']);
+                        $shLocalDepts[$index]['inCare'] = json_decode($shLocalDept['inCare']);
                         $shLocalDepts[$index]['remark'] = json_decode($shLocalDept['remark']);
                     }
 
