@@ -68,9 +68,10 @@
         });
     }
     // fun.0-4b: 停止並銷毀 DataTable
-    function release_dataTable(){
+    function release_dataTable(_table){
         return new Promise((resolve) => {
-            let table = $('#hrdb_table').DataTable();
+            _table = _table ?? 'hrdb_table';
+            let table = $(`#${_table}`).DataTable();
                 if(table) {
                     table.destroy();
                 }
@@ -79,15 +80,16 @@
         });
     }
     // fun.0-4a: dataTable
-    function reload_dataTable(){
+    function reload_dataTable(_table){
         // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         return new Promise((resolve) => {
-            let table = $('#hrdb_table').DataTable();
+            _table = _table ?? 'hrdb_table';
+            let table = $(`#${_table}`).DataTable();
             if(table) {
                 release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
             }
             // 重新初始化 DataTable
-            $('#hrdb_table').DataTable({
+            $(`#${_table}`).DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
                 "autoWidth": false,                                              // 自動寬度
                 "order": [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]],            // 排序
@@ -111,7 +113,7 @@
             try {
                 let formData = new FormData();
                     formData.append('fun', fun);
-                    formData.append('parm', parm);                  // 後端依照fun進行parm參數的採用
+                    formData.append('parm', parm);              // 後端依照fun進行parm參數的採用
 
                 let response = await fetch('../mvc/load_fun.php', {
                     method : 'POST',
