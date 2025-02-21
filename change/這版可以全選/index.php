@@ -210,6 +210,10 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特危部門員工清單維護">
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
@@ -271,7 +275,7 @@
 
                                         <th title="base"                  >部門全員</th>
                                         <th title="getIn/getOut"          >轉出/轉入</th>
-
+                                        
                                         <th title="inCare"                >特作關懷名單</th>
                                         <th title="remark/flag"           >備註說明/開關</th>
                                         <th title="created_at/updated_at/updated_cname" >創建/更新/操作人</th>

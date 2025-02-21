@@ -839,11 +839,14 @@
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
-                                    <div class="card-header">${emp_sub_scope}</div>
+                                    <div class="card-header"><button type="button" name="scope[]" value="${emp_sub_scope}" class="add_btn">${emp_sub_scope}</button></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>`
+                                            `<div class="form-check px-4">
+                                                <input type="checkbox" name="subScope[]" id="cb,${emp_sub_scope},${o_key}" value="${o_key}" class="form-check-input" >
+                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
+                                                + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>
+                                            </div>`
                                         ).join('')}
                                     </div>
                                 </div>
@@ -955,6 +958,53 @@
                         //     await reload_dataTable();             // 呼叫dataTable                        
 
                         $('#nav-p2-tab').tab('show');
+                    });
+                });
+
+            // step-p1-2. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+                const load_subScopes_btn = document.getElementById('load_subScopes_btn');
+                load_subScopes_btn.addEventListener('click', async function() {
+                    const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
+                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
+                    console.log('多選 selectedValues_str =>', selectedValues_str)
+                    
+                    // 工作一 清空暫存
+                        await resetINF(true);               // 清空
+                    // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
+                        await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+
+                    // await reload_dataTable();
+
+                    // $('logsInfo').empty();
+                    // console.log('staff_inf...', staff_inf);
+
+                    $('#nav-p2-tab').tab('show');
+                })
+
+            // step-p1-3. (非主要功能)綁定scope_btns事件監聽器 => card head上的全選btn
+                const scope_btns = document.querySelectorAll('#deptNo_opts_inside button[name="scope[]"]');
+                scope_btns.forEach(scope_btn => {
+                    scope_btn.addEventListener('click', async function() {
+                        const target_scope_cbs = document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${this.value},"]`);
+                        // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                        let allChecked = Array.from(target_scope_cbs).every(checkbox => checkbox.checked);
+                        target_scope_cbs.forEach(checkbox => {
+                            checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                            // 手動觸發 change 事件
+                            checkbox.dispatchEvent(new Event('change'));
+                        });
+                    });
+                });
+
+            // step-p1-4. (非主要功能)驗證提醒監聽 => for [提取勾選部門]驗證提醒
+                const subScopes_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[id*="cb,"]'));
+                subScopes_opts_arr.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const selectedOptsValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+                        // 更新驗證標籤
+                        load_subScopes_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
+                        load_subScopes_btn.classList.toggle('is-valid',   selectedOptsValues.length > 0);
+                        load_subScopes_btn.disabled = selectedOptsValues.length === 0;
                     });
                 });
 
