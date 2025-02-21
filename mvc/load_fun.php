@@ -374,19 +374,21 @@
                     extract($parm_i_arr);
 
                     // step.1 提取現有資料
-                    // $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
-                    // executeQuery($stmt_select, [$OSHORT]);
-                    // $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
-                
+                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                    executeQuery($stmt_select, [$OSHORT]);
+                    $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
                     // 防呆
-                    $OSTEXT_30 = $OSTEXT_30 ?? "";    // 廠區
-                    $OSTEXT    = $OSTEXT    ?? "";    // 部門名稱
+                    $OSTEXT_30 = $OSTEXT_30 ?? ( $row_data["OSTEXT_30"] ?? "");    // 廠區
+                    $OSTEXT    = $OSTEXT    ?? ( $row_data["OSTEXT"]    ?? "");    // 部門名稱
+                    $remark    = $remark    ?? ( $row_data["remark"]    ?? NULL);    // 備註說明
+                    $flag      = $flag      ?? ( $row_data["flag"]      ?? true);  // 開關
 
                     // step.4 將更新後的資料編碼為 JSON 字串
                     $base_str   = json_encode($base,   JSON_UNESCAPED_UNICODE);
                     $inCare_str = json_encode($inCare, JSON_UNESCAPED_UNICODE);
                     $remark_str = json_encode($remark, JSON_UNESCAPED_UNICODE);
-                
+
                     // step.5 準備 SQL 和參數
                     $values[] = "(?, ?, ?,   ?, ?, ?,   ?, ?,   now(), now())";
                     $params = array_merge($params, [
@@ -1184,10 +1186,10 @@
                 $pdo = pdo();
                 $sql = "SELECT _shd.* 
                         FROM `_shlocaldept` _shd
-                        WHERE _shd.flag = 'On' ";
+                    ";
                 if(!empty($parm)){
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                    $sql .= " AND _shd.OSHORT IN ({$parm_re})";
+                    $sql .= " WHERE _shd.OSHORT IN ({$parm_re})";
                 }
                 $stmt = $pdo->prepare($sql);
                 try {

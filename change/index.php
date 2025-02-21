@@ -256,7 +256,7 @@
                                         </form>
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
@@ -274,10 +274,11 @@
                                         <th title="OSHORT/OSTEXT"         >部門代碼名稱</th>
 
                                         <th title="base"                  >部門全員</th>
+                                        <th title="getIn/getOut"          >轉出/轉入</th>
+                                        
                                         <th title="inCare"                >特作關懷名單</th>
-                                        <th title="remark"                >備註說明</th>
-                                        <th title="flag"                  >開關</th>
-                                        <th title="created_at/updated_at/updated_cname" >創建時間/更新時間/更新人員</th>
+                                        <th title="remark/flag"           >備註說明/開關</th>
+                                        <th title="created_at/updated_at/updated_cname" >創建/更新/操作人</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -385,13 +386,13 @@
                 <div class="modal-body">
                     <!-- 第一排-查詢功能 -->
                     <div class="row">
-                        <div class="col-12 col-md-6"></div>
+                        <div class="col-12 col-md-6"><b><snap id="result_info"></snap></b></div>
                         <div class="col-12 col-md-6 text-end py-1">
                             <div class="input-group">
                                 <span class="input-group-text">部門代號</span>
                                 <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required disabled>
                                 <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
-                                <button type="button" class="btn btn-outline-primary" onclick="resetMaintainDept()">清除</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="resetMaintainDept()"><i class="fa-solid fa-delete-left"></i> 清除</button>
                                 <button type="button" class="btn btn-outline-primary" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
                             </div>
                         </div>
