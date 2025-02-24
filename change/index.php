@@ -61,7 +61,7 @@
             "OSHORT"        => "部門代碼",
             "OSTEXT"        => "部門名稱",
             "base"          => "部門全員",
-            "inCare"        => "特作關懷名單",
+            "inCare"        => "變更作業",
             "remark"        => "備註說明",
             "flag"          => "開關",
             "created_at"    => "創建時間",
@@ -181,6 +181,19 @@
                 color: $yellow-300;
                 background-color: $indigo-900;
             } */
+            .unblock_b {
+                opacity: 0;
+                transition: opacity .6s ease; /* 調整為1秒 */
+                visibility: hidden;     /* 初始為hidden */
+                height: 0;              /* 初始高度為0以避免佔用空間 */
+                overflow: hidden;       /* 防止顯示內容 */
+            }
+
+            .unblock_b.show {           /* 增加show類別 */
+                opacity: 1;
+                visibility: visible;    /* 顯示時為visible */
+                height: auto;           /* 根據內容自動調整高度 */
+            }
     </style>
 </head>
 <body>
@@ -210,6 +223,10 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特危部門員工清單維護">
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
@@ -266,15 +283,15 @@
                                 <thead>
                                     <tr>
                                         <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
-                                        <th title="OSTEXT_30"             >廠區</th>
-                                        <th title="OSHORT/OSTEXT"         >部門代碼名稱</th>
+                                        <!-- <th title="OSTEXT_30"             >廠區</th> -->
+                                        <th title="OSTEXT_30/OSHORT/OSTEXT"         >廠區/部門代碼/名稱</th>
 
                                         <th title="base"                  >部門全員</th>
                                         <th title="getIn/getOut"          >轉出/轉入</th>
 
-                                        <th title="inCare"                >特作關懷名單</th>
+                                        <th title="inCare"                >變更作業</th>
                                         <th title="remark/flag"           >備註說明/開關</th>
-                                        <th title="created_at/updated_at/updated_cname" >創建/更新/操作人</th>
+                                        <th title="created_at/updated_at/updated_cname" class="unblock">創建/更新/操作人</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -376,21 +393,30 @@
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-warning">
-                    <h5 class="modal-title">maintainDept</h5>
+                    <h5 class="modal-title"><b>maintainDept：&nbsp;</b><snap id="dept_info"></snap></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <!-- 第一排-查詢功能 -->
                     <div class="row">
-                        <div class="col-12 col-md-6"><b><snap id="result_info"></snap></b></div>
-                        <div class="col-12 col-md-6 text-end py-1">
+                        <div class="col-12 col-md-4"><snap id="daptStaff_length"></snap>&nbsp;<snap id="result_info"></snap></div>
+                        <div class="col-12 col-md-8 text-end py-1 inf">
                             <div class="input-group">
                                 <span class="input-group-text">部門代號</span>
                                 <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required disabled>
                                 <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
-                                <button type="button" class="btn btn-outline-primary" onclick="resetMaintainDept()"><i class="fa-solid fa-delete-left"></i> 清除</button>
-                                <button type="button" class="btn btn-outline-primary" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="清除" onclick="resetMaintainDept()">&nbsp;<i class="fa-solid fa-delete-left"></i>&nbsp;</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="搜尋" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')">&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;</button>
                             </div>
+                                &nbsp;
+                            <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="套用名單"  onclick="loadInCare(false)">&nbsp;套&nbsp;</button>
+                        </div>
+                    </div>
+                    <div class="col-12 bg-light border rounded unblock_b" id="loadInCare_div">
+                        <label for="loadInCare" id="loadInCare_label" class="form-check-label" >套用名單：</label>
+                        <textarea name="loadInCare" id="loadInCare" class="form-control" rows="5"></textarea>
+                        <div class="col-12 p-0 text-end">
+                            <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="帶入套用名單"  onclick="loadInCare(true)">&nbsp;套用&nbsp;</button>
                         </div>
                     </div>
                     <!-- 第二排-查詢結果 -->
@@ -559,6 +585,10 @@
     // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     // const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+    const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
+    const deptInfo             = document.getElementById('dept_info');             // 定義modal表頭dept id
+    const daptStaffLength      = document.getElementById('daptStaff_length');      // 定義modal表頭daptStaff_length
+
 
     var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
@@ -566,7 +596,8 @@
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
-    var shLocalDept_inf      = [];
+    var shLocalDept_inf     = [];
+    var _dept_inf           = [];
     // var staff_inf        = [];
     // var shLocal_inf      = [];
     // var loadStaff_tmp    = [];

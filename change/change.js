@@ -2,6 +2,7 @@
     async function resetINF(request){
         if(request){
             shLocalDept_inf  = [];
+            _dept_inf        = [];
             // staff_inf     = [];
             // loadStaff_tmp = [];
             // _doc_inf      = [];
@@ -295,7 +296,6 @@
             console.log("post_arr =>", post_arr);
             // await goTest(post_arr);
 
-
         if(post_arr.length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
@@ -308,6 +308,7 @@
                     return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                 }
 
+
             await post_arr.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 const { getTargetBase, baseAll_arr, getOut_arr, getIn_arr } = reworkBase(post_i["base"]);
                 const baseAll_str = doReplace(baseAll_arr);      
@@ -318,12 +319,11 @@
                 const inCare_str = doReplace(inCare_arr);       // 部門代號加工+去除[]符號/[{"}]/g, ''
                     // console.log('inCare_arr...',inCare_arr)
                 let tr1 = '<tr>';
-                    tr1 += `<td class="t-center" id="OSTEXT_30"     >${post_i["OSTEXT_30"] ?? ''}</td>
-                            <td class="t-center" id="OSHORT/OSTEXT" >${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
+                    tr1 += `<td class="t-start" id="OSTEXT_30/OSHORT/OSTEXT" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
 
                             <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTargetBase}：${baseAll_arr.length}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
                             
-                            <td class="word_bk import" id="getOut/getIn" >
+                            <td class="word_bk" id="getOut/getIn" >
                                 <b>${getTargetBase}：${getOut_arr.length}人轉出</b><br>${getOut_str}
                                 <hr>
                                 <b>${getTargetBase}：${getIn_arr.length}人轉入</b><br>${getIn_str}
@@ -347,7 +347,7 @@
                                 </div>
                             </td>
                             
-                            <td class="t-start px-3" id="created_at/updated_at/updated_cname"         >
+                            <td class="t-start px-3 unblock" id="created_at/updated_at/updated_cname" >
                                 ${post_i["created_at"] ?? ''}<br>${post_i["updated_at"] ?? ''}<br>${post_i["updated_cname"] ?? ''}
                             </td>
                             ;`
@@ -492,22 +492,6 @@
                     // console.log('newArr', newArr);
                     return newArr;
                 }
-                // 
-                function toCheckedOpt(_arr , result_title){
-                    if(_arr){
-                        const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
-                        target_staff_cbs.forEach(input => {
-                            if (_arr.includes(input.id)) {
-                                input.checked = true;
-                            }
-                        });
-                    }
-
-                    if(result_title){
-                        const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義表頭info id
-                        resultInfo.innerHTML = result_title;
-                    }
-                }
 
 
             // 定義新的監聽器函數
@@ -524,37 +508,21 @@
                 const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
 
                 if(deptData){
-                    const { getTargetBase, baseAll_arr }  = reworkBase(deptData.base);      // 取得部門全部員工
-                    const { getTargetInCare, inCare_arr } = reworkInCare(deptData.inCare);  // 取得特檢員工
-                    const dec_baseAll_arr = decode_Obj(baseAll_arr);        // 將部門全部員工obj轉換成正常的arr
-                    await postResultTo_maintainDeptTable(dec_baseAll_arr);  // 將正常arr的部門全部員工清單交給postResultTo_maintainDeptTable進行鋪設
-
-                    const get_inCare_arr = getEmpId_Arr(inCare_arr);        // 單獨取出特檢員工的empId
-                    toCheckedOpt(get_inCare_arr , getTargetInCare);                           // 將table裡的特檢員工選上[打勾]
+                    const { getTargetBase, baseAll_arr, getIn_arr }  = reworkBase(deptData.base);   // 取得部門全部員工
+                    const dec_baseAll_arr = decode_Obj(baseAll_arr);                                // 將部門全部員工obj轉換成正常的arr
+                    const getInEmpID_arr = getEmpId_Arr(getIn_arr);                                 // 單獨取出轉入員工的empId
+                    await postResultTo_maintainDeptTable(dec_baseAll_arr, getInEmpID_arr);          // 將正常arr的部門全部員工清單交給postResultTo_maintainDeptTable進行鋪設
+                    
+                    const { getTargetInCare, inCare_arr } = reworkInCare(deptData.inCare);          // 取得特檢員工
+                    const get_inCareEmpID_arr = getEmpId_Arr(inCare_arr);                           // 單獨取出特檢員工的empId
+                    toCheckedOpt(get_inCareEmpID_arr , getTargetInCare);                            // 將table裡的特檢員工選上[打勾]
 
                 }else{
                     console.log('無deptData...套用新[]')
                 }
-                
-
 
                 maintainDept_modal.show()
-                // const edit_fun    = 'yearHe';                      // 指定功能
-                // $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
-                
-                // // step.2.0 取得 post_yearHe / 順便渲染到modal
-                // await load_fun('load_heCate','load_heCate', post_heCate);
-                
-                // // step.2.1 取得個人今年的_yearHe，並轉成陣列
-                // const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
-                // const { shCase, shCondition, _content } = empData;
-                // const _yearHe = _content[`${currentYear}`]['import']['yearHe'] !== undefined ? _content[`${currentYear}`]['import']['yearHe'] : '';
-                // const _yearHe_arr = _yearHe.includes(',') ? _yearHe.split(',') : [];
-                // // step.2.2 讓存在既有名單的清單打勾
-                // const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]'));
-                // heCate_arr.forEach(heCate_checkbox => {
-                //     heCate_checkbox.checked = _yearHe_arr.includes(heCate_checkbox.value)
-                // })
+
                 // // step.3 顯示互動視窗
                 // edit_modal.show();                               // 顯示互動視窗
                 // $("body").mLoading("hide");
@@ -603,53 +571,57 @@
 
         // 驅動搜尋部門代號下的員工； fun = 功能, fromId = 查詢來源ID；from maintainDept_modal裡[搜尋]鈕的呼叫...
         async function load_deptStaff(fun, fromId){
+            mloading(); 
             const from = document.getElementById(fromId);       // 定義來源id
             const searchkeyWord = (from.value).trim();          // search keyword取自from欄位
             console.log('searchkeyWord =>', searchkeyWord);
-            await load_fun(fun, searchkeyWord, console_log);
             await load_fun(fun, searchkeyWord, postResultTo_maintainDeptTable);
         }
 
         // 將 部門代號下的員工 搜尋結果渲染到maintainDept_modal裡的table；from maintainDept function load_deptStaff()
-        async function postResultTo_maintainDeptTable(res_r){
+        async function postResultTo_maintainDeptTable(res_r, inArr){
             return new Promise((resolve) => {
+                mloading(); 
+                inArr = inArr ?? [];
                 // console.log('res_r...', res_r);
                 // release_dataTable('maintainDept_table');
+                // daptStaff_length.insertAdjacentHTML('beforeend', `取得 ${res_r.length} 人`);
+                daptStaffLength.innerHTML = `取得人數：${res_r.length} 人`;
 
-                // 鋪設表格thead
-                let Rinner = `<thead>
-                                <tr>
-                                    <th>廠區</th>
-                                    <th>工號</th>
-                                    <th>姓名</th>
-                                    <th>職稱</th>
-                                    <th>部門代號</th>
-                                    <th>部門名稱</th>
-                                    <th class"import" id="select_deptStaff"><i class="fa-regular fa-square-check"></i>&nbsp;select</th>
-                                </tr>
-                            </thead>
-                            <tbody id='result_tbody'></tbody>`;
                 // 定義表格table
-                let div_result_table = document.getElementById('maintainDept_table');
+                const div_result_table = document.getElementById('maintainDept_table');
+                    // 鋪設表格thead
+                    const Rinner = `<thead>
+                                    <tr>
+                                        <th>廠區</th>
+                                        <th>工號</th>
+                                        <th>姓名</th>
+                                        <th>職稱</th>
+                                        <th>部門代號</th>
+                                        <th>部門名稱</th>
+                                        <th class"import" id="select_deptStaff"><i class="fa-regular fa-square-check"></i>&nbsp;select</th>
+                                    </tr>
+                                </thead>
+                                <tbody id='result_tbody'></tbody>`;
                     div_result_table.innerHTML = Rinner;
                 // 定義表格中段tbody
-                let div_result_tbody = document.getElementById('result_tbody');
+                const div_result_tbody = document.getElementById('result_tbody');
                     div_result_tbody.innerHTML = '';
-
-                res_r.forEach((empt) => {
-                    div_result_tbody.innerHTML += 
-                        `<tr>
-                            <td class="text-center">${empt.emp_sub_scope ?? ''}</td>
-                            <td class="text-center">${empt.emp_id}</td>
-                            <td class="text-center">${empt.cname}</td>
-                            <td class="text-center">${empt.cstext ?? ''}</td>
-                            <td class="text-center">${empt.dept_no ?? ''}</td>
-                            <td class="text-center">${empt.emp_dept ?? ''}</td>
-                            <td class="text-center">
-                                <input type="checkbox" class="form-check-input" name="deptStaff[]" id="${empt.emp_id}" value="${empt.emp_id},${empt.cname}" >
-                            </td>
-                        </tr>`;
-                })
+                    // 鋪設表格tbaoy
+                    res_r.forEach((empt) => {
+                        div_result_tbody.innerHTML += 
+                            `<tr>
+                                <td class="text-center">${empt.emp_sub_scope ?? ''}</td>
+                                <td class="text-center">${empt.emp_id}</td>
+                                <td class="text-center ${inArr.includes(empt.emp_id) ? 'alert_it':''}">${empt.cname}${inArr.includes(empt.emp_id) ? ' (轉入)':''}</td>
+                                <td class="text-center">${empt.cstext ?? ''}</td>
+                                <td class="text-center">${empt.dept_no ?? ''}</td>
+                                <td class="text-center">${empt.emp_dept ?? ''}</td>
+                                <td class="text-center">
+                                    <input type="checkbox" class="form-check-input" name="deptStaff[]" id="${empt.emp_id}" value="${empt.emp_id},${empt.cname}" >
+                                </td>
+                            </tr>`;
+                    })
                 
                 // 防止空值被帶入shLocalDept_inf
                     const selectDeptStaff_btn = document.querySelector('#maintainDept #select_deptStaff');     //  定義出[全選]範圍
@@ -681,11 +653,11 @@
         }
         // 清除MaintainDept；from maintainDept_modal裡[清除]鈕的呼叫
         function resetMaintainDept(){
-            // let fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義輸入來源id
+            // let fromInput = document.querySelector('#maintainDept #searchkeyWord');          // 定義輸入來源id
                 // fromInput.value = '';
-            let resultInfo = document.querySelector('#maintainDept #result_info');       // 定義表頭info id
+            const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
                 resultInfo.innerHTML = '';
-            let div_result_table = document.querySelector('#maintainDept #maintainDept_table');
+            const div_result_table = document.querySelector('#maintainDept #maintainDept_table'); // 定義table
                 div_result_table.innerHTML = '';
 
             const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出[代入]範圍
@@ -780,22 +752,30 @@
                     deptData.inCare[currentYearMonth] = reworkTableInCare_arr;
 
                 } else {
+                    
                     let newDeptData = {};
-                        newDeptData["OSHORT"] = targetDeptNo;
-                        newDeptData["base"]   = {};
-                        newDeptData["base"][currentYearMonth] = {
-                                'getOut'    : [],
-                                'getIn'     : [],
-                                'keepGoing' : reworkTableBaseAll_arr ?? []
-                            };
-                        newDeptData["inCare"] = {};
-                        newDeptData["inCare"][currentYearMonth] = reworkTableInCare_arr ?? [];
-                        newDeptData["remark"] = {
-                                'memo' : []
-                            };
-                        newDeptData["flag"] = true;
-                        // newDeptData["created_at"] = getTimeStamp();
-                        shLocalDept_inf.push(newDeptData);
+                        const deptInfoInnerTEXT = deptInfo.innerHTML;           // 定義表頭dept id
+                        if(deptInfoInnerTEXT){
+                            const thisArr = deptInfoInnerTEXT.split(',')       // 分割this.id成陣列
+                            newDeptData["OSTEXT_30"] = thisArr[0];        // 取出陣列 0 = 廠區
+                            // newDeptData["OSHORT"] = thisArr[1];        // 取出陣列 1 = 部門代號
+                            newDeptData["OSTEXT"]    = thisArr[2];        // 取出陣列 1 = 部門名稱
+                        }
+                    newDeptData["OSHORT"] = targetDeptNo;
+                    newDeptData["base"]   = {};
+                    newDeptData["base"][currentYearMonth] = {
+                            'getOut'    : [],
+                            'getIn'     : [],
+                            'keepGoing' : reworkTableBaseAll_arr ?? []
+                        };
+                    newDeptData["inCare"] = {};
+                    newDeptData["inCare"][currentYearMonth] = reworkTableInCare_arr ?? [];
+                    newDeptData["remark"] = {
+                            'memo' : []
+                        };
+                    newDeptData["flag"] = true;
+                    // newDeptData["created_at"] = getTimeStamp();
+                    shLocalDept_inf.push(newDeptData);
                 }
 
                 console.log('shLocalDept_inf 2',shLocalDept_inf);
@@ -819,8 +799,43 @@
             // 添加新的監聽器
             submitDeptStaff_btn.addEventListener('click', submitDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
         }
+        // 套用特殊健檢名單[textArea]
+        async function loadInCare(request){
+            const loadInCare_div = document.getElementById('loadInCare_div');
+            loadInCare_div.classList.toggle('show');
+            if(request){
+                const loadInCare = document.getElementById('loadInCare');
+                let thisValue = loadInCare.value.replace(/\n/g, ',');
+                // const thisArr = thisValue.split(',').filter(item => item !== "");           // 分割this.id成陣列
+                const thisArr = thisValue.split(',').filter(item => {
+                    return item.length === 8 && /^\d+$/.test(item);
+                });
+                console.log('thisValue...',thisArr)
 
-                    
+                if(thisArr.length > 0){
+                    let thisInfo = `帶入套用：${thisArr.length} 人`;
+                    console.log('thisInfo...', thisInfo);
+                    toCheckedOpt(thisArr ,thisInfo )
+                }
+            }
+        }
+        // 把特作名單給選上、套用月份資料...給arr名單，就打勾
+        function toCheckedOpt(_arr , result_title){
+            if(_arr){
+                const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
+                target_staff_cbs.forEach(input => {
+                    if (_arr.includes(input.id)) {
+                        input.checked = true;
+                    }
+                });
+            }
+
+            if(result_title){
+                const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
+                resultInfo.innerHTML = result_title;
+            }
+        }
+              
 
 
 // // phase 1 -- 生成按鈕
@@ -839,11 +854,14 @@
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
-                                    <div class="card-header">${emp_sub_scope}</div>
+                                    <div class="card-header"><button type="button" name="scope[]" value="${emp_sub_scope}" class="add_btn">${emp_sub_scope}</button></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
-                                                + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>`
+                                            `<div class="form-check px-4">
+                                                <input type="checkbox" name="subScope[]" id="cb,${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="form-check-input" >
+                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
+                                                + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>
+                                            </div>`
                                         ).join('')}
                                     </div>
                                 </div>
@@ -939,6 +957,16 @@
                     deptNo_btn.addEventListener('click', async function() {
                         const thisValue   = '"'+this.value+'"';       // 取得部門代號並加工(單選)
                         console.log('單選 thisValue =>', thisValue)
+                        console.log('單選 thisID =>', this.id)
+
+                        daptStaffLength.innerHTML = '';               // 清除取得人數提示
+                        if(this.id){
+                            deptInfo.innerHTML = this.id;
+                        }
+                        
+                        _dept_inf.push(this.id)
+                        console.log(_dept_inf)
+
 
                         // 工作一 清空暫存
                             await resetINF(true); // 清空
@@ -958,6 +986,59 @@
                     });
                 });
 
+            // step-p1-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+                const load_subScopes_btn = document.getElementById('load_subScopes_btn');
+                load_subScopes_btn.addEventListener('click', async function() {
+                    const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
+                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
+                    console.log('多選 selectedValues_str =>', selectedValues_str)
+
+                    const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
+                    console.log('多選 selectedIDs =>', selectedIDs)
+                    
+                    _dept_inf = [..._dept_inf, ...selectedIDs];
+                    console.log(_dept_inf)
+
+                    // 工作一 清空暫存
+                        await resetINF(true);               // 清空
+                    // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
+                        await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+
+                    // await reload_dataTable();
+
+                    // $('logsInfo').empty();
+                    // console.log('staff_inf...', staff_inf);
+
+                    $('#nav-p2-tab').tab('show');
+                })
+
+            // step-p1-A2. (非主要功能)綁定scope_btns事件監聽器 => card head上的全選btn
+                const scope_btns = document.querySelectorAll('#deptNo_opts_inside button[name="scope[]"]');
+                scope_btns.forEach(scope_btn => {
+                    scope_btn.addEventListener('click', async function() {
+                        const target_scope_cbs = document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${this.value},"]`);
+                        // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                        let allChecked = Array.from(target_scope_cbs).every(checkbox => checkbox.checked);
+                        target_scope_cbs.forEach(checkbox => {
+                            checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                            // 手動觸發 change 事件
+                            checkbox.dispatchEvent(new Event('change'));
+                        });
+                    });
+                });
+
+            // step-p1-A3. (非主要功能)驗證提醒監聽 => for [提取勾選部門]驗證提醒
+                const subScopes_opts_arr = Array.from(document.querySelectorAll('#deptNo_opts_inside input[id*="cb,"]'));
+                subScopes_opts_arr.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const selectedOptsValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
+                        // 更新驗證標籤
+                        load_subScopes_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
+                        load_subScopes_btn.classList.toggle('is-valid',   selectedOptsValues.length > 0);
+                        load_subScopes_btn.disabled = selectedOptsValues.length === 0;
+                    });
+                });
+                
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }

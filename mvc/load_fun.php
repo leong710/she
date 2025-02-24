@@ -381,7 +381,7 @@
                     // 防呆
                     $OSTEXT_30 = $OSTEXT_30 ?? ( $row_data["OSTEXT_30"] ?? "");    // 廠區
                     $OSTEXT    = $OSTEXT    ?? ( $row_data["OSTEXT"]    ?? "");    // 部門名稱
-                    $remark    = $remark    ?? ( $row_data["remark"]    ?? NULL);    // 備註說明
+                    $remark    = $remark    ?? ( $row_data["remark"]    ?? NULL);  // 備註說明
                     $flag      = $flag      ?? ( $row_data["flag"]      ?? true);  // 開關
 
                     // step.4 將更新後的資料編碼為 JSON 字串
