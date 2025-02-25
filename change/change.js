@@ -2,6 +2,7 @@
     async function resetINF(request){
         if(request){
             shLocalDept_inf  = [];
+            defaultDept_inf  = [];
             _dept_inf        = [];
             // staff_inf     = [];
             // loadStaff_tmp = [];
@@ -432,8 +433,67 @@
             // step-4.返回resilt變數
             return { differenceOut, differenceIn, differenceKeepGoing };
         }
+        // fun-2 當shLocalDept_inf沒有符合的deptData時...給他一個新的
+        function bomNewDept(selectDeptStr, _dept_inf){
+            return new Promise((resolve) => {
+                // 初始化新生成dept陣列..返回用
+                let bomNewDeptArr = [];
+                
+                if(selectDeptStr !== ''){
+                    const selectDeptArr = selectDeptStr.split(',')       // 分割deptStr成陣列
+                    if(selectDeptArr.length > 0){
+                        console.log('selectDeptArr', selectDeptArr)
+                        const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth();   // 執行函式--取得年月
+                        selectDeptArr.forEach((deptNo) => {
+                            let newDeptData = {};                                               // 初始化新生成dept物件
+                            deptNo = deptNo.replace(/"/g, '');                                  // 去除前後"符號..
+                            const deptStr = _dept_inf.find(item => item.includes(deptNo));      // 從_dept_inf找出符合 deptNo 的原始字串
+                            console.log('_dept_inf',_dept_inf)
+                            console.log('deptStr',deptStr)
+                            if(deptStr){
+                                const deptArr = deptStr.split(',')                              // 分割deptStr成陣列
+                                newDeptData["OSTEXT_30"] = deptArr[0] ?? '';                    // 取出陣列 0 = 廠區
+                                newDeptData["OSHORT"]    = deptArr[1] ?? '';                    // 取出陣列 1 = 部門代號
+                                newDeptData["OSTEXT"]    = deptArr[2] ?? '';                    // 取出陣列 1 = 部門名稱
+                            }
+                            newDeptData["base"]      = {
+                                    [currentYearMonth] : {
+                                            'getOut'    : [],
+                                            'getIn'     : [],
+                                            'keepGoing' : []
+                                        }
+                                };
+                            newDeptData["inCare"]    = { [currentYearMonth] : [] };
+                            newDeptData["remark"]    = { 'memo' : [] };
+                            newDeptData["flag"]      = true;
+                            // newDeptData["created_at"] = getTimeStamp();
+                            bomNewDeptArr.push(newDeptData);
+                        })
+                    }
+                }
 
+                resolve(bomNewDeptArr);
+            });
+            // return bomNewDeptArr;
+        }
+        // fun-3 檢查load_fun('load_shLocalDepts') 是否都有存在，不然就生成dept預設值
+        async function preCheckDeptData(selectDeptStr, _dept_inf){
 
+            const load_shLocalDepts = await load_fun('load_shLocalDepts', selectDeptStr, 'return');     // step-1. 先從db撈現有的資料
+            const existingDeptStrs = load_shLocalDepts.map(dept => dept.OSHORT);                        // step-2. 提取load_shLocalDepts中所有的OSHORT值
+            defaultDept_inf = [...defaultDept_inf, ...load_shLocalDepts];                               // step-2. 合併load_shLocalDepts
+
+            const selectDeptArr = selectDeptStr.replace(/"/g, '').split(',')                            // step-3. 去除前後"符號..分割deptStr成陣列
+            const notExistingDepts = selectDeptArr.filter(dept => !existingDeptStrs.includes(dept));    // step-4. 找出不存在於load_shLocalDepts中的部門代號
+
+            if(notExistingDepts.length > 0) {
+                const notExistingDepts_str = JSON.stringify(notExistingDepts).replace(/[\[\]]/g, '');   // step-5. 把不在的部門代號進行加工(多選)，去除外框
+                const bomNewDeptArr = await bomNewDept(notExistingDepts_str, _dept_inf);                // step-6. 生成dept預設值
+                defaultDept_inf = [...defaultDept_inf, ...bomNewDeptArr];                               // step-6. 合併bomNewDeptArr
+            }
+
+            post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
+        };
 
     // 241121 在p2table上建立baseInCare監聽功能 for 開啟MaintainDept編輯deptStaff名單...未完
     let baseInCareClickListener;
@@ -730,7 +790,7 @@
                 const reworkTableInCare_arr  = await reworkArr(table_inCare_arr);      // 將table上inCare整理成我要的格式
                     console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
 
-                const { currentYearMonth } = getCurrentAndLastMonth();      // 執行函式--取得年月
+                const { currentYearMonth } = getCurrentAndLastMonth();                          // 執行函式--取得年月
 
                 const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
                 const targetDeptNo = fromInput.value;                                           // 取得formInput = 部門代號
@@ -739,7 +799,7 @@
 
                 if(deptData){
                     deptData.base = deptData.base ?? [];
-                    const { getTargetBase, baseAll_arr }  = reworkBase(deptData.base);      // 取得dept部門在紀錄裡的全部員工
+                    const { getTargetBase, baseAll_arr }  = reworkBase(deptData.base);          // 取得dept部門在紀錄裡的全部員工
                     const { differenceOut, differenceIn, differenceKeepGoing } = getDifferencesAndKeys(reworkTableBaseAll_arr, baseAll_arr); // (arr1=本月名單, arr2=上月名單)
 
                     deptData.base[currentYearMonth] = {
@@ -753,29 +813,9 @@
 
                 } else {
                     
-                    let newDeptData = {};
-                        const deptInfoInnerTEXT = deptInfo.innerHTML;           // 定義表頭dept id
-                        if(deptInfoInnerTEXT){
-                            const thisArr = deptInfoInnerTEXT.split(',')       // 分割this.id成陣列
-                            newDeptData["OSTEXT_30"] = thisArr[0];        // 取出陣列 0 = 廠區
-                            // newDeptData["OSHORT"] = thisArr[1];        // 取出陣列 1 = 部門代號
-                            newDeptData["OSTEXT"]    = thisArr[2];        // 取出陣列 1 = 部門名稱
-                        }
-                    newDeptData["OSHORT"] = targetDeptNo;
-                    newDeptData["base"]   = {};
-                    newDeptData["base"][currentYearMonth] = {
-                            'getOut'    : [],
-                            'getIn'     : [],
-                            'keepGoing' : reworkTableBaseAll_arr ?? []
-                        };
-                    newDeptData["inCare"] = {};
-                    newDeptData["inCare"][currentYearMonth] = reworkTableInCare_arr ?? [];
-                    newDeptData["remark"] = {
-                            'memo' : []
-                        };
-                    newDeptData["flag"] = true;
-                    // newDeptData["created_at"] = getTimeStamp();
-                    shLocalDept_inf.push(newDeptData);
+                    const bomNewDeptArr = await bomNewDept(targetDeptNo, _dept_inf);                // step-6. 生成dept預設值
+                    shLocalDept_inf = [...shLocalDept_inf, ...bomNewDeptArr];                       // step-6. 合併bomNewDeptArr
+
                 }
 
                 console.log('shLocalDept_inf 2',shLocalDept_inf);
@@ -956,23 +996,22 @@
                 deptNo_btns.forEach(deptNo_btn => {
                     deptNo_btn.addEventListener('click', async function() {
                         const thisValue   = '"'+this.value+'"';       // 取得部門代號並加工(單選)
-                        console.log('單選 thisValue =>', thisValue)
-                        console.log('單選 thisID =>', this.id)
-
-                        daptStaffLength.innerHTML = '';               // 清除取得人數提示
-                        if(this.id){
-                            deptInfo.innerHTML = this.id;
-                        }
-                        
-                        _dept_inf.push(this.id)
-                        console.log(_dept_inf)
-
-
+                                // console.log('單選 thisValue =>', thisValue)
+                                // console.log('單選 thisID =>', this.id)
+                                
+                            daptStaffLength.innerHTML = '';                 // 清除取得人數提示
+                            if(this.id){
+                                deptInfo.innerHTML = this.id;               // 標題鋪設id值
+                            }
                         // 工作一 清空暫存
                             await resetINF(true); // 清空
 
-                        // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
-                            await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        // 工作二 把this.id推進去部門資訊arr 
+                            _dept_inf.push(this.id);                        // 推入部門資訊arr     
+                                console.log('單選_dept_inf...',_dept_inf)
+                        // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
+                            // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                            await preCheckDeptData(thisValue, _dept_inf);
 
                             let fromInput = document.querySelector('#maintainDept #searchkeyWord');     // 定義maintainDept搜尋input欄
                                 fromInput.value = this.value;                                           // 賦予內容值
@@ -991,18 +1030,18 @@
                 load_subScopes_btn.addEventListener('click', async function() {
                     const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
-                    console.log('多選 selectedValues_str =>', selectedValues_str)
-
                     const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
-                    console.log('多選 selectedIDs =>', selectedIDs)
-                    
-                    _dept_inf = [..._dept_inf, ...selectedIDs];
-                    console.log(_dept_inf)
+                            // console.log('多選 selectedValues_str =>', selectedValues_str)
+                            // console.log('多選 selectedIDs =>', selectedIDs)
 
                     // 工作一 清空暫存
                         await resetINF(true);               // 清空
+                    // 工作二 把this.id合併進去部門資訊arr 
+                        _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
+                            console.log('多選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
-                        await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                        await preCheckDeptData(selectedValues_str, _dept_inf);
 
                     // await reload_dataTable();
 

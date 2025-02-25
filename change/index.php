@@ -596,8 +596,9 @@
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
-    var shLocalDept_inf     = [];
-    var _dept_inf           = [];
+    var shLocalDept_inf     = [];   // 存放db取得的dept資料
+    var defaultDept_inf     = [];   // db沒有資料，這裡生成預設值 by bomNewDept(selectDeptStr)
+    var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
     // var staff_inf        = [];
     // var shLocal_inf      = [];
     // var loadStaff_tmp    = [];
