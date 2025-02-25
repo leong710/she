@@ -320,11 +320,11 @@
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
                             <div class="col-6 col-md-7 py-0">
-                                <label for="excelFile" class="form-label">特作員工清單 <span>&nbsp<a href="../_Format/shStaff_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">變更作業健檢名單 <span>&nbsp<a href="../_Format/shStaffChange_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
                                     <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaff">上傳</button>
+                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaffChange">上傳</button>
                                 </div>
                             </div>
                             <div class="col-6 col-md-5 py-0">
@@ -343,47 +343,6 @@
                     <input  type="hidden" id="excelTable" name="excelTable" value="">
                     <button type="submit" class="btn btn-success unblock" data-bs-dismiss="modal" id="import_excel_btn" >載入</button>
                     <button type="reset"  class="btn btn-secondary"       data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
-    <!-- 互動視窗 import_shLocal -->
-    <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">挑選作業位置&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4">
-                    <table id="shLocal_table" class="table table-striped table-hover">
-                        <thead>
-                            <th title="id">aid</th>
-                            <th title="OSTEXT_30">廠區</th>
-                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
-                            <th title="OSTEXT">部門名稱</th>
-
-                            <th title="HE_CATE">檢查類別代號</th>
-                            <th title="MONIT_NO">監測編號</th>
-                            <th title="MONIT_LOCAL">監測處所</th>
-                            <th title="WORK_DESC">作業描述</th>
-                            
-                            <th title="AVG_VOL">A權音壓級<br><sup>(dBA)</sup></th>
-                            <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均<br><sup>(dBA)</sup></th>
-                            <th title="">選擇</th>
-                        </thead>
-                        <tbody>
-
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
-                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
-                    </div>
-                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
         </div>
@@ -434,6 +393,51 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- 互動視窗 import_shLocal -->
+    <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">挑選作業位置&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4">
+                    <table id="shLocal_table" class="table table-striped table-hover">
+                        <thead>
+                            <th title="id">aid</th>
+                            <th title="OSTEXT_30">廠區</th>
+                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
+                            <th title="OSTEXT">部門名稱</th>
+
+                            <th title="HE_CATE">檢查類別代號</th>
+                            <th title="MONIT_NO">監測編號</th>
+                            <th title="MONIT_LOCAL">監測處所</th>
+                            <th title="WORK_DESC">作業描述</th>
+                            
+                            <th title="AVG_VOL">A權音壓級<br><sup>(dBA)</sup></th>
+                            <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均<br><sup>(dBA)</sup></th>
+                            <th title="">選擇</th>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
+                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
+                    </div>
+                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+
     <!-- canvas側欄 memoCard-->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
         <div class="offcanvas-header bg-light">
@@ -567,24 +571,26 @@
 
 // // // 開局導入設定檔
 // 以下為控制 iframe
-    // var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
-    // var iframe              = document.getElementById('api');                   // 清冊的iframe介面
-    // var warningText_1       = document.getElementById('warningText_1');         // 未上傳的提示
-    // var warningText_2       = document.getElementById('warningText_2');         // 資料有誤的提示
-    // var excel_json          = document.getElementById('excel_json');            // 清冊中有誤的提示
-    // var excelFile           = document.getElementById('excelFile');             // 上傳檔案名稱
-    // var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
-    // var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
-    // var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
+    var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
+    var iframe              = document.getElementById('api');                   // 清冊的iframe介面
+    var warningText_1       = document.getElementById('warningText_1');         // 未上傳的提示
+    var warningText_2       = document.getElementById('warningText_2');         // 資料有誤的提示
+    var excel_json          = document.getElementById('excel_json');            // 清冊中有誤的提示
+    var excelFile           = document.getElementById('excelFile');             // 上傳檔案名稱
+    var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
+    var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
+    var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
+    var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
+
     // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
     // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     // var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     // var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
-    // var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
     // var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
     // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
     // const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
+
     const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
     const deptInfo             = document.getElementById('dept_info');             // 定義modal表頭dept id
     const daptStaffLength      = document.getElementById('daptStaff_length');      // 定義modal表頭daptStaff_length
@@ -630,7 +636,7 @@
 <!-- <script src="../mvc/editModal.js?v=<=time()?>"></script> -->
 
 <script src="change.js?v=<?=time()?>"></script>
-<!-- <script src="change_excel.js?v=<=time()?>"></script> -->
+<script src="change_excel.js?v=<?=time()?>"></script>
 <!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

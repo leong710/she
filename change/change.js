@@ -442,14 +442,11 @@
                 if(selectDeptStr !== ''){
                     const selectDeptArr = selectDeptStr.split(',')       // 分割deptStr成陣列
                     if(selectDeptArr.length > 0){
-                        console.log('selectDeptArr', selectDeptArr)
                         const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth();   // 執行函式--取得年月
                         selectDeptArr.forEach((deptNo) => {
                             let newDeptData = {};                                               // 初始化新生成dept物件
                             deptNo = deptNo.replace(/"/g, '');                                  // 去除前後"符號..
                             const deptStr = _dept_inf.find(item => item.includes(deptNo));      // 從_dept_inf找出符合 deptNo 的原始字串
-                            console.log('_dept_inf',_dept_inf)
-                            console.log('deptStr',deptStr)
                             if(deptStr){
                                 const deptArr = deptStr.split(',')                              // 分割deptStr成陣列
                                 newDeptData["OSTEXT_30"] = deptArr[0] ?? '';                    // 取出陣列 0 = 廠區
@@ -788,14 +785,14 @@
                 // 把取得的數據送去reworkArr整理...
                 const reworkTableBaseAll_arr = await reworkArr(table_baseAll_arr);     // 將table上bassAll整理成我要的格式
                 const reworkTableInCare_arr  = await reworkArr(table_inCare_arr);      // 將table上inCare整理成我要的格式
-                    console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
+                    // console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
 
                 const { currentYearMonth } = getCurrentAndLastMonth();                          // 執行函式--取得年月
 
                 const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
                 const targetDeptNo = fromInput.value;                                           // 取得formInput = 部門代號
                 let deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);      // 自shLocalDept_inf找出對應的部門
-                    console.log('shLocalDept_inf 1',shLocalDept_inf);
+                    // console.log('shLocalDept_inf 1',shLocalDept_inf);
 
                 if(deptData){
                     deptData.base = deptData.base ?? [];
@@ -817,8 +814,7 @@
                     shLocalDept_inf = [...shLocalDept_inf, ...bomNewDeptArr];                       // step-6. 合併bomNewDeptArr
 
                 }
-
-                console.log('shLocalDept_inf 2',shLocalDept_inf);
+                // console.log('shLocalDept_inf 2',shLocalDept_inf);
                 post_hrdb(shLocalDept_inf); // 鋪設
 
                 // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
@@ -1003,6 +999,9 @@
                             if(this.id){
                                 deptInfo.innerHTML = this.id;               // 標題鋪設id值
                             }
+                            let fromInput = document.querySelector('#maintainDept #searchkeyWord');     // 定義maintainDept搜尋input欄
+                            fromInput.value = this.value;                                           // 賦予內容值
+
                         // 工作一 清空暫存
                             await resetINF(true); // 清空
 
@@ -1012,9 +1011,6 @@
                         // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                             // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                             await preCheckDeptData(thisValue, _dept_inf);
-
-                            let fromInput = document.querySelector('#maintainDept #searchkeyWord');     // 定義maintainDept搜尋input欄
-                                fromInput.value = this.value;                                           // 賦予內容值
 
                         //     await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         //     await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
@@ -1044,7 +1040,6 @@
                         await preCheckDeptData(selectedValues_str, _dept_inf);
 
                     // await reload_dataTable();
-
                     // $('logsInfo').empty();
                     // console.log('staff_inf...', staff_inf);
 
@@ -1140,11 +1135,62 @@
                         });
                     }
 
+    // [p2 函數-3] 設置事件監聽器for Excel上傳下載
+    async function excel_eventListener() {
+        return new Promise((resolve) => {
+
+            // p2.[load_excel] 以下為上傳後"iframe"的部分
+                // p2-1. 監控modal按下[上傳]鍵後，載入Excel
+                excelUpload.addEventListener('click', ()=> {
+                    iframeLoadAction();
+                    loadExcelForm();
+                });
+
+                // p2-2. 監控modal按下[上傳]鍵後，打開隱藏的"iframe"，"load"後執行抓取資料
+                iframe.addEventListener('load', ()=> {
+                    iframeLoadAction();
+                });
+
+                // p2-3. 監控按下[載入]鍵後----呼叫Excel載入
+                import_excel_btn.addEventListener('click', async function() {
+                    mloading("show");                                               // 啟用mLoading
+                    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+                    var excel_json = iframeDocument.getElementById('excel_json');           // 正確載入
+                    var stopUpload = iframeDocument.getElementById('stopUpload');           // 錯誤訊息
+
+                    if (excel_json) {
+                        document.getElementById('excelTable').value = excel_json.value;
+                        const excel_json_value_arr = JSON.parse(excel_json.value);
+                        console.log('excel_json.value...', excel_json.value)
+                        // 250203 在匯入的時候就直接補上對應欄位資料
+                        // await rework_omager(excel_json_value_arr);
+                        // 250210 匯入時補上建物編號...
+                        // await rework_BTRTL(excel_json_value_arr);
+                        
+                        // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
+                        // await mgInto_staff_inf(excel_json_value_arr)         // 呼叫[fun] 
+                        // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
+                        // searchWorkCaseAll(excel_json_value_arr);
+
+                        inside_toast(`批次匯入Excel資料...Done&nbsp;!!`, 1000, 'info');
+
+                    } else if(stopUpload) {
+                        console.log('請確認資料是否正確');
+                    }else{
+                        console.log('找不到 ? 元素');
+                    }
+                });
+
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
+
 
 // [default fun]
     $(async function() {
         await p1_init();
         await p1_eventListener();                     // 呼叫函數-3 建立監聽
+        await excel_eventListener();
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
         // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;

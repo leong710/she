@@ -43,3 +43,97 @@
             // console.log('找不到 < ? > 元素');
         }
     };
+    // fun.2-1c 下載Excel...要修正
+    function downloadExcel(to_module) {
+        if(staff_inf.length === 0){
+            return;
+        }
+        const item_keys = {
+            "emp_sub_scope" : "廠區",
+            "dept_no"       : "部門代碼",
+            "emp_dept"      : "部門名稱",
+            "emp_id"        : "工號",
+            "cname"         : "姓名",
+            "shCase"        : "特作項目",
+            "shCondition"   : "資格驗證",
+            "_content"      : "import"
+        };
+        const shCase_keys = {
+            "OSTEXT_30"     : "工作廠區",
+            "HE_CATE"       : "檢查類別代號",
+            "MONIT_LOCAL"   : "工作場所",
+            "WORK_DESC"     : "工作內容",
+            "AVG_VOL"       : "A權音壓級(dBA)",
+            "AVG_8HR"       : "日時量平均(dBA)",
+            "eh_time"       : "每日暴露時數"
+        };
+        const import_keys = {
+            "yearHe"        : "檢查類別",
+            "yearCurrent"   : "檢查代號",
+            "yearPre"       : "去年檢查項目"
+        };
+        let sort_listData = staff_inf.map((staff) => {
+            let sortedData = {};
+            // 處理主欄位
+            Object.entries(item_keys).forEach(([key, label]) => {
+                if (key === 'shCase') {
+                    if(staff['shCase'].length >0){
+                        staff['shCase'].forEach((caseItem) => {
+                            // 處理 shCase 的子欄位
+                            Object.entries(shCase_keys).forEach(([subKey, subLabel]) => {       
+                                const value = caseItem[subKey];
+                                if (subKey === 'HE_CATE' && value !== undefined) {
+                                    const heCate = JSON.stringify(value).replace(/[{"}]/g, '');
+                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${heCate}` : heCate;
+
+                                }else if (subKey === 'eh_time') {
+                                    const eh_time = staff.eh_time ?? null;
+                                    // sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${eh_time}` : eh_time;
+                                    sortedData[subLabel] = eh_time;
+
+                                } else if(value !== undefined){                                 // 240909 這裡要追加過濾 沒有HE_CATE的項目...
+                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${(value || '')}` : (value || '');
+
+                                } else if(value === undefined) {
+                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${''}` : '';
+                                }
+                            });
+                        });
+                        
+                    }else{  // 預防shCase是空值，仍必須把表頭寫入。
+                        Object.entries(shCase_keys).forEach(([subKey, subLabel]) => {
+                            sortedData[subLabel] = '';
+                        });
+                    }
+
+                } else if (key === 'shCondition') {
+                    const shCondition = staff[key];
+                    // 過濾出 value = true 的鍵值對
+                    let shCondition_true = Object.fromEntries(
+                        Object.entries(shCondition).filter(([key, value]) => value === true)        // 這裡不能用;結尾...要注意!
+                    );
+                    shCondition_true = JSON.stringify(shCondition_true).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
+                    sortedData[label] = shCondition_true;
+
+                } else if (key === '_content') {
+                    const _import = staff[key][currentYear][label];
+                    Object.entries(import_keys).forEach(([iKey, iLabel]) => {       
+                        const value = _import[iKey];
+                        if(value !== undefined){
+                            sortedData[iLabel] = JSON.stringify(value).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
+                        }else{
+                            sortedData[iLabel] = '';
+                        }
+                    });
+
+                } else {
+                    sortedData[label] = staff[key] ? staff[key] : staff['_logs'][currentYear][key];
+                }
+            });
+    
+            return sortedData;
+        });
+    
+        let htmlTableValue = JSON.stringify(sort_listData);
+        document.getElementById(to_module + '_htmlTable').value = htmlTableValue;
+    }

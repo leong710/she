@@ -239,6 +239,110 @@
                             echo '</div>';
                         }
                     }
+                } else if ($submit === 'shStaffChange') {       // 250225_變更作業健檢
+                    // 在此处可以对$data进行进一步处理
+                    // 将结果输出为HTML表格
+                    $theadTitles = array('年月份','廠區','工號','姓名','部門代碼','部門名稱','檢查類別','彙整人員','是否執行檢查','確認檢查類別','檢查日','健檢醫院','是否結案','定檢資格');
+                    // 計算陣列中的"key"
+                    $keyCount = count($theadTitles);
+                    echo '<div class="col-12 bg-light px-0 ">';
+                    echo '<table><thead><tr>';
+                        // 繞出每一個"theadTitles"的值
+                        foreach ($theadTitles as $theadTitle){
+                            echo '<th>' . $theadTitle . '</th>';
+                        }
+                        echo '</tr></thead>';
+                    // 防止無資料送入的錯誤。
+                    if(!isset($data[1])){
+                        echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
+                        return ;
+        
+                    }else{
+
+                        echo '<tbody>';
+                        // 設定一個"result"陣列
+                        $result = array();
+                        $stopUpload = 0;
+                        $errLog = [];
+
+                        // 繞出每一個Data的值
+                        foreach ($data as $rowIndex => $row) {
+                            // 跳過表頭
+                            if ($rowIndex === 0) { continue; }
+                            echo '<tr>';
+
+                            // 避免有空白並處理部門代碼
+                            foreach ($row as $index => $value) {
+                                if ($index > 5) break;
+                                $row[$index] = trim(str_replace(' ', '', $value));
+                            }
+                            $row[4] = strtoupper(trim($row[4]));         // 部門代碼 strtoupper轉大寫
+                            $row[6] = str_replace('、', ',', $row[6]);   // 類別 str_replace符號轉逗號
+
+                            // 檢查工號emp_id $row[2]是否空值
+                                $emp_id_check = (!empty($row[2]) && strlen($row[2]) == 8 ) ? true : false;
+                            // 檢查部門代碼OSHORT $row[4]是否空值
+                                $OSHORT_check = (!empty($row[4])) ? true : false;
+                                $row_result = array_merge($row, [
+                                    "emp_id_check" => $emp_id_check,
+                                    "OSHORT_check" => $OSHORT_check,
+                                ]);
+
+                            if ($emp_id_check && $OSHORT_check) {
+                                foreach ($row as $index => $value) {
+                                    if ($index > 8) break;                                  // 欄位數
+                                    echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
+                                }
+                                // 240904 將特作代號$row[6]升級成物件
+                                    $row6 = explode(",", $row[6]);    
+                                    $row6_arr = array();
+                                    if(!empty($row6)){
+                                        foreach ($row6 as $row6_i) {
+                                            list($key, $value) = explode(':', $row6_i);
+                                            $row6_arr[$key] = $value;
+                                        }
+                                    }
+
+                                $process = [
+                                    "targetYear"    => $row[0],
+                                    "OSTEXT_30"     => $row[1],
+                                    "emp_id"        => $row[2],
+                                    "cname"         => $row[3],
+                                    "OSHORT"        => $row[4],
+                                    "OSTEXT"        => $row[5],
+                                    "yearHe"        => $row[6],
+                                    "updated_cname" => $row[7],
+                                    "HE_CATE"       => null,
+                                    "yearCurrent"   => $row[7],
+                                    "yearPre"       => $row[8]
+                                ];
+                                $result[] = $process;
+
+                            }else {
+                                handleInvalidRow($submit, $row_result, "");                 // [fun] ...
+                            }
+                            echo '</tr>'; 
+                        };
+
+                        echo '</tbody></table>';
+                        // 增加卡"有誤"不能上傳。
+                        // 如果"有誤"的累計資料等於"0"。
+                        if( $stopUpload === 0 ){
+                            // 將資料打包成JSON
+                            $jsonString = json_encode($result, JSON_UNESCAPED_UNICODE );
+                            // 鋪設前處理 
+                            $cart_dec = (array) json_decode($jsonString);
+                            // 以下是回傳給form使用。
+                            echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
+                            echo '</div>';
+                        }else{
+                            echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
+                            // echo    '<div><pre>';
+                            //     print_r($errLog);
+                            // echo    '</pre></div>';
+                            echo '</div>';
+                        }
+                    }
 
                 } else if ($submit === '其他按钮名称') {
                     // 其他按钮被点击时执行的操作
@@ -332,6 +436,15 @@
                 $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
                 echo $td_str;
                 break;
+
+            case "shStaffChange":
+                $td_str  = '<td>' . $row_result[0] . '</td><td>' . $row_result[1] .  '</td>';
+                $td_str .= '<td'  . (!$row_result["emp_id_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[2]) . '</td><td>' . $row_result[3]. '</td>';
+                $td_str .= '<td'  . (!$row_result["OSHORT_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[4]) . '</td><td>' . $row_result[5]. '</td>';
+                $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
+                echo $td_str;
+                break;
+
             default:            // 預定失效 
         }
 
