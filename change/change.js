@@ -111,182 +111,121 @@
         await load_fun('bat_storeDept', bat_storeDept_value, show_swal_fun);   // load_fun的變數傳遞要用字串
         location.reload();
     }
-
-
-    // 備註說明模組 START
-        // 開啟memoModal的預設工作
-        async function memoModal(thisId){
-            // step.1 標題列顯示姓名工號
-            // $('#memoTitle').empty().append(`(${thisId})`);         // 清空+填上工號
-            const thisId_arr = thisId.split(',');                 // 分割this.id成陣列
-            const deptNo     = thisId_arr[1];                     // 取出陣列1=deptNo
-            postMemoMsg_btn.value = deptNo;
-            // step.2 取得dept的memo，並轉成陣列
-            const deptData = shLocalDept_inf.find(dept => dept.OSHORT === deptNo);
-                // const { remark } = deptData;
-                // const _memo = remark['memo'] !== undefined ? remark['memo'] : [];
-            if(deptData.remark == null){
-                deptData.remark = {
-                    'memo' : []
+    // 250226 單筆刪除Dept資料
+    async function eraseDept(removeDept){
+        if(!confirm(`確認移除此筆(${removeDept.value})資料？`)){
+            return;
+        }else{
+            // 創建一個 Map 來去除重複的 dept 並合併 base & inCare
+            let uniqueDeptMap = new Map();
+            shLocalDept_inf.forEach(item => {
+                if (item.OSHORT === removeDept.value) {      // 跳過這個 OSHORT，達到刪除的效果
+                    return;
                 }
-            }
-            const _memo = deptData.remark['memo'] ?? [];
-                // console.log('deptData.remark...',deptData.remark)
-                // console.log('_memo...',_memo)
-            // step.3 取得memoBody
-            const memoBody = document.getElementById('memoBody');
-            memoBody.innerHTML = '';
-            // step.4 有memo筆數
-            if(_memo.length !== 0){
-                let memoCard = '';
-                for (const [memo_index, memo_value] of Object.entries(_memo)) {
-                    memoCard += await mk_memoMsg(memo_index, memo_value);
+                if (uniqueDeptMap.has(item.OSHORT)) {  // 如果 OSHORT 已經存在，則合併 base & inCare
+                    let existingDept_base = uniqueDeptMap.get(item.OSHORT).base;
+                    uniqueDeptMap.get(item.OSHORT).base = existingDept_base.concat(item.base);
+                    let existingDept_inCare = uniqueDeptMap.get(item.OSHORT).inCare;
+                    uniqueDeptMap.get(item.OSHORT).inCare = existingDept_inCare.concat(item.inCare);
+                } else {                                // 如果 OSHORT 不存在，則新增
+                    uniqueDeptMap.set(item.OSHORT, item);
                 }
-                // step.4.2 鋪設個人今年的memo
-                memoBody.insertAdjacentHTML('beforeend', memoCard);
-                    scrollToBottom(); // 自動捲動到底部
-            }
-            
-            await reload_eraseMemoCarListeners();
-
-        }
-        // 生成單一memoCard
-        function mk_memoMsg(_index, memo_i){
-            return new Promise((resolve) => {
-                const memoCard = `<tr><td><div class="row g-0" id="memo_i_${_index}">
-                                    <div class="col-md-3 p-1 cover rounded"><img src="../image/nurse.png" alt="小護士" class="img-thumbnail" onerror="this.onerror=null; this.src='../image/lvl.png';"></div>
-                                    <div class="col-md-9 p-1">
-                                        <div class="d-flex justify-content-between align-items-center mb-1">
-                                            <h5 class="card-title mb-0" title="${memo_i.emp_id}" >${memo_i.cname}</h5>
-                                            <button class="btn btn-link add_btn eraseMemoCar_btn `+ (memo_i.emp_id !== userInfo.empId && userInfo.role > 1 ? 'unblock':'')+`" value="${_index}" title="Erase it: ${_index}" `
-                                                + (memo_i.emp_id !== userInfo.empId && userInfo.role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
-                                        </div>
-                                        <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
-                resolve(memoCard);      // 當所有設置完成後，resolve Promise
             });
+
+            // 將 Map 轉換回陣列
+            shLocalDept_inf = Array.from(uniqueDeptMap.values());
+
+            let table = $('#hrdb_table').DataTable();
+            if(table) { await release_dataTable(); }                            // 銷毀dataTable
+
+            var row = removeDept.parentNode.parentNode.parentNode.parentNode;   // 找到按鈕所在的行...需要手動確認按鈕所在位置在第幾層
+            row.parentNode.removeChild(row);                                    // 刪除該行
+
+            inside_toast(`刪除單筆資料${removeDept.value}...Done&nbsp;!!`, 1000, 'info');
+            await reload_dataTable();                                           // 重新載入dataTable   
         }
-        // 241226 建立PostMemoMsg_btn監聽功能 for 編輯 = [個案備註]
-        let postMemoMsg_btnClickListener;
-        async function reload_postMemoMsg_btn_Listeners() {
-            return new Promise((resolve) => {
-                // 檢查並移除已經存在的監聽器
-                if (postMemoMsg_btnClickListener) {
-                    postMemoMsg_btn.removeEventListener('click', postMemoMsg_btnClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                }
-                // 定義新的監聽器函數
-                postMemoMsg_btnClickListener = async function () {
-                    const memoMsg_input = document.getElementById('memoMsg');
-                    if(memoMsg_input.value.length == 0){
-                        alert("沒有MemoMsg內容...");
-                        return false;
-                    }
-                    //打包物件
-                    const memoObj = {
-                        'cname'     : userInfo.cname,
-                        'emp_id'    : userInfo.empId,
-                        'msg'       : (memoMsg_input.value).trim(),
-                        'timeStamp' : getTimeStamp()
-                    }
+    }
+    // 250226 從Excel匯入時要進行的處理工作
+    async function processImportExcel(excelJsonArr){
+            // console.log('excelJsonArr...', excelJsonArr)
+        // step-1.將人員資料進行初步的整理，和_shlocaldept內容相似
+            let processStaffs = {};     // 處理人員資料
+            let processDeptInf = [];    // 處理部門資訊
+            excelJsonArr.forEach((emp) => {
+                // 防呆與確保
+                processStaffs[emp.OSHORT]           = processStaffs[emp.OSHORT]           ?? {};
+                // processStaffs[emp.OSHORT]['inCare'] = processStaffs[emp.OSHORT]['inCare'] ?? {[emp.targetYear] : []};
+                    // processStaffs[emp.OSHORT]['inCare'] = processStaffs[emp.OSHORT]['inCare'] ?? {};
+                    // processStaffs[emp.OSHORT]['inCare'][emp.targetYear] = processStaffs[emp.OSHORT]['inCare'][emp.targetYear] ?? [];
 
-                    // *** 這裡要補上把訊息塞進去資料內...
-                    const deptNo = postMemoMsg_btn.value;
-                    // 取得個人今年的memo，並轉成陣列
-                        const deptData = shLocalDept_inf.find(dept => dept.OSHORT === deptNo);
-                        if(Object.entries(deptData.remark).length == 0){
-                            deptData.remark = {
-                                'memo' : []
-                            }
-                        }
-                        deptData.remark['memo'].push(memoObj);
-                            console.log('deptData.remark =>', deptData);
-                    // 生成完整memo
-                    const memoCard_index = deptData.remark['memo'].length - 1;
-                    const memoCard = await mk_memoMsg(memoCard_index, memoObj)
-                    // step.2.2 鋪設dept的memo
-                    const memoBody = document.getElementById('memoBody');
-                    memoBody.insertAdjacentHTML('beforeend', memoCard);
-                        scrollToBottom(); // 自動捲動到底部
-                    memoMsg_input.value = '';
+                // processStaffs[emp.OSHORT]['base']   = processStaffs[emp.OSHORT]['base']   ?? {[emp.targetYear] : {'getIn' : []}};
+                processStaffs[emp.OSHORT]['base']   = processStaffs[emp.OSHORT]['base']   ?? {};
+                processStaffs[emp.OSHORT]['base'][emp.targetYear] = processStaffs[emp.OSHORT]['base'][emp.targetYear] ?? {};
+                processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'] = processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'] ?? [];
+                
+                // 處理與彙整-員工
+                const empObj = {[emp.emp_id] : emp.cname};
+                processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'].push(empObj);
+                    // processStaffs[emp.OSHORT]['inCare'][emp.targetYear].push(empObj);
 
-                    await reload_eraseMemoCarListeners();
+                // 處理與彙整-DEPT
+                processDeptInf.push(`${emp.OSTEXT_30},${emp.OSHORT},${emp.OSTEXT}`);
+            })
+            const uniqueArray = [...new Set(processDeptInf)];   // 使用 Set 來移除dept_inf重複值
+                console.log('processStaffs...', processStaffs)
+                // console.log('processDeptInf...', processDeptInf)
+                // console.log('uniqueArray...', uniqueArray)
+        const excelDeptArr = [...new Set(excelJsonArr.map(empt => empt.OSHORT))];                 // step-2. 提取load_shLocalDepts中所有的OSHORT值，並使用 Set 來移除OSHORT重複值
+            // console.log('excelDeptArr...', excelDeptArr)
+        const excelDeptStr = JSON.stringify(excelDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
+        const bomNewDeptArr = await preCheckDeptData(excelDeptStr, uniqueArray);    // 呼叫預處理deptData 或 生成dept預設值
+            // console.log('bomNewDeptArr...1', bomNewDeptArr);
 
-                }
-                // 添加新的監聽器
-                postMemoMsg_btn.addEventListener('click', postMemoMsg_btnClickListener);      // 將每一個tdItem增加監聽, 當按下click
-
-                resolve();
-            });
-        }
-        // 生成時間戳章 for memoCard
-        function getTimeStamp(){
-            var Today       = new Date();
-            const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
-            const thisTime  = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0') +':'+ String(Today.getSeconds()).padStart(2,'0');                           // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
-            const timeStamp = thisToday+' '+thisTime;
-            return timeStamp;
-        }
-        // memoModal自動捲動到底部
-        function scrollToBottom() {
-            var offcanvasBody = $('#offcanvasRight .offcanvas-body');
-            offcanvasBody.scrollTop(offcanvasBody[0].scrollHeight);
-        }
-        // 241227 建立eraseMemoCar_btn監聽功能 for 編輯 = [個案備註]
-        let eraseMemoCarListener;
-        function reload_eraseMemoCarListeners() {
-            return new Promise((resolve) => {
-                const eraseMemoCarBtns = document.querySelectorAll('#memoBody button[class*="eraseMemoCar_btn"]');      //  定義出範圍
-                // 檢查並移除已經存在的監聽器
-                if (eraseMemoCarListener) {
-                    eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
-                        eraseBtn.removeEventListener('click', eraseMemoCarListener);   // 將每一個eraseBtn移除監聽, 當按下click
-                    })
-                }
-                // 定義新的監聽器函數
-                eraseMemoCarListener = async function () {
-                    // *** 把訊息移出去個人資料內...
-                    const deptNo = postMemoMsg_btn.value;
-                        // 取得個人今年的memo，並轉成陣列後進行splice移除...
-                        const deptData = shLocalDept_inf.find(dept => dept.OSHORT === deptNo);
-
-                        deptData.remark['memo'] = deptData.remark['memo'] ?? [];
-                        if(deptData.remark['memo'].length > 0){
-                            await deptData.remark['memo'].splice(this.value, 1);
-                                console.log('deptData =>', deptData);
-                            
-                            // *** 把畫面上的訊息移除...
-                                // var element = document.getElementById(`memo_i_${this.value}`);
-                                // if (element) {
-                                //     element.parentNode.removeChild(element);
-                                // }
-                            // step.3 取得memoBody
-                            const memoBody = document.getElementById('memoBody');
-                            memoBody.innerHTML = '';
-                            
-                            const _memo = deptData.remark['memo'] ?? [];
-                            // step.4 有memo筆數
-                            if(_memo.length !== 0){
-                                let memoCard = '';
-                                for (const [memo_index, memo_value] of Object.entries(_memo)) {
-                                    memoCard += await mk_memoMsg(memo_index, memo_value);
+        for(const [index_OSHORT, value_i ] of Object.entries(processStaffs)){
+            let deptData = bomNewDeptArr.find(dept => dept.OSHORT == index_OSHORT);
+            // 合併 array1=value_i 到 array2=deptData
+            for(const [key, value ] of Object.entries(value_i)){
+                // 確保 array2 的相同鍵也存在
+                if (deptData[key]) {
+                    // 將內容合併
+                    if (typeof value === 'object' && !Array.isArray(value)) {
+                        Object.entries(value).forEach(([innerKey, innerValue]) => {
+                            // 將值合併到 array2 的對應鍵中
+                            Object.entries(innerValue).forEach(([innerInnerKey, innerInnerValue]) => {
+                                    console.log("0.index_OSHORT:", index_OSHORT);
+                                    console.log("  1.key:", key);
+                                    console.log("  2.innerInnerKey:", innerInnerKey);
+                                    console.log("  3.innerInnerValue:", innerInnerValue);
+                                    console.log("  4.innerKey:", innerKey);
+                                // 防呆與確保
+                                deptData[key][innerKey] = deptData[key][innerKey] ?? {};
+                                deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey] ?? [];
+                                
+                                
+                                // // // 這裡要區分inCare和base // // // 這裡出錯了~~~~!!!!!
+                                if (Array.isArray(innerInnerValue)) {
+                                    // 合併陣列
+                                    deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey].concat(innerInnerValue);
+                                } else {
+                                    deptData[key][innerKey][innerInnerKey] = innerInnerValue;
                                 }
-                                // step.4.2 鋪設個人今年的memo
-                                memoBody.insertAdjacentHTML('beforeend', memoCard);
-                                    scrollToBottom(); // 自動捲動到底部
-                            }
-                        }
-                    await reload_eraseMemoCarListeners();
-                    // await memoModal(['',edit_empId])
+                            });
+                        });
+                    } else {
+                        // 複製非物件的值
+                        deptData[key] = value;
+                    }
+                } else {
+                    // 如果 array2 中沒有相同鍵，則直接加入
+                    deptData[key] = value;
                 }
-
-                // 添加新的監聽器
-                eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
-                    eraseBtn.addEventListener('click', eraseMemoCarListener);      // 將每一個eraseBtn增加監聽, 當按下click
-                })
-
-                resolve();
-            });
+            }
         }
-    // 備註說明模組 END
+        // console.log('bomNewDeptArr...2', bomNewDeptArr);
+        post_hrdb(bomNewDeptArr);                                                                 // step-8. 送出進行渲染
+    }
+
+
 
 // // phase 2 -- 鋪設
     async function post_hrdb(post_arr){
@@ -336,6 +275,8 @@
                             <td class="text-center">
                                 <div class="row">
                                     <div class="col-md-4 px-1">
+                                        <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn eraseDept" value="${post_i.OSHORT}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
+                                            onclick="eraseDept(this)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
                                         <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " id="remark,${post_i.OSHORT}" value="remark,${post_i.OSHORT}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
                                             onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
                                     </div>
@@ -451,7 +392,9 @@
                                 const deptArr = deptStr.split(',')                              // 分割deptStr成陣列
                                 newDeptData["OSTEXT_30"] = deptArr[0] ?? '';                    // 取出陣列 0 = 廠區
                                 newDeptData["OSHORT"]    = deptArr[1] ?? '';                    // 取出陣列 1 = 部門代號
-                                newDeptData["OSTEXT"]    = deptArr[2] ?? '';                    // 取出陣列 1 = 部門名稱
+                                newDeptData["OSTEXT"]    = deptArr[2] ?? '';                    // 取出陣列 2 = 部門名稱
+                            }else{
+                                newDeptData["OSHORT"]    = deptNo; 
                             }
                             newDeptData["base"]      = {
                                     [currentYearMonth] : {
@@ -475,21 +418,21 @@
         }
         // fun-3 檢查load_fun('load_shLocalDepts') 是否都有存在，不然就生成dept預設值
         async function preCheckDeptData(selectDeptStr, _dept_inf){
+                const load_shLocalDepts = await load_fun('load_shLocalDepts', selectDeptStr, 'return');     // step-1. 先從db撈現有的資料
+                const existingDeptStrs = load_shLocalDepts.map(dept => dept.OSHORT);                        // step-2. 提取load_shLocalDepts中所有的OSHORT值
+                defaultDept_inf = [...defaultDept_inf, ...load_shLocalDepts];                               // step-2. 合併load_shLocalDepts
 
-            const load_shLocalDepts = await load_fun('load_shLocalDepts', selectDeptStr, 'return');     // step-1. 先從db撈現有的資料
-            const existingDeptStrs = load_shLocalDepts.map(dept => dept.OSHORT);                        // step-2. 提取load_shLocalDepts中所有的OSHORT值
-            defaultDept_inf = [...defaultDept_inf, ...load_shLocalDepts];                               // step-2. 合併load_shLocalDepts
+                const selectDeptArr = selectDeptStr.replace(/"/g, '').split(',')                            // step-3. 去除前後"符號..分割deptStr成陣列
+                const notExistingDepts = selectDeptArr.filter(dept => !existingDeptStrs.includes(dept));    // step-4. 找出不存在於load_shLocalDepts中的部門代號
 
-            const selectDeptArr = selectDeptStr.replace(/"/g, '').split(',')                            // step-3. 去除前後"符號..分割deptStr成陣列
-            const notExistingDepts = selectDeptArr.filter(dept => !existingDeptStrs.includes(dept));    // step-4. 找出不存在於load_shLocalDepts中的部門代號
+                if(notExistingDepts.length > 0) {
+                    const notExistingDepts_str = JSON.stringify(notExistingDepts).replace(/[\[\]]/g, '');   // step-5. 把不在的部門代號進行加工(多選)，去除外框
+                    const bomNewDeptArr = await bomNewDept(notExistingDepts_str, _dept_inf);                // step-6. 生成dept預設值
+                    defaultDept_inf = [...defaultDept_inf, ...bomNewDeptArr];                               // step-6. 合併bomNewDeptArr
+                }
 
-            if(notExistingDepts.length > 0) {
-                const notExistingDepts_str = JSON.stringify(notExistingDepts).replace(/[\[\]]/g, '');   // step-5. 把不在的部門代號進行加工(多選)，去除外框
-                const bomNewDeptArr = await bomNewDept(notExistingDepts_str, _dept_inf);                // step-6. 生成dept預設值
-                defaultDept_inf = [...defaultDept_inf, ...bomNewDeptArr];                               // step-6. 合併bomNewDeptArr
-            }
-
-            post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
+            return(defaultDept_inf);
+            // post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
         };
 
     // 241121 在p2table上建立baseInCare監聽功能 for 開啟MaintainDept編輯deptStaff名單...未完
@@ -1010,7 +953,8 @@
                                 console.log('單選_dept_inf...',_dept_inf)
                         // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                             // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                            await preCheckDeptData(thisValue, _dept_inf);
+                            const defaultDept_inf = await preCheckDeptData(thisValue, _dept_inf);
+                            post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
 
                         //     await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         //     await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
@@ -1037,7 +981,8 @@
                             console.log('多選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                         // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                        await preCheckDeptData(selectedValues_str, _dept_inf);
+                    const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
+                    post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
 
                     // await reload_dataTable();
                     // $('logsInfo').empty();
@@ -1160,17 +1105,19 @@
 
                     if (excel_json) {
                         document.getElementById('excelTable').value = excel_json.value;
-                        const excel_json_value_arr = JSON.parse(excel_json.value);
-                        console.log('excel_json.value...', excel_json.value)
+                        const excelJsonValueArr = JSON.parse(excel_json.value);
+                        // console.log('excel_json.value...', excel_json.value)
+
                         // 250203 在匯入的時候就直接補上對應欄位資料
-                        // await rework_omager(excel_json_value_arr);
+                        // await rework_omager(excelJsonValueArr);
                         // 250210 匯入時補上建物編號...
-                        // await rework_BTRTL(excel_json_value_arr);
+                        // await rework_BTRTL(excelJsonValueArr);
                         
-                        // rework_loadStaff(excel_json_value_arr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
-                        // await mgInto_staff_inf(excel_json_value_arr)         // 呼叫[fun] 
+                        // rework_loadStaff(excelJsonValueArr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
+                        // await mgInto_staff_inf(excelJsonValueArr)         // 呼叫[fun] 
                         // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
-                        // searchWorkCaseAll(excel_json_value_arr);
+                        // searchWorkCaseAll(excelJsonValueArr);
+                        processImportExcel(excelJsonValueArr);
 
                         inside_toast(`批次匯入Excel資料...Done&nbsp;!!`, 1000, 'info');
 
@@ -1179,6 +1126,8 @@
                     }else{
                         console.log('找不到 ? 元素');
                     }
+                    
+                    $("body").mLoading("hide");
                 });
 
             resolve();      // 當所有設置完成後，resolve Promise

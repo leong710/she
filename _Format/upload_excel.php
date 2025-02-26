@@ -193,8 +193,10 @@
                                     $row6 = explode(",", $row[6]);    
                                     $row6_arr = array();
                                     foreach ($row6 as $row6_i) {
-                                        list($key, $value) = explode(':', $row6_i);
-                                        $row6_arr[$key] = $value;
+                                        if(preg_match('/:/', $row6_i)){
+                                            list($key, $value) = explode(':', $row6_i);
+                                            $row6_arr[$key] = $value;
+                                        }
                                     }
 
                                 $process = [
@@ -276,21 +278,26 @@
                                 if ($index > 5) break;
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
-                            $row[4] = strtoupper(trim($row[4]));         // 部門代碼 strtoupper轉大寫
-                            $row[6] = str_replace('、', ',', $row[6]);   // 類別 str_replace符號轉逗號
+                            $row[4] = strtoupper(trim($row[4]));                // 部門代碼 strtoupper轉大寫
+                            $row[6] = str_replace([';','、'], ',', $row[6]);    // 類別 str_replace符號轉逗號
+                            $row[9] = str_replace([';','、'], ',', $row[9]);    // 類別 str_replace符號轉逗號
 
                             // 檢查工號emp_id $row[2]是否空值
                                 $emp_id_check = (!empty($row[2]) && strlen($row[2]) == 8 ) ? true : false;
                             // 檢查部門代碼OSHORT $row[4]是否空值
-                                $OSHORT_check = (!empty($row[4])) ? true : false;
+                                $OSHORT_check = (!empty($row[4]) && strlen($row[4]) == 8 ) ? true : false;
+                            // 檢查 檢查類別$row[6] 是否含有分號:
+                                $HE_CATE_check = preg_match('/:/', $row[6]);
+
                                 $row_result = array_merge($row, [
-                                    "emp_id_check" => $emp_id_check,
-                                    "OSHORT_check" => $OSHORT_check,
+                                    "emp_id_check"  => $emp_id_check,
+                                    "OSHORT_check"  => $OSHORT_check,
+                                    "HE_CATE_check" => $HE_CATE_check,
                                 ]);
 
                             if ($emp_id_check && $OSHORT_check) {
                                 foreach ($row as $index => $value) {
-                                    if ($index > 8) break;                                  // 欄位數
+                                    if ($index > $keyCount) break;                          // 欄位數
                                     echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
                                 // 240904 將特作代號$row[6]升級成物件
@@ -298,11 +305,13 @@
                                     $row6_arr = array();
                                     if(!empty($row6)){
                                         foreach ($row6 as $row6_i) {
-                                            list($key, $value) = explode(':', $row6_i);
-                                            $row6_arr[$key] = $value;
+                                            if(preg_match('/:/', $row6_i)){
+                                                list($key, $value) = explode(':', $row6_i);
+                                                $row6_arr[$key] = $value;
+                                            }
                                         }
                                     }
-
+       
                                 $process = [
                                     "targetYear"    => $row[0],
                                     "OSTEXT_30"     => $row[1],
@@ -310,11 +319,14 @@
                                     "cname"         => $row[3],
                                     "OSHORT"        => $row[4],
                                     "OSTEXT"        => $row[5],
-                                    "yearHe"        => $row[6],
+                                    "HE_CATE"       => $row6_arr ?? $row[6],
                                     "updated_cname" => $row[7],
-                                    "HE_CATE"       => null,
-                                    "yearCurrent"   => $row[7],
-                                    "yearPre"       => $row[8]
+                                    "isCheck"       => $row[8],
+                                    "yearHe"        => $row[9],
+                                    "checkDate"     => $row[10],
+                                    "Hospital"      => $row[11],
+                                    "isClose"       => $row[12],
+                                    "shCondition"   => $row[13],
                                 ];
                                 $result[] = $process;
 
@@ -337,9 +349,6 @@
                             echo '</div>';
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
-                            // echo    '<div><pre>';
-                            //     print_r($errLog);
-                            // echo    '</pre></div>';
                             echo '</div>';
                         }
                     }
@@ -413,7 +422,8 @@
     function handleInvalidRow($submit, $row_result, $item_check) {
         // 构建错误消息
         $errorMsg = generateErrorMessage($submit, $row_result, $item_check);    // [fun] generateErrorMessage = 构建错误消息
-
+        $errorTag = ' style="color: red;background-color: pink;">此欄有誤';
+        $td_str   = '';
         // 根據$submit 输出特定错误消息
         switch($submit){
             case "shLocal":
@@ -430,18 +440,37 @@
                 break;
 
             case "shStaff":
-                $td_str  = '<td>' . $row_result[0] . '</td><td>' . $row_result[1] .  '</td>';
-                $td_str .= '<td'  . (!$row_result["emp_id_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[2]) . '</td><td>' . $row_result[3]. '</td>';
-                $td_str .= '<td'  . (!$row_result["OSHORT_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[4]) . '</td><td>' . $row_result[5]. '</td>';
-                $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
+                foreach (range(0, 7) as $index) {
+                    switch ($index){
+                        case 2:
+                            $td_str .= "<td".(!$row_result["emp_id_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                        case 4:
+                            $td_str .= "<td".(!$row_result["OSHORT_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                        default:
+                            $td_str .= "<td>{$row_result[$index]}</td>";
+                    };
+                }
                 echo $td_str;
                 break;
 
             case "shStaffChange":
-                $td_str  = '<td>' . $row_result[0] . '</td><td>' . $row_result[1] .  '</td>';
-                $td_str .= '<td'  . (!$row_result["emp_id_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[2]) . '</td><td>' . $row_result[3]. '</td>';
-                $td_str .= '<td'  . (!$row_result["OSHORT_check"] ? ' style="color: red;background-color: pink;">此欄有誤' : '>' . $row_result[4]) . '</td><td>' . $row_result[5]. '</td>';
-                $td_str .= '<td>' . $row_result[6] . '</td><td>' . $row_result[7] . '</td>';
+                foreach (range(0, 13) as $index) {
+                    switch ($index){
+                        case 2:
+                            $td_str .= "<td".(!$row_result["emp_id_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                        case 4:
+                            $td_str .= "<td".(!$row_result["OSHORT_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                        case 6:
+                            $td_str .= "<td".(!$row_result["HE_CATE_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                         default:
+                            $td_str .= "<td>{$row_result[$index]}</td>";
+                    };
+                }
                 echo $td_str;
                 break;
 
@@ -450,9 +479,9 @@
 
         // 更新错误计数
         global $stopUpload;
-        $stopUpload += 1;
+               $stopUpload += 1;
         global $errLog;
-        $errLog[] = $row_result;
+               $errLog[] = $row_result;
 
     }
     // 构建错误消息

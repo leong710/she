@@ -58,7 +58,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
     
-            break;
+                break;
             case 'load_shLocal':                   // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
@@ -90,7 +90,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
-            break;
+                break;
             case 'load_sample':                   // 帶入查詢條件
                 $pdo = pdo_hrdb();
                 $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
@@ -127,7 +127,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
-            break;
+                break;
             case 'load_staff_byDeptNo':
                 $pdo = pdo();
                 $parm = str_replace('"', '', $parm);
@@ -173,7 +173,7 @@
                     ];
                 }
 
-            break;
+                break;
             case 'load_staff_byCheckList':      // 主要參考_doc中的checkList名單，不會亂抓!
                 $pdo = pdo();
                 $parm = str_replace(['[', ']', '"'], '', $parm);
@@ -220,7 +220,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             case 'bat_storeStaff':  // 
                 require_once("../user_info.php");
                 $pdo = pdo();
@@ -340,7 +340,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             
             case 'bat_storeDept':  // 批次儲存部門變更作業
                 require_once("../user_info.php");
@@ -419,7 +419,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
 
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
@@ -450,7 +450,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             case 'load_heCate':     // for 提取危害類別
                 // load 作業類別json
                 $heCateFile = "../sh_local/he_cate.json";              // 預設sw.json檔案位置
@@ -470,7 +470,7 @@
                         'error'      => 'Load '.$fun.' failed...(e 提取失敗 or 無內容)'
                     ];
                 }
-            break;
+                break;
 
             // 241223 取得審核文件年度清單
             case 'load_doc_deptNos':                   // 帶入查詢條件
@@ -543,7 +543,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
-            break;
+                break;
 
             case 'update_workTarget':
                 $swal_json = array(                                 // for swal_json
@@ -574,7 +574,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             
             case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號...for 定期特殊健檢使用
                 $pdo = pdo();
@@ -650,7 +650,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
-            break;
+                break;
             // 241211 提出--送嬸
             case 'storeForReview':  
                 require_once("../user_info.php");
@@ -852,7 +852,7 @@
                     }
                 }
                 
-            break;
+                break;
             // 241211 送嬸--簽核
             case 'processReview':  
                 require_once("../user_info.php");
@@ -905,7 +905,7 @@
                 switch ($action) {
                     case "0":       // 作廢
                         $idty = "0";
-                        break;
+                            ;
                     case "1":       // 編輯
                     case "2":       // 暫存
                         $idty = "2";
@@ -1018,7 +1018,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             // 241212 取得_document送審清單
             case 'load_document':
                 $pdo = pdo();
@@ -1043,7 +1043,7 @@
                 } else {
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-            break;
+                break;
             // 241223 取得審核文件
             case 'load_doc':                   // 帶入查詢條件
                 $pdo = pdo();
@@ -1111,7 +1111,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
 
-            break;
+                break;
             case 'reviewStep':
                 require_once("../mvc/load_function.php");
                 $step_arr = reviewStep();                         // 取得reviewStep
@@ -1125,7 +1125,7 @@
                 } else {
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-            break;
+                break;
 
             case 'loadFabs':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo();
@@ -1146,7 +1146,7 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-            break;
+                break;
 
             // _change使用
             case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
@@ -1180,7 +1180,7 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-            break;
+                break;
 
             case 'load_shLocalDepts':          // 250217 取得in[範圍內]特作部門內容
                 $pdo = pdo();
@@ -1214,7 +1214,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
     
-            break;
+                break;
 
             case 'load_shLocal_Lists':          // 250217 取得所有特作部門代號清單
                 $pdo = pdo();
@@ -1237,7 +1237,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
     
-            break;
+                break;
 
             case 'all_shLocalStaff':            // 250217 從危害地圖中，取得所有特作部門代號，並從hrdb中撈出所有符合部門待號的員工(base=未排除)
                 $pdo = pdo();
@@ -1272,7 +1272,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
     
-            break;
+                break;
 
             case 'load_deptStaff_formHrdb':     // 250218 從hrdb中撈出所有符合部門代號的員工(base=未排除)
                 $pdo = pdo_hrdb();
@@ -1309,7 +1309,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
     
-            break;
+                break;
 
             default:
                 sendErrorResponse('Invalid function', 400);

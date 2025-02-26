@@ -637,6 +637,7 @@
 
 <script src="change.js?v=<?=time()?>"></script>
 <script src="change_excel.js?v=<?=time()?>"></script>
+<script src="change_memo.js?v=<?=time()?>"></script>
 <!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>
