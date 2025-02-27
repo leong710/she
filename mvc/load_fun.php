@@ -1151,11 +1151,19 @@
             // _change使用
             case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
                 $pdo = pdo();
-                $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT
+                // $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT
+                //         FROM `_shlocal` _sh
+                //         WHERE _sh.flag = 'On'
+                //         GROUP BY _sh.OSHORT
+                //         ORDER BY _sh.OSHORT ";
+                $sql = "SELECT  COALESCE(_sh.OSTEXT_30, _sl.OSTEXT_30) AS OSTEXT_30,
+                                COALESCE(_sh.OSTEXT, _sl.OSTEXT) AS OSTEXT,
+                                COALESCE(_sh.OSHORT, _sl.OSHORT) AS OSHORT
                         FROM `_shlocal` _sh
-                        WHERE _sh.flag = 'On'
-                        GROUP BY _sh.OSHORT
-                        ORDER BY _sh.OSHORT ";
+                        RIGHT JOIN `_shlocaldept` _sl ON _sh.OSHORT = _sl.OSHORT
+                        -- WHERE _sh.flag = 'On' OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
+                        GROUP BY COALESCE(_sh.OSHORT, _sl.OSHORT)
+                        ORDER BY OSTEXT_30, OSHORT; ";
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();

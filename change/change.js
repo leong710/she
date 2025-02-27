@@ -154,20 +154,15 @@
             excelJsonArr.forEach((emp) => {
                 // 防呆與確保
                 processStaffs[emp.OSHORT]           = processStaffs[emp.OSHORT]           ?? {};
-                // processStaffs[emp.OSHORT]['inCare'] = processStaffs[emp.OSHORT]['inCare'] ?? {[emp.targetYear] : []};
-                    // processStaffs[emp.OSHORT]['inCare'] = processStaffs[emp.OSHORT]['inCare'] ?? {};
-                    // processStaffs[emp.OSHORT]['inCare'][emp.targetYear] = processStaffs[emp.OSHORT]['inCare'][emp.targetYear] ?? [];
-
-                // processStaffs[emp.OSHORT]['base']   = processStaffs[emp.OSHORT]['base']   ?? {[emp.targetYear] : {'getIn' : []}};
+                processStaffs[emp.OSHORT]['inCare'] = processStaffs[emp.OSHORT]['inCare'] ?? {};
+                processStaffs[emp.OSHORT]['inCare'][emp.targetYear] = processStaffs[emp.OSHORT]['inCare'][emp.targetYear] ?? [];
                 processStaffs[emp.OSHORT]['base']   = processStaffs[emp.OSHORT]['base']   ?? {};
                 processStaffs[emp.OSHORT]['base'][emp.targetYear] = processStaffs[emp.OSHORT]['base'][emp.targetYear] ?? {};
                 processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'] = processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'] ?? [];
-                
                 // 處理與彙整-員工
                 const empObj = {[emp.emp_id] : emp.cname};
                 processStaffs[emp.OSHORT]['base'][emp.targetYear]['getIn'].push(empObj);
-                    // processStaffs[emp.OSHORT]['inCare'][emp.targetYear].push(empObj);
-
+                processStaffs[emp.OSHORT]['inCare'][emp.targetYear].push(empObj);
                 // 處理與彙整-DEPT
                 processDeptInf.push(`${emp.OSTEXT_30},${emp.OSHORT},${emp.OSTEXT}`);
             })
@@ -175,11 +170,9 @@
                 console.log('processStaffs...', processStaffs)
                 // console.log('processDeptInf...', processDeptInf)
                 // console.log('uniqueArray...', uniqueArray)
-        const excelDeptArr = [...new Set(excelJsonArr.map(empt => empt.OSHORT))];                 // step-2. 提取load_shLocalDepts中所有的OSHORT值，並使用 Set 來移除OSHORT重複值
-            // console.log('excelDeptArr...', excelDeptArr)
+        const excelDeptArr = [...new Set(excelJsonArr.map(empt => empt.OSHORT))];   // step-2. 提取load_shLocalDepts中所有的OSHORT值，並使用 Set 來移除OSHORT重複值
         const excelDeptStr = JSON.stringify(excelDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
         const bomNewDeptArr = await preCheckDeptData(excelDeptStr, uniqueArray);    // 呼叫預處理deptData 或 生成dept預設值
-            // console.log('bomNewDeptArr...1', bomNewDeptArr);
 
         for(const [index_OSHORT, value_i ] of Object.entries(processStaffs)){
             let deptData = bomNewDeptArr.find(dept => dept.OSHORT == index_OSHORT);
@@ -191,26 +184,60 @@
                     if (typeof value === 'object' && !Array.isArray(value)) {
                         Object.entries(value).forEach(([innerKey, innerValue]) => {
                             // 將值合併到 array2 的對應鍵中
-                            Object.entries(innerValue).forEach(([innerInnerKey, innerInnerValue]) => {
-                                    console.log("0.index_OSHORT:", index_OSHORT);
-                                    console.log("  1.key:", key);
-                                    console.log("  2.innerInnerKey:", innerInnerKey);
-                                    console.log("  3.innerInnerValue:", innerInnerValue);
-                                    console.log("  4.innerKey:", innerKey);
-                                // 防呆與確保
-                                deptData[key][innerKey] = deptData[key][innerKey] ?? {};
-                                deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey] ?? [];
-                                
-                                
-                                // // // 這裡要區分inCare和base // // // 這裡出錯了~~~~!!!!!
-                                if (Array.isArray(innerInnerValue)) {
-                                    // 合併陣列
-                                    deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey].concat(innerInnerValue);
-                                } else {
-                                    deptData[key][innerKey][innerInnerKey] = innerInnerValue;
-                                }
-                            });
+                                // console.log("0.index_OSHORT:", index_OSHORT);
+                                // console.log("  1.key:", key);               // base/inCare
+                                // console.log("  2.innerKey:", innerKey);     // 年月
+                            // 防呆與確保--年
+                            deptData[key][innerKey] = deptData[key][innerKey] ?? {};
+
+                            // // // 這裡要區分inCare和base // // // 這裡出錯了~~~~!!!!!
+                            if(key === 'base'){
+                                Object.entries(innerValue).forEach(([innerInnerKey, innerInnerValue]) => {
+                                        // console.log("  3.innerInnerKey:", innerInnerKey);       // inCare/base
+                                        // console.log("  4.innerInnerValue:", innerInnerValue);
+                                    // 防呆與確保--分類
+                                    deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey] ?? [];
+                                    
+                                    if (Array.isArray(innerInnerValue)) {
+                                        // 合併陣列
+                                        deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey].concat(innerInnerValue);
+                                        // 去重!
+                                        deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey].reduce((acc, current) => {
+                                                                                        const key = Object.keys(current)[0]; // 取得物件的鍵
+                                                                                        // 檢查該鍵是否已經存在於結果陣列中
+                                                                                        if (!acc.some(item => Object.keys(item)[0] === key)) {
+                                                                                            acc.push(current); // 如果不存在則將該項目加入結果中
+                                                                                        }
+                                                                                        return acc;
+                                                                                    }, []);  
+                                    } else {
+                                        deptData[key][innerKey][innerInnerKey] = innerInnerValue;
+                                    }
+                                });
+
+                            }else if(key === 'inCare'){
+                                // console.log("  4.innerValue:", innerValue);
+                                deptData[key][innerKey] = deptData[key][innerKey].concat(innerValue);
+                                // 去重!
+                                deptData[key][innerKey] = deptData[key][innerKey].reduce((acc, current) => {
+                                                                const key = Object.keys(current)[0]; // 取得物件的鍵
+                                                                // 檢查該鍵是否已經存在於結果陣列中
+                                                                if (!acc.some(item => Object.keys(item)[0] === key)) {
+                                                                    acc.push(current); // 如果不存在則將該項目加入結果中
+                                                                }
+                                                                return acc;
+                                                            }, []);  
+
+                                // deptData[key][innerKey] = innerValue;
+                                // if (Array.isArray(innerValue)) {
+                                //     // 合併陣列
+                                //     deptData[key][innerKey] = deptData[key][innerKey].push(innerValue);
+                                // } else {
+                                //     deptData[key][innerKey] = innerValue;
+                                // }
+                            };
                         });
+           
                     } else {
                         // 複製非物件的值
                         deptData[key] = value;
@@ -221,6 +248,8 @@
                 }
             }
         }
+        // 工作一 清空暫存
+        await resetINF(true);       // 清空 -- 不清空會導致數據疊加翻倍
         // console.log('bomNewDeptArr...2', bomNewDeptArr);
         post_hrdb(bomNewDeptArr);                                                                 // step-8. 送出進行渲染
     }
@@ -259,11 +288,11 @@
                 const inCare_str = doReplace(inCare_arr);       // 部門代號加工+去除[]符號/[{"}]/g, ''
                     // console.log('inCare_arr...',inCare_arr)
                 let tr1 = '<tr>';
-                    tr1 += `<td class="t-start" id="OSTEXT_30/OSHORT/OSTEXT" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
+                    tr1 += `<td class="t-start edit1" id="OSTEXT_30/OSHORT/OSTEXT,${post_i.OSHORT}" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
 
                             <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTargetBase}：${baseAll_arr.length}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
                             
-                            <td class="word_bk" id="getOut/getIn" >
+                            <td class="word_bk" id="getOut,getIn" >
                                 <b>${getTargetBase}：${getOut_arr.length}人轉出</b><br>${getOut_str}
                                 <hr>
                                 <b>${getTargetBase}：${getIn_arr.length}人轉入</b><br>${getIn_str}
@@ -289,7 +318,7 @@
                                 </div>
                             </td>
                             
-                            <td class="t-start px-3 unblock" id="created_at/updated_at/updated_cname" >
+                            <td class="t-start px-3 unblock" id="created_at/updated_at/updated_cname,${post_i.OSHORT}" >
                                 ${post_i["created_at"] ?? ''}<br>${post_i["updated_at"] ?? ''}<br>${post_i["updated_cname"] ?? ''}
                             </td>
                             ;`
@@ -306,6 +335,7 @@
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
         await reload_baseInCareTD_Listeners();      // 呼叫監聽[base]、[inCare]這兩格td
         await reload_deptFlagOnchange_Listeners();  // 呼叫監聽[flag]這個inpute改變的狀態，並直接更新到dept的資料
+        await reload_edit1TD_Listeners();           // 呼叫監聽[廠區/部門代碼/名稱]，並直接更新到dept的資料
 
         await btn_disabled();                       // 讓指定按鈕 依照shLocalDept_inf.length 啟停 
 
@@ -565,8 +595,126 @@
             resolve();
         });
     }
+    // 250227 在p2table上建立edit1監聽功能 for 開啟MaintainDept編輯deptStaff名單...未完
+    let edit1ClickListener;
+    async function reload_edit1TD_Listeners() {
+        return new Promise((resolve) => {
+            const edit1 = document.querySelectorAll('#hrdb_table td[class*="edit1"]');      //  定義出範圍
+            // 檢查並移除已經存在的監聽器
+            if (edit1ClickListener) {
+                edit1.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                    tdItem.removeEventListener('click', edit1ClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                })
+            }
 
+                // 生成每一個input
+                function mk_input(item, oshort, itemValue){
+                    let newArr =   `<div class="col-12 pb-0 px-3">
+                                        <div class="form-floating">
+                                            <input type="text" name="${item}" id="${item},${oshort},edit1" class="form-control" value="${itemValue}" place_holder ${ item == 'OSHORT' ? 'disabled':''}>
+                                            <label for="${item},${oshort}" class="form-label">${item}：</label>
+                                        </div>
+                                    </div>`;
+                    return newArr;
+                }
 
+            // 定義新的監聽器函數
+            edit1ClickListener = async function () {
+                console.log("click this =>", this.id);
+                // step.1 標題列顯示姓名工號
+                const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
+                const thisTD     = thisId_arr[0];                     // 取出陣列0=target
+                const thisDeptNO = thisId_arr[1];                     // 取出陣列1=部門代號
+
+                // 在maintainDept input上帶入部門代號
+                $('#edit_modal_title').empty().append(thisTD);     // 定義搜尋input欄// 賦予內容值
+                const edit_modal_btn = document.getElementById('edit_modal_btn');
+                edit_modal_btn.value = thisDeptNO;
+
+                // // 撈出該部門資料
+                const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
+                
+                if(deptData){
+                    const thisTd_arr = thisTD.split('/')                 // 分割this.id成陣列
+                    let inputItem = '<div class="row">';
+                    for(const item of thisTd_arr){
+                        let itemValue = deptData[item] ?? '';
+                        inputItem += mk_input(item, thisDeptNO, itemValue);
+                    }
+                    inputItem += '</div>';
+                    $('#edit_modal .modal-body').empty().append(inputItem);     // 定義搜尋input欄// 賦予內容值
+
+                }else{
+                    console.log('無deptData...套用新[]')
+                }
+
+                reload_submitEdit1_Listeners();
+                // step.3 顯示互動視窗
+                edit_modal.show();
+                // $("body").mLoading("hide");
+            }
+
+            // 添加新的監聽器
+            edit1.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                tdItem.addEventListener('click', edit1ClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            })
+
+            resolve();
+        });
+    }
+    // 250227 定義edit_modal[更新]鈕功能~~；from edit_modal裡[更新]鈕的呼叫...
+    let submitEdit1ClickListener;
+    async function reload_submitEdit1_Listeners() {
+        const submitEdit1_btn = document.querySelector('#edit_modal #edit_modal_btn');      //  定義出範圍
+        // 檢查並移除已經存在的監聽器
+        if (submitEdit1ClickListener) {
+            submitEdit1_btn.removeEventListener('click', submitEdit1ClickListener);   // 將每一個tdItem移除監聽, 當按下click
+        }   
+ 
+        // 定義新的監聽器函數
+        submitEdit1ClickListener = async function () {
+            mloading(); 
+
+            const thisDeptNO = this.value;
+            // // 撈出該部門資料
+            const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
+
+            const item_opts_arr = Array.from(document.querySelectorAll(`#edit_modal .modal-body input[id*=",edit1"]`));
+            
+            // item_opts_arr.forEach((dept) => {
+            //     const thisId_arr = dept.id.split(',')                 // 分割this.id成陣列
+            //     const thisItem   = thisId_arr[0];                     // 取出陣列0=target
+            //     if(thisItem != 'OSHORT'){
+            //         deptData[thisItem] = dept.value ?? '';
+            //     }
+            // })
+      
+            item_opts_arr.filter(dept => dept.id.split(',')[0] !== 'OSHORT') // 過濾不需要的項目
+                         .forEach(dept => {
+                            const thisItem = dept.id.split(',')[0]; // 取出陣列0=target
+                            deptData[thisItem] = dept.value ?? '';  // 存儲值
+                         });
+
+            // // console.log('shLocalDept_inf 2',shLocalDept_inf);
+            // post_hrdb(shLocalDept_inf); // 鋪設
+
+            // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
+            // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+            // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
+            // target_staff_cbs.forEach(checkbox => {
+            //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+            //     // 手動觸發 change 事件
+            //     // checkbox.dispatchEvent(new Event('change'));
+            // });
+
+            edit_modal.hide();  // 關閉modal
+            $("body").mLoading("hide");
+
+        }
+
+        // 添加新的監聽器
+        submitEdit1_btn.addEventListener('click', submitEdit1ClickListener);      // 將每一個tdItem增加監聽, 當按下click
+    }
 
 
         // 驅動搜尋部門代號下的員工； fun = 功能, fromId = 查詢來源ID；from maintainDept_modal裡[搜尋]鈕的呼叫...

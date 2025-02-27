@@ -132,7 +132,7 @@
         .h6 {
             font-size: 12px;
         }
-        .import:hover {
+        .import:hover , .edit1:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -393,7 +393,23 @@
             </div>
         </div>
     </div>
-
+    <!-- 互動視窗 edit_modal -->
+    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_title"></snap>：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4"></div>
+                <div class="modal-footer">
+                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
+                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" value="">更新</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
 
 
     <!-- 互動視窗 import_shLocal -->
@@ -539,23 +555,7 @@
             </div>
         </div>
     </div>
-    <!-- 互動視窗 edit_modal -->
-    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4"></div>
-                <div class="modal-footer">
-                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
-                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
+
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -597,8 +597,9 @@
 
 
     var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
+    var edit_modal            = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
-    // var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
