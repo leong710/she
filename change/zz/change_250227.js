@@ -65,56 +65,25 @@
             resolve();
         });
     }
-    // 250220 取得本月份及上個月份-->參數dateString可以指定年月
-    function getCurrentAndLastMonth(dateString) {
-            let currentYear;
-            let currentMonth;
-        // 如果有傳入字串參數，則解析該字串
-            if (dateString) {
-                // 確保字串格式為 YYYYMM
-                if (!/^\d{6}$/.test(dateString)) {
-                    throw new Error("日期格式必須為 'YYYYMM'");
-                }
-                currentYear  = parseInt(dateString.substring(0, 4), 10);
-                currentMonth = parseInt(dateString.substring(4, 6), 10);
-            } else {
-                const currentDate = new Date();
-                // 取得目前的年和月份
-                currentYear  = currentDate.getFullYear();
-                currentMonth = currentDate.getMonth() + 1; // 月份從 0 開始，因此要 +1
+    // 250220 取得本月份及上個月份
+    function getCurrentAndLastMonth() {
+        const currentDate = new Date();
+        // 取得目前的年和月份
+            const currentYear  = currentDate.getFullYear();
+            const currentMonth = currentDate.getMonth() + 1; // 月份從 0 開始，因此要 +1
+        // 計算上個月的年和月份
+            let lastMonth = currentMonth - 1;
+            let lastYear  = currentYear;
+        // 年份進退計算
+            if (lastMonth === 0) {
+                lastMonth = 12; // 上個月為 12 月
+                lastYear -= 1;  // 年份減一
             }
-                    // 計算上2個月的年和月份
-                        let lastTwoYear  = currentYear;
-                        let lastTwoMonth = currentMonth - 2;
-                    // 年份進退計算
-                        if (lastTwoMonth <= 0) {
-                            lastTwoMonth = 12; // 上個月為 12 月
-                            lastTwoYear -= 1;  // 年份減一
-                        }
-            // 計算上個月的年和月份
-                let lastYear  = currentYear;
-                let lastMonth = currentMonth - 1;
-            // 年份進退計算
-                if (lastMonth === 0) {
-                    lastMonth = 12; // 上個月為 12 月
-                    lastYear -= 1;  // 年份減一
-                }
-            // 計算下個月的年和月份
-                let preYear  = currentYear;
-                let preMonth = currentMonth + 1;
-            // 年份進退計算
-                if (preMonth === 13) {
-                    preMonth = 1;  // 下個月為 1 月
-                    preYear += 1;  // 年份加一
-                }
-            // 格式化成 YYYYMM
-                const preYearMonth     = `${preYear}${String(preMonth).padStart(2, '0')}`;          // 下月
-                const currentYearMonth = `${currentYear}${String(currentMonth).padStart(2, '0')}`;  // 本月
-                const lastYearMonth    = `${lastYear}${String(lastMonth).padStart(2, '0')}`;        // 上月
-                const lastTwoYearMonth = `${lastTwoYear}${String(lastTwoMonth).padStart(2, '0')}`;  // 上2月
-            // 返回數據
-
-        return { preYearMonth, currentYearMonth, lastYearMonth, lastTwoYearMonth };
+        // 格式化成 YYYYMM
+            const currentYearMonth = `${currentYear}${String(currentMonth).padStart(2, '0')}`;  // 本月
+            const lastYearMonth    = `${lastYear}${String(lastMonth).padStart(2, '0')}`;        // 上月
+        // 返回數據
+        return { currentYearMonth, lastYearMonth };
     }
     // 250220 fun-2.函式：去重保留唯一值
     function uniqueArr(arr1, arr2){
@@ -288,16 +257,15 @@
 
 
 // // phase 2 -- 鋪設
-    async function post_hrdb(post_arr, dateString){
+    async function post_hrdb(post_arr){
         // 停止並銷毀 DataTable
             release_dataTable();
             $('#hrdb_table tbody').empty();
-            shLocalDept_inf = (post_arr != '') ? post_arr : shLocalDept_inf;
+            shLocalDept_inf = post_arr;
             console.log("post_arr =>", post_arr);
-            // console.log("shLocalDept_inf =>", shLocalDept_inf);
             // await goTest(post_arr);
 
-        if(shLocalDept_inf.length === 0){
+        if(post_arr.length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
             const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
@@ -308,25 +276,30 @@
                 function doReplace(_arr){
                     return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                 }
-            let objKeys_ym = [];
-            await shLocalDept_inf.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                const { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i["base"], post_i["inCare"], dateString);
-                    const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
-                    const getOut_str  = (getOut_arr ) ? doReplace(getOut_arr)  : '';
-                    const getIn_str   = (getIn_arr  ) ? doReplace(getIn_arr)   : '';
-                    const inCare_str  = (inCare_arr ) ? doReplace(inCare_arr)  : '';       // 部門代號加工+去除[]符號/[{"}]/g, ''
 
+
+            await post_arr.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                const { getTargetBase, baseAll_arr, getOut_arr, getIn_arr } = reworkBase(post_i["base"]);
+                const baseAll_str = doReplace(baseAll_arr);      
+                const getOut_str  = doReplace(getOut_arr);
+                const getIn_str   = doReplace(getIn_arr);
+                    // console.log('baseAll_arr...',baseAll_arr);
+                const { getTargetInCare, inCare_arr } = reworkInCare(post_i["inCare"]);
+                const inCare_str = doReplace(inCare_arr);       // 部門代號加工+去除[]符號/[{"}]/g, ''
+                    // console.log('inCare_arr...',inCare_arr)
                 let tr1 = '<tr>';
                     tr1 += `<td class="t-start edit1" id="OSTEXT_30/OSHORT/OSTEXT,${post_i.OSHORT}" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
-                            <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTarget}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
-                            <td class="word_bk" id="getOut" >
-                                <b>${getTarget}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}
-                            </td>
-                            <td class="word_bk" id="getIn" >
-                                <b>${getTarget}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}
+
+                            <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTargetBase}：${baseAll_arr.length}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
+                            
+                            <td class="word_bk" id="getOut,getIn" >
+                                <b>${getTargetBase}：${getOut_arr.length}人轉出</b><br>${getOut_str}
+                                <hr>
+                                <b>${getTargetBase}：${getIn_arr.length}人轉入</b><br>${getIn_str}
                                 <div id="base_Badge"></div>
                             </td>
-                            <td class="word_bk import" id="inCare,${post_i.OSHORT}"><b>${getTargetInCare}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
+
+                            <td class="word_bk import" id="inCare,${post_i.OSHORT}"><b>${getTargetInCare}：${inCare_arr.length}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
 
                             <td class="text-center">
                                 <div class="row">
@@ -349,17 +322,14 @@
                                 ${post_i["created_at"] ?? ''}<br>${post_i["updated_at"] ?? ''}<br>${post_i["updated_cname"] ?? ''}
                             </td>
                             ;`
+
                     tr1 += '</tr>';
 
                 $('#hrdb_table tbody').append(tr1);
 
                 // mk_Badge(post_i["base"]  , 'base'  , true);
                 // mk_Badge(post_i["inCare"], 'inCare', false);
-                objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
             })
-            const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
-            mk_selectOpt_ym(uniqueArr, dateString);                             // 渲染
-
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -373,85 +343,37 @@
     }
 
 
-        // 250303 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBaseInCare(getBase, getInCare, dateString) {
-                let appointYearMonth;
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
-                const getTarget = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));  // 取得base的年月key
-
-                const base_arr    = getBase[getTarget] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-                    let baseAll_arr   = [];
-                    if (base_arr != undefined || base_arr != null){
-                        baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
-                    }
-                    const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                    const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-
-                const inCare_arr  = getInCare[getTarget] ?? [] ;  // 取得 本月名單 或 上月名單
-
-                console.log('3.reworkBaseInCare =>',{ getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr })
-
-            return { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr  };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
-        }
-    
         // 250220 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBase(getBase, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-    
-                let getTargetBase = `${targetMonth}`;
-                let baseAll_arr   = [];
-                if (base_arr != undefined || base_arr != null){
-                    baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
-                }
-                const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-                const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                console.log('1.reworkBase =>',{ getTargetBase, baseAll_arr, getOut_arr, getIn_arr })
+        function reworkBase(getBase) {
+            const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(); // 執行函式--取得年月
+            const targetMonth = getBase[currentYearMonth] ? currentYearMonth : (getBase[lastYearMonth] ? lastYearMonth : null); // 取得base的年月key
+            const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單
+
+            let getTargetBase;
+            if(getBase[currentYearMonth] != undefined) {
+                getTargetBase = `本月 ${targetMonth}`;
+                baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn'])
+            }else{
+                getTargetBase = `上月 ${targetMonth}`;
+                baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getOut'])
+            }
+            const getIn_arr   = base_arr['getIn'];
+            const getOut_arr  = base_arr['getOut'];
 
             return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
         }
         // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkInCare(getInCare, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-    
-                let getTargetInCare = `${targetMonth}`;
-                console.log('2.reworkInCare =>', { getTargetInCare, inCare_arr })
+        function reworkInCare(getInCare) {
+            const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(); // 執行函式--取得年月
+            const targetMonth = getInCare[currentYearMonth] ? currentYearMonth : (getInCare[lastYearMonth] ? lastYearMonth : null); // 取得base的年月key
+            const inCare_arr  = getInCare[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單
+
+            let getTargetInCare;
+            if(getInCare[currentYearMonth] != undefined) {
+                getTargetInCare = `本月 ${targetMonth}`;
+            }else{
+                getTargetInCare = `上月 ${targetMonth}`;
+            }
 
             return { getTargetInCare, inCare_arr };
         }
@@ -756,27 +678,34 @@
             const thisDeptNO = this.value;
             // // 撈出該部門資料
             const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
-            // 取得modal上欄位
-            const item_opts_arr = Array.from(document.querySelectorAll(`#edit_modal .modal-body input[id*=",edit1"]`));
-            let renewItemID = '';   // 更新目標TD欄位ID
-            let renewItem = '';     // 更新目標TD欄位內容
-            // 繞出欄位上的值並更新deptData
-            item_opts_arr.forEach(dept => {
-                const thisItem = dept.id.split(',')[0];                         // 取出陣列0=target
-                if (thisItem !== 'OSHORT') deptData[thisItem] = dept.value ?? '';  // 過濾不需要的項目OSHORT，其他存儲到指定
-                renewItemID += ( renewItemID ? '/' : '' ) + thisItem;           // 組合TD欄位ID
-                renewItem += ( renewItem ? '<br>' : '' ) + (dept.value ?? '');  // 組合TD欄位內容
-                
-            });
-            renewItemID += ',' + thisDeptNO;                                    // 組合TD欄位ID
-            let renewItemTD = document.getElementById(renewItemID);             // 指引TD欄位目標
-            if(renewItemTD){
-                renewItemTD.innerHTML = renewItem;                              // 更新TD欄位內容
-            } 
 
-            // console.log('shLocalDept_inf 2',shLocalDept_inf);
-            // 手動觸發 change 事件
-            // checkbox.dispatchEvent(new Event('change'));
+            const item_opts_arr = Array.from(document.querySelectorAll(`#edit_modal .modal-body input[id*=",edit1"]`));
+            
+            // item_opts_arr.forEach((dept) => {
+            //     const thisId_arr = dept.id.split(',')                 // 分割this.id成陣列
+            //     const thisItem   = thisId_arr[0];                     // 取出陣列0=target
+            //     if(thisItem != 'OSHORT'){
+            //         deptData[thisItem] = dept.value ?? '';
+            //     }
+            // })
+      
+            item_opts_arr.filter(dept => dept.id.split(',')[0] !== 'OSHORT') // 過濾不需要的項目
+                         .forEach(dept => {
+                            const thisItem = dept.id.split(',')[0]; // 取出陣列0=target
+                            deptData[thisItem] = dept.value ?? '';  // 存儲值
+                         });
+
+            // // console.log('shLocalDept_inf 2',shLocalDept_inf);
+            // post_hrdb(shLocalDept_inf); // 鋪設
+
+            // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
+            // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+            // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
+            // target_staff_cbs.forEach(checkbox => {
+            //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+            //     // 手動觸發 change 事件
+            //     // checkbox.dispatchEvent(new Event('change'));
+            // });
 
             edit_modal.hide();  // 關閉modal
             $("body").mLoading("hide");
@@ -1084,20 +1013,6 @@
         });
     }
 
-    function mk_selectOpt_ym(objKeys_ym, dateString){
-        const _yearMonthSelt = document.getElementById("_yearMonth");
-        if(_yearMonthSelt){
-            _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
-            const get_ym = objKeys_ym ?? getCurrentAndLastMonth();
-            for(const [key, value] of Object.entries(get_ym)){
-                console.log(key, value)
-                const selt = (key === 'currentYearMonth' || value === dateString ) ? 'selected':''; 
-                const selectOpt =`<option for="_yearMonth" value="${value}" ${selt} >${value}</option>`;
-                _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
-            }
-        }
-    }
-
             // [p1 函數-2] 241213 將送審的百分比改成送審中
             async function filtApprove(_docs) {
                 const reviewStep = await load_fun('reviewStep', 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
@@ -1159,7 +1074,6 @@
     // [p1 函數-1] 取得危害地圖...並callBack mk_deptNos_btn進行鋪設
     async function p1_init() {
         await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', mk_deptNos_btn);
-        // mk_selectOpt_ym();
     }
     // [p1 函數-3] 設置p1事件監聽器和
     async function p1_eventListener() {

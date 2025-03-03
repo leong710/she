@@ -1,8 +1,10 @@
 <footer class="text-center text-white">
     <div class="mb-3">
         copyright &copy; 2024 Design by INX tnESH.cop<br>
-        <br>( 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗 )
         <!-- <br>system owner：陳建良 (42117)  -->
+    </div>
+    <div class="d-block d-custom-none">
+        <br>( 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗 )
     </div>
     <div id="debug">
         <?php if(isset($_REQUEST["debug"])){

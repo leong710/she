@@ -67,53 +67,52 @@
     }
     // 250220 取得本月份及上個月份-->參數dateString可以指定年月
     function getCurrentAndLastMonth(dateString) {
-            let currentYear;
-            let currentMonth;
-        // 如果有傳入字串參數，則解析該字串
-            if (dateString) {
-                // 確保字串格式為 YYYYMM
-                if (!/^\d{6}$/.test(dateString)) {
-                    throw new Error("日期格式必須為 'YYYYMM'");
-                }
-                currentYear  = parseInt(dateString.substring(0, 4), 10);
-                currentMonth = parseInt(dateString.substring(4, 6), 10);
-            } else {
-                const currentDate = new Date();
-                // 取得目前的年和月份
-                currentYear  = currentDate.getFullYear();
-                currentMonth = currentDate.getMonth() + 1; // 月份從 0 開始，因此要 +1
+        let currentYear;
+        let currentMonth;
+    // 如果有傳入字串參數，則解析該字串
+        if (dateString) {
+            // 確保字串格式為 YYYYMM
+            if (!/^\d{6}$/.test(dateString)) {
+                throw new Error("日期格式必須為 'YYYYMM'");
             }
-                    // 計算上2個月的年和月份
-                        let lastTwoYear  = currentYear;
-                        let lastTwoMonth = currentMonth - 2;
-                    // 年份進退計算
-                        if (lastTwoMonth <= 0) {
-                            lastTwoMonth = 12; // 上個月為 12 月
-                            lastTwoYear -= 1;  // 年份減一
-                        }
-            // 計算上個月的年和月份
-                let lastYear  = currentYear;
-                let lastMonth = currentMonth - 1;
-            // 年份進退計算
-                if (lastMonth === 0) {
-                    lastMonth = 12; // 上個月為 12 月
-                    lastYear -= 1;  // 年份減一
-                }
-            // 計算下個月的年和月份
-                let preYear  = currentYear;
-                let preMonth = currentMonth + 1;
-            // 年份進退計算
-                if (preMonth === 13) {
-                    preMonth = 1;  // 下個月為 1 月
-                    preYear += 1;  // 年份加一
-                }
-            // 格式化成 YYYYMM
-                const preYearMonth     = `${preYear}${String(preMonth).padStart(2, '0')}`;          // 下月
-                const currentYearMonth = `${currentYear}${String(currentMonth).padStart(2, '0')}`;  // 本月
-                const lastYearMonth    = `${lastYear}${String(lastMonth).padStart(2, '0')}`;        // 上月
-                const lastTwoYearMonth = `${lastTwoYear}${String(lastTwoMonth).padStart(2, '0')}`;  // 上2月
-            // 返回數據
-
+            currentYear  = parseInt(dateString.substring(0, 4), 10);
+            currentMonth = parseInt(dateString.substring(4, 6), 10);
+        } else {
+            const currentDate = new Date();
+            // 取得目前的年和月份
+            currentYear  = currentDate.getFullYear();
+            currentMonth = currentDate.getMonth() + 1; // 月份從 0 開始，因此要 +1
+        }
+                // 計算上2個月的年和月份
+                    let lastTwoYear  = currentYear;
+                    let lastTwoMonth = currentMonth - 2;
+                // 年份進退計算
+                    if (lastTwoMonth <= 0) {
+                        lastTwoMonth = 12; // 上個月為 12 月
+                        lastTwoYear -= 1;  // 年份減一
+                    }
+        // 計算上個月的年和月份
+            let lastYear  = currentYear;
+            let lastMonth = currentMonth - 1;
+        // 年份進退計算
+            if (lastMonth === 0) {
+                lastMonth = 12; // 上個月為 12 月
+                lastYear -= 1;  // 年份減一
+            }
+        // 計算下個月的年和月份
+            let preYear  = currentYear;
+            let preMonth = currentMonth + 1;
+        // 年份進退計算
+            if (preMonth === 13) {
+                preMonth = 1;  // 下個月為 1 月
+                preYear += 1;  // 年份加一
+            }
+        // 格式化成 YYYYMM
+            const preYearMonth     = `${preYear}${String(preMonth).padStart(2, '0')}`;          // 下月
+            const currentYearMonth = `${currentYear}${String(currentMonth).padStart(2, '0')}`;  // 本月
+            const lastYearMonth    = `${lastYear}${String(lastMonth).padStart(2, '0')}`;        // 上月
+            const lastTwoYearMonth = `${lastTwoYear}${String(lastTwoMonth).padStart(2, '0')}`;  // 上2月
+        // 返回數據
         return { preYearMonth, currentYearMonth, lastYearMonth, lastTwoYearMonth };
     }
     // 250220 fun-2.函式：去重保留唯一值
@@ -310,23 +309,25 @@
                 }
             let objKeys_ym = [];
             await shLocalDept_inf.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                const { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i["base"], post_i["inCare"], dateString);
-                    const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
-                    const getOut_str  = (getOut_arr ) ? doReplace(getOut_arr)  : '';
-                    const getIn_str   = (getIn_arr  ) ? doReplace(getIn_arr)   : '';
-                    const inCare_str  = (inCare_arr ) ? doReplace(inCare_arr)  : '';       // 部門代號加工+去除[]符號/[{"}]/g, ''
-
+                const { getTargetBase, baseAll_arr, getOut_arr, getIn_arr } = reworkBase(post_i["base"], dateString);
+                const baseAll_str = doReplace(baseAll_arr);      
+                const getOut_str  = doReplace(getOut_arr);
+                const getIn_str   = doReplace(getIn_arr);
+                    // console.log('baseAll_arr...',baseAll_arr);
+                const { getTargetInCare, inCare_arr } = reworkInCare(post_i["inCare"], dateString);
+                const inCare_str = doReplace(inCare_arr);       // 部門代號加工+去除[]符號/[{"}]/g, ''
+                    // console.log('inCare_arr...',inCare_arr)
                 let tr1 = '<tr>';
                     tr1 += `<td class="t-start edit1" id="OSTEXT_30/OSHORT/OSTEXT,${post_i.OSHORT}" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
-                            <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTarget}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
+                            <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTargetBase}：${baseAll_arr.length}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
                             <td class="word_bk" id="getOut" >
-                                <b>${getTarget}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}
+                                <b>${getTargetBase}：${getOut_arr.length}人轉出</b><br>${getOut_str}
                             </td>
                             <td class="word_bk" id="getIn" >
-                                <b>${getTarget}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}
+                                <b>${getTargetBase}：${getIn_arr.length}人轉入</b><br>${getIn_str}
                                 <div id="base_Badge"></div>
                             </td>
-                            <td class="word_bk import" id="inCare,${post_i.OSHORT}"><b>${getTargetInCare}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
+                            <td class="word_bk import" id="inCare,${post_i.OSHORT}"><b>${getTargetInCare}：${inCare_arr.length}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
 
                             <td class="text-center">
                                 <div class="row">
@@ -358,7 +359,7 @@
                 objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
             })
             const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
-            mk_selectOpt_ym(uniqueArr, dateString);                             // 渲染
+            mk_selectOpt_ym(uniqueArr);                                         // 渲染
 
         }
 
@@ -373,85 +374,54 @@
     }
 
 
-        // 250303 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBaseInCare(getBase, getInCare, dateString) {
-                let appointYearMonth;
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
-                const getTarget = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));  // 取得base的年月key
-
-                const base_arr    = getBase[getTarget] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-                    let baseAll_arr   = [];
-                    if (base_arr != undefined || base_arr != null){
-                        baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
-                    }
-                    const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                    const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-
-                const inCare_arr  = getInCare[getTarget] ?? [] ;  // 取得 本月名單 或 上月名單
-
-                console.log('3.reworkBaseInCare =>',{ getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr })
-
-            return { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr  };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
-        }
-    
         // 250220 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBase(getBase, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
+        function reworkBase(getBase, dateString) {
+
+            let appointYearMonth;
+            // 如果有傳入字串參數，則解析該字串
+                if (dateString) {
+                    // 確保字串格式為 YYYYMM
+                    if (!/^\d{6}$/.test(dateString)) {
+                        throw new Error("日期格式必須為 'YYYYMM'");
                     }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-    
-                let getTargetBase = `${targetMonth}`;
-                let baseAll_arr   = [];
-                if (base_arr != undefined || base_arr != null){
-                    baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
+                    appointYearMonth = dateString;
                 }
-                const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-                const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                console.log('1.reworkBase =>',{ getTargetBase, baseAll_arr, getOut_arr, getIn_arr })
+
+            const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(dateString); // 執行函式--取得年月
+            // const targetMonth = getBase[currentYearMonth] ? currentYearMonth : (getBase[lastYearMonth] ? lastYearMonth : dateString); // 取得base的年月key
+            const targetMonth = appointYearMonth ? appointYearMonth : (currentYearMonth ? currentYearMonth : lastYearMonth);    // 取得base的年月key
+            const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單
+
+            let getTargetBase;
+            if (getBase[targetMonth] != undefined){
+                getTargetBase = `篩選 ${targetMonth}`;
+                baseAll_arr = base_arr != null ? uniqueArr(base_arr['keepGoing'], base_arr['getIn']) : [];
+
+            }else if(getBase[currentYearMonth] != undefined) {
+                getTargetBase = `本月 ${targetMonth}`;
+                baseAll_arr = base_arr != null ? uniqueArr(base_arr['keepGoing'], base_arr['getIn']) : [];
+                
+            }else{
+                getTargetBase = `上月 ${targetMonth}`;
+                baseAll_arr = base_arr != null ? uniqueArr(base_arr['keepGoing'], base_arr['getOut']) : [];
+            }
+            const getIn_arr   = base_arr != null ? base_arr['getIn']  : [];
+            const getOut_arr  = base_arr != null ? base_arr['getOut'] : [];
 
             return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
         }
         // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkInCare(getInCare, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-    
-                let getTargetInCare = `${targetMonth}`;
-                console.log('2.reworkInCare =>', { getTargetInCare, inCare_arr })
+        function reworkInCare(getInCare, dateString) {
+            const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(dateString); // 執行函式--取得年月
+            const targetMonth = getInCare[currentYearMonth] ? currentYearMonth : (getInCare[lastYearMonth] ? lastYearMonth : dateString); // 取得base的年月key
+            const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
+
+            let getTargetInCare;
+            if(getInCare[currentYearMonth] != undefined) {
+                getTargetInCare = `本月 ${targetMonth}`;
+            }else{
+                getTargetInCare = `上月 ${targetMonth}`;
+            }
 
             return { getTargetInCare, inCare_arr };
         }
@@ -1084,14 +1054,13 @@
         });
     }
 
-    function mk_selectOpt_ym(objKeys_ym, dateString){
+    function mk_selectOpt_ym(objKeys_ym){
         const _yearMonthSelt = document.getElementById("_yearMonth");
         if(_yearMonthSelt){
-            _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
+            _yearMonthSelt.innerHTML = '';
             const get_ym = objKeys_ym ?? getCurrentAndLastMonth();
             for(const [key, value] of Object.entries(get_ym)){
-                console.log(key, value)
-                const selt = (key === 'currentYearMonth' || value === dateString ) ? 'selected':''; 
+                const selt = (key === 'currentYearMonth') ? 'selected':''; 
                 const selectOpt =`<option for="_yearMonth" value="${value}" ${selt} >${value}</option>`;
                 _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
             }

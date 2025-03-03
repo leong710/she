@@ -270,12 +270,17 @@
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
                                     <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
+                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交</button>
                                 </div>
                                 <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
-                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
-                                        <!-- value="" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button> -->
+                                <div class="col-md-4 py-0 text-end inf">
+                                    <div class="input-group">
+                                        <span class="input-group-text">篩選</span>
+                                        <select name="_yearMonth" id="_yearMonth" class="form-select" onchange="post_hrdb('', this.value)"></select>
+                                        <!-- <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button> -->
+                                    </div>
+                      
                                 </div>
                             </div>
                             <hr>
@@ -284,13 +289,14 @@
                                     <tr>
                                         <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
                                         <!-- <th title="OSTEXT_30"             >廠區</th> -->
-                                        <th title="OSTEXT_30/OSHORT/OSTEXT"         >廠區/部門代碼/名稱</th>
+                                        <th title="OSTEXT_30/OSHORT/OSTEXT" >廠區/部門代碼/名稱</th>
 
-                                        <th title="base"                  >部門全員</th>
-                                        <th title="getIn/getOut"          >轉出/轉入</th>
+                                        <th title="base"                    >部門全員</th>
+                                        <th title="getOut"                  >轉出</th>
+                                        <th title="getIn"                   >轉入</th>
 
-                                        <th title="inCare"                >變更作業</th>
-                                        <th title="remark/flag"           >備註說明/開關</th>
+                                        <th title="inCare"                  >變更作業</th>
+                                        <th title="remark/flag"             >備註說明/開關</th>
                                         <th title="created_at/updated_at/updated_cname" class="unblock">創建/更新/操作人</th>
                                     </tr>
                                 </thead>
@@ -627,8 +633,8 @@
         'signCode' : '<?=$auth_sign_code?>',
     }
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
-    const currentYear    = '<?=$_year?>';                      // 取得當前年份
-    const preYear        = String(currentYear - 1);            // 取得去年年份
+    // const currentYear    = '<=$_year?>';                      // 取得當前年份
+    // const preYear        = String(currentYear - 1);            // 取得去年年份
 
 </script>
 <script src="../mvc/utility.js?v=<?=time()?>"></script>
