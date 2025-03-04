@@ -43,7 +43,7 @@
     // 讓指定按鈕 依照shLocalDept_inf.length 啟停
     function btn_disabled(){
         return new Promise((resolve) => {
-            console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
+            // console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
             download_excel_btn.disabled = shLocalDept_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled       = shLocalDept_inf.length === 0;  // 讓 清除 按鈕啟停
             bat_storeDept_btn.disabled  = shLocalDept_inf.length === 0;  // 讓 儲存 按鈕啟停
@@ -83,14 +83,14 @@
                 currentYear  = currentDate.getFullYear();
                 currentMonth = currentDate.getMonth() + 1; // 月份從 0 開始，因此要 +1
             }
-                    // 計算上2個月的年和月份
-                        let lastTwoYear  = currentYear;
-                        let lastTwoMonth = currentMonth - 2;
-                    // 年份進退計算
-                        if (lastTwoMonth <= 0) {
-                            lastTwoMonth = 12; // 上個月為 12 月
-                            lastTwoYear -= 1;  // 年份減一
-                        }
+            // 計算上2個月的年和月份
+                let lastTwoYear  = currentYear;
+                let lastTwoMonth = currentMonth - 2;
+            // 年份進退計算
+                if (lastTwoMonth <= 0) {
+                    lastTwoMonth = 12; // 上個月為 12 月
+                    lastTwoYear -= 1;  // 年份減一
+                }
             // 計算上個月的年和月份
                 let lastYear  = currentYear;
                 let lastMonth = currentMonth - 1;
@@ -310,23 +310,23 @@
                 }
             let objKeys_ym = [];
             await shLocalDept_inf.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                const { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i["base"], post_i["inCare"], dateString);
-                    const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
+                const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i, dateString);
+                    // const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
                     const getOut_str  = (getOut_arr ) ? doReplace(getOut_arr)  : '';
                     const getIn_str   = (getIn_arr  ) ? doReplace(getIn_arr)   : '';
                     const inCare_str  = (inCare_arr ) ? doReplace(inCare_arr)  : '';       // 部門代號加工+去除[]符號/[{"}]/g, ''
 
                 let tr1 = '<tr>';
                     tr1 += `<td class="t-start edit1" id="OSTEXT_30/OSHORT/OSTEXT,${post_i.OSHORT}" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
-                            <td class="word_bk import" id="base,${post_i.OSHORT}"  ><b>${getTarget}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
+                            <td class="word_bk import" id="base,${post_i.OSHORT},${targetMonth}"  ><b>${targetMonth}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
                             <td class="word_bk" id="getOut" >
-                                <b>${getTarget}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}
+                                <b>${targetMonth}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}
                             </td>
                             <td class="word_bk" id="getIn" >
-                                <b>${getTarget}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}
+                                <b>${targetMonth}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}
                                 <div id="base_Badge"></div>
                             </td>
-                            <td class="word_bk import" id="inCare,${post_i.OSHORT}"><b>${getTargetInCare}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
+                            <td class="word_bk import" id="inCare,${post_i.OSHORT},${targetMonth}"><b>${targetMonth}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
 
                             <td class="text-center">
                                 <div class="row">
@@ -359,7 +359,6 @@
             })
             const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
             mk_selectOpt_ym(uniqueArr, dateString);                             // 渲染
-
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -375,86 +374,87 @@
 
         // 250303 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
         // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBaseInCare(getBase, getInCare, dateString) {
-                let appointYearMonth;
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
+        function reworkBaseInCare(post_i, dateString) {
+            let appointYearMonth;
+            // 如果有傳入字串參數，則解析該字串
+                if (dateString) {
+                    // 確保字串格式為 YYYYMM
+                    if (!/^\d{6}$/.test(dateString)) {
+                        throw new Error("日期格式必須為 'YYYYMM'");
                     }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
-                const getTarget = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));  // 取得base的年月key
-
-                const base_arr    = getBase[getTarget] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-                    let baseAll_arr   = [];
-                    if (base_arr != undefined || base_arr != null){
-                        baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
-                    }
-                    const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                    const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-
-                const inCare_arr  = getInCare[getTarget] ?? [] ;  // 取得 本月名單 或 上月名單
-
-                console.log('3.reworkBaseInCare =>',{ getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr })
-
-            return { getTarget, baseAll_arr, getOut_arr, getIn_arr, inCare_arr  };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
-        }
-    
-        // 250220 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkBase(getBase, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
-                        }
-                        appointYearMonth = dateString;
-                        console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
-    
-                let getTargetBase = `${targetMonth}`;
-                let baseAll_arr   = [];
+                    appointYearMonth = dateString;
+                    // console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
+                }
+                const { currentYearMonth, lastYearMonth, lastTwoYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
+                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? (lastTwoYearMonth ?? dateString)));  // 取得base的年月key
+            // 
+                const getBase   = post_i["base"]       ?? [];
+                const base_arr  = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
+                let baseAll_arr = [];
+                let getOut_arr  = [];
+                let getIn_arr   = [];
                 if (base_arr != undefined || base_arr != null){
                     baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
+                    getOut_arr  = base_arr['getOut'];
+                    getIn_arr   = base_arr['getIn'];
                 }
-                const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
-                const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                console.log('1.reworkBase =>',{ getTargetBase, baseAll_arr, getOut_arr, getIn_arr })
-
-            return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
+            //     
+                const getInCare  = post_i["inCare"]       ?? [];
+                const inCare_arr = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
+                
+            return { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
         }
-        // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-        async function reworkInCare(getInCare, dateString) {
-                let appointYearMonth = '';
-                // 如果有傳入字串參數，則解析該字串
-                    if (dateString) {
-                        // 確保字串格式為 YYYYMM
-                        if (!/^\d{6}$/.test(dateString)) {
-                            throw new Error("日期格式必須為 'YYYYMM'");
+    
+                // 250220 從getBase(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
+                async function reworkBase(getBase, dateString) {
+                        let appointYearMonth = '';
+                        // 如果有傳入字串參數，則解析該字串
+                            if (dateString) {
+                                // 確保字串格式為 YYYYMM
+                                if (!/^\d{6}$/.test(dateString)) {
+                                    throw new Error("日期格式必須為 'YYYYMM'");
+                                }
+                                appointYearMonth = dateString;
+                                console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
+                            }
+            
+                        const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
+                        const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
+                        const base_arr    = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
+            
+                        let getTargetBase = `${targetMonth}`;
+                        let baseAll_arr   = [];
+                        if (base_arr != undefined || base_arr != null){
+                            baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
                         }
-                        appointYearMonth = dateString;
-                        console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
-                    }
-    
-                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-    
-                let getTargetInCare = `${targetMonth}`;
-                console.log('2.reworkInCare =>', { getTargetInCare, inCare_arr })
+                        const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
+                        const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
+                        console.log('1.reworkBase =>',{ getTargetBase, baseAll_arr, getOut_arr, getIn_arr })
 
-            return { getTargetInCare, inCare_arr };
-        }
+                    return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
+                }
+                // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
+                async function reworkInCare(getInCare, dateString) {
+                        let appointYearMonth = '';
+                        // 如果有傳入字串參數，則解析該字串
+                            if (dateString) {
+                                // 確保字串格式為 YYYYMM
+                                if (!/^\d{6}$/.test(dateString)) {
+                                    throw new Error("日期格式必須為 'YYYYMM'");
+                                }
+                                appointYearMonth = dateString;
+                                console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
+                            }
+            
+                        const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
+                        const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
+                        const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
+            
+                        let getTargetInCare = `${targetMonth}`;
+                        console.log('2.reworkInCare =>', { getTargetInCare, inCare_arr })
+
+                    return { getTargetInCare, inCare_arr };
+                }
         // fun-1.函式：找出全部鍵，並計算差異 (arr1=本月名單, arr2=上月名單)
         function getDifferencesAndKeys(arr1, arr2) {
             // step-1.提取名單key
@@ -476,9 +476,9 @@
                                                 return !differenceInKeys.includes(key) && !differenceOutKeys.includes(key);
                                             });
  
-                    console.log('轉出 differenceOut =>', differenceOut);
-                    console.log('轉入 differenceIn =>', differenceIn, );
-                    console.log('未動 differenceKeepGoing =>', differenceKeepGoing);
+                    // console.log('轉出 differenceOut =>', differenceOut);
+                    // console.log('轉入 differenceIn =>', differenceIn, );
+                    // console.log('未動 differenceKeepGoing =>', differenceKeepGoing);
             // step-4.返回resilt變數
             return { differenceOut, differenceIn, differenceKeepGoing };
         }
@@ -543,107 +543,6 @@
             // post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
         };
 
-    // 241121 在p2table上建立baseInCare監聽功能 for 開啟MaintainDept編輯deptStaff名單...未完
-    let baseInCareClickListener;
-    async function reload_baseInCareTD_Listeners() {
-        return new Promise((resolve) => {
-            const baseInCare = document.querySelectorAll('#hrdb_table td[id*="base,"] ,#hrdb_table td[id*="inCare,"]');      //  定義出範圍
-            // 檢查並移除已經存在的監聽器
-            if (baseInCareClickListener) {
-                baseInCare.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                    tdItem.removeEventListener('click', baseInCareClickListener);   // 將每一個tdItem移除監聽, 當按下click
-                })
-            }
-                // 整理陣列成我要的格式2....
-                function reworkArr(dataIn){
-                    return new Promise((resolve) => {
-                        let rework_arr = [];
-                        dataIn.forEach((emp_i) => {
-                            const this_arr = emp_i.split(',')       // 分割this.id成陣列
-                            const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
-                            const this_cname  = this_arr[1];        // 取出陣列 1 = cname
-                                // rework_arr.push({                // 傳統陣列...
-                                //         'cname'     : this_cname,
-                                //         'emp_id'    : this_emp_id
-                                //     })
-                            let obj = {};                           // 陣列包物件
-                            obj[this_emp_id] = this_cname;
-                            rework_arr.push(obj);
-                        })
-                        const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
-
-                        resolve(rework_str);
-                    });
-                }
-                // 反解:把混和陣列包物件，轉換成一般陣列..
-                function decode_Obj(_obj){
-                    let newArr = [];
-                    _obj.forEach((obj_i) => {
-                        for(const [emp_id , cname] of Object.entries(obj_i)){
-                            newArr.push({
-                                'emp_id' : emp_id,
-                                'cname'  : cname
-                            })
-                        }
-                    })
-                    // console.log('newArr', newArr);
-                    return newArr;
-                }
-                // 單獨取出特檢員工的empId
-                function getEmpId_Arr(_obj){
-                    let newArr = [];
-                    _obj.forEach((obj_i) => {
-                        for(const [emp_id , cname] of Object.entries(obj_i)){
-                            newArr.push(emp_id)
-                        }
-                    })
-                    // console.log('newArr', newArr);
-                    return newArr;
-                }
-
-
-            // 定義新的監聽器函數
-            baseInCareClickListener = async function () {
-                // console.log("click this =>", this.id);
-                // step.1 標題列顯示姓名工號
-                const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
-                const thisTD     = thisId_arr[0];                     // 取出陣列0=target
-                const thisDeptNO = thisId_arr[1];                     // 取出陣列1=部門代號
-                // 在maintainDept input上帶入部門代號
-                let fromInput = document.querySelector('#maintainDept #searchkeyWord');     // 定義搜尋input欄
-                fromInput.value = thisDeptNO;                                           // 賦予內容值
-                // 撈出該部門資料
-                const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
-
-                if(deptData){
-                    const { getTargetBase, baseAll_arr, getIn_arr }  = reworkBase(deptData.base);   // 取得部門全部員工
-                    const dec_baseAll_arr = decode_Obj(baseAll_arr);                                // 將部門全部員工obj轉換成正常的arr
-                    const getInEmpID_arr = getEmpId_Arr(getIn_arr);                                 // 單獨取出轉入員工的empId
-                    await postResultTo_maintainDeptTable(dec_baseAll_arr, getInEmpID_arr);          // 將正常arr的部門全部員工清單交給postResultTo_maintainDeptTable進行鋪設
-                    
-                    const { getTargetInCare, inCare_arr } = reworkInCare(deptData.inCare);          // 取得特檢員工
-                    const get_inCareEmpID_arr = getEmpId_Arr(inCare_arr);                           // 單獨取出特檢員工的empId
-                    toCheckedOpt(get_inCareEmpID_arr , getTargetInCare);                            // 將table裡的特檢員工選上[打勾]
-
-                }else{
-                    console.log('無deptData...套用新[]')
-                }
-
-                maintainDept_modal.show()
-
-                // // step.3 顯示互動視窗
-                // edit_modal.show();                               // 顯示互動視窗
-                // $("body").mLoading("hide");
-            }
-
-            // 添加新的監聽器
-            baseInCare.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
-                tdItem.addEventListener('click', baseInCareClickListener);      // 將每一個tdItem增加監聽, 當按下click
-            })
-
-            resolve();
-        });
-    }
     // 241121 在p2table上建立flag監聽功能 for dept.flag = true/false...
     let deptFlagOnchangeListener;
     async function reload_deptFlagOnchange_Listeners() {
@@ -698,7 +597,7 @@
 
             // 定義新的監聽器函數
             edit1ClickListener = async function () {
-                console.log("click this =>", this.id);
+                // console.log("click this =>", this.id);
                 // step.1 標題列顯示姓名工號
                 const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
                 const thisTD     = thisId_arr[0];                     // 取出陣列0=target
@@ -907,15 +806,18 @@
                 selectDeptStaff_btn.addEventListener('click', selectDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
         }
     
-        // 定義[代入]鈕功能~~；from maintainDept_modal裡[代入]鈕的呼叫...
-        let submitDeptStaffClickListener;
-        async function reload_submitDeptStaff_Listeners() {
-            const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出範圍
+    // 241121 在p2table上建立baseInCare監聽功能 for 開啟MaintainDept編輯deptStaff名單...未完
+    let baseInCareClickListener;
+    async function reload_baseInCareTD_Listeners() {
+        return new Promise((resolve) => {
+            const baseInCare = document.querySelectorAll('#hrdb_table td[id*="base,"] ,#hrdb_table td[id*="inCare,"]');      //  定義出範圍
             // 檢查並移除已經存在的監聽器
-            if (submitDeptStaffClickListener) {
-                submitDeptStaff_btn.removeEventListener('click', submitDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
-            }   
-                // 整理陣列成我要的格式1....顯示用
+            if (baseInCareClickListener) {
+                baseInCare.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                    tdItem.removeEventListener('click', baseInCareClickListener);   // 將每一個tdItem移除監聽, 當按下click
+                })
+            }
+                // 整理陣列成我要的格式2....
                 function reworkArr(dataIn){
                     return new Promise((resolve) => {
                         let rework_arr = [];
@@ -931,72 +833,177 @@
                             obj[this_emp_id] = this_cname;
                             rework_arr.push(obj);
                         })
-                        // const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
-                        // console.log(rework_arr);
-                        // resolve(rework_str);
-                        resolve(rework_arr);
+                        const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
+
+                        resolve(rework_str);
                     });
                 }
+                // 反解:把混和陣列包物件，轉換成一般陣列..
+                function decode_Obj(_obj){
+                    let newArr = [];
+                    _obj.forEach((obj_i) => {
+                        for(const [emp_id , cname] of Object.entries(obj_i)){
+                            newArr.push({
+                                'emp_id' : emp_id,
+                                'cname'  : cname
+                            })
+                        }
+                    })
+                    // console.log('newArr', newArr);
+                    return newArr;
+                }
+                // 單獨取出特檢員工的empId
+                function getEmpId_Arr(_obj){
+                    let newArr = [];
+                    _obj.forEach((obj_i) => {
+                        for(const [emp_id , cname] of Object.entries(obj_i)){
+                            newArr.push(emp_id)
+                        }
+                    })
+                    // console.log('newArr', newArr);
+                    return newArr;
+                }
+
+
             // 定義新的監聽器函數
-            submitDeptStaffClickListener = async function () {
-                mloading(); 
+            baseInCareClickListener = async function () {
+                // console.log("click this =>", this.id);
+                // step.1 標題列顯示姓名工號
+                const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
+                const thisTD     = thisId_arr[0];                     // 取出陣列0=target
+                const thisDeptNO = thisId_arr[1];                     // 取出陣列1=部門代號
+                const thisMonth  = thisId_arr[2];                     // 取出陣列2=目標月份
+                // 在maintainDept input上帶入部門代號
+                let fromInput = document.querySelector('#maintainDept #searchkeyWord'); // 定義搜尋input欄
+                fromInput.value = thisDeptNO;                                           // 賦予內容值
+                let submitDeptStaff_btn = document.getElementById('submitDeptStaff');   // 定義出submitDeptStaff_btn範圍
+                submitDeptStaff_btn.value = `${thisDeptNO},${thisMonth}`;               // 賦予內容值
 
-                const deptStaff_opts_arr = Array.from(document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`));
-                const table_baseAll_arr = deptStaff_opts_arr.map(cb => cb.value);                          // 取得所有員工名單(all...from table上所有名單)
-                const table_inCare_arr  = deptStaff_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得已選員工名單(特檢多選)
-                // 把取得的數據送去reworkArr整理...
-                const reworkTableBaseAll_arr = await reworkArr(table_baseAll_arr);     // 將table上bassAll整理成我要的格式
-                const reworkTableInCare_arr  = await reworkArr(table_inCare_arr);      // 將table上inCare整理成我要的格式
-                    // console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
-
-                const { currentYearMonth } = getCurrentAndLastMonth();                          // 執行函式--取得年月
-
-                const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
-                const targetDeptNo = fromInput.value;                                           // 取得formInput = 部門代號
-                let deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);      // 自shLocalDept_inf找出對應的部門
-                    // console.log('shLocalDept_inf 1',shLocalDept_inf);
+                // 撈出該部門資料
+                const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
 
                 if(deptData){
-                    deptData.base = deptData.base ?? [];
-                    const { getTargetBase, baseAll_arr }  = reworkBase(deptData.base);          // 取得dept部門在紀錄裡的全部員工
-                    const { differenceOut, differenceIn, differenceKeepGoing } = getDifferencesAndKeys(reworkTableBaseAll_arr, baseAll_arr); // (arr1=本月名單, arr2=上月名單)
+                    const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(deptData, thisMonth);  // 取得部門全部員工 + 取得特檢員工
 
-                    deptData.base[currentYearMonth] = {
-                            'getOut'    : differenceOut       ?? [],
-                            'getIn'     : differenceIn        ?? [],
-                            'keepGoing' : differenceKeepGoing ?? (reworkTableBaseAll_arr ?? [])
-                        }
+                    const dec_baseAll_arr = decode_Obj(baseAll_arr);                            // 將部門全部員工obj轉換成正常的arr
+                    const getInEmpID_arr = getEmpId_Arr(getIn_arr);                             // 單獨取出轉入員工的empId
+                    await postResultTo_maintainDeptTable(dec_baseAll_arr, getInEmpID_arr);      // 將正常arr的部門全部員工清單交給postResultTo_maintainDeptTable進行鋪設
                     
-                    deptData.inCare = deptData.inCare  ?? {};
-                    deptData.inCare[currentYearMonth] = reworkTableInCare_arr;
+                    const get_inCareEmpID_arr = getEmpId_Arr(inCare_arr);                       // 單獨取出特檢員工的empId
+                    toCheckedOpt(get_inCareEmpID_arr , targetMonth);                            // 將table裡的特檢員工選上[打勾]
 
-                } else {
-                    
-                    const bomNewDeptArr = await bomNewDept(targetDeptNo, _dept_inf);                // step-6. 生成dept預設值
-                    shLocalDept_inf = [...shLocalDept_inf, ...bomNewDeptArr];                       // step-6. 合併bomNewDeptArr
-
+                }else{
+                    console.log('無deptData...套用新[]')
                 }
-                // console.log('shLocalDept_inf 2',shLocalDept_inf);
-                post_hrdb(shLocalDept_inf); // 鋪設
 
-                // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
-                // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
-                // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
-                // target_staff_cbs.forEach(checkbox => {
-                //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
-                //     // 手動觸發 change 事件
-                //     // checkbox.dispatchEvent(new Event('change'));
-                // });
+                maintainDept_modal.show()
 
-                resetMaintainDept();        // 清除
-                maintainDept_modal.hide();  // 關閉modal
-                $("body").mLoading("hide");
-
+                // // step.3 顯示互動視窗
+                // edit_modal.show();                               // 顯示互動視窗
+                // $("body").mLoading("hide");
             }
 
             // 添加新的監聽器
-            submitDeptStaff_btn.addEventListener('click', submitDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            baseInCare.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
+                tdItem.addEventListener('click', baseInCareClickListener);      // 將每一個tdItem增加監聽, 當按下click
+            })
+
+            resolve();
+        });
+    }
+    // 定義[代入]鈕功能~~；from maintainDept_modal裡[代入]鈕的呼叫...
+    let submitDeptStaffClickListener;
+    async function reload_submitDeptStaff_Listeners() {
+        const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出範圍
+        // 檢查並移除已經存在的監聽器
+        if (submitDeptStaffClickListener) {
+            submitDeptStaff_btn.removeEventListener('click', submitDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
+        }   
+            // 整理陣列成我要的格式1....顯示用
+            function reworkArr(dataIn){
+                return new Promise((resolve) => {
+                    let rework_arr = [];
+                    dataIn.forEach((emp_i) => {
+                        const this_arr = emp_i.split(',')       // 分割this.id成陣列
+                        const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
+                        const this_cname  = this_arr[1];        // 取出陣列 1 = cname
+                            // rework_arr.push({                // 傳統陣列...
+                            //         'cname'     : this_cname,
+                            //         'emp_id'    : this_emp_id
+                            //     })
+                        let obj = {};                           // 陣列包物件
+                        obj[this_emp_id] = this_cname;
+                        rework_arr.push(obj);
+                    })
+                    // const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
+                    // console.log(rework_arr);
+                    // resolve(rework_str);
+                    resolve(rework_arr);
+                });
+            }
+        // 定義新的監聽器函數
+        submitDeptStaffClickListener = async function () {
+            mloading(); 
+
+            const deptStaff_opts_arr = Array.from(document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`));
+            const table_baseAll_arr = deptStaff_opts_arr.map(cb => cb.value);                          // 取得所有員工名單(all...from table上所有名單)
+            const table_inCare_arr  = deptStaff_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得已選員工名單(特檢多選)
+            // 把取得的數據送去reworkArr整理...
+            const reworkTableBaseAll_arr = await reworkArr(table_baseAll_arr);     // 將table上bassAll整理成我要的格式
+            const reworkTableInCare_arr  = await reworkArr(table_inCare_arr);      // 將table上inCare整理成我要的格式
+                // console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
+
+            // const { currentYearMonth } = getCurrentAndLastMonth();                          // 執行函式--取得年月
+            // const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
+            // const targetDeptNo = fromInput.value;                                           // 取得formInput = 部門代號
+            const thisValue_arr = this.value.split(',')                 // 分割this.id成陣列
+            const targetDeptNo  = thisValue_arr[0];                     // 取出陣列0=部門代號
+            const thisMonth     = thisValue_arr[1];                     // 取出陣列1=目標月份
+            const { lastYearMonth } = getCurrentAndLastMonth(thisMonth) // 取得上個月的年月...
+
+            let deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);          // 自shLocalDept_inf找出對應的部門
+                // console.log('shLocalDept_inf 1',shLocalDept_inf);
+            if(deptData){
+                deptData.base = deptData.base ?? [];
+                const { baseAll_arr }  = reworkBaseInCare(deptData, lastYearMonth);                 // 取得上個月dept部門在紀錄裡的全部員工
+                const { differenceOut, differenceIn, differenceKeepGoing } = getDifferencesAndKeys(reworkTableBaseAll_arr, baseAll_arr); // (arr1=本月名單, arr2=上月名單)
+
+                deptData.base[thisMonth] = {
+                        'getOut'    : differenceOut       ?? [],
+                        'getIn'     : differenceIn        ?? [],
+                        'keepGoing' : differenceKeepGoing ?? (reworkTableBaseAll_arr ?? [])
+                    }
+                
+                deptData.inCare = deptData.inCare  ?? {};
+                deptData.inCare[thisMonth] = reworkTableInCare_arr;
+
+            } else {
+                
+                const bomNewDeptArr = await bomNewDept(targetDeptNo, _dept_inf);                // step-6. 生成dept預設值
+                shLocalDept_inf = [...shLocalDept_inf, ...bomNewDeptArr];                       // step-6. 合併bomNewDeptArr
+
+            }
+            // console.log('shLocalDept_inf 2',shLocalDept_inf);
+            post_hrdb(shLocalDept_inf, thisMonth); // 鋪設
+
+            // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
+            // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+            // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
+            // target_staff_cbs.forEach(checkbox => {
+            //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+            //     // 手動觸發 change 事件
+            //     // checkbox.dispatchEvent(new Event('change'));
+            // });
+
+            resetMaintainDept();        // 清除
+            maintainDept_modal.hide();  // 關閉modal
+            $("body").mLoading("hide");
+
         }
+
+        // 添加新的監聽器
+        submitDeptStaff_btn.addEventListener('click', submitDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
+    }
         // 套用特殊健檢名單[textArea]
         async function loadInCare(request){
             const loadInCare_div = document.getElementById('loadInCare_div');
@@ -1033,7 +1040,7 @@
                 resultInfo.innerHTML = result_title;
             }
         }
-              
+                
 
 
 // // phase 1 -- 生成按鈕
@@ -1088,9 +1095,15 @@
         const _yearMonthSelt = document.getElementById("_yearMonth");
         if(_yearMonthSelt){
             _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
-            const get_ym = objKeys_ym ?? getCurrentAndLastMonth();
-            for(const [key, value] of Object.entries(get_ym)){
-                console.log(key, value)
+            const get_ym = getCurrentAndLastMonth();                
+                for(const [key, value] of Object.entries(get_ym)){
+                    objKeys_ym.push(value);
+                }
+                let uniqueArr =  [...new Set(objKeys_ym)];  // 年月去重                     
+                uniqueArr.sort(function(a, b) {             // 使用 sort() 方法進行排序，由大到小
+                    return b - a;                           // b - a 使得較大的數字排在前面
+                });
+            for(const [key, value] of Object.entries(uniqueArr)){
                 const selt = (key === 'currentYearMonth' || value === dateString ) ? 'selected':''; 
                 const selectOpt =`<option for="_yearMonth" value="${value}" ${selt} >${value}</option>`;
                 _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
