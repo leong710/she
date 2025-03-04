@@ -59,7 +59,7 @@
                 }
     
                 break;
-            case 'load_shLocal':                   // _shLocal撈取唯一清單，帶入查詢條件OSHORT
+            case 'load_shLocal':                // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                 // $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
@@ -91,7 +91,7 @@
                 }
 
                 break;
-            case 'load_sample':                   // 帶入查詢條件
+            case 'load_sample':                 // 帶入查詢條件
                 $pdo = pdo_hrdb();
                 $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
                         FROM STAFF s ";
@@ -221,7 +221,7 @@
                     ];
                 }
                 break;
-            case 'bat_storeStaff':  // 
+            case 'bat_storeStaff':              // 
                 require_once("../user_info.php");
                 $pdo = pdo();
                 $swal_json = array(                                 // for swal_json
@@ -342,7 +342,7 @@
                 }
                 break;
             
-            case 'bat_storeDept':  // 批次儲存部門變更作業
+            case 'bat_storeDept':               // 批次儲存部門變更作業
                 require_once("../user_info.php");
                 $pdo = pdo();
                 $swal_json = array(                                 // for swal_json
@@ -451,7 +451,7 @@
                     ];
                 }
                 break;
-            case 'load_heCate':     // for 提取危害類別
+            case 'load_heCate':                 // for 提取危害類別
                 // load 作業類別json
                 $heCateFile = "../sh_local/he_cate.json";              // 預設sw.json檔案位置
                 if(file_exists($heCateFile)){
@@ -473,7 +473,7 @@
                 break;
 
             // 241223 取得審核文件年度清單
-            case 'load_doc_deptNos':                   // 帶入查詢條件
+            case 'load_doc_deptNos':            // 帶入查詢條件
                 $pdo = pdo();
                 $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
 
@@ -576,7 +576,7 @@
                 }
                 break;
             
-            case 'load_staff_dept_nos':     // 取得已存檔的員工部門代號...for 定期特殊健檢使用
+            case 'load_staff_dept_nos':         // 取得已存檔的員工部門代號...for 定期特殊健檢使用
                 $pdo = pdo();
                 // $sql = "SELECT
                     //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,
@@ -1045,7 +1045,7 @@
                 }
                 break;
             // 241223 取得審核文件
-            case 'load_doc':                   // 帶入查詢條件
+            case 'load_doc':                    // 帶入查詢條件
                 $pdo = pdo();
                 $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
                 
@@ -1127,7 +1127,7 @@
                 }
                 break;
 
-            case 'loadFabs':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
+            case 'loadFabs':                    // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                 $sql = "SELECT id, site_id, fab_title, fab_remark, BTRTL, osha_id, flag, sign_code, pm_emp_id
@@ -1190,7 +1190,7 @@
                 }
                 break;
 
-            case 'load_shLocalDepts':          // 250217 取得in[範圍內]特作部門內容
+            case 'load_shLocalDepts':           // 250217 取得in[範圍內]特作部門內容
                 $pdo = pdo();
                 $sql = "SELECT _shd.* 
                         FROM `_shlocaldept` _shd
@@ -1319,6 +1319,37 @@
     
                 break;
 
+            case 'load_change':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
+                    $pdo = pdo();
+                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                    $sql = "SELECT _s.emp_id, _s.cname,   _c._changeLogs, _c._content
+                            FROM _staff _s
+                            LEFT JOIN _change _c ON _s.emp_id = _c.emp_id
+                            WHERE _s.emp_id IN ({$parm_re}) ";
+                    // 後段-堆疊查詢語法：加入排序
+                    $sql .= " ORDER BY _s.emp_id ASC ";
+                    $stmt = $pdo->prepare($sql);
+                    try {
+                        $stmt->execute();                                   //處理 byAll
+                        $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                        foreach($chStaffs as $index => $shStaff){
+                            $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
+                            $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
+                        }
+
+                        // 製作返回文件
+                        $result = [
+                            'result_obj' => $chStaffs,
+                            'fun'        => $fun,
+                            'success'    => 'Load '.$fun.' success.',
+                        ];
+                    }catch(PDOException $e){
+                        echo $e->getMessage();
+                        $result['error'] = 'Load '.$fun.' failed...(e)';
+                    }
+        
+                    break;
             default:
                 sendErrorResponse('Invalid function', 400);
         };

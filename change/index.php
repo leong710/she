@@ -207,9 +207,9 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取特作部門資料</button>
-                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 特作部門名單維護</button>
-                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" value="workTarget.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;指定作業年度</button>
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i>&nbsp;提取特作部門資料</button>
+                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i>&nbsp;特作部門名單維護</button>
+                            <button type="button" class="nav-link "       id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-list-check"></i>&nbsp;作業追蹤維護</button>
                         </div>
                     </nav>
                 </div>
@@ -270,8 +270,8 @@
                                     </div>
                                     <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
                                     <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
-                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交</button>
+                                    <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn" 
+                                        value="" onclick=""  ><i class="fa-solid fa-arrows-down-to-people"></i> 帶入維護</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end inf">
@@ -288,7 +288,6 @@
                                 <thead>
                                     <tr>
                                         <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
-                                        <!-- <th title="OSTEXT_30"             >廠區</th> -->
                                         <th title="OSTEXT_30/OSHORT/OSTEXT" >廠區/部門代碼/名稱</th>
 
                                         <th title="base"                    >部門全員</th>
@@ -298,6 +297,47 @@
                                         <th title="inCare"                  >變更作業</th>
                                         <th title="remark/flag"             >備註說明/開關</th>
                                         <th title="created_at/updated_at/updated_cname" class="unblock">創建/更新/操作人</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- p3 -->
+                    <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
+                        <div class="col-12 bg-white">
+                            <!-- 人員名單： -->
+                            <div class="row">
+                                <!-- 左側function -->
+                                <div class="col-md-8 py-0 ">
+
+                                </div>
+                                <!-- 右側function -->
+                                <div class="col-md-4 py-0 text-end inf">
+                      
+                                </div>
+                            </div>
+                            <hr>
+                            <table id="staff_table" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th title="" >AB年月</th>
+                                        <th title="" >C廠區</th>
+                                        <th title="" >D工號</th>
+                                        <th title="" >E姓名</th>
+                                        <th title="" >F部門代號</th>
+                                        <th title="" >G變更體檢項目</th>
+                                        <th title="" >H彙整人員</th>
+                                        <th title="" >I是否補檢</th>
+                                        <th title="" >J受檢開單日</th>
+                                        <th title="" >K備註說明</th>
+                                        <th title="" >L變更原因<br>(補檢必填)</th>
+                                        <th title="" >M受檢日期</th>
+                                        <th title="" >N報告收到日期</th>
+                                        <th title="" >O通知日期</th>
+                                        <th title="" >P總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -611,15 +651,16 @@
 
     var shLocalDept_inf     = [];   // 存放db取得的dept資料
     var defaultDept_inf     = [];   // db沒有資料，這裡生成預設值 by bomNewDept(selectDeptStr)
+    var defaultStaff_inf    = [];   // db沒有資料，這裡生成預設值 by bomNewStaff(selectStaffStr)
     var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
-    // var staff_inf        = [];
+    var staff_inf           = [];
     // var shLocal_inf      = [];
     // var loadStaff_tmp    = [];
     // var _docs_inf        = [];
     // var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
-    const table_th_arr = <?=json_encode($table_th_arr)?>;
+    // const table_th_arr = <=json_encode($table_th_arr)?>;
 
     // const OSHORTsObj = <=json_encode($shLocal_OSHORTs_str)?>;
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
@@ -645,6 +686,7 @@
 <script src="change.js?v=<?=time()?>"></script>
 <script src="change_excel.js?v=<?=time()?>"></script>
 <script src="change_memo.js?v=<?=time()?>"></script>
+<script src="change_p3.js?v=<?=time()?>"></script>
 <!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

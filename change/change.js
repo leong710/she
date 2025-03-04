@@ -4,7 +4,7 @@
             shLocalDept_inf  = [];
             defaultDept_inf  = [];
             _dept_inf        = [];
-            // staff_inf     = [];
+            staff_inf        = [];
             // loadStaff_tmp = [];
             // _doc_inf      = [];
             // _doc_inf.idty = null;
@@ -359,6 +359,8 @@
             })
             const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
             mk_selectOpt_ym(uniqueArr, dateString);                             // 渲染
+
+            preProcess_staff(shLocalDept_inf, dateString);
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -387,7 +389,7 @@
                 }
                 const { currentYearMonth, lastYearMonth, lastTwoYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
                 const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? (lastTwoYearMonth ?? dateString)));  // 取得base的年月key
-            // 
+            // reworkBase
                 const getBase   = post_i["base"]       ?? [];
                 const base_arr  = getBase[targetMonth] ?? null ;  // 取得 本月名單 或 上月名單 或篩選月份名單
                 let baseAll_arr = [];
@@ -398,7 +400,7 @@
                     getOut_arr  = base_arr['getOut'];
                     getIn_arr   = base_arr['getIn'];
                 }
-            //     
+            // reworkInCare
                 const getInCare  = post_i["inCare"]       ?? [];
                 const inCare_arr = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
                 
@@ -434,7 +436,7 @@
                     return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
                 }
                 // 250220 從getInCare(整批外層不分年月)中取得並整理出可以顯示的值 callFrom post_hrdb
-                async function reworkInCare(getInCare, dateString) {
+                async function reworkInCare(post_i, dateString) {
                         let appointYearMonth = '';
                         // 如果有傳入字串參數，則解析該字串
                             if (dateString) {
@@ -443,17 +445,15 @@
                                     throw new Error("日期格式必須為 'YYYYMM'");
                                 }
                                 appointYearMonth = dateString;
-                                console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
+                                // console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
                             }
-            
-                        const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
-                        const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? dateString));    // 取得base的年月key
-                        const inCare_arr  = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-            
-                        let getTargetInCare = `${targetMonth}`;
-                        console.log('2.reworkInCare =>', { getTargetInCare, inCare_arr })
-
-                    return { getTargetInCare, inCare_arr };
+                            const { currentYearMonth, lastYearMonth, lastTwoYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
+                            const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? (lastTwoYearMonth ?? dateString)));  // 取得base的年月key
+                        //
+                            const getInCare  = post_i["inCare"]       ?? [];
+                            const inCare_arr = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
+                            // console.log('2.reworkInCare =>', { targetMonth, inCare_arr })
+                    return { targetMonth, inCare_arr };
                 }
         // fun-1.函式：找出全部鍵，並計算差異 (arr1=本月名單, arr2=上月名單)
         function getDifferencesAndKeys(arr1, arr2) {
@@ -1288,41 +1288,6 @@
                                 $(this).closest('.tag').remove();                         // 自畫面中移除
                             })
     
-                            resolve();      // 當所有設置完成後，resolve Promise
-                        });
-                    }
-                        
-                    function goTest(post_arr){
-                        return new Promise((resolve) => {
-                            if(post_arr.length > 0){
-
-
-                                    // base = {"202502":{"getOut":[{"14088431":"林晏寧"},{"15046021":"謝佳宏"}],"getIn":[{"10018491":"曹源宏"},{"10008824":"陳正峰"}],"keepGoing":[{"19024496":"李永紝"},{"10126959":"鍾宜夏"},{"10089077":"李品萱"},{"10019391":"馬吉謙"},{"10019067":"李偉勝"},{"10013280":"陳裔仁"},{"10009068":"郭淑玲"},{"10007035":"涂明安"},{"10003202":"葉信男"},{"10002568":"葉炯廷"}]}}
-                            
-                                const deptData = post_arr.find(dept => dept.OSHORT == '9T041502');
-                                console.log('deptData =>', deptData)
-
-                                // 執行函式--取得年月
-                                const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth();
-
-                                const { base , inCare } = deptData;
-                                // console.log('base =>', base)
-                                const Current_base_arr = base[currentYearMonth];  // 本月名單
-                                const Last_base_arr    = base[lastYearMonth];     // 上月名單
-                                console.log('Current_base_arr =>', Current_base_arr)
-                                console.log('Last_base_arr =>',    Last_base_arr)
-
-
-                                
-                                // // // fun-1.獲取差異和鍵 帶入(本月名單, 上月名單) = 得到 轉出, 轉入, 未異動
-                                //     const { differenceOut, differenceIn, differenceKeepGoing } = getDifferencesAndKeys(Current_base_arr, Last_base_arr);
-
-                                //     // console.log('key2', differenceOut, differenceIn, differenceKeepGoing);
-                                //     console.log('轉出：', differenceOut); 
-                                //     console.log('轉入：', differenceIn); 
-                                //     console.log('未異動：', differenceKeepGoing)
-                            }
-
                             resolve();      // 當所有設置完成後，resolve Promise
                         });
                     }
