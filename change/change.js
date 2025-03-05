@@ -308,7 +308,8 @@
                 function doReplace(_arr){
                     return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                 }
-            let objKeys_ym = [];
+            let objKeys_ym = [];    // 把所有的base下的年月key蒐集起來
+            let thisMonth;          // 顯示月份&submit_btn
             await shLocalDept_inf.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i, dateString);
                     // const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
@@ -356,11 +357,13 @@
                 // mk_Badge(post_i["base"]  , 'base'  , true);
                 // mk_Badge(post_i["inCare"], 'inCare', false);
                 objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
-            })
-            const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
-            mk_selectOpt_ym(uniqueArr, dateString);                             // 渲染
 
-            preProcess_staff(shLocalDept_inf, dateString);
+                thisMonth = targetMonth;                                        // 顯示月份&submit_btn
+            })
+            thisMonth = (dateString != undefined) ? dateString : thisMonth;     // 
+            const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
+            mk_selectOpt_ym(uniqueArr, thisMonth);                              // 生成並渲染到select
+            SubmitForReview_btn.value = thisMonth;                              // 餵年月給submit_btn
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -1090,24 +1093,28 @@
             resolve();      // 當所有設置完成後，resolve Promise
         });
     }
-
+    // p2 生成年月篩選項目...
     function mk_selectOpt_ym(objKeys_ym, dateString){
         const _yearMonthSelt = document.getElementById("_yearMonth");
         if(_yearMonthSelt){
             _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
-            const get_ym = getCurrentAndLastMonth();                
-                for(const [key, value] of Object.entries(get_ym)){
-                    objKeys_ym.push(value);
+            const get_ym = getCurrentAndLastMonth();                // 取得近4個月的值
+                for(const [key, value] of Object.entries(get_ym)){  // 將4個月的值取出
+                    objKeys_ym.push(value);                         // 並集中彙整
                 }
-                let uniqueArr =  [...new Set(objKeys_ym)];  // 年月去重                     
-                uniqueArr.sort(function(a, b) {             // 使用 sort() 方法進行排序，由大到小
-                    return b - a;                           // b - a 使得較大的數字排在前面
+            let uniqueArr =  [...new Set(objKeys_ym)];              // 年月去重
+                uniqueArr.sort(function(a, b) {                     // 使用 sort() 方法進行排序，由大到小
+                    return b - a;                                   // b - a 使得較大的數字排在前面
                 });
             for(const [key, value] of Object.entries(uniqueArr)){
                 const selt = (key === 'currentYearMonth' || value === dateString ) ? 'selected':''; 
                 const selectOpt =`<option for="_yearMonth" value="${value}" ${selt} >${value}</option>`;
                 _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
             }
+        }
+        if(dateString != undefined){
+            SubmitForReview_btn.value = dateString;
+            console.log('dateString',dateString)
         }
     }
 
@@ -1264,6 +1271,12 @@
                         load_subScopes_btn.disabled = selectedOptsValues.length === 0;
                     });
                 });
+
+            // step-p3-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+                SubmitForReview_btn.addEventListener('click', async function() {
+                    preProcess_staff(shLocalDept_inf, this.value)
+                    $('#nav-p3-tab').tab('show');
+                })
                 
             resolve();      // 當所有設置完成後，resolve Promise
         });

@@ -70,10 +70,8 @@
         ];
 
 
-
     include("../template/header.php");
     include("../template/nav.php"); 
-
 ?>
 
 <head>
@@ -223,7 +221,7 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
-                                        <snap data-toggle="tooltip" data-placement="bottom" title="特危部門員工清單維護">
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護">
                                             <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
                                             <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
                                         </snap>
@@ -268,10 +266,9 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="maintainDept_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
-                                    <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn" 
-                                        value="" onclick=""  ><i class="fa-solid fa-arrows-down-to-people"></i> 帶入維護</button>
+                                    <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                    <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn" value="" ><i class="fa-solid fa-arrows-down-to-people"></i> 帶入維護</button>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end inf">
@@ -323,21 +320,21 @@
                             <table id="staff_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="" >AB年月</th>
-                                        <th title="" >C廠區</th>
-                                        <th title="" >D工號</th>
-                                        <th title="" >E姓名</th>
-                                        <th title="" >F部門代號</th>
-                                        <th title="" >G變更體檢項目</th>
-                                        <th title="" >H彙整人員</th>
-                                        <th title="" >I是否補檢</th>
-                                        <th title="" >J受檢開單日</th>
-                                        <th title="" >K備註說明</th>
-                                        <th title="" >L變更原因<br>(補檢必填)</th>
-                                        <th title="" >M受檢日期</th>
-                                        <th title="" >N報告收到日期</th>
-                                        <th title="" >O通知日期</th>
-                                        <th title="" >P總窗備註</th>
+                                        <th title="AB">年月</th>
+                                        <th title="C" >廠區</th>
+                                        <th title="D" >工號</th>
+                                        <th title="E" >姓名</th>
+                                        <th title="F" >部門代號</th>
+                                        <th title="G" >變更體檢項目</th>
+                                        <th title="H" >彙整人員</th>
+                                        <th title="I" >是否補檢</th>
+                                        <th title="J" >受檢開單日</th>
+                                        <th title="K" >備註說明</th>
+                                        <th title="L" >變更原因<br>(補檢必填)</th>
+                                        <th title="M" >受檢日期</th>
+                                        <th title="N" >報告收到日期</th>
+                                        <th title="O" >通知日期</th>
+                                        <th title="P" >總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -631,7 +628,7 @@
     // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
     // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     // var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
-    // var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
+    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     // var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
     // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn

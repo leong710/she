@@ -86,13 +86,13 @@
             _table = _table ?? 'hrdb_table';
             let table = $(`#${_table}`).DataTable();
             if(table) {
-                release_dataTable();        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+                release_dataTable(_table);        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
             }
             // 重新初始化 DataTable
             $(`#${_table}`).DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
                 "autoWidth": false,                                              // 自動寬度
-                "order": [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]],            // 排序
+                "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 2, "asc" ]] ,            // 排序
                 "pageLength": 25,                                               // 顯示長度
                     // "paging": false,                                             // 分頁
                     // "searching": false,                                          // 搜尋
