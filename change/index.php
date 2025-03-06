@@ -651,7 +651,7 @@
     var defaultStaff_inf    = [];   // db沒有資料，這裡生成預設值 by bomNewStaff(selectStaffStr)
     var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
     var staff_inf           = [];
-    // var shLocal_inf      = [];
+    var shLocal_inf      = [];
     // var loadStaff_tmp    = [];
     // var _docs_inf        = [];
     // var _docsIdty_inf    = null;

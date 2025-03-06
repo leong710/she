@@ -59,6 +59,32 @@
                 }
     
                 break;
+
+            case 'load_dept':                   // 由hrdb撈取HCM_VW_DEPT08部門資料，帶入查詢條件OSHORT
+                $pdo = pdo_hrdb();
+                $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                $sql = "SELECT _D.OSHORT, _D.OSTEXT, _D.OFTEXT, _D.OMAGER, _S.cname, _S.[user], _S.comid2
+                        FROM HCM_VW_DEPT08 _D 
+                        LEFT JOIN STAFF _S ON _D.OMAGER = _S.emp_id
+                        WHERE _D.OSHORT IN ({$parm_re}) ";
+                // 後段-堆疊查詢語法：加入排序
+                // $sql .= " ORDER BY _S.dept_no ASC, _S.emp_id ASC ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute();                                   //處理 byAll
+                    $load_depts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $load_depts,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+    
+                break;
             case 'load_shLocal':                // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
@@ -1156,14 +1182,20 @@
                 //         WHERE _sh.flag = 'On'
                 //         GROUP BY _sh.OSHORT
                 //         ORDER BY _sh.OSHORT ";
-                $sql = "SELECT  COALESCE(_sh.OSTEXT_30, _sl.OSTEXT_30) AS OSTEXT_30,
-                                COALESCE(_sh.OSTEXT, _sl.OSTEXT) AS OSTEXT,
-                                COALESCE(_sh.OSHORT, _sl.OSHORT) AS OSHORT
-                        FROM `_shlocal` _sh
-                        RIGHT JOIN `_shlocaldept` _sl ON _sh.OSHORT = _sl.OSHORT
-                        -- WHERE _sh.flag = 'On' OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
-                        GROUP BY COALESCE(_sh.OSHORT, _sl.OSHORT)
-                        ORDER BY OSTEXT_30, OSHORT; ";
+                // $sql = "SELECT  COALESCE(_sh.OSTEXT_30, _sl.OSTEXT_30) AS OSTEXT_30,
+                //                 COALESCE(_sh.OSTEXT, _sl.OSTEXT) AS OSTEXT,
+                //                 COALESCE(_sh.OSHORT, _sl.OSHORT) AS OSHORT
+                //         FROM `_shlocal` _sh
+                //         RIGHT JOIN `_shlocaldept` _sl ON _sh.OSHORT = _sl.OSHORT
+                //         -- WHERE _sh.flag = 'On' OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
+                //         GROUP BY COALESCE(_sh.OSHORT, _sl.OSHORT)
+                //         ORDER BY OSTEXT_30, OSHORT; ";
+                $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT
+                        FROM `_shlocaldept` _sl
+                        -- WHERE _sl.flag = true OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
+                        GROUP BY _sl.OSHORT
+                        ORDER BY OSTEXT_30, OSHORT
+                         ";
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();

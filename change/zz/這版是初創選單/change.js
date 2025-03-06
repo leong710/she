@@ -182,7 +182,6 @@
         // step-1.將人員資料進行初步的整理，和_shlocaldept內容相似
             let processStaffs = {};     // 處理人員資料
             let processDeptInf = [];    // 處理部門資訊
-            let emptyDeptInf   = [];    // 處理空部門資訊
             excelJsonArr.forEach((emp) => {
                 // 防呆與確保
                 processStaffs[emp.OSHORT]           = processStaffs[emp.OSHORT]           ?? {};
@@ -197,43 +196,14 @@
                 processStaffs[emp.OSHORT]['inCare'][emp.targetYear].push(empObj);
                 // 處理與彙整-DEPT
                 processDeptInf.push(`${emp.OSTEXT_30},${emp.OSHORT},${emp.OSTEXT}`);
-                // 處理與彙整-DEPT-沒有部門名稱
-                if(emp.OSTEXT == null || emp.OSTEXT == undefined || emp.OSTEXT == ''){
-                    emptyDeptInf.push(emp.OSHORT);
-                }
             })
-
-        // 將沒有部門資訊的清單進行查詢
-            const uniqueEmptyDeptArr = [...new Set(emptyDeptInf)];   // 使用 Set 來移除emptyDeptInf重複值
-            const uniqueEmptyDeptStr = JSON.stringify(uniqueEmptyDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
-                // console.log('1.uniqueEmptyDeptArr...', uniqueEmptyDeptArr)
-                // console.log('1.uniqueEmptyDeptStr...', uniqueEmptyDeptStr)
-            const EmptyDeptInf = await load_fun('load_dept', uniqueEmptyDeptStr, 'return');
-                console.log('1.EmptyDeptInf...', EmptyDeptInf)
-
-            // console.log('2.processStaffs...', processStaffs)
-            // console.log('2.processDeptInf...', processDeptInf)
-        let uniqueDeptArr = [...new Set(processDeptInf)];     // 使用 Set 來移除dept_inf重複值
-            // console.log('3.uniqueDeptArr...', uniqueDeptArr)
-            
-        // 將沒有部門資訊的清單進行套用
-            for(const [index, dept] of Object.entries(uniqueDeptArr)){
-                const deptArr = (dept) ? dept.split(',') : [];          // 分割dept成陣列
-                const dept_OSTEXT_30 = deptArr[0] ?? '';                // 取出陣列 2 = 廠區
-                const dept_OSHORT    = deptArr[1] ?? '';                // 取出陣列 3 = 部門代號
-                const dept_OSTEXT    = deptArr[2] ?? '';                // 取出陣列 4 = 部門名稱
-                if(dept_OSTEXT == undefined || dept_OSTEXT == null || dept_OSTEXT == ''){
-                    const deptInf = EmptyDeptInf.find(item => item.OSHORT === dept_OSHORT);     // 從_dept_inf找出符合 empId 的原始字串
-                    const deptInf_OSTEXT = (deptInf) ? deptInf.OSTEXT : '(請注意--無資訊)';
-                    // console.log(dept_OSHORT , ' == ',deptInf_OSTEXT)
-                    uniqueDeptArr[index] = `${dept_OSTEXT_30},${dept_OSHORT},${deptInf_OSTEXT ?? ''}`;
-                }
-            }
-            // console.log('3.uniqueDeptArr...', uniqueDeptArr)
-
+            const uniqueArray = [...new Set(processDeptInf)];   // 使用 Set 來移除dept_inf重複值
+                console.log('processStaffs...', processStaffs)
+                // console.log('processDeptInf...', processDeptInf)
+                // console.log('uniqueArray...', uniqueArray)
         const excelDeptArr = [...new Set(excelJsonArr.map(empt => empt.OSHORT))];   // step-2. 提取load_shLocalDepts中所有的OSHORT值，並使用 Set 來移除OSHORT重複值
         const excelDeptStr = JSON.stringify(excelDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
-        const bomNewDeptArr = await preCheckDeptData(excelDeptStr, uniqueDeptArr);    // 呼叫預處理deptData 或 生成dept預設值
+        const bomNewDeptArr = await preCheckDeptData(excelDeptStr, uniqueArray);    // 呼叫預處理deptData 或 生成dept預設值
 
         for(const [index_OSHORT, value_i ] of Object.entries(processStaffs)){
             let deptData = bomNewDeptArr.find(dept => dept.OSHORT == index_OSHORT);
@@ -248,10 +218,11 @@
                                 // console.log("0.index_OSHORT:", index_OSHORT);
                                 // console.log("  1.key:", key);               // base/inCare
                                 // console.log("  2.innerKey:", innerKey);     // 年月
-                            // // // 這裡要區分inCare和base
+                            // 防呆與確保--年
+                            deptData[key][innerKey] = deptData[key][innerKey] ?? {};
+
+                            // // // 這裡要區分inCare和base // // // 這裡出錯了~~~~!!!!!
                             if(key === 'base'){
-                                // 防呆與確保--年
-                                deptData[key][innerKey] = deptData[key][innerKey] ?? {};
                                 Object.entries(innerValue).forEach(([innerInnerKey, innerInnerValue]) => {
                                         // console.log("  3.innerInnerKey:", innerInnerKey);       // inCare/base
                                         // console.log("  4.innerInnerValue:", innerInnerValue);
@@ -276,11 +247,7 @@
                                 });
 
                             }else if(key === 'inCare'){
-                                // 防呆與確保--年
-                                deptData[key][innerKey] = deptData[key][innerKey] ?? [];
-                                // console.log("  4.innerKey:", innerKey);
                                 // console.log("  4.innerValue:", innerValue);
-                                // console.log("  4.deptData[key][innerKey]:", deptData[key][innerKey]);
                                 deptData[key][innerKey] = deptData[key][innerKey].concat(innerValue);
                                 // 去重!
                                 deptData[key][innerKey] = deptData[key][innerKey].reduce((acc, current) => {
@@ -396,7 +363,7 @@
             thisMonth = (dateString != undefined) ? dateString : thisMonth;     // 
             const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
             mk_selectOpt_ym(uniqueArr, thisMonth);                              // 生成並渲染到select
-            SubmitForReview_btn.value = thisMonth;                              // 把[帶入維護]鈕 給上 年月字串值
+            SubmitForReview_btn.value = thisMonth;                              // 餵年月給submit_btn
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -433,8 +400,8 @@
                 let getIn_arr   = [];
                 if (base_arr != undefined || base_arr != null){
                     baseAll_arr = uniqueArr(base_arr['keepGoing'], base_arr['getIn']);
-                    getOut_arr  = base_arr['getOut'] ?? [];
-                    getIn_arr   = base_arr['getIn']  ?? [];
+                    getOut_arr  = base_arr['getOut'];
+                    getIn_arr   = base_arr['getIn'];
                 }
             // reworkInCare
                 const getInCare  = post_i["inCare"]       ?? [];
@@ -1146,7 +1113,8 @@
             }
         }
         if(dateString != undefined){
-            SubmitForReview_btn.value = dateString;     // 把[帶入維護]鈕 給上 年月字串值
+            SubmitForReview_btn.value = dateString;
+            console.log('dateString',dateString)
         }
     }
 
@@ -1411,4 +1379,6 @@
     
         $("body").mLoading("hide");
 
+        // workList_json = await load_jsonFile('workList.json');
+        // console.log('workList_json...', workList_json)
     });

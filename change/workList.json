@@ -1,0 +1,52 @@
+[
+    {
+        "id"    : "sh_item",
+        "title" : "變更體檢項目",
+        "type"  : ""
+    },
+    {
+        "id"    : "work_man",
+        "title" : "彙整人員",
+        "type"  : "text"   
+    },
+    {
+        "id"    : "is_check",
+        "title" : "是否補檢",
+        "type"  : "text"   
+    },
+    {
+        "id"    : "inCare_date",
+        "title" : "受檢開單日",
+        "type"  : "date" 
+    },
+    {
+        "id"    : "change_remark",
+        "title" : "備註說明",
+        "type"  : "textarea"   
+    },
+    {
+        "id"    : "why_change",
+        "title" : "變更原因補檢必填",
+        "type"  : "select"       
+    },
+    {
+        "id"    : "examination_date",
+        "title" : "受檢日期",
+        "type"  : "date"   
+    },
+    {
+        "id"    : "receipt_date",
+        "title" : "報告收到日期",
+        "type"  : "date"            
+    },
+    {
+        "id"    : "notification_date",
+        "title" : "通知日期",
+        "type"  : "date"   
+    },
+    {
+        "id"    : "bpm_remark",
+        "title" : "總窗備註",
+        "type"  : "textarea" 
+    }
+]

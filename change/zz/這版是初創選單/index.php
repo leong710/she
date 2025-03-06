@@ -6,53 +6,72 @@
     accessDenied($sys_id);
 
     // for return
-    $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
+    // $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // tidy query condition：
         $get_year = load_workTarget("_year");
         $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
         $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
       
-    // default fab_scope
-        $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
-        $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
-    // tidy sign_code scope 
-        $sfab_id_str     = get_coverFab_lists("str");   // get signCode的管理轄區
-        $sfab_id_arr     = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
-    // merge quesy array
-        $query_arr = array(
-            'fab_title'     => $fab_title,
-            'sfab_id'       => $sfab_id_str,
-        );
-    // get mainData = shLocal
-        // $shLocals       = show_shLocal($query_arr);     // get case清單
+    // // default fab_scope
+    //     $fab_scope   = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
+    //     $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
+    // // tidy sign_code scope 
+    //     $sfab_id_str = get_coverFab_lists("str");   // get signCode的管理轄區
+    //     $sfab_id_arr = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
+    // // merge quesy array
+    //     $query_arr = array(
+    //         'fab_title' => $fab_title,
+    //         'sfab_id'   => $sfab_id_str,
+    //         'emp_id'    => "10008048",
+    //     );
+    // // get mainData = shLocal
+    //     // $shLocals       = show_shLocal($query_arr);     // get case清單
 
-        $shLocals       = [];     // get case清單
-        $per_total      = count($shLocals);             // 計算總筆數
-    // for select item
-        $fab_lists      = show_fab_lists();             // get 廠區清單
-        $OSHORT_lists   = show_OSHORT();                // get 部門代號
+    //     $shLocals       = [];     // get case清單
+    //     $per_total      = count($shLocals);             // 計算總筆數
+    // // for select item
+    //     $fab_lists      = show_fab_lists();             // get 廠區清單
+    //     $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
-        // p1
-        $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
-        $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
-        $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
+    //     // p1
+    //     $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
+    //     $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
+    //     $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
 
         // p1
         // $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
         // $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
         // $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
 
+        // $test = show_change($query_arr);
+
+        // $allShLocalStaff_arr = all_shLocalStaff();
+        // $_month = $_month ?? date('m');
+        // echo $_year.$_month;
+
         // echo "<pre>";
-        // print_r($staff_deptNos);
+        // print_r($allShLocalStaff_arr);
         // echo "</pre>";
 
-        $faSquareCheck = '<i class="fa-regular fa-square-check"></i>&nbsp;';
+        $faSquareCheck = `<i class="fa-regular fa-square-check"></i>&nbsp;`;
+        // 建立表頭
+        $table_th_arr = [
+            "OSTEXT_30"     => "廠區",
+            "OSHORT"        => "部門代碼",
+            "OSTEXT"        => "部門名稱",
+            "base"          => "部門全員",
+            "inCare"        => "變更作業",
+            "remark"        => "備註說明",
+            "flag"          => "開關",
+            "created_at"    => "創建時間",
+            "updated_at"    => "更新時間",
+            "updated_cname" => "更新人員",
+        ];
 
 
     include("../template/header.php");
     include("../template/nav.php"); 
-
 ?>
 
 <head>
@@ -111,45 +130,12 @@
         .h6 {
             font-size: 12px;
         }
-        .HE_CATE:hover ,
-        .shCondition:hover ,
-        .yearHe:hover ,
-        .yearPre:hover {
+        .import:hover , .edit1:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0, 0, 0, .5);
         }
-            .split-td {
-                display: flex;
-                flex-direction: column;
-                /* 設定高度以顯示效果 */
-                /* height: 100px; */
-                height: 100%;
-                padding: 0;
-            }
-            .top-half, .bottom-half {
-                height: 50%;
-                overflow: hidden;
-                /* padding: calc(1 * var(--spacing)); */
-                /* 平均分配空間 */
-                /* flex: 1;  */
-            }
-            .bottom-half {
-                background-color: #cceeff;
-                border-radius: 4px;
-                /* margin-top: calc(1 * var(--spacing)); */
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-            /* 轉調欄位 */
-            .change_ {      
-                background-color: #FFBFFF;
-                padding: calc(1 * var(--spacing));
-                border-radius: 4px;
-                height: 100%;
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            }
             .btn {
                 padding: 4px 4px;
             }
@@ -193,9 +179,18 @@
                 color: $yellow-300;
                 background-color: $indigo-900;
             } */
-            .noOmager {
-                border: 5px solid red;
-                /* padding: 5px; */
+            .unblock_b {
+                opacity: 0;
+                transition: opacity .6s ease; /* 調整為1秒 */
+                visibility: hidden;     /* 初始為hidden */
+                height: 0;              /* 初始高度為0以避免佔用空間 */
+                overflow: hidden;       /* 防止顯示內容 */
+            }
+
+            .unblock_b.show {           /* 增加show類別 */
+                opacity: 1;
+                visibility: visible;    /* 顯示時為visible */
+                height: auto;           /* 根據內容自動調整高度 */
             }
     </style>
 </head>
@@ -210,9 +205,9 @@
                     <!-- NAV分頁標籤 -->
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i> 提取存檔員工資料</button>
-                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i> 定期特殊健檢</button>
-                            <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" value="workTarget.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;指定作業年度</button>
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false"><i class="fa-solid fa-share-from-square"></i>&nbsp;提取特作部門資料</button>
+                            <button type="button" class="nav-link "       id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false"><i class="fa-solid fa-user-shield"></i>&nbsp;特作部門名單維護</button>
+                            <button type="button" class="nav-link "       id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false"><i class="fa-solid fa-list-check"></i>&nbsp;作業追蹤維護</button>
                         </div>
                     </nav>
                 </div>
@@ -224,8 +219,12 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9 py-1">
+                                    <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護">
+                                            <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
+                                            <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
                                         <form action="" method="GET">
@@ -244,13 +243,10 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
-                                    <div id="deptNo_opts_inside" class="row p-0">
-                                        <!-- 放checkbox按鈕的地方 -->
-                                    </div> 
-                                <!-- </div> -->
+                                <div id="deptNo_opts_inside" class="row p-0">
+                                    <!-- 放checkbox按鈕的地方 -->
+                                </div> 
                             </div>
-
                         </div>
                     </div>
 
@@ -262,7 +258,7 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
@@ -270,39 +266,75 @@
                                             <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
                                         </form>
                                     </div>
-                                    <button type="button" id="load_excel_btn"   class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="import_staff_btn" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#import_staff"><i class="fa fa-plus"></i> 新增</button>
-                                    <!-- 指派主管 -->
-                                    <div class="inb">
-                                        <button type="button" id="assignOmager_btn" class="btn btn-outline-warning add_btn text-danger <?php echo ($sys_role <= 2.2) ? '':'disabled unblock';?>" disabled data-bs-toggle="modal" data-bs-target="#assignOmagerModal"><i class="fa-solid fa-user-tie"></i> 指派主管</button>
-                                        <snap id="newOmager"></snap>
-                                    </div>
+                                    <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                    <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                    <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn" value="" ><i class="fa-solid fa-arrows-down-to-people"></i> 帶入維護</button>
                                 </div>
                                 <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
-                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
-                                        <!-- value="" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button> -->
+                                <div class="col-md-4 py-0 text-end inf">
+                                    <div class="input-group">
+                                        <span class="input-group-text">篩選</span>
+                                        <select name="_yearMonth" id="_yearMonth" class="form-select" onchange="post_hrdb('', this.value)"></select>
+                                        <!-- <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button> -->
+                                    </div>
+                      
                                 </div>
                             </div>
                             <hr>
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="emp_id+cname"        >工號姓名</th>
-                                        <th title="emp_sub_scope"       >年份_廠區</th>
-                                        <th title="dept_no"             >部門代碼名稱</th>
-                                        <th title="HE_CATE 選擇特作項目" ><?php echo $faSquareCheck;?>檢查類別代號</th>
-                                        <th title="MONIT_LOCAL"         >工作場所</th>
-                                        <th title="特殊作業"            >工作內容</th>
-                                        <th title="AVG_VOL"             >A權音壓級 <sup>(dBA)</sup></th>
-                                        <th title="AVG_8HR 工作日8小時" >日時量平均 <sup>(dBA)</sup></th>
-                                        <th title="eh_time 累計暴露"    >每日曝露時數</th>
-                                        <th title="noiseCheck"          >噪音資格</th>
-                                        <th title="shCondition" <?php echo ($sys_role <= '2.2') ? "":"class='unblock'";?>><?php echo $faSquareCheck;?>特檢資格</th>
-                                        <th title="匯入1"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>><?php echo $faSquareCheck;?>檢查類別</th>
-                                        <th title="匯入2"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>>檢查代號</th>
-                                        <th title="匯入3"       <?php echo ($sys_role <= '3'  ) ? "":"class='unblock'";?>>去年檢查項目</th>
+                                        <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
+                                        <th title="OSTEXT_30/OSHORT/OSTEXT" >廠區/部門代碼/名稱</th>
+
+                                        <th title="base"                    >部門全員</th>
+                                        <th title="getOut"                  >轉出</th>
+                                        <th title="getIn"                   >轉入</th>
+
+                                        <th title="inCare"                  >變更作業</th>
+                                        <th title="remark/flag"             >備註說明/開關</th>
+                                        <th title="created_at/updated_at/updated_cname" class="unblock">創建/更新/操作人</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- p3 -->
+                    <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
+                        <div class="col-12 bg-white">
+                            <!-- 人員名單： -->
+                            <div class="row">
+                                <!-- 左側function -->
+                                <div class="col-md-8 py-0 ">
+
+                                </div>
+                                <!-- 右側function -->
+                                <div class="col-md-4 py-0 text-end inf">
+                      
+                                </div>
+                            </div>
+                            <hr>
+                            <table id="staff_table" class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th title="AB">年月</th>
+                                        <th title="C" >廠區</th>
+                                        <th title="D" >工號</th>
+                                        <th title="E" >姓名</th>
+                                        <th title="F" >部門代號</th>
+                                        <th title="G" >變更體檢項目</th>
+                                        <th title="H" >彙整人員</th>
+                                        <th title="I" >是否補檢</th>
+                                        <th title="J" >受檢開單日</th>
+                                        <th title="K" >備註說明</th>
+                                        <th title="L" >變更原因<br>(補檢必填)</th>
+                                        <th title="M" >受檢日期</th>
+                                        <th title="N" >報告收到日期</th>
+                                        <th title="O" >通知日期</th>
+                                        <th title="P" >總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -331,11 +363,11 @@
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
                             <div class="col-6 col-md-7 py-0">
-                                <label for="excelFile" class="form-label">特作員工清單 <span>&nbsp<a href="../_Format/shStaff_example.xlsx" target="_blank">上傳格式範例</a></span> 
+                                <label for="excelFile" class="form-label">變更作業健檢名單 <span>&nbsp<a href="../_Format/shStaffChange_example.xlsx" target="_blank">上傳格式範例</a></span> 
                                     <sup class="text-danger"> * 限EXCEL檔案</sup></label>
                                 <div class="input-group">
                                     <input type="file" name="excelFile" id="excelFile" style="font-size: 16px; max-width: 350px;" class="form-control form-control-sm" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaff">上傳</button>
+                                    <button type="submit" name="excelUpload" id="excelUpload" class="btn btn-outline-secondary" value="shStaffChange">上傳</button>
                                 </div>
                             </div>
                             <div class="col-6 col-md-5 py-0">
@@ -358,6 +390,71 @@
             </div>
         </div>
     </div> 
+    <!-- 模組-維護部門員工名單 -->
+    <div class="modal fade" id="maintainDept" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title"><b>maintainDept：&nbsp;</b><snap id="dept_info"></snap></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 第一排-查詢功能 -->
+                    <div class="row">
+                        <div class="col-12 col-md-4"><snap id="daptStaff_length"></snap>&nbsp;<snap id="result_info"></snap></div>
+                        <div class="col-12 col-md-8 text-end py-1 inf">
+                            <div class="input-group">
+                                <span class="input-group-text">部門代號</span>
+                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required disabled>
+                                <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
+                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="清除" onclick="resetMaintainDept()">&nbsp;<i class="fa-solid fa-delete-left"></i>&nbsp;</button>
+                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="搜尋" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')">&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;</button>
+                            </div>
+                                &nbsp;
+                            <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="套用名單"  onclick="loadInCare(false)">&nbsp;套&nbsp;</button>
+                        </div>
+                    </div>
+                    <div class="col-12 bg-light border rounded unblock_b" id="loadInCare_div">
+                        <label for="loadInCare" id="loadInCare_label" class="form-check-label" >套用名單：</label>
+                        <textarea name="loadInCare" id="loadInCare" class="form-control" rows="5"></textarea>
+                        <div class="col-12 p-0 text-end">
+                            <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="帶入套用名單"  onclick="loadInCare(true)">&nbsp;套用&nbsp;</button>
+                        </div>
+                    </div>
+                    <!-- 第二排-查詢結果 -->
+                    <div class="row">
+                        <div class="col-12 p-3" id="result">
+                            <table id="maintainDept_table" class="table table-striped table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-primary unblock" id="submitDeptStaff" disabled >代入</button>
+                    <button class="btn btn-secondary"       data-bs-dismiss="modal">Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 互動視窗 edit_modal -->
+    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_title"></snap>：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4"></div>
+                <div class="modal-footer">
+                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
+                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" value="">更新</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+
+
     <!-- 互動視窗 import_shLocal -->
     <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
@@ -399,39 +496,7 @@
             </div>
         </div>
     </div> 
-    <!--模組-新增Staff -->
-    <div class="modal fade" id="import_staff" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title" id="searchStaff">searchStaff</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- 第一排-查詢功能 -->
-                    <div class="row">
-                        <div class="col-12 col-md-6"></div>
-                        <div class="col-12 col-md-6 text-end py-1">
-                            <div class="input-group">
-                                <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢對象 工號、姓名或NT帳號" required>
-                                <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- 第二排-查詢結果 -->
-                    <div class="row">
-                        <div class="col-12 p-3" id="result">
-                            <table id="result_table" class="table table-striped table-hover">
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <!-- canvas側欄 memoCard-->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
         <div class="offcanvas-header bg-light">
@@ -533,53 +598,7 @@
             </div>
         </div>
     </div>
-    <!-- 互動視窗 edit_modal -->
-    <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">編輯&nbsp;<snap id="edit_modal_empId"></snap>：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body px-4"></div>
-                <div class="modal-footer">
-                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
-                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
-                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
-                </div>
-            </div>
-        </div>
-    </div> 
-    <!-- 模組 assignOmagerModal-->
-    <div class="modal fade" id="assignOmagerModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable ">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">指派所屬主管：</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                
-                <div class="modal-body px-4 pt-1">
-                    <!-- 第二排的功能 : 搜尋功能 -->
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="input-group search">
-                                <span class="input-group-text form-label">指派</span>
-                                <input type="text" name="omager" id="assignOmager" class="form-control" placeholder="請輸入工號"
-                                        aria-label="請輸入查詢對象工號" onchange="search_fun(this.id, this.value);">&nbsp;&nbsp;
-                                <div id="assignOmagerBadge"></div>
-                                <input type="hidden" name="assignOmagerName" id="assignOmagerName" >
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" id="assignOmagerSubmit" class="btn btn-primary <?php echo ($sys_role <= 2.2) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Submit</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -604,33 +623,43 @@
     var excelUpload         = document.getElementById('excelUpload');           // 上傳按鈕
     var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
     var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
-    var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
-    var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
-    var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
-    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
-    var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
-    const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
-    const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
-    const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
-    const assignOmager_btn  = document.getElementById('assignOmager_btn');      // 定義出assignOmager_btn
-    const assignOmagerSubmit_btn = document.getElementById('assignOmagerSubmit'); // 定義出assignOmagerSubmit_btn
 
-    var searchUser_modal    = new bootstrap.Modal(document.getElementById('import_staff'), { keyboard: false });
-    var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
-    var edit_modal          = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
-    var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
-    var assignOmager_modal  = new bootstrap.Modal(document.getElementById('assignOmagerModal'), { keyboard: false });
-    var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
+    // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
+    // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
+    // var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
+    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
+    // var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
+    // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
+    // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn
+    // const reviewSubmit_btn  = document.getElementById('reviewSubmit');          // 定義出reviewSubmit_btn
 
-    var staff_inf        = [];
-    var shLocal_inf      = [];
-    var loadStaff_tmp    = [];
-    var _docs_inf        = [];
-    var _docsIdty_inf    = null;
+    const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
+    const deptInfo             = document.getElementById('dept_info');             // 定義modal表頭dept id
+    const daptStaffLength      = document.getElementById('daptStaff_length');      // 定義modal表頭daptStaff_length
+
+
+    var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
+    var edit_modal            = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+
+    // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
+    // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
+    // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
+
+    var shLocalDept_inf     = [];   // 存放db取得的dept資料
+    var defaultDept_inf     = [];   // db沒有資料，這裡生成預設值 by bomNewDept(selectDeptStr)
+    var defaultStaff_inf    = [];   // db沒有資料，這裡生成預設值 by bomNewStaff(selectStaffStr)
+    var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
+    var staff_inf           = [];
+    // var shLocal_inf      = [];
+    // var loadStaff_tmp    = [];
+    // var _docs_inf        = [];
+    // var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
-    const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
+    // const table_th_arr = <=json_encode($table_th_arr)?>;
+
+    // const OSHORTsObj = <=json_encode($shLocal_OSHORTs_str)?>;
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
 
@@ -642,18 +671,19 @@
         'signCode' : '<?=$auth_sign_code?>',
     }
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
-    const currentYear    = '<?=$_year?>';                      // 取得當前年份
-    const preYear        = String(currentYear - 1);            // 取得去年年份
+    // const currentYear    = '<=$_year?>';                      // 取得當前年份
+    // const preYear        = String(currentYear - 1);            // 取得去年年份
 
 </script>
 <script src="../mvc/utility.js?v=<?=time()?>"></script>
-<script src="../mvc/excel.js?v=<?=time()?>"></script>
-<script src="../mvc/check.js?v=<?=time()?>"></script>
-<script src="../mvc/editModal.js?v=<?=time()?>"></script>
+<!-- <script src="../mvc/excel.js?v=<=time()?>"></script> -->
+<!-- <script src="../mvc/check.js?v=<=time()?>"></script> -->
+<!-- <script src="../mvc/editModal.js?v=<=time()?>"></script> -->
 
-<script src="staff.js?v=<?=time()?>"></script>
-<script src="staff_excel.js?v=<?=time()?>"></script>
-<script src="staff_editModal.js?v=<?=time()?>"></script>
-<script src="staff_memo.js?v=<?=time()?>"></script>
+<script src="change.js?v=<?=time()?>"></script>
+<script src="change_excel.js?v=<?=time()?>"></script>
+<script src="change_memo.js?v=<?=time()?>"></script>
+<script src="change_p3.js?v=<?=time()?>"></script>
+<!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>
