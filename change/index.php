@@ -320,21 +320,21 @@
                             <table id="staff_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="AB">年月</th>
-                                        <th title="C" >廠區</th>
-                                        <th title="D" >工號</th>
-                                        <th title="E" >姓名</th>
-                                        <th title="F" >部門代號</th>
-                                        <th title="G" >變更體檢項目</th>
-                                        <th title="H" >彙整人員</th>
-                                        <th title="I" >是否補檢</th>
-                                        <th title="J" >受檢開單日</th>
-                                        <th title="K" >備註說明</th>
-                                        <th title="L" >變更原因<br>(補檢必填)</th>
-                                        <th title="M" >受檢日期</th>
-                                        <th title="N" >報告收到日期</th>
-                                        <th title="O" >通知日期</th>
-                                        <th title="P" >總窗備註</th>
+                                        <th title="AB"class="table-success">年月</th>
+                                        <th title="C" class="table-success">廠區</th>
+                                        <th title="D" class="table-success">工號</th>
+                                        <th title="E" class="table-success">姓名</th>
+                                        <th title="F" class="table-success">部門代號</th>
+                                        <th title="G" class="table-success">變更體檢項目</th>
+                                        <th title="H" class="table-success">彙整人員</th>
+                                        <th title="I" class="table-warning">是否補檢</th>
+                                        <th title="J" class="table-warning">受檢開單日</th>
+                                        <th title="K" class="table-warning">備註說明</th>
+                                        <th title="L" class="table-warning">變更原因<br>(補檢必填)</th>
+                                        <th title="M" class="table-warning">受檢日期</th>
+                                        <th title="N" class="table-warning">報告收到日期</th>
+                                        <th title="O" class="table-primary">通知日期</th>
+                                        <th title="P" class="table-primary">總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
