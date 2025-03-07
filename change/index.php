@@ -192,6 +192,18 @@
                 visibility: visible;    /* 顯示時為visible */
                 height: auto;           /* 根據內容自動調整高度 */
             }
+            .wh-25 {
+                width: 25px;
+            }
+            .wh-50 {
+                width: 50px;
+            }
+            .wh-75 {
+                width: 75px;
+            }
+            .wh-100 {
+                width: 100px;
+            }
     </style>
 </head>
 <body>
@@ -221,16 +233,19 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
-                                        <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護">
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護" class="px-1">
                                             <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
                                             <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
                                         </snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="變更作業名單追蹤" class="px-1">
+                                            <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-down-to-people"></i> 追蹤維護</button>
+                                        </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
-                                        <form action="" method="GET">
+                                        <form action="" method="GET" >
                                             <div class="input-group">
                                                 <span class="input-group-text">篩選</span>
-                                                <select name="_year" id="_year" class="form-select" >
+                                                <select name="_year" id="_year" class="form-select" disabled>
                                                     <option value="" hidden selected >-- 請選擇 問卷年度 --</option>
                                                     <?php 
                                                         echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' hidden >-- All 所有年度 --</option>';
@@ -238,7 +253,7 @@
                                                             echo "<option for='_year' value='{$_y}' ".($_y == $_year ? "selected" : "" )." >".$_y."y</option>";
                                                         } ?>
                                                 </select>
-                                                <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
+                                                <button type="submit" class="btn btn-outline-secondary search_btn" disabled >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
                                             </div>
                                         </form>
                                     </div>
@@ -268,7 +283,7 @@
                                     </div>
                                     <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
                                     <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
-                                    <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn" value="" ><i class="fa-solid fa-arrows-down-to-people"></i> 帶入維護</button>
+                                    
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end inf">
@@ -328,12 +343,12 @@
                                         <th title="G" class="table-success">變更體檢項目</th>
                                         <th title="H" class="table-success">彙整人員</th>
                                         <th title="I" class="table-warning">是否補檢</th>
-                                        <th title="J" class="table-warning">受檢開單日</th>
+                                        <th title="J" class="table-warning wh-75">受檢開單日</th>
                                         <th title="K" class="table-warning">備註說明</th>
                                         <th title="L" class="table-warning">變更原因<br>(補檢必填)</th>
-                                        <th title="M" class="table-warning">受檢日期</th>
-                                        <th title="N" class="table-warning">報告收到日期</th>
-                                        <th title="O" class="table-primary">通知日期</th>
+                                        <th title="M" class="table-warning wh-75">受檢日期</th>
+                                        <th title="N" class="table-warning wh-75">報告收到日期</th>
+                                        <th title="O" class="table-primary wh-75">通知日期</th>
                                         <th title="P" class="table-primary">總窗備註</th>
                                     </tr>
                                 </thead>

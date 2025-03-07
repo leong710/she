@@ -396,7 +396,7 @@
             thisMonth = (dateString != undefined) ? dateString : thisMonth;     // 
             const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
             mk_selectOpt_ym(uniqueArr, thisMonth);                              // 生成並渲染到select
-            SubmitForReview_btn.value = thisMonth;                              // 把[帶入維護]鈕 給上 年月字串值
+            // SubmitForReview_btn.value = thisMonth;                              // 把[帶入維護]鈕 給上 年月字串值
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
@@ -1145,9 +1145,9 @@
                 _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
             }
         }
-        if(dateString != undefined){
-            SubmitForReview_btn.value = dateString;     // 把[帶入維護]鈕 給上 年月字串值
-        }
+        // if(dateString != undefined){
+        //     SubmitForReview_btn.value = dateString;     // 把[帶入維護]鈕 給上 年月字串值
+        // }
     }
 
             // [p1 函數-2] 241213 將送審的百分比改成送審中
@@ -1204,8 +1204,11 @@
                     }
                 }
                 // 名單總匯整_btn
-                const load_subScopes_btn = document.getElementById('load_subScopes_btn');
-                if(userInfo.role <= 2.2) load_subScopes_btn.classList.remove('unblock');
+                if(userInfo.role <= 2.2) {
+                    const load_subScopes_btn = document.getElementById('load_subScopes_btn');
+                    load_subScopes_btn.classList.remove('unblock');
+                    // SubmitForReview_btn.classList.remove('unblock');
+                } 
             }
 
     // [p1 函數-1] 取得危害地圖...並callBack mk_deptNos_btn進行鋪設
@@ -1301,12 +1304,30 @@
                         load_subScopes_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
                         load_subScopes_btn.classList.toggle('is-valid',   selectedOptsValues.length > 0);
                         load_subScopes_btn.disabled = selectedOptsValues.length === 0;
+
+                        SubmitForReview_btn.classList.toggle('is-invalid', selectedOptsValues.length === 0);
+                        SubmitForReview_btn.classList.toggle('is-valid',   selectedOptsValues.length > 0);
+                        SubmitForReview_btn.disabled = selectedOptsValues.length === 0;
                     });
                 });
 
             // step-p3-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
                 SubmitForReview_btn.addEventListener('click', async function() {
-                    preProcess_staff(shLocalDept_inf, this.value)
+                    const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
+                    const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
+                    const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
+
+                    // 工作一 清空暫存
+                    await resetINF(true);               // 清空
+                    // 工作二 把this.id合併進去部門資訊arr 
+                        _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
+                            // console.log('多選_dept_inf...',_dept_inf)
+                    // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
+                    const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
+                    
+                    // console.log(defaultDept_in)
+                    preProcess_staff(defaultDept_in)
+
                     $('#nav-p3-tab').tab('show');
                 })
                 

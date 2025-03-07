@@ -1,88 +1,119 @@
 // // 
     // P-3
-    async function post_staff(post_arr, dateString, shItemArr){
+    // async function post_staff(post_arr, dateString, shItemArr){
+    async function post_staff(post_arr, mergedData, shItemArr){
         // 停止並銷毀 DataTable
             release_dataTable('staff_table');
             $('#staff_table tbody').empty();
-            post_arr = post_arr ?? [];
-            console.log("post_arr =>", post_arr);
+            post_arr   = post_arr   ?? [];
+            mergedData = mergedData ?? [];
+            shItemArr  = shItemArr  ?? [];
+                console.log("post_arr =>", post_arr);
+                console.log("mergedData =>", mergedData);
 
             if(post_arr.length === 0){
                 const table = $('#staff_table').DataTable();                    // 獲取表格的 thead
                 const columnCount = table.columns().count();                    // 獲取每行的欄位數量
                 const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
                 $('#staff_table tbody').append(tr1);
-    
+                
             }else{
                     // 部門代號加工+去除[]符號/[{"}]/g, ''
                     function doReplace(_arr){
                         return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                     }
-                    function mkTD6(post_i){
-                        const i_OSHORT          = post_i["OSHORT"];
-                        const i_emp_id          = post_i["emp_id"];
-                        const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
-                        let sh_check = '<snap>';
-                        for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
-                            sh_check += `<div class="form-check m-0">` 
-                                      + `<input class="form-check-input" type="checkbox" name="sh_check[]" id="${i_OSHORT},${dateString},${i_emp_id},${o_value}" value="${o_value}" >`
-                                      + `<label class="form-check-label" for="${i_OSHORT},${dateString},${i_emp_id},${o_value}">${o_value}</label>` + `</div>`;
-                        }
-                        sh_check += '</snap>';
-                        // console.log(sh_check);
-                        return (sh_check);
-                    }
-                    function mkTD8(post_i){
-                        const i_OSHORT          = post_i["OSHORT"];
-                        const i_emp_id          = post_i["emp_id"];
-                        let ih_check = '<snap>'
-                                      + `<div class="form-check form-switch">` 
-                                      + `<input class="form-check-input" type="checkbox" name="is_check[]" id="${i_OSHORT},${dateString},${i_emp_id},is_check" checked >`
-                                      + `<label class="form-check-label" for="${i_OSHORT},${dateString},${i_emp_id}">是</label>` + `</div>` + '</snap>';
+                    
+                    function mkTD(post_i , case_iArr){
+                        let tdObj = [];
+                        const i_emp_id      = post_i["emp_id"];
+                        const i_OSHORT      = case_iArr[3] ?? '';                           // 取出陣列 3 = 部門代號
+                        const i_targetMonth = case_iArr[5] ?? '';                           // 取出陣列 5 = 目標年月
+                        const i_id = `${i_OSHORT},${i_targetMonth},${i_emp_id}`;
 
-                        return (ih_check);
-                    }
-                    function mkTD11(post_i){
-                        const i_OSHORT          = post_i["OSHORT"];
-                        const i_emp_id          = post_i["emp_id"];
-                        let ih_check = '<snap>'
-                                     +  `<select class="form-select form-select-sm" aria-label=".form-select-sm example" id="${i_OSHORT},${dateString},${i_emp_id},TD11">
+                        // 生成-6:變更體檢項目 - checkbox
+                            const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
+                            let td6 = '<snap>';
+                                for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
+                                    td6 += `<div class="form-check m-0"> 
+                                            <input class="form-check-input" type="checkbox" name="sh_check[]" id="${i_id},sh_check,${o_value}" value="${o_value}" >
+                                            <label class="form-check-label" for="${i_id},${o_value}">${o_value}</label></div>`;
+                                    }
+                            td6 += '</snap>';
+                            tdObj['6'] = td6;
+                    
+                        // 生成-8:是否補檢 - checkbox-switch
+                            let td8 = `<snap><div class="form-check form-switch"> 
+                                        <input class="form-check-input" type="checkbox" name="is_check" id="${i_id},is_check" checked >
+                                        <label class="form-check-label" for="${i_id}">是</label></div></snap>`;
+                            tdObj['8'] = td8;
+
+                        // 生成-10:備註說明 - textarea
+                            let td10 = `<snap><textarea class="form-control" placeholder="備註說明" id="${i_id},change_remark"></textarea></snap>`;
+                            tdObj['10'] = td10;
+        
+                        // 生成-11變更原因(補檢必填) - select
+                            let td11 = `<snap><select class="form-select form-select-sm" aria-label=".form-select-sm example" name="why_change" id="${i_id},why_change">
                                             <option hidden selected>選擇變更原因(補檢必填)</option>
-                                            <option value="作業場所異動">作業場所異動</option>
-                                            <option value="新增危害場所">新增危害場所</option>
-                                            <option value="新進移工">新進移工</option>
-                                            <option value="其他(←備註說明)">其他(←備註說明)</option>
-                                        </select>` + '</snap>';
-                        return (ih_check);
+                                            <option value="1.作業場所異動">1.作業場所異動</option>
+                                            <option value="2.新增危害場所">2.新增危害場所</option>
+                                            <option value="3.新進移工">3.新進移工</option>
+                                            <option value="4.其他(←備註說明)">4.其他(←備註說明)</option>
+                                        </select></snap>`;
+                            tdObj['11'] = td11;
+
+                        // // 生成-9:備註說明 - input - date
+                        //     const inputArr = {
+                        //         '9'  : 'inCare_date',
+                        //         '12' : 'check_date',
+                        //         '13' : 'report_date',
+                        //         '14' : 'notify_date'
+                        //     }
+                        //     for(const[index, name] of Object.entries(inputArr)){
+                        //         let tdn = `<snap><input type="date" class="form-control form-control-sm" name="${name}" id="${i_id},${name}"></snap>`;
+                        //         tdObj[index] = tdn;
+                        //     }
+
+                        return (tdObj);
                     }
 
-                const workListTD_json = await load_jsonFile('workList.json');   // 提取指定json_file內容
+                // const workListTD_json = await load_jsonFile('workList.json');   // 提取指定json_file內容
                     // console.log('workList_json...', workListTD_json)
 
-                await post_arr.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...    
-                    let tr1 = '<tr>';
-                        tr1 += `<td class="" id="">${dateString ?? ''}</td>
-                                <td class="" id="">${post_i["OSTEXT_30"] ?? ''}</td>
-                                <td class="" id="">${post_i["emp_id"] ?? ''}</td>
-                                <td class="" id="">${post_i["cname"] ?? ''}</td>
-                                <td class="" id="">${post_i["OSHORT"] ?? ''}<br>${post_i["OSTEXT"] ?? ''}</td>
+                await mergedData.forEach((case_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...    
+                    const case_iArr         = case_i.split(',')                         // 分割staffStr成陣列
+                        const i_empId       = case_iArr[0] ?? '';                       // 取出陣列 0 = 工號
+                        const i_OSTEXT_30   = case_iArr[2] ?? '';                       // 取出陣列 2 = 廠區
+                        const i_OSHORT      = case_iArr[3] ?? '';                       // 取出陣列 3 = 部門代號
+                        const i_OSTEXT      = case_iArr[4] ?? '';                       // 取出陣列 4 = 部門名稱
+                        const i_targetMonth = case_iArr[5] ?? '';                       // 取出陣列 5 = 目標年月
+                    const staffArr = post_arr.find(staff => staff.emp_id == i_empId);   // 從post_arr找出符合 empId 的原始字串
 
-                                <td class="" id="">${mkTD6(post_i)}</td>
-                                <td class="" id="">7</td>
-                                <td class="" id="">${mkTD8(post_i)}</td>
-                                <td class="" id="">9 date</td>
-                                <td class="" id="">10 textArea</td>
-                                
-                                <td class="" id="">${mkTD11(post_i)}</td>
-                                <td class="" id="">12 date</td>
-                                <td class="" id="">13 date</td>
-                                <td class="" id="">14 date</td>
-                                <td class="" id="">15 input</td>
-                                ;`
-                        tr1 += '</tr>';
+                    if(staffArr){
+                        const tdObj = mkTD(staffArr, case_iArr);
+                        
+                        let tr1 = '<tr>';
+                            tr1 += `<td class="" id="">${i_targetMonth ?? ''}</td>
+                                    <td class="" id="">${i_OSTEXT_30}</td>
+                                    <td class="" id="">${staffArr["emp_id"] }</td>
+                                    <td class="" id="">${staffArr["cname"] }</td>
+                                    <td class="" id="">${i_OSHORT}<br>${i_OSTEXT}</td>
+    
+                                    <td class="" id="">${tdObj['6']}</td>
+                                    <td class="" id="">7</td>
+                                    <td class="" id="">${tdObj['8']}</td>
+                                    <td class="edit1" id="">2025/03/07</td>
+                                    <td class="" id="">${tdObj['10']}</td>
+                                    
+                                    <td class="" id="">${tdObj['11']}</td>
+                                    <td class="edit1" id="">2025/03/07</td>
+                                    <td class="edit1" id="">2025/03/07</td>
+                                    <td class="edit1" id="">2025/03/07</td>
+                                    <td class="" id="">15 input</td>
+                                    `
+                            tr1 += '</tr>';
 
-                    $('#staff_table tbody').append(tr1);
-
+                        $('#staff_table tbody').append(tr1);
+                    }
                 })
                 // thisMonth = (dateString != undefined) ? dateString : thisMonth;     // 
                 // const uniqueArr =  [...new Set(objKeys_ym)];                        // 年月去重
@@ -95,31 +126,36 @@
         
     }
     // 預先處理員工資料 for post_staff()
-    async function preProcess_staff(shLocalDept_in, targetMonth){
+    async function preProcess_staff(shLocalDept_in){
                 // console.log('1a.shLocalDept_in...' ,shLocalDept_in)
         let empIDKeys         = [];
         let mergedData        = [];                         // 存放員工合併訊息，for preCheckStaffData時參考套用訊息
         let source_OSHORT_arr = [];                         // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
-        shLocalDept_in.forEach((post_i)=>{                  // 分解參數(陣列)，手工渲染
-            const inCare     = post_i["inCare"]    ?? [];
-            const inCare_arr = inCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-            inCare_arr.forEach((staff_i) => {
-                // step.1 取得所有的 key
-                    empIDKeys.push(Object.keys(staff_i)[0]);
-                // step.2 合併鍵和值
-                    let key = Object.keys(staff_i)[0];      // 獲取鍵
-                    let value = staff_i[key];               // 獲取相應的值
-                    mergedData.push(`${key},${value},${post_i["OSTEXT_30"]},${post_i["OSHORT"]},${post_i["OSTEXT"]}`);
-            } )
+
+        for(const[index, post_i] of Object.entries(shLocalDept_in)){
+            const inCare     = post_i["inCare"] ?? [];
+            for(const[targetMonth_i, staff_i] of Object.entries(inCare)){
+                staff_i.forEach((staff) => {
+                    // step.1 取得所有的 key
+                        empIDKeys = [...empIDKeys , Object.keys(staff)[0]];
+
+                    // step.2 合併鍵和值
+                        let key = Object.keys(staff)[0];        // 獲取鍵
+                        let value = staff[key];               // 獲取相應的值
+                        mergedData.push(`${key},${value},${post_i["OSTEXT_30"]},${post_i["OSHORT"]},${post_i["OSTEXT"]},${targetMonth_i}`);
+                })
+
+            }
             source_OSHORT_arr.push(post_i["OSHORT"]);       // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
-        });
+        }
+        empIDKeys = [...new Set(empIDKeys)]; 
 
         // *** 精煉 shLocal for 提取特危工作場所內的 工作項目。
-        const source_OSHORTs_str = (JSON.stringify([...new Set(source_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
-        let shItemArr = []
-        if(source_OSHORTs_str !==''){
-            shItemArr = await load_fun('load_shLocal', source_OSHORTs_str, rework_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單, 呼叫fun-4 rework_shLocal_inf 整理特危工作場所項目
-        }
+            const source_OSHORTs_str = (JSON.stringify([...new Set(source_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
+            let shItemArr = []
+            if(source_OSHORTs_str !==''){
+                shItemArr = await load_fun('load_shLocal', source_OSHORTs_str, rework_shLocal_inf);         // 呼叫load_fun 用 部門代號字串 取得 特作清單, 呼叫fun-4 rework_shLocal_inf 整理特危工作場所項目
+            }
                 // console.log('2.shItemArr ... > ', shItemArr);
 
         const empIDKeys_str = JSON.stringify(empIDKeys).replace(/[\[\]]/g, '');                 // 工號加工
@@ -129,11 +165,9 @@
                 // console.log('3.empIDKeys_str =>', empIDKeys_str)
                 // console.log('4.preCheckStaffData_result =>', preCheckStaffData_result)
 
-        post_staff(preCheckStaffData_result, targetMonth, shItemArr);           // 渲染..帶(員工, 指定年月, 特作項目)
+        post_staff(preCheckStaffData_result, mergedData, shItemArr);           // 渲染..帶(員工, 指定年月, 特作項目)
         
     }
-
-
 
 
             // fun-2 檢查load_fun('load_change') 是否都有存在，不然就生成staff預設值
@@ -141,16 +175,16 @@
                 if(selectStaffStr == '') return(false);
                     let load_change = await load_fun('load_change', selectStaffStr, 'return');                      // step-1. 先從db撈現有的資料
                     const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
-                        if(load_change.length > 0){
-                            for (const [index, staff] of Object.entries(load_change)) {
-                                empId = staff['emp_id'];                                            // 去除前後"符號..
-                                const staffStr = mergedData.find(item => item.includes(empId));     // 從_dept_inf找出符合 empId 的原始字串
-                                const staffArr = (staffStr) ? staffStr.split(',') : [];             // 分割staffStr成陣列
-                                load_change[index]["OSTEXT_30"] = staffArr[2] ?? '';                // 取出陣列 2 = 廠區
-                                load_change[index]["OSHORT"]    = staffArr[3] ?? '';                // 取出陣列 3 = 部門代號
-                                load_change[index]["OSTEXT"]    = staffArr[4] ?? '';                // 取出陣列 4 = 部門名稱
-                            }
-                        }
+                        // if(load_change.length > 0){
+                        //     for (const [index, staff] of Object.entries(load_change)) {
+                        //         empId = staff['emp_id'];                                            // 去除前後"符號..
+                        //         const staffStr = mergedData.find(item => item.includes(empId));     // 從_dept_inf找出符合 empId 的原始字串
+                        //         const staffArr = (staffStr) ? staffStr.split(',') : [];             // 分割staffStr成陣列
+                        //         load_change[index]["OSTEXT_30"] = staffArr[2] ?? '';                // 取出陣列 2 = 廠區
+                        //         load_change[index]["OSHORT"]    = staffArr[3] ?? '';                // 取出陣列 3 = 部門代號
+                        //         load_change[index]["OSTEXT"]    = staffArr[4] ?? '';                // 取出陣列 4 = 部門名稱
+                        //     }
+                        // }
                     defaultStaff_inf = [...defaultStaff_inf, ...load_change];                                       // step-2. 合併load_change
     
                     const selectStaffArr = selectStaffStr.replace(/"/g, '').split(',')                              // step-3. 去除前後"符號..分割staffStr成陣列
@@ -183,9 +217,9 @@
                                     const staffArr = staffStr.split(',')                              // 分割staffStr成陣列
                                     newStaffData["emp_id"]    = staffArr[0] ?? '';                    // 取出陣列 0 = 工號
                                     newStaffData["cname"]     = staffArr[1] ?? '';                    // 取出陣列 1 = 名稱
-                                    newStaffData["OSTEXT_30"] = staffArr[2] ?? '';                    // 取出陣列 2 = 廠區
-                                    newStaffData["OSHORT"]    = staffArr[3] ?? '';                    // 取出陣列 3 = 部門代號
-                                    newStaffData["OSTEXT"]    = staffArr[4] ?? '';                    // 取出陣列 4 = 部門名稱
+                                    // newStaffData["OSTEXT_30"] = staffArr[2] ?? '';                    // 取出陣列 2 = 廠區
+                                    // newStaffData["OSHORT"]    = staffArr[3] ?? '';                    // 取出陣列 3 = 部門代號
+                                    // newStaffData["OSTEXT"]    = staffArr[4] ?? '';                    // 取出陣列 4 = 部門名稱
                                 }else{
                                     newStaffData["emp_id"]    = empId; 
                                 }
