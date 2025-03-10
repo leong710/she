@@ -1381,7 +1381,129 @@
                         $result['error'] = 'Load '.$fun.' failed...(e)';
                     }
         
-                    break;
+                break;
+
+            case 'bat_storeChangeStaff':        // 250310 變更作業健檢--儲存人員
+                require_once("../user_info.php");
+                $pdo = pdo();
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "bat_storeChangeStaff",
+                    "content"   => "批次儲存名單--"
+                );
+                
+                define('SQL_SELECT_DOC', "SELECT _logs, _content FROM _staff WHERE emp_id = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, _logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
+                // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
+                define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
+                                cname            = VALUES(cname),
+                                gesch            = VALUES(gesch),
+                                natiotxt         = VALUES(natiotxt),
+                                HIRED            = VALUES(HIRED),
+                                _logs            = VALUES(_logs),
+                                _content         = VALUES(_content),
+                                updated_cname    = VALUES(updated_cname),
+                                updated_at       = now()");
+                $values = [];
+                $params = [];
+                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
+
+                // step.3a 檢查並維護現有資料中的 key
+                $staff_inf    = $parm_array['staff_inf']   ?? [];
+                $current_year = $parm_array['currentYear'] ?? date('Y');
+
+                foreach ($staff_inf as $parm_i) {
+                    $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
+                    extract($parm_i_arr);
+
+                    // step.1 提取現有資料
+                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                    executeQuery($stmt_select, [$emp_id]);
+                    $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+                    // step.2 解析現有資料為陣列
+                    $row_logs       = isset($row_data['_logs'])     ? json_decode($row_data['_logs']    , true) : [];
+                    $row_content    = isset($row_data['_content'])  ? json_decode($row_data['_content'] , true) : [];
+
+                    // step.3b 更新或新增該年份的資料
+                    $row_logs[$current_year] = [
+                        "cstext"        => $cstext        ?? ( $row_logs[$current_year]["cstext"]        ?? null ),     // 職稱
+                        "dept_no"       => $dept_no       ?? ( $row_logs[$current_year]["dept_no"]       ?? null ),     // 部門代號
+                        "eh_time"       => $eh_time       ?? ( $row_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
+                        "emp_dept"      => $emp_dept      ?? ( $row_logs[$current_year]["emp_dept"]      ?? null ),     // 部門名稱
+                        "emp_group"     => $emp_group     ?? ( $row_logs[$current_year]["emp_group"]     ?? null ),     // 
+                        "emp_sub_scope" => $emp_sub_scope ?? ( $row_logs[$current_year]["emp_sub_scope"] ?? null ),     // 棟別名稱
+                        "schkztxt"      => $schkztxt      ?? ( $row_logs[$current_year]["schkztxt"]      ?? null ),     // 工作時程表規則名稱
+                        "shCase"        => $shCase        ?? ( $row_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
+                        "shCondition"   => $shCondition   ?? ( $row_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
+                        "BTRTL"         => $BTRTL         ?? ( $row_logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍-建物代碼
+                        "omager"        => $omager        ?? ( $row_logs[$current_year]["omager"]        ?? null ),    // 所屬主管
+                        // "gesch"         => $gesch         ?? ( $row_logs[$current_year]["gesch"]         ?? null ),    // 性別
+                        // "natiotxt"      => $natiotxt      ?? ( $row_logs[$current_year]["natiotxt"]      ?? null ),    // 國籍
+                        // "HIRED"         => $HIRED         ?? ( $row_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
+                    ];
+                    // 檢查並串接新的 _content
+                    if (isset($_content[$current_year])) {
+                        // 確保 $row_content[$current_year] 是陣列的存在
+                        $row_content[$current_year] = $row_content[$current_year] ?? [];                        
+                        $new_content = $_content[$current_year];
+                        // // 檢查 $new_content 是否非空，才進行後續操作
+                        // if (!empty($new_content)) {
+                        //     foreach ($new_content as $new_content_key => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                        //         // 初始化當前年份的 row_content
+                        //         $row_content[$current_year][$new_content_key] = $row_content[$current_year][$new_content_key] ?? [];
+                        //         // 針對每一筆分別帶入
+                        //         foreach ($new_content_value as $newMainKey => $newMainValue) {      // forEach目的：避免蓋掉其他項目 。$newMainKey這裡指到yearHe...
+                        //             // 如果 newMainValue 不為空，則使用它，否則保留舊值
+                        //             $row_content[$current_year][$new_content_key][$newMainKey] = $newMainValue ?? null;
+                        //                 // !empty($newMainValue) ? $newMainValue : ($row_content[$current_year][$new_content_key][$newMainKey] ?? null);    // 這裡會無法更新新的空值
+                        //         }
+                        //     }
+                        // }
+                        // 更新現有的內容，將其刪除
+                        $row_content[$current_year] = array_merge($row_content[$current_year], $_content[$current_year]); // 合併新的項目
+                    }
+                
+                    // step.4 將更新後的資料編碼為 JSON 字串
+                    $_logs_str      = json_encode($row_logs,    JSON_UNESCAPED_UNICODE);
+                    $_content_str   = json_encode($row_content, JSON_UNESCAPED_UNICODE);
+                
+                    // 防呆
+                    $gesch    = $gesch    ?? "";    // 性別
+                    $natiotxt = $natiotxt ?? "";    // 國別
+                    $HIRED    = $HIRED    ?? "";    // 到職日
+
+                    // step.5 準備 SQL 和參數
+                    $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
+                    $params = array_merge($params, [
+                        $emp_id, $cname, $gesch, $natiotxt, $HIRED,
+                        $_logs_str, $_content_str, 
+                        $auth_cname, $auth_cname
+                    ]);
+                }
+                
+                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
+                $stmt = $pdo->prepare($sql);
+                
+                if (executeQuery($stmt, $params)) {
+                    // 製作返回文件
+                    $swal_json["action"] = "success";
+                    $swal_json["content"] .= '儲存成功';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $swal_json["action"] = "error";
+                    $swal_json["content"] .= '儲存失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
+                break;
+
             default:
                 sendErrorResponse('Invalid function', 400);
         };

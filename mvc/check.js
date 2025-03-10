@@ -223,7 +223,8 @@
                         }
 
                     }else if(sh_item === 'MONIT_LOCAL'){      // 特別處理：MONIT_LOCAL
-                        inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
+                        // inner_Value = `${br}${sh_value['OSTEXT_30']}&nbsp;` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);
+                        inner_Value = `${br}` + (sh_value[sh_item] !== undefined ? sh_value[sh_item] : sh_value['OSTEXT']);     // 250310 她不要
 
                     }else{                                  // 1.6
                         // 確認 sh_item 是否有定義的值

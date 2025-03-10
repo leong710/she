@@ -130,7 +130,7 @@
         .h6 {
             font-size: 12px;
         }
-        .import:hover , .edit1:hover {
+        .import:hover , .edit1:hover , .edit2:hover {
             background-color: #adff2f;
             transition: .5s;
             font-weight: bold;
@@ -199,10 +199,13 @@
                 width: 50px;
             }
             .wh-75 {
-                width: 75px;
+                width: 70px;
             }
             .wh-100 {
                 width: 100px;
+            }
+            .edit2Header {
+                background-color: #ffdb99
             }
     </style>
 </head>
@@ -324,7 +327,14 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStafft_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <!-- 下載EXCEL的觸發 -->
+                                    <div class="inb">
+                                        <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
+                                            <input  type="hidden" name="htmlTable" id="staff_htmlTable" value="">
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
+                                        </form>
+                                    </div>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end inf">
@@ -339,17 +349,17 @@
                                         <th title="C" class="table-success">廠區</th>
                                         <th title="D" class="table-success">工號</th>
                                         <th title="E" class="table-success">姓名</th>
-                                        <th title="F" class="table-success">部門代號</th>
-                                        <th title="G" class="table-success">變更體檢項目</th>
-                                        <th title="H" class="table-success">彙整人員</th>
-                                        <th title="I" class="table-warning">是否補檢</th>
-                                        <th title="J" class="table-warning wh-75">受檢開單日</th>
-                                        <th title="K" class="table-warning">備註說明</th>
-                                        <th title="L" class="table-warning">變更原因<br>(補檢必填)</th>
-                                        <th title="M" class="table-warning wh-75">受檢日期</th>
-                                        <th title="N" class="table-warning wh-75">報告收到日期</th>
-                                        <th title="O" class="table-primary wh-75">通知日期</th>
-                                        <th title="P" class="table-primary">總窗備註</th>
+                                        <th title="F" class="table-success">5部門代號</th>
+                                        <th title="G" class="table-success">6變更體檢項目</th>
+                                        <th title="H" class="table-success wh-25">7彙整人員</th>
+                                        <th title="I" class="table-warning">8是否補檢</th>
+                                        <th title="J" class="table-warning wh-75">9受檢開單日</th>
+                                        <th title="K" class="table-warning">10備註說明</th>
+                                        <th title="L" class="table-warning">11變更原因<br>(補檢必填)</th>
+                                        <th title="M" class="table-warning wh-75">12受檢日期</th>
+                                        <th title="N" class="table-warning wh-75">13報告收到日期</th>
+                                        <th title="O" class="table-primary wh-75">14通知日期</th>
+                                        <th title="P" class="table-primary">15總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -463,6 +473,23 @@
                 <div class="modal-footer">
                     <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
                     <button type="submit" class="btn btn-success"   id="edit_modal_btn" value="">更新</button>
+                    <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <!-- 互動視窗 edit2_modal -->
+    <div class="modal fade" id="edit2_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header edit2Header">
+                    <h5 class="modal-title">編輯&nbsp;<snap id="edit2_modal_title"></snap>：</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-4"></div>
+                <div class="modal-footer">
+                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit2_modal_btn" >更新</button> -->
+                    <button type="submit" class="btn btn-success"   id="edit2_modal_btn" value="">更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -656,6 +683,7 @@
 
     var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
     var edit_modal            = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
+    var edit2_modal           = new bootstrap.Modal(document.getElementById('edit2_modal'), { keyboard: false });
 
     // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
@@ -666,7 +694,7 @@
     var defaultStaff_inf    = [];   // db沒有資料，這裡生成預設值 by bomNewStaff(selectStaffStr)
     var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
     var staff_inf           = [];
-    var shLocal_inf      = [];
+    var shLocal_inf         = [];
     // var loadStaff_tmp    = [];
     // var _docs_inf        = [];
     // var _docsIdty_inf    = null;
