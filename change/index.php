@@ -236,6 +236,9 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1">
+                                            <button type="button" id="selectAll_subScopes_btn"  class="btn btn-outline-danger add_btn form-control " ><i class="fa-solid fa-check-double"></i></button>
+                                        </snap>
                                         <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護" class="px-1">
                                             <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
                                             <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
@@ -327,7 +330,8 @@
                             <div class="row">
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStafft_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <button type="button" class="btn btn-outline-danger add_btn" id="P3resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disable ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staff_myForm" method="post" action="../_Format/download_excel.php">

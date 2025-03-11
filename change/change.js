@@ -202,14 +202,15 @@
                     emptyDeptInf.push(emp.OSHORT);
                 }
             })
+                // console.log('1.emptyDeptInf...', emptyDeptInf)
 
         // 將沒有部門資訊的清單進行查詢
             const uniqueEmptyDeptArr = [...new Set(emptyDeptInf)];   // 使用 Set 來移除emptyDeptInf重複值
             const uniqueEmptyDeptStr = JSON.stringify(uniqueEmptyDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
-                // console.log('1.uniqueEmptyDeptArr...', uniqueEmptyDeptArr)
-                // console.log('1.uniqueEmptyDeptStr...', uniqueEmptyDeptStr)
-            const EmptyDeptInf = await load_fun('load_dept', uniqueEmptyDeptStr, 'return');
-                console.log('1.EmptyDeptInf...', EmptyDeptInf)
+                // console.log('1a.uniqueEmptyDeptArr...', uniqueEmptyDeptArr)
+                // console.log('1b.uniqueEmptyDeptStr...', uniqueEmptyDeptStr)
+            const EmptyDeptInf = uniqueEmptyDeptStr ? await load_fun('load_dept', uniqueEmptyDeptStr, 'return') : [];
+                // console.log('1c.EmptyDeptInf...', EmptyDeptInf)
 
             // console.log('2.processStaffs...', processStaffs)
             // console.log('2.processDeptInf...', processDeptInf)
@@ -1309,6 +1310,20 @@
                         SubmitForReview_btn.classList.toggle('is-valid',   selectedOptsValues.length > 0);
                         SubmitForReview_btn.disabled = selectedOptsValues.length === 0;
                     });
+                });
+
+            // step-p1-A4. 綁定selectAll_subScopes_btn事件監聽器(全選)
+                const selectAll_subScopes_btn = document.getElementById('selectAll_subScopes_btn');
+                selectAll_subScopes_btn.addEventListener('click', async function() {
+                    const target_scope_cbs = document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,"]`);
+                    // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                    let allChecked = Array.from(target_scope_cbs).every(checkbox => checkbox.checked);
+                    target_scope_cbs.forEach(checkbox => {
+                        checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                        // 手動觸發 change 事件
+                        checkbox.dispatchEvent(new Event('change'));
+                    });
+
                 });
 
             // step-p3-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)

@@ -1354,12 +1354,12 @@
             case 'load_change':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                     $pdo = pdo();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                    $sql = "SELECT _s.emp_id, _s.cname,   _c._changeLogs, _c._content
-                            FROM _staff _s
-                            LEFT JOIN _change _c ON _s.emp_id = _c.emp_id
-                            WHERE _s.emp_id IN ({$parm_re}) ";
+                    $sql = "SELECT _c.emp_id, _c.cname,   _c._changeLogs, _c._content
+                            FROM _change _c
+                            -- LEFT JOIN _staff _s ON _c.emp_id = _s.emp_id
+                            WHERE _c.emp_id IN ({$parm_re}) ";
                     // 後段-堆疊查詢語法：加入排序
-                    $sql .= " ORDER BY _s.emp_id ASC ";
+                    $sql .= " ORDER BY _c.emp_id ASC ";
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();                                   //處理 byAll
@@ -1391,93 +1391,96 @@
                     "content"   => "批次儲存名單--"
                 );
                 
-                define('SQL_SELECT_DOC', "SELECT _logs, _content FROM _staff WHERE emp_id = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, _logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
+                define('SQL_SELECT_DOC', "SELECT emp_id, cname, _changeLogs, _content ,updated_at FROM _change WHERE emp_id = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _change ( emp_id, cname, _changeLogs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
                 // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
-                                cname            = VALUES(cname),
-                                gesch            = VALUES(gesch),
-                                natiotxt         = VALUES(natiotxt),
-                                HIRED            = VALUES(HIRED),
-                                _logs            = VALUES(_logs),
+                                _changeLogs      = VALUES(_changeLogs),
                                 _content         = VALUES(_content),
                                 updated_cname    = VALUES(updated_cname),
                                 updated_at       = now()");
                 $values = [];
                 $params = [];
-                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
+                $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
 
                 // step.3a 檢查並維護現有資料中的 key
-                $staff_inf    = $parm_array['staff_inf']   ?? [];
-                $current_year = $parm_array['currentYear'] ?? date('Y');
+                $staff_inf   = $parm_array['staff_inf']   ?? [];
+                // $targetMonth = $parm_array['targetMonth'] ?? date('Y');      // => 這裡沒有指定作業年月
 
-                foreach ($staff_inf as $parm_i) {
-                    $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
-                    extract($parm_i_arr);
+                foreach ($staff_inf as $staff_i) {
+                    $staff_i_arr = (array) $staff_i; // #2.這裡也要由物件轉成陣列
+                    extract($staff_i_arr);
 
-                    // step.1 提取現有資料
+                    // step.2a 提取現有資料
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+                    // step.2b 解析現有資料為陣列
+                    $row_changeLogs = isset($row_data['_changeLogs']) ? json_decode($row_data['_changeLogs'] , true) : [];
+                    $row_content    = isset($row_data['_content'])    ? json_decode($row_data['_content']    , true) : [];
 
-                    // step.2 解析現有資料為陣列
-                    $row_logs       = isset($row_data['_logs'])     ? json_decode($row_data['_logs']    , true) : [];
-                    $row_content    = isset($row_data['_content'])  ? json_decode($row_data['_content'] , true) : [];
+                    // step.3a 更新或新增該年份的資料
+                    foreach ($_changeLogs as $targetMonth => $new_log_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                        // 前後驗證                        
+                            $new_log_value_str = json_encode($new_log_value);
+                            $row_log_value_str = (isset($row_changeLogs[$targetMonth])) ? json_encode($row_changeLogs[$targetMonth]) : "";
+                        // 驗證後的更新
+                        if($row_log_value_str !== $new_log_value_str){
+                            // 1.指定覆蓋法
+                                // $row_changeLogs[$targetMonth] = [
+                                //         "OSHORT"            => $new_log_value["OSHORT"]            ?? ($row_changeLogs[$targetMonth]["OSHORT"]            ?? '' ),  // 部門代號
+                                //         "_0_isClose"        => $new_log_value["_0isClose"]         ?? ($row_changeLogs[$targetMonth]["_0isClose"]         ?? '' ),  // 0_是否結案
+                                //         "_6_shCheck"        => $new_log_value["_6shCheck"]         ?? ($row_changeLogs[$targetMonth]["_6shCheck"]         ?? '' ),  // 6_變更體檢項目
+                                //         "_7_keyInMan"       => $new_log_value["_7keyInMan"]        ?? ($row_changeLogs[$targetMonth]["_7keyInMan"]        ?? '' ),  // 7_彙整人員
+                                //         "_8_isCheck"        => $new_log_value["_8isCheck"]         ?? ($row_changeLogs[$targetMonth]["_8isCheck"]         ?? '' ),  // 8_是否補檢
+                                //         "_9_inCareDate"     => $new_log_value["_9inCareDate"]      ?? ($row_changeLogs[$targetMonth]["_9inCareDate"]      ?? '' ),  // 9_受檢開單日
+                                //         "_10_changeRemark"  => $new_log_value["_10changeRemark"]   ?? ($row_changeLogs[$targetMonth]["_10changeRemark"]   ?? '' ),  // 10_備註說明
+                                //         "_11_whyChange"     => $new_log_value["_11whyChange"]      ?? ($row_changeLogs[$targetMonth]["_11whyChange"]      ?? '' ),  // 11_變更原因
+                                //         "_12_checkDate"     => $new_log_value["_12checkDate"]      ?? ($row_changeLogs[$targetMonth]["_12checkDate"]      ?? '' ),  // 12_受檢日期
+                                //         "_13_reportDate"    => $new_log_value["_13reportDate"]     ?? ($row_changeLogs[$targetMonth]["_13reportDate"]     ?? '' ),  // 13_報告收到日期
+                                //         "_14_notifyDate"    => $new_log_value["_14notifyDate"]     ?? ($row_changeLogs[$targetMonth]["_14notifyDate"]     ?? '' ),  // 14_通知日期
+                                //         "_15_bpmRemark"     => $new_log_value["_15bpmRemark"]      ?? ($row_changeLogs[$targetMonth]["_15bpmRemark"]      ?? '' ),  // 15_總窗備註
+                                //     ];
 
-                    // step.3b 更新或新增該年份的資料
-                    $row_logs[$current_year] = [
-                        "cstext"        => $cstext        ?? ( $row_logs[$current_year]["cstext"]        ?? null ),     // 職稱
-                        "dept_no"       => $dept_no       ?? ( $row_logs[$current_year]["dept_no"]       ?? null ),     // 部門代號
-                        "eh_time"       => $eh_time       ?? ( $row_logs[$current_year]["eh_time"]       ?? null ),    // 暴露時數
-                        "emp_dept"      => $emp_dept      ?? ( $row_logs[$current_year]["emp_dept"]      ?? null ),     // 部門名稱
-                        "emp_group"     => $emp_group     ?? ( $row_logs[$current_year]["emp_group"]     ?? null ),     // 
-                        "emp_sub_scope" => $emp_sub_scope ?? ( $row_logs[$current_year]["emp_sub_scope"] ?? null ),     // 棟別名稱
-                        "schkztxt"      => $schkztxt      ?? ( $row_logs[$current_year]["schkztxt"]      ?? null ),     // 工作時程表規則名稱
-                        "shCase"        => $shCase        ?? ( $row_logs[$current_year]["shCase"]        ?? null ),    // 特作區域
-                        "shCondition"   => $shCondition   ?? ( $row_logs[$current_year]["shCondition"]   ?? null ),    // 特作驗證
-                        "BTRTL"         => $BTRTL         ?? ( $row_logs[$current_year]["BTRTL"]         ?? null ),    // 人事子範圍-建物代碼
-                        "omager"        => $omager        ?? ( $row_logs[$current_year]["omager"]        ?? null ),    // 所屬主管
-                        // "gesch"         => $gesch         ?? ( $row_logs[$current_year]["gesch"]         ?? null ),    // 性別
-                        // "natiotxt"      => $natiotxt      ?? ( $row_logs[$current_year]["natiotxt"]      ?? null ),    // 國籍
-                        // "HIRED"         => $HIRED         ?? ( $row_logs[$current_year]["HIRED"]         ?? null ),    // 到職日
-                    ];
-                    // 檢查並串接新的 _content
-                    if (isset($_content[$current_year])) {
-                        // 確保 $row_content[$current_year] 是陣列的存在
-                        $row_content[$current_year] = $row_content[$current_year] ?? [];                        
-                        $new_content = $_content[$current_year];
-                        // // 檢查 $new_content 是否非空，才進行後續操作
-                        // if (!empty($new_content)) {
-                        //     foreach ($new_content as $new_content_key => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
-                        //         // 初始化當前年份的 row_content
-                        //         $row_content[$current_year][$new_content_key] = $row_content[$current_year][$new_content_key] ?? [];
-                        //         // 針對每一筆分別帶入
-                        //         foreach ($new_content_value as $newMainKey => $newMainValue) {      // forEach目的：避免蓋掉其他項目 。$newMainKey這裡指到yearHe...
-                        //             // 如果 newMainValue 不為空，則使用它，否則保留舊值
-                        //             $row_content[$current_year][$new_content_key][$newMainKey] = $newMainValue ?? null;
-                        //                 // !empty($newMainValue) ? $newMainValue : ($row_content[$current_year][$new_content_key][$newMainKey] ?? null);    // 這裡會無法更新新的空值
-                        //         }
-                        //     }
-                        // }
-                        // 更新現有的內容，將其刪除
-                        $row_content[$current_year] = array_merge($row_content[$current_year], $_content[$current_year]); // 合併新的項目
-                    }
-                
+                            // 2.迴圈覆蓋法
+                                // 確保 $row_changeLogs[$targetMonth 是陣列的存在
+                                // $row_changeLogs[$targetMonth] = $row_changeLogs[$targetMonth] ?? []; 
+                                // foreach($new_log_value as $key => $value ){
+                                //     if($key == "_8isCheck"){            // 特例排除，因為它的值直接是 true/false 會影響判斷
+                                //         $row_changeLogs[$targetMonth][$key] = $value;
+
+                                //     }else{
+                                //         // $row_changeLogs[$targetMonth][$key] = ($row_changeLogs[$targetMonth][$key] != $value) ? $value : ($row_changeLogs[$targetMonth][$key] ?? '' );
+                                //         $row_changeLogs[$targetMonth][$key] = $value ?? ($row_changeLogs[$targetMonth][$key] ?? '' );
+                                //     }
+                                // }
+                            // 3.強制覆蓋法 -- 只有這招最實在b 
+                            $row_changeLogs[$targetMonth] = $new_log_value; 
+
+                        }
+                    };
+
+                    // step.3b 檢查並串接新的 _content
+                    foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                        // 前後驗證                        
+                            $new_content_value_str = json_encode($new_content_value);
+                            $row_content_value_str = (!empty($row_content[$targetMonth])) ? json_encode($row_content[$targetMonth]) : "";
+                        // 驗證後的更新
+                        if($row_content_value_str !== $new_content_value_str){
+                            // 確保 $row_content[$targetMonth 是陣列的存在
+                            $row_content[$targetMonth] = $new_content_value ?? []; 
+                           }
+                    };
+
+               
                     // step.4 將更新後的資料編碼為 JSON 字串
-                    $_logs_str      = json_encode($row_logs,    JSON_UNESCAPED_UNICODE);
-                    $_content_str   = json_encode($row_content, JSON_UNESCAPED_UNICODE);
+                    $_changeLogs_str = json_encode($row_changeLogs, JSON_UNESCAPED_UNICODE);
+                    $_content_str    = json_encode($row_content,    JSON_UNESCAPED_UNICODE);
                 
-                    // 防呆
-                    $gesch    = $gesch    ?? "";    // 性別
-                    $natiotxt = $natiotxt ?? "";    // 國別
-                    $HIRED    = $HIRED    ?? "";    // 到職日
-
                     // step.5 準備 SQL 和參數
-                    $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
+                    $values[] = "(?, ?, ?, ?,   ?, ?,  now(), now())";
                     $params = array_merge($params, [
-                        $emp_id, $cname, $gesch, $natiotxt, $HIRED,
-                        $_logs_str, $_content_str, 
-                        $auth_cname, $auth_cname
+                        $emp_id, $cname, $_changeLogs_str, $_content_str,   $auth_cname, $auth_cname
                     ]);
                 }
                 

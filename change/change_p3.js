@@ -31,31 +31,36 @@
                         const i_targetMonth = case_iArr[5] ?? '';                           // 取出陣列 5 = 目標年月
                         const i_id = `${i_OSHORT},${i_targetMonth},${i_emp_id}`;
 
+                        const i_cLogs       = post_i['_changeLogs'][i_targetMonth] ?? {};
+
                         // 生成-6:變更體檢項目 - checkbox
                             const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
                             let td6 = '<snap>';
                                 for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
+                                    const ifValue = ((i_cLogs['_6shCheck']) && i_cLogs['_6shCheck'].includes(o_value)) ? "checked" : "";
                                     td6 += `<div class="form-check m-0"> 
-                                            <input class="form-check-input" type="checkbox" name="6_shCheck" id="${i_id},6_shCheck,${o_value}" value="${o_value}" >
-                                            <label class="form-check-label" for="${i_id},6_shCheck,${o_value}">${o_value}</label></div>`;
+                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} >
+                                            <label class="form-check-label" for="${i_id},_6shCheck,${o_value}">${o_value}</label></div>`;
                                     }
                             td6 += '</snap>';
                             tdObj['6'] = td6;
                     
                         // 生成-8:是否補檢 - checkbox-switch
+                            const ifValue = ((i_cLogs['_8isCheck']) && i_cLogs['_8isCheck']) ? "checked" : "";
                             let td8 = `<snap><div class="form-check form-switch"> 
-                                        <input class="form-check-input" type="checkbox" name="8_isCheck" id="${i_id},8_isCheck" checked >
-                                        <label class="form-check-label" for="${i_id},isCheck">是</label></div></snap>`;
+                                        <input class="form-check-input" type="checkbox" name="_8isCheck" id="${i_id},_8isCheck" ${ifValue} >
+                                        <label class="form-check-label" for="${i_id},_8isCheck">是</label></div></snap>`;
                             tdObj['8'] = td8;
         
                         // 生成-11變更原因(補檢必填) - select
-                            let td11 = `<snap><select class="form-select form-select-sm" aria-label=".form-select-sm example" name="11_whyChange" id="${i_id},11_whyChange">
-                                            <option hidden selected>選擇變更原因(補檢必填)</option>
-                                            <option value="1.作業場所異動">1.作業場所異動</option>
-                                            <option value="2.新增危害場所">2.新增危害場所</option>
-                                            <option value="3.新進移工">3.新進移工</option>
-                                            <option value="4.其他(←備註說明)">4.其他(←備註說明)</option>
-                                        </select></snap>`;
+                            const itemValueArr = ['1.作業場所異動', '2.新增危害場所', '3.新進移工', '4.其他(←備註說明)'];
+                            let td11 = `<snap><select class="form-select form-select-sm" aria-label=".form-select-sm example" name="_11whyChange" id="${i_id},_11whyChange">
+                                            <option hidden selected>選擇變更原因(補檢必填)</option>`;
+                                itemValueArr.forEach((iValue) => {
+                                    const ifValue = ((i_cLogs['_11whyChange']) && i_cLogs['_11whyChange'].includes(iValue)) ? "selected" : "";
+                                    td11 += `<option value=" ${iValue}" ${ifValue} > ${iValue}</option>`
+                                })
+                                td11 += `</select></snap>`;
                             tdObj['11'] = td11;
 
                         // // 生成-9:備註說明 - input - date
@@ -101,19 +106,19 @@
                                     <td class=""              id="">${staffArr["cname"] }</td>
                                     <td class=""              id="">${i_OSHORT}<br>${i_OSTEXT}</td>
     
-                                    <td class=""              id="${i_id},6_shCheck"    >${tdObj['6']}</td>
-                                    <td class=""              id="${i_id},7_keyInMan"   >${_cLogs['7_keyInMan'] ?? ''}</td>
-                                    <td class=""              id="${i_id},8_isCheck"    >${tdObj['8']}</td>
+                                    <td class=""              id=""    >${tdObj['6']}</td>
+                                    <td class=""              id="${i_id},_7keyInMan"   >${_cLogs['_7keyInMan'] ?? ''}</td>
+                                    <td class=""              id=""    >${tdObj['8']}</td>
 
-                                    <td class="edit2"         id="${i_id},9_inCareDate" >${_cLogs['9_inCareDate'] ?? ''}</td>
-                                    <td class="edit2 word_bk" id="${i_id},10_changeRemark">${_cLogs['10_changeRemark'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_9inCareDate" >${_cLogs['_9inCareDate'] ?? ''}</td>
+                                    <td class="edit2 word_bk" id="${i_id},_10changeRemark">${_cLogs['_10changeRemark'] ?? ''}</td>
                                     
-                                    <td class=""              id="${i_id},11_whyChange" >${tdObj['11']}</td>
+                                    <td class=""              id="" >${tdObj['11']}</td>
 
-                                    <td class="edit2"         id="${i_id},12_checkDate" >${_cLogs['12_checkDate'] ?? ''}</td>
-                                    <td class="edit2"         id="${i_id},13_reportDate">${_cLogs['13_reportDate'] ?? ''}</td>
-                                    <td class="edit2"         id="${i_id},14_notifyDate">${_cLogs['14_notifyDate'] ?? ''}</td>
-                                    <td class="edit2 word_bk" id="${i_id},15_bpmRemark" >${_cLogs['15_bpmRemark'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_12checkDate" >${_cLogs['_12checkDate'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_13reportDate">${_cLogs['_13reportDate'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_14notifyDate">${_cLogs['_14notifyDate'] ?? ''}</td>
+                                    <td class="edit2 word_bk" id="${i_id},_15bpmRemark" >${_cLogs['_15bpmRemark'] ?? ''}</td>
                                     `
                             tr1 += '</tr>';
 
@@ -183,23 +188,15 @@
             // fun-2 檢查load_fun('load_change') 是否都有存在，不然就生成staff預設值
             async function preCheckStaffData(selectStaffStr, mergedData){
                 if(selectStaffStr == '') return(false);
-                    let load_change = await load_fun('load_change', selectStaffStr, 'return');                      // step-1. 先從db撈現有的資料
+                    const load_change = await load_fun('load_change', selectStaffStr, 'return');                      // step-1. 先從db撈現有的資料
                     const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
-                        // if(load_change.length > 0){
-                        //     for (const [index, staff] of Object.entries(load_change)) {
-                        //         empId = staff['emp_id'];                                            // 去除前後"符號..
-                        //         const staffStr = mergedData.find(item => item.includes(empId));     // 從_dept_inf找出符合 empId 的原始字串
-                        //         const staffArr = (staffStr) ? staffStr.split(',') : [];             // 分割staffStr成陣列
-                        //         load_change[index]["OSTEXT_30"] = staffArr[2] ?? '';                // 取出陣列 2 = 廠區
-                        //         load_change[index]["OSHORT"]    = staffArr[3] ?? '';                // 取出陣列 3 = 部門代號
-                        //         load_change[index]["OSTEXT"]    = staffArr[4] ?? '';                // 取出陣列 4 = 部門名稱
-                        //     }
-                        // }
+ 
                     defaultStaff_inf = [...defaultStaff_inf, ...load_change];                                       // step-2. 合併load_change
-    
+                    console.log('1.defaultStaff_inf...', defaultStaff_inf)
+
                     const selectStaffArr = selectStaffStr.replace(/"/g, '').split(',')                              // step-3. 去除前後"符號..分割staffStr成陣列
                     const notExistingStaffs = selectStaffArr.filter(emp_id => !existingStaffStrs.includes(emp_id)); // step-4. 找出不存在於load_shLocalDepts中的部門代號
-                        // console.log('notExistingStaffs...', notExistingStaffs)
+                        console.log('2.notExistingStaffs...', notExistingStaffs)
 
                     if(notExistingStaffs.length > 0) {
                         const notExistingStaffs_str = JSON.stringify(notExistingStaffs).replace(/[\[\]]/g, '');     // step-5. 把不在的部門代號進行加工(多選)，去除外框
@@ -221,8 +218,12 @@
                         if(selectStaffArr.length > 0){
                             selectStaffArr.forEach((empId) => {
                                 let newStaffData = {};                                               // 初始化新生成dept物件
+                                newStaffData["_changeLogs"]   = {};
+                                newStaffData["_content"]      = {};
+                                // newStaffData["created_at"] = getTimeStamp();
                                 empId = empId.replace(/"/g, '');                                     // 去除前後"符號..
                                 const staffStr = mergedData.find(item => item.includes(empId));      // 從_dept_inf找出符合 empId 的原始字串
+
                                 if(staffStr){
                                     const staffArr = staffStr.split(',')                              // 分割staffStr成陣列
                                     newStaffData["emp_id"]    = staffArr[0] ?? '';                    // 取出陣列 0 = 工號
@@ -230,12 +231,17 @@
                                     // newStaffData["OSTEXT_30"] = staffArr[2] ?? '';                    // 取出陣列 2 = 廠區
                                     // newStaffData["OSHORT"]    = staffArr[3] ?? '';                    // 取出陣列 3 = 部門代號
                                     // newStaffData["OSTEXT"]    = staffArr[4] ?? '';                    // 取出陣列 4 = 部門名稱
+                                    const targetMonth  = staffArr[5] ?? '';                    // 取出陣列 4 = 部門名稱
+                                    newStaffData["_changeLogs"][targetMonth] = {
+                                        "OSHORT"    : staffArr[3] ?? '',
+                                        "_0isClose" : false
+                                    };
+                                    newStaffData["_content"][targetMonth] = {}
+
                                 }else{
-                                    newStaffData["emp_id"]    = empId; 
+                                    newStaffData["emp_id"]      = empId; 
                                 }
-                                newStaffData["_changeLogs"]   = [];
-                                newStaffData["_content"]      = {};
-                                // newStaffData["created_at"] = getTimeStamp();
+                      
                                 bomNewStaffArr.push(newStaffData);
                             })
                         }
@@ -334,7 +340,7 @@
                         $('#edit2_modal .modal-body').empty().append(thisTD);     // 定義搜尋input欄// 賦予內容值
 
                     }else{
-                        consolr.error(`staff empID：${i_empId} is undefined!!`)
+                        console.error(`staff empID：${i_empId} is undefined!!`)
                     }
 
                     reload_submitEdit2_Listeners();
@@ -416,118 +422,7 @@
         submitEdit2_btn.addEventListener('click', submitEdit2ClickListener);      // 將每一個tdItem增加監聽, 當按下click
     }
     // *** 需要建立即時監聽更新的有三個~6、8、11
-        // // 250310 在p3table上建立6_ShCheck監聽功能 for .6_ShCheck = true/false...
-        // let staffP3ShCheckOnchangeListener;
-        // async function reload_staffP3ShCheckOnchange_Listeners() {
-        //     return new Promise((resolve) => {
-        //         const staffShChecks = document.querySelectorAll('#staff_table input[id*=",6_shCheck"]');      //  定義出範圍
-        //         // 檢查並移除已經存在的監聽器
-        //             if (staffP3ShCheckOnchangeListener) {
-        //                 staffShChecks.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                     flag_i.removeEventListener('change', staffP3ShCheckOnchangeListener);   // 將每一個flag_i移除監聽, 當按下click
-        //                 })
-        //             }
-        //         // 定義新的監聽器函數
-        //             staffP3ShCheckOnchangeListener = async function () {
-        //                 const thisId_arr = this.id.split(',')                   // 分割this.id成陣列
-        //                     const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
-        //                     const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
-        //                     const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
-        //                     const i_targetTD    = thisId_arr[3] ?? '';          // 取出陣列 3 = 目標TD
-                        
-        //                 const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
-        //                 if(staffData){
-        //                     const selectedOptsValues = Array.from(document.querySelectorAll(`#staff_table input[type="checkbox"]:checked[id*="${i_OSHORT},${i_targetMonth},${i_empId},${i_targetTD},"]`))
-        //                                                             .map(cb => cb.value);
-        //                     // console.log('6_ShCheck...', selectedOptsValues);                     
-        //                     staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};   // 防呆
-        //                     staffData['_changeLogs'][i_targetMonth][i_targetTD] = selectedOptsValues;     // 賦予內容值
-        //                     console.log('staffData...', staffData);
-
-        //                 }else{
-        //                     consolr.error(`staff empID：${i_empId} is undefined!!`)
-        //                 }
-        //             }
-        //         // 添加新的監聽器
-        //             staffShChecks.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                 flag_i.addEventListener('change', staffP3ShCheckOnchangeListener);      // 將每一個flag_i增加監聽, 當按下click
-        //             })
-
-        //         resolve();
-        //     });
-        // }
-        // // 250310 在p3table上建立8_isCheck監聽功能 for .8_isCheck = true/false...
-        // let staffP3IsCheckOnchangeListener;
-        // async function reload_staffP3IsCheckOnchange_Listeners() {
-        //     return new Promise((resolve) => {
-        //         const staffIsChecks = document.querySelectorAll('#staff_table input[id*=",8_isCheck"]');      //  定義出範圍
-        //         // 檢查並移除已經存在的監聽器
-        //             if (staffP3IsCheckOnchangeListener) {
-        //                 staffIsChecks.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                     flag_i.removeEventListener('change', staffP3IsCheckOnchangeListener);   // 將每一個flag_i移除監聽, 當按下click
-        //                 })
-        //             }
-        //         // 定義新的監聽器函數
-        //             staffP3IsCheckOnchangeListener = async function () {
-        //                 const thisId_arr = this.id.split(',')                   // 分割this.id成陣列
-        //                     const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
-        //                     const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
-        //                     const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
-        //                     const i_targetTD    = thisId_arr[3] ?? '';          // 取出陣列 3 = 目標TD
-                            
-        //                 const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
-        //                 if(staffData){
-        //                     staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};   // 防呆
-        //                     staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;     // 賦予內容值
-        //                     // console.log('staffData...', staffData);
-        //                 }else{
-        //                     consolr.error(`staff empID：${i_empId} is undefined!!`)
-        //                 }
-        //             }
-        //         // 添加新的監聽器
-        //             staffIsChecks.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                 flag_i.addEventListener('change', staffP3IsCheckOnchangeListener);      // 將每一個flag_i增加監聽, 當按下click
-        //             })
-
-        //         resolve();
-        //     });
-        // }
-        // // 250310 在p3table上建立11_whyChange監聽功能 for .11_whyChange = select.value...
-        // let staffP3WhyChangeOnchangeListener;
-        // async function reload_staffP3WhyChangeOnchange_Listeners() {
-        //     return new Promise((resolve) => {
-        //         const staffWhyChanges = document.querySelectorAll('#staff_table select[id*=",11_whyChange"]');      //  定義出範圍
-        //         // 檢查並移除已經存在的監聽器
-        //             if (staffP3WhyChangeOnchangeListener) {
-        //                 staffWhyChanges.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                     flag_i.removeEventListener('change', staffP3WhyChangeOnchangeListener);   // 將每一個flag_i移除監聽, 當按下click
-        //                 })
-        //             }
-        //         // 定義新的監聽器函數
-        //             staffP3WhyChangeOnchangeListener = async function () {
-        //                 const thisId_arr = this.id.split(',')                   // 分割this.id成陣列
-        //                     const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
-        //                     const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
-        //                     const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
-        //                     const i_targetTD    = thisId_arr[3] ?? '';          // 取出陣列 3 = 目標TD
-                            
-        //                 const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
-        //                 if(staffData){
-        //                     staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};   // 防呆
-        //                     staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.value;     // 賦予內容值
-        //                     console.log('staffData...', staffData);
-        //                 }else{
-        //                     consolr.error(`staff empID：${i_empId} is undefined!!`)
-        //                 }
-        //             }
-        //         // 添加新的監聽器
-        //             staffWhyChanges.forEach(flag_i => {                                      // 遍歷範圍內容給flag_i
-        //                 flag_i.addEventListener('change', staffP3WhyChangeOnchangeListener);      // 將每一個flag_i增加監聽, 當按下click
-        //             })
-
-        //         resolve();
-        //     });
-        // }
+        // 使用合併的函式
         async function reload_staffP3ChangeListeners(type, idSubstring, logValue) {
             return new Promise((resolve) => {
                 const elements = document.querySelectorAll(`#staff_table input[id*="${idSubstring}"], #staff_table select[id*="${idSubstring}"]`); // 定義範圍
@@ -553,22 +448,30 @@
                         staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {}; // 防呆
                         
                         // 如果是 checkbox，則獲取所有被選中的值
-                        if (type === 'checkbox') {
+                        if (type === 'checkbox') {                  // 250310 在p3table上建立_6ShCheck監聽功能 for ._6ShCheck = array
                             const selectedOptsValues = Array.from(document.querySelectorAll(`#staff_table input[type="checkbox"]:checked[id*="${i_OSHORT},${i_targetMonth},${i_empId},${i_targetTD},"]`))
                                 .map(cb => cb.value);
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = selectedOptsValues;
+                            // 連動_8isCheck
+                            const _8isCheck = document.getElementById(`${i_OSHORT},${i_targetMonth},${i_empId},_8isCheck`);
+                            if(_8isCheck){
+                                _8isCheck.checked = (selectedOptsValues.length > 0);                                    // 更新畫面
+                                staffData['_changeLogs'][i_targetMonth]['_8isCheck'] = (selectedOptsValues.length > 0); // 更新暫存
+                            } 
 
-                        } else if (type === 'checkbox-boolean') {
+                        } else if (type === 'checkbox-boolean') {   // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;
 
-                        } else if (type === 'select') {
+                        } else if (type === 'select') {             // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.value;
                         }
-                        console.log('staffData...', staffData);
+                        // console.log('staffData...', staffData);
         
                     } else {
                         console.error(`staff empID：${i_empId} is undefined!!`);
                     }
+                    console.log('staff_inf...', staff_inf);
+
                 };
         
                 // 添加新的監聽器
@@ -579,16 +482,26 @@
                 resolve();
             });
         }
-        
-        // 使用合併的函式
+        // // 250310 在p3table上建立_6ShCheck監聽功能 for ._6ShCheck = array...
         async function reload_staffP3ShCheckOnchange_Listeners() {
-            await reload_staffP3ChangeListeners('checkbox', '6_shCheck', false);
+            await reload_staffP3ChangeListeners('checkbox', '_6shCheck', false);
         }
-        
+        // // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false...
         async function reload_staffP3IsCheckOnchange_Listeners() {
-            await reload_staffP3ChangeListeners('checkbox-boolean', '8_isCheck', false);
+            await reload_staffP3ChangeListeners('checkbox-boolean', '_8isCheck', false);
         }
-        
+        // // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value...
         async function reload_staffP3WhyChangeOnchange_Listeners() {
-            await reload_staffP3ChangeListeners('select', '11_whyChange', true);
+            await reload_staffP3ChangeListeners('select', '_11whyChange', true);
         }
+
+    // p-3 批次儲存變更作業員工清單...
+    async function bat_storeChangeStaff(){
+        const bat_storeChangeStaff_value = JSON.stringify({
+                staff_inf : staff_inf
+            });
+            // console.log('bat_storeChangeStaff_value',bat_storeChangeStaff_value);
+        await load_fun('bat_storeChangeStaff', bat_storeChangeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
+
+        location.reload();
+    }
