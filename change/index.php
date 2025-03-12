@@ -280,13 +280,7 @@
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
-                                    <!-- 下載EXCEL的觸發 -->
-                                    <div class="inb">
-                                        <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
-                                            <input  type="hidden" name="htmlTable" id="staff_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
-                                        </form>
-                                    </div>
+                                    <!-- 上傳EXCEL的觸發 -->
                                     <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
                                     <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
                                     
@@ -331,12 +325,12 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="P3resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disable ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
-                                        <form id="staff_myForm" method="post" action="../_Format/download_excel.php">
-                                            <input  type="hidden" name="htmlTable" id="staff_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staff" onclick="downloadExcel(this.value)" disabled ><i class="fa fa-download" inert ></i> 下載</button>
+                                        <form id="staffChange_myForm" method="post" action="../_Format/download_excel.php">
+                                            <input  type="hidden" name="htmlTable" id="staffChange_htmlTable" value="">
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staffChange" onclick="return confirm(`下載前會強制儲存，請問是否要儲存後下載？`) && P3downloadExcel(this.value)" disabled ><i class="fa fa-download"></i> 下載</button>
                                         </form>
                                     </div>
                                 </div>
@@ -349,21 +343,16 @@
                             <table id="staff_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <th title="AB"class="table-success">年月</th>
-                                        <th title="C" class="table-success">廠區</th>
-                                        <th title="D" class="table-success">工號</th>
-                                        <th title="E" class="table-success">姓名</th>
-                                        <th title="F" class="table-success">5部門代號</th>
-                                        <th title="G" class="table-success">6變更體檢項目</th>
-                                        <th title="H" class="table-success wh-25">7彙整人員</th>
-                                        <th title="I" class="table-warning">8是否補檢</th>
-                                        <th title="J" class="table-warning wh-75">9受檢開單日</th>
-                                        <th title="K" class="table-warning">10備註說明</th>
-                                        <th title="L" class="table-warning">11變更原因<br>(補檢必填)</th>
-                                        <th title="M" class="table-warning wh-75">12受檢日期</th>
-                                        <th title="N" class="table-warning wh-75">13報告收到日期</th>
-                                        <th title="O" class="table-primary wh-75">14通知日期</th>
-                                        <th title="P" class="table-primary">15總窗備註</th>
+                                        <th title="AB" class="table-success"      >年月</th>
+                                        <th title="2"  class="table-success"      >廠區</th>
+                                        <th title="3"  class="table-success"      >工號</th>
+                                        <th title="4"  class="table-success"      >姓名</th>
+                                        <th title="5"  class="table-success"      >5部門代號</th>
+                                        <th title="6"  class="table-success"      >6變更體檢項目</th>
+                                        <th title="7"  class="table-warning wh-75">7是否檢查</th>
+                                        <th title="8"  class="table-warning"      >8備註說明</th>
+                                        <th title="9"  class="table-warning wh-75">9受檢日期</th>
+                                        <th title="10" class="table-primary"      >10總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -699,6 +688,7 @@
     var _dept_inf           = [];   // 中繼專用：存放selectDept的id資訊 = ["FAB7棟,9T041502,工安衛二課"]，供生成時取得...
     var staff_inf           = [];
     var shLocal_inf         = [];
+    var mergedData_inf      = [];
     // var loadStaff_tmp    = [];
     // var _docs_inf        = [];
     // var _docsIdty_inf    = null;

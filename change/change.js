@@ -5,13 +5,17 @@
             defaultDept_inf  = [];
             _dept_inf        = [];
             staff_inf        = [];
+            mergedData_inf   = [];
             // loadStaff_tmp = [];
             // _doc_inf      = [];
             // _doc_inf.idty = null;
 
-            await release_dataTable();
             resetMaintainDept();
+            await release_dataTable();
             $('#hrdb_table tbody').empty();
+            
+            await release_dataTable('staff_table');
+            $('#staff_table tbody').empty();
 
             // $('#form_btn_div').empty();
             // $('#logs_div .logs tbody').empty();
@@ -44,9 +48,13 @@
     function btn_disabled(){
         return new Promise((resolve) => {
             // console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
-            download_excel_btn.disabled = shLocalDept_inf.length === 0;  // 讓 下載 按鈕啟停
-            resetINF_btn.disabled       = shLocalDept_inf.length === 0;  // 讓 清除 按鈕啟停
-            bat_storeDept_btn.disabled  = shLocalDept_inf.length === 0;  // 讓 儲存 按鈕啟停
+            resetINF_btn.disabled       = shLocalDept_inf.length === 0;  // 讓 p2清除 按鈕啟停
+            bat_storeDept_btn.disabled  = shLocalDept_inf.length === 0;  // 讓 p2儲存 按鈕啟停
+            // download_excel_btn.disabled = shLocalDept_inf.length === 0;  // 讓 p2下載 按鈕啟停
+
+            P3resetINF_btn.disabled           = staff_inf.length === 0;  // 讓 p3清除 按鈕啟停
+            bat_storeChangeStaff_btn.disabled = staff_inf.length === 0;  // 讓 p3儲存 按鈕啟停
+            download_excel_btn.disabled       = staff_inf.length === 0;  // 讓 p3下載 按鈕啟停
             // SubmitForReview_btn.disabled = shLocalDept_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 送審 按鈕啟停
 
             // loadExcel_btn.disabled       = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 新增 按鈕啟停

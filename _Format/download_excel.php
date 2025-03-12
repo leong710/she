@@ -60,10 +60,10 @@
 
     // 根據模組設定檔名和欄位寬度
     $moduleSettings = [
-        "shLocal" => ["特殊危害健康作業管理_",  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']],
-        "staff"   => ["變更作業特殊健檢_",      ['B', 'C', 'F', 'G', 'H', 'L', 'N']],
-        // "review"  => ["審查特殊健檢名單_",      ['B', 'C', 'F', 'G', 'H', 'L', 'N']],
-        "review"  => ["彙整特殊健檢名單_",      ['B', 'C', 'H', 'I', 'M', 'N']],
+        "shLocal"     => ["特殊危害健康作業管理_",  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M']],
+        "staff"       => ["變更作業特殊健檢_",      ['B', 'C', 'F', 'G', 'H', 'L', 'N']],
+        "review"      => ["彙整特殊健檢名單_",      ['B', 'C', 'H', 'I', 'M', 'N']],
+        "staffChange" => ["變更作業健檢名單_",      ['B', 'E', 'f', 'G', 'I', 'j']],
     ];
 
     $filename_head = $moduleSettings[$to_module][0] ?? $to_module;
@@ -81,7 +81,9 @@
 
     // 調整欄列寬高換行
     $sheet->getStyle('1:1')->getAlignment()->setWrapText(true);
-    $sheet->getRowDimension(1)->setRowHeight(-1);
+    // 設定第一列的高度 (可根據需要調整)
+    // $sheet->getRowDimension(1)->setRowHeight(-1);
+    $sheet->getRowDimension(1)->setRowHeight(30); // 假設要設定高度為30，您可以根據需要調整
 
     // 假設 $sheet 為您的工作表對象，這裡的 1 代表第一行
     $totalRows = $sheet->getHighestRow(); // 獲取工作表的總行數

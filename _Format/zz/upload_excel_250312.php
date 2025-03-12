@@ -244,7 +244,7 @@
                 } else if ($submit === 'shStaffChange') {       // 250225_變更作業健檢
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('年月份','廠區','工號','姓名','部門代碼','部門名稱');
+                    $theadTitles = array('年月份','廠區','工號','姓名','部門代碼','部門名稱','檢查類別','彙整人員','是否執行檢查','確認檢查類別','檢查日','健檢醫院','是否結案','定檢資格');
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -279,24 +279,38 @@
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
                             $row[4] = strtoupper(trim($row[4]));                // 部門代碼 strtoupper轉大寫
+                            $row[6] = str_replace([';','、'], ',', $row[6]);    // 類別 str_replace符號轉逗號
+                            $row[9] = str_replace([';','、'], ',', $row[9]);    // 類別 str_replace符號轉逗號
 
                             // 檢查工號emp_id $row[2]是否空值
                                 $emp_id_check = (!empty($row[2]) && strlen($row[2]) == 8 ) ? true : false;
                             // 檢查部門代碼OSHORT $row[4]是否空值
                                 $OSHORT_check = (!empty($row[4]) && strlen($row[4]) == 8 ) ? true : false;
                             // 檢查 檢查類別$row[6] 是否含有分號:
-                                // $HE_CATE_check = preg_match('/:/', $row[6]);
+                                $HE_CATE_check = preg_match('/:/', $row[6]);
 
                                 $row_result = array_merge($row, [
                                     "emp_id_check"  => $emp_id_check,
                                     "OSHORT_check"  => $OSHORT_check,
+                                    "HE_CATE_check" => $HE_CATE_check,
                                 ]);
 
                             if ($emp_id_check && $OSHORT_check) {
                                 foreach ($row as $index => $value) {
-                                    if ($index >= $keyCount) break;                          // 欄位數
+                                    if ($index > $keyCount) break;                          // 欄位數
                                     echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
+                                // 240904 將特作代號$row[6]升級成物件
+                                    $row6 = explode(",", $row[6]);    
+                                    $row6_arr = array();
+                                    if(!empty($row6)){
+                                        foreach ($row6 as $row6_i) {
+                                            if(preg_match('/:/', $row6_i)){
+                                                list($key, $value) = explode(':', $row6_i);
+                                                $row6_arr[$key] = $value;
+                                            }
+                                        }
+                                    }
        
                                 $process = [
                                     "targetYear"    => $row[0],
@@ -304,7 +318,15 @@
                                     "emp_id"        => $row[2],
                                     "cname"         => $row[3],
                                     "OSHORT"        => $row[4],
-                                    "OSTEXT"        => $row[5]
+                                    "OSTEXT"        => $row[5],
+                                    "HE_CATE"       => $row6_arr ?? $row[6],
+                                    "updated_cname" => $row[7],
+                                    "isCheck"       => $row[8],
+                                    "yearHe"        => $row[9],
+                                    "checkDate"     => $row[10],
+                                    "Hospital"      => $row[11],
+                                    "isClose"       => $row[12],
+                                    "shCondition"   => $row[13],
                                 ];
                                 $result[] = $process;
 
@@ -441,6 +463,9 @@
                             break;
                         case 4:
                             $td_str .= "<td".(!$row_result["OSHORT_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
+                            break;
+                        case 6:
+                            $td_str .= "<td".(!$row_result["HE_CATE_check"] ? $errorTag : ">{$row_result[$index]}" )."</td>";
                             break;
                          default:
                             $td_str .= "<td>{$row_result[$index]}</td>";

@@ -10,8 +10,7 @@
             shItemArr  = shItemArr  ?? [];
                 console.log("post_arr =>", post_arr);
                 console.log("mergedData =>", mergedData);
-            staff_inf      = post_arr;      // 帶入全域變數
-            mergedData_inf = mergedData;    // 帶入全域變數
+            staff_inf  = post_arr;
  
             if(post_arr.length === 0){
                 const table = $('#staff_table').DataTable();                    // 獲取表格的 thead
@@ -53,6 +52,32 @@
                                         <label class="form-check-label" for="${i_id},_7isCheck">是</label></div></snap>`;
                             tdObj['7'] = td7;
         
+                        // // 生成-11變更原因(補檢必填) - select
+                        //     const itemValueArr = ['1.作業場所異動', '2.新增危害場所', '3.新進移工', '4.其他(←備註說明)'];
+                        //     let td11 = `<snap><select class="form-select form-select-sm" aria-label=".form-select-sm example" name="_11whyChange" id="${i_id},_11whyChange">
+                        //                     <option hidden selected>選擇變更原因(補檢必填)</option>`;
+                        //         itemValueArr.forEach((iValue) => {
+                        //             const ifValue = ((i_cLogs['_11whyChange']) && i_cLogs['_11whyChange'].includes(iValue)) ? "selected" : "";
+                        //             td11 += `<option value=" ${iValue}" ${ifValue} > ${iValue}</option>`
+                        //         })
+                        //         td11 += `</select></snap>`;
+                        //     tdObj['11'] = td11;
+
+                        // // 生成-9:備註說明 - input - date
+                        //     const inputArr = {
+                        //         '9'  : 'inCare_date',
+                        //         '12' : 'check_date',
+                        //         '13' : 'report_date',
+                        //         '14' : 'notify_date'
+                        //     }
+                        //     for(const[index, name] of Object.entries(inputArr)){
+                        //         let tdn = `<snap><input type="date" class="form-control form-control-sm" name="${name}" id="${i_id},${name}"></snap>`;
+                        //         tdObj[index] = tdn;
+                        //     }
+                        // // 生成-10:備註說明 - textarea
+                        //     let td10 = `<snap><textarea class="form-control" placeholder="備註說明" id="${i_id},change_remark"></textarea></snap>`;
+                        //     tdObj['10'] = td10;
+
                         return (tdObj);
                     }
 
@@ -85,7 +110,8 @@
                                     <td class=""              id="">${tdObj['7']}</td>
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
                                     <td class="edit2"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
-                                    <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_10Hospital" >${_cLogs['_10Hospital'] ?? ''}</td>
+                                    <td class="edit2 word_bk" id="${i_id},_11bpmRemark" >${_cLogs['_11bpmRemark'] ?? ''}</td>
                                     `
                             tr1 += '</tr>';
 
@@ -306,6 +332,13 @@
                                                 <textarea name="${i_targetTD}" id="${this.id},edit2" class="form-control " style="height: 100px" placeholder="${i_targetTD}">${thisValue}</textarea>
                                             </div>`;
 
+                            }else if(i_targetTD.includes('Hospital')){
+                                thisTD +=  `<div class="col-12 py-0 px-3">
+                                                <div class="form-floating">
+                                                    <input type="text" name="${i_targetTD}" id="${this.id},edit2" class="form-control" value="${thisValue}" placeholder="123" >
+                                                    <label for="${this.id},edit2" class="form-label">${i_targetTD}：</label>
+                                                </div>
+                                            </div>`;
                             }
 
                         thisTD += '</div>';
@@ -447,6 +480,9 @@
 
                         } else if (type === 'checkbox-boolean') {   // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;
+
+                        } else if (type === 'select') {             // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value
+                            staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.value;
                         }
                         // console.log('staffData...', staffData);
         
@@ -473,6 +509,10 @@
         async function reload_staffP3IsCheckOnchange_Listeners() {
             await reload_staffP3ChangeListeners('checkbox-boolean', '_7isCheck', false);
         }
+        // // // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value...
+        // async function reload_staffP3WhyChangeOnchange_Listeners() {
+        //     await reload_staffP3ChangeListeners('select', '_11whyChange', true);
+        // }
 
     // p-3 批次儲存變更作業員工清單...
     async function bat_storeChangeStaff(){

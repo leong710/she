@@ -44,92 +44,104 @@
         }
     };
     // fun.2-1c 下載Excel...要修正
-    function downloadExcel(to_module) {
-        if(staff_inf.length === 0){
+    function P3downloadExcel(to_module) {
+        if(staff_inf.length === 0 || mergedData_inf.length === 0){
             return;
         }
         const item_keys = {
-            "emp_sub_scope" : "廠區",
-            "dept_no"       : "部門代碼",
-            "emp_dept"      : "部門名稱",
+            "i_targetMonth" : "年月份",
+            "i_OSTEXT_30"   : "廠區",
             "emp_id"        : "工號",
             "cname"         : "姓名",
-            "shCase"        : "特作項目",
-            "shCondition"   : "資格驗證",
-            "_content"      : "import"
+            "i_OSHORT"      : "部門代碼",
+            "i_OSTEXT"      : "部門名稱",
+
+            "_6shCheck"     : "檢查類別",
+            "_7isCheck"     : "是否檢查",
+            "_9checkDate"   : "檢查日",
+            "_10content"    : "定檢資格"
         };
-        const shCase_keys = {
-            "OSTEXT_30"     : "工作廠區",
-            "HE_CATE"       : "檢查類別代號",
-            "MONIT_LOCAL"   : "工作場所",
-            "WORK_DESC"     : "工作內容",
-            "AVG_VOL"       : "A權音壓級(dBA)",
-            "AVG_8HR"       : "日時量平均(dBA)",
-            "eh_time"       : "每日暴露時數"
-        };
-        const import_keys = {
-            "yearHe"        : "檢查類別",
-            "yearCurrent"   : "檢查代號",
-            "yearPre"       : "去年檢查項目"
-        };
-        let sort_listData = staff_inf.map((staff) => {
+
+        let sort_listData = mergedData_inf.map((case_i) => {
+            const case_iArr         = case_i.split(',');                        // 分割staffStr成陣列
+                const i_empId       = case_iArr[0] ?? '';                       // 取出陣列 0 = 工號
+                // const i_cname       = case_iArr[1] ?? '';                       // 取出陣列 1 = 姓名
+                const i_OSTEXT_30   = case_iArr[2] ?? '';                       // 取出陣列 2 = 廠區
+                const i_OSHORT      = case_iArr[3] ?? '';                       // 取出陣列 3 = 部門代號
+                const i_OSTEXT      = case_iArr[4] ?? '';                       // 取出陣列 4 = 部門名稱
+                const i_targetMonth = case_iArr[5] ?? '';                       // 取出陣列 5 = 目標年月
+                
             let sortedData = {};
-            // 處理主欄位
-            Object.entries(item_keys).forEach(([key, label]) => {
-                if (key === 'shCase') {
-                    if(staff['shCase'].length >0){
-                        staff['shCase'].forEach((caseItem) => {
-                            // 處理 shCase 的子欄位
-                            Object.entries(shCase_keys).forEach(([subKey, subLabel]) => {       
-                                const value = caseItem[subKey];
-                                if (subKey === 'HE_CATE' && value !== undefined) {
-                                    const heCate = JSON.stringify(value).replace(/[{"}]/g, '');
-                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${heCate}` : heCate;
+            const staff = staff_inf.find(staff_i => staff_i.emp_id == i_empId);   // 從staff_inf找出符合 empId 的原始字串
 
-                                }else if (subKey === 'eh_time') {
-                                    const eh_time = staff.eh_time ?? null;
-                                    // sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${eh_time}` : eh_time;
-                                    sortedData[subLabel] = eh_time;
-
-                                } else if(value !== undefined){                                 // 240909 這裡要追加過濾 沒有HE_CATE的項目...
-                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${(value || '')}` : (value || '');
-
-                                } else if(value === undefined) {
-                                    sortedData[subLabel] = sortedData[subLabel] ? `${sortedData[subLabel]}\r\n${''}` : '';
-                                }
-                            });
-                        });
-                        
-                    }else{  // 預防shCase是空值，仍必須把表頭寫入。
-                        Object.entries(shCase_keys).forEach(([subKey, subLabel]) => {
-                            sortedData[subLabel] = '';
-                        });
+            if(staff){
+                // 
+                const _cgLog = staff['_changeLogs'][i_targetMonth] ?? {};   // 獲取變更日誌
+                // 處理主欄位
+                Object.entries(item_keys).forEach(([key, label]) => {
+                    switch (key) { // 使用 switch 判斷提升可讀性
+                        case 'i_targetMonth':   sortedData[label] = i_targetMonth;  break;
+                        case 'i_OSTEXT_30':     sortedData[label] = i_OSTEXT_30; break;
+                        case 'emp_id':          sortedData[label] = staff['emp_id'] ?? ''; break;
+                        case 'cname':           sortedData[label] = staff['cname'] ?? ''; break;
+                        case 'i_OSHORT':        sortedData[label] = i_OSHORT; break;
+                        case 'i_OSTEXT':        sortedData[label] = i_OSTEXT; break;
+                        case '_6shCheck':
+                            // 處理檢查類別
+                            sortedData[label] = _cgLog['_6shCheck']?.length > 0 
+                                ? JSON.stringify(_cgLog['_6shCheck']).replace(/[\[{"}\]]/g, '').replace(/,/g, ';') : '';
+                            break;
+                        case '_7isCheck':       sortedData[label] = _cgLog['_7isCheck'] ? '是' : '否'; break;
+                        case '_10content':
+                            // 處理定檢資格
+                            sortedData[label] = _cgLog['_6shCheck']?.length > 0 
+                                ? `變更(${JSON.stringify(_cgLog['_6shCheck'].map(caseItem => caseItem.split(':')[1] ?? '')).replace(/[\[{"}\]]/g, '')})` : '';
+                            break;
+                        default: sortedData[label] = _cgLog[key] ?? ''; // 其他欄位處理
                     }
 
-                } else if (key === 'shCondition') {
-                    const shCondition = staff[key];
-                    // 過濾出 value = true 的鍵值對
-                    let shCondition_true = Object.fromEntries(
-                        Object.entries(shCondition).filter(([key, value]) => value === true)        // 這裡不能用;結尾...要注意!
-                    );
-                    shCondition_true = JSON.stringify(shCondition_true).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
-                    sortedData[label] = shCondition_true;
 
-                } else if (key === '_content') {
-                    const _import = staff[key][currentYear][label];
-                    Object.entries(import_keys).forEach(([iKey, iLabel]) => {       
-                        const value = _import[iKey];
-                        if(value !== undefined){
-                            sortedData[iLabel] = JSON.stringify(value).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
-                        }else{
-                            sortedData[iLabel] = '';
-                        }
-                    });
-
-                } else {
-                    sortedData[label] = staff[key] ? staff[key] : staff['_logs'][currentYear][key];
-                }
-            });
+                    // if (key === 'i_targetMonth') {
+                    //     sortedData[label] = i_targetMonth ?? '';
+                    // } else if (key === 'i_OSTEXT_30') {
+                    //     sortedData[label] = i_OSTEXT_30 ?? '';
+                    // } else if (key === 'emp_id') {
+                    //     sortedData[label] = staff['emp_id'] ?? '';
+                    // } else if (key === 'cname') {
+                    //     sortedData[label] = staff['cname'] ?? '';
+                    // } else if (key === 'i_OSHORT') {
+                    //     sortedData[label] = i_OSHORT ?? '';
+                    // } else if (key === 'i_OSTEXT') {
+                    //     sortedData[label] = i_OSTEXT ?? '';
+                    // } else if (key === '_6shCheck') {
+                    //     if(_cgLog['_6shCheck'].length > 0){
+                    //         // 1.把體檢項目轉成字串
+                    //         let _6str = JSON.stringify(_cgLog['_6shCheck']).replace(/[\[{"}\]]/g, '').replace(/,/g, ';');
+                    //         sortedData[label] = _6str;
+                    //     }else{  // 預防_6shCheck是空值，仍必須把表頭寫入。
+                    //         sortedData[label] = '';
+                    //     }
+                    // } else if (key === '_7isCheck') {
+                    //     sortedData[label] = _cgLog['_7isCheck'] ? '是' : '否';
+                    // } else if (key === '_10content') {
+                    //     if(_cgLog['_6shCheck'].length > 0){
+                    //         // 2.預先處理欄位10的內容             
+                    //         let _10arr = [];
+                    //         _cgLog['_6shCheck'].forEach((caseItem) => {
+                    //             const caseItemArr = caseItem.split(':')
+                    //                 const i_name  = caseItemArr[1] ?? '';                                   
+                    //             _10arr.push(i_name);
+                    //         });
+                    //         let _10str = JSON.stringify(_10arr).replace(/[\[{"}\]]/g, '')
+                    //         sortedData[label] = `變更(${_10str})`;
+                    //     }else{  // 預防_6shCheck是空值，仍必須把表頭寫入。
+                    //         sortedData[label] = '';
+                    //     }
+                    // } else {
+                    //     sortedData[label] = _cgLog[key] ?? '';
+                    // }
+                });
+            }
     
             return sortedData;
         });

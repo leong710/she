@@ -10,8 +10,7 @@
             shItemArr  = shItemArr  ?? [];
                 console.log("post_arr =>", post_arr);
                 console.log("mergedData =>", mergedData);
-            staff_inf      = post_arr;      // 帶入全域變數
-            mergedData_inf = mergedData;    // 帶入全域變數
+            staff_inf  = post_arr;
  
             if(post_arr.length === 0){
                 const table = $('#staff_table').DataTable();                    // 獲取表格的 thead
@@ -46,13 +45,39 @@
                             td6 += '</snap>';
                             tdObj['6'] = td6;
                     
-                        // 生成-7:是否補檢 - checkbox-switch
-                            const ifValue = ((i_cLogs['_7isCheck']) && i_cLogs['_7isCheck']) ? "checked" : "";
-                            let td7 = `<snap><div class="form-check form-switch"> 
-                                        <input class="form-check-input" type="checkbox" name="_8isCheck" id="${i_id},_7isCheck" ${ifValue} >
-                                        <label class="form-check-label" for="${i_id},_7isCheck">是</label></div></snap>`;
-                            tdObj['7'] = td7;
+                        // 生成-8:是否補檢 - checkbox-switch
+                            const ifValue = ((i_cLogs['_8isCheck']) && i_cLogs['_8isCheck']) ? "checked" : "";
+                            let td8 = `<snap><div class="form-check form-switch"> 
+                                        <input class="form-check-input" type="checkbox" name="_8isCheck" id="${i_id},_8isCheck" ${ifValue} >
+                                        <label class="form-check-label" for="${i_id},_8isCheck">是</label></div></snap>`;
+                            tdObj['8'] = td8;
         
+                        // 生成-11變更原因(補檢必填) - select
+                            const itemValueArr = ['1.作業場所異動', '2.新增危害場所', '3.新進移工', '4.其他(←備註說明)'];
+                            let td11 = `<snap><select class="form-select form-select-sm" aria-label=".form-select-sm example" name="_11whyChange" id="${i_id},_11whyChange">
+                                            <option hidden selected>選擇變更原因(補檢必填)</option>`;
+                                itemValueArr.forEach((iValue) => {
+                                    const ifValue = ((i_cLogs['_11whyChange']) && i_cLogs['_11whyChange'].includes(iValue)) ? "selected" : "";
+                                    td11 += `<option value=" ${iValue}" ${ifValue} > ${iValue}</option>`
+                                })
+                                td11 += `</select></snap>`;
+                            tdObj['11'] = td11;
+
+                        // // 生成-9:備註說明 - input - date
+                        //     const inputArr = {
+                        //         '9'  : 'inCare_date',
+                        //         '12' : 'check_date',
+                        //         '13' : 'report_date',
+                        //         '14' : 'notify_date'
+                        //     }
+                        //     for(const[index, name] of Object.entries(inputArr)){
+                        //         let tdn = `<snap><input type="date" class="form-control form-control-sm" name="${name}" id="${i_id},${name}"></snap>`;
+                        //         tdObj[index] = tdn;
+                        //     }
+                        // // 生成-10:備註說明 - textarea
+                        //     let td10 = `<snap><textarea class="form-control" placeholder="備註說明" id="${i_id},change_remark"></textarea></snap>`;
+                        //     tdObj['10'] = td10;
+
                         return (tdObj);
                     }
 
@@ -81,11 +106,19 @@
                                     <td class=""              id="">${staffArr["cname"] }</td>
                                     <td class=""              id="">${i_OSHORT}<br>${i_OSTEXT}</td>
     
-                                    <td class=""              id="">${tdObj['6']}</td>
-                                    <td class=""              id="">${tdObj['7']}</td>
-                                    <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
-                                    <td class="edit2"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
-                                    <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
+                                    <td class=""              id=""    >${tdObj['6']}</td>
+                                    <td class=""              id="${i_id},_7keyInMan"   >${_cLogs['_7keyInMan'] ?? ''}</td>
+                                    <td class=""              id=""    >${tdObj['8']}</td>
+
+                                    <td class="edit2"         id="${i_id},_9inCareDate" >${_cLogs['_9inCareDate'] ?? ''}</td>
+                                    <td class="edit2 word_bk" id="${i_id},_10changeRemark">${_cLogs['_10changeRemark'] ?? ''}</td>
+                                    
+                                    <td class=""              id="" >${tdObj['11']}</td>
+
+                                    <td class="edit2"         id="${i_id},_12checkDate" >${_cLogs['_12checkDate'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_13reportDate">${_cLogs['_13reportDate'] ?? ''}</td>
+                                    <td class="edit2"         id="${i_id},_14notifyDate">${_cLogs['_14notifyDate'] ?? ''}</td>
+                                    <td class="edit2 word_bk" id="${i_id},_15bpmRemark" >${_cLogs['_15bpmRemark'] ?? ''}</td>
                                     `
                             tr1 += '</tr>';
 
@@ -101,10 +134,8 @@
 
             await reload_staffP3ShCheckOnchange_Listeners();        // 6
             await reload_staffP3IsCheckOnchange_Listeners();        // 8
-            // await reload_staffP3WhyChangeOnchange_Listeners();      // 11
+            await reload_staffP3WhyChangeOnchange_Listeners();      // 11
             await reload_edit2TD_Listeners();
-
-            await btn_disabled();                       // 讓指定按鈕 依照shLocalDept_inf.length 啟停 
 
             $("body").mLoading("hide");
         
@@ -181,6 +212,7 @@
                 return new Promise((resolve) => {
                     // 初始化新生成staff陣列..返回用
                     let bomNewStaffArr = [];
+                    
                     if(notExistingStaffs_str !== ''){
                         const selectStaffArr = notExistingStaffs_str.split(',')       // 分割deptStr成陣列
                         if(selectStaffArr.length > 0){
@@ -202,16 +234,19 @@
                                     const targetMonth  = staffArr[5] ?? '';                    // 取出陣列 4 = 部門名稱
                                     newStaffData["_changeLogs"][targetMonth] = {
                                         "OSHORT"    : staffArr[3] ?? '',
-                                        // "_0isClose" : false
+                                        "_0isClose" : false
                                     };
                                     newStaffData["_content"][targetMonth] = {}
+
                                 }else{
                                     newStaffData["emp_id"]      = empId; 
                                 }
+                      
                                 bomNewStaffArr.push(newStaffData);
                             })
                         }
                     }
+    
                     resolve(bomNewStaffArr);
                 });
                 // return bomNewDeptArr;
@@ -285,8 +320,8 @@
                     // 撈出該staff資料
                     const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
                     if(staffData){
-                        staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};    // 防呆
-                        const thisValue = staffData['_changeLogs'][i_targetMonth][i_targetTD] ?? '';                // 賦予內容值
+                        staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};   // 防呆
+                        const thisValue = staffData['_changeLogs'][i_targetMonth][i_targetTD] ?? '';     // 賦予內容值
                         let thisTD = '<div class="row">';
                             if(i_targetTD.includes('Date')){
                                 thisTD +=  `<div class="col-12 py-0 px-3">
@@ -294,20 +329,13 @@
                                                     <input type="date" name="${i_targetTD}" id="${this.id},edit2" class="form-control" value="${thisValue}" place_holder >
                                                     <label for="${this.id},edit2" class="form-label">${i_targetTD}：</label>
                                                 </div>
-                                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                                    <button type="button" onclick="setTodayBtn('${this.id},edit2')"  class="btn btn-sm btn-primary">取今天日期</button>
-                                                    <button type="button" onclick="clearDateBtn('${this.id},edit2')" class="btn btn-sm btn-secondary">清除日期</button>
-                                                </div>
                                             </div>`;
-
                             }else if(i_targetTD.includes('Remark')){
                                 thisTD +=  `<div class="col-12 py-0 px-3">
                                                 <label for="${this.id},edit2" class="form-label">${i_targetTD}：</label>
                                                 <textarea name="${i_targetTD}" id="${this.id},edit2" class="form-control " style="height: 100px" placeholder="${i_targetTD}">${thisValue}</textarea>
                                             </div>`;
-
                             }
-
                         thisTD += '</div>';
                         $('#edit2_modal .modal-body').empty().append(thisTD);     // 定義搜尋input欄// 賦予內容值
 
@@ -326,24 +354,10 @@
             edit2.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
                 tdItem.addEventListener('click', edit2ClickListener);      // 將每一個tdItem增加監聽, 當按下click
             })
-            
+
             resolve();
         });
     }
-    // 250312 modal-edit2 指定今天日期
-    function setTodayBtn(thisID) {
-        let today = new Date();
-        let yyyy = today.getFullYear();
-        let mm = String(today.getMonth() + 1).padStart(2, '0'); // 獲取月份並補零
-        let dd = String(today.getDate()).padStart(2, '0');      // 獲取日期並補零
-        let formattedDate = `${yyyy}-${mm}-${dd}`;              // 格式化日期為 yyyy-mm-dd
-        document.getElementById(thisID).value = formattedDate;  // 設置 input 的值
-    };
-    // 250312 modal-edit2 清除日期
-    function clearDateBtn(thisID) {
-        document.getElementById(thisID).value = '';             // 清空 input 的值
-    };
-
     // 250227 定義edit2_modal[更新]鈕功能~~；from edit2_modal裡[更新]鈕的呼叫...
     let submitEdit2ClickListener;
     async function reload_submitEdit2_Listeners() {
@@ -438,22 +452,25 @@
                             const selectedOptsValues = Array.from(document.querySelectorAll(`#staff_table input[type="checkbox"]:checked[id*="${i_OSHORT},${i_targetMonth},${i_empId},${i_targetTD},"]`))
                                 .map(cb => cb.value);
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = selectedOptsValues;
-                            // 連動_7isCheck
-                            const _7isCheck = document.getElementById(`${i_OSHORT},${i_targetMonth},${i_empId},_7isCheck`);
-                            if(_7isCheck){
-                                _7isCheck.checked = (selectedOptsValues.length > 0);                                    // 更新畫面
-                                staffData['_changeLogs'][i_targetMonth]['_7isCheck'] = (selectedOptsValues.length > 0); // 更新暫存
+                            // 連動_8isCheck
+                            const _8isCheck = document.getElementById(`${i_OSHORT},${i_targetMonth},${i_empId},_8isCheck`);
+                            if(_8isCheck){
+                                _8isCheck.checked = (selectedOptsValues.length > 0);                                    // 更新畫面
+                                staffData['_changeLogs'][i_targetMonth]['_8isCheck'] = (selectedOptsValues.length > 0); // 更新暫存
                             } 
 
                         } else if (type === 'checkbox-boolean') {   // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;
+
+                        } else if (type === 'select') {             // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value
+                            staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.value;
                         }
                         // console.log('staffData...', staffData);
         
                     } else {
                         console.error(`staff empID：${i_empId} is undefined!!`);
                     }
-                    // console.log('staff_inf...', staff_inf);
+                    console.log('staff_inf...', staff_inf);
 
                 };
         
@@ -471,7 +488,11 @@
         }
         // // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false...
         async function reload_staffP3IsCheckOnchange_Listeners() {
-            await reload_staffP3ChangeListeners('checkbox-boolean', '_7isCheck', false);
+            await reload_staffP3ChangeListeners('checkbox-boolean', '_8isCheck', false);
+        }
+        // // 250310 在p3table上建立_11whyChange監聽功能 for ._11whyChange = select.value...
+        async function reload_staffP3WhyChangeOnchange_Listeners() {
+            await reload_staffP3ChangeListeners('select', '_11whyChange', true);
         }
 
     // p-3 批次儲存變更作業員工清單...
