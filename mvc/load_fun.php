@@ -368,84 +368,7 @@
                 }
                 break;
             
-            case 'bat_storeDept':               // 批次儲存部門變更作業
-                require_once("../user_info.php");
-                $pdo = pdo();
-                $swal_json = array(                                 // for swal_json
-                    "fun"       => "bat_storeDept",
-                    "content"   => "批次儲存變更作業健檢名單--"
-                );
-                
-                define('SQL_SELECT_DOC', "SELECT * FROM _shlocaldept WHERE OSHORT = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _shlocaldept ( OSTEXT_30, OSHORT, OSTEXT, base, inCare, remark, flag, updated_cname, updated_at, created_at ) VALUES ");
-                // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
-                define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
-                                OSTEXT_30     = VALUES(OSTEXT_30),
-                                OSTEXT        = VALUES(OSTEXT),
-                                base          = VALUES(base),
-                                inCare        = VALUES(inCare),
-                                remark        = VALUES(remark),
-                                flag          = VALUES(flag),
-                                updated_cname = VALUES(updated_cname),
-                                updated_at    = now()");
-                $values = [];
-                $params = [];
-                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
 
-                // step.3a 檢查並維護現有資料中的 key
-                $shLocalDept_inf = $parm_array['shLocalDept_inf'] ?? [];
-
-                foreach ($shLocalDept_inf as $parm_i) {
-                    $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
-                    extract($parm_i_arr);
-
-                    // step.1 提取現有資料
-                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
-                    executeQuery($stmt_select, [$OSHORT]);
-                    $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
-
-                    // 防呆
-                    $OSTEXT_30 = $OSTEXT_30 ?? ( $row_data["OSTEXT_30"] ?? "");    // 廠區
-                    $OSTEXT    = $OSTEXT    ?? ( $row_data["OSTEXT"]    ?? "");    // 部門名稱
-                    $remark    = $remark    ?? ( $row_data["remark"]    ?? NULL);  // 備註說明
-                    $flag      = $flag      ?? ( $row_data["flag"]      ?? true);  // 開關
-
-                    // step.4 將更新後的資料編碼為 JSON 字串
-                    $base_str   = json_encode($base,   JSON_UNESCAPED_UNICODE);
-                    $inCare_str = json_encode($inCare, JSON_UNESCAPED_UNICODE);
-                    $remark_str = json_encode($remark, JSON_UNESCAPED_UNICODE);
-
-                    // step.5 準備 SQL 和參數
-                    $values[] = "(?, ?, ?,   ?, ?, ?,   ?, ?,   now(), now())";
-                    $params = array_merge($params, [
-                        $OSTEXT_30, $OSHORT, $OSTEXT,
-                        $base_str, $inCare_str, $remark_str,
-                        $flag, $auth_cname
-                    ]);
-                }
-                
-                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
-                $stmt = $pdo->prepare($sql);
-                
-                if (executeQuery($stmt, $params)) {
-                    // 製作返回文件
-                    $swal_json["action"] = "success";
-                    $swal_json["content"] .= '儲存成功';
-                    $result = [
-                        'result_obj' => $swal_json,
-                        'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.'
-                    ];
-                } else {
-                    $swal_json["action"] = "error";
-                    $swal_json["content"] .= '儲存失敗';
-                    $result = [
-                        'result_obj' => $swal_json,
-                        'fun'        => $fun,
-                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
-                    ];
-                }
-                break;
 
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
@@ -1190,7 +1113,7 @@
                 //         -- WHERE _sh.flag = 'On' OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
                 //         GROUP BY COALESCE(_sh.OSHORT, _sl.OSHORT)
                 //         ORDER BY OSTEXT_30, OSHORT; ";
-                $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT
+                $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
                         FROM `_shlocaldept` _sl
                         -- WHERE _sl.flag = true OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
                         GROUP BY _sl.OSHORT
@@ -1204,6 +1127,7 @@
                     $shLocal_OSHORTs_obj = [];
                     foreach($shLocal_OSHORTs as $OSHORT_i){
                         $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["OSTEXT"] = $OSHORT_i["OSTEXT"];
+                        $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["flag"]   = $OSHORT_i["flag"];
                     }
                     foreach($shLocal_OSHORTs_obj as $key => $value){
                         $i = [];
@@ -1256,6 +1180,84 @@
     
                 break;
 
+            case 'bat_storeDept':               // 批次儲存部門變更作業
+                require_once("../user_info.php");
+                $pdo = pdo();
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "bat_storeDept",
+                    "content"   => "批次儲存變更作業健檢名單--"
+                );
+                
+                define('SQL_SELECT_DOC', "SELECT * FROM _shlocaldept WHERE OSHORT = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _shlocaldept ( OSTEXT_30, OSHORT, OSTEXT, base, inCare, remark, flag, updated_cname, updated_at, created_at ) VALUES ");
+                // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
+                define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
+                                OSTEXT_30     = VALUES(OSTEXT_30),
+                                OSTEXT        = VALUES(OSTEXT),
+                                base          = VALUES(base),
+                                inCare        = VALUES(inCare),
+                                remark        = VALUES(remark),
+                                flag          = VALUES(flag),
+                                updated_cname = VALUES(updated_cname),
+                                updated_at    = now()");
+                $values = [];
+                $params = [];
+                $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
+
+                // step.3a 檢查並維護現有資料中的 key
+                $shLocalDept_inf = $parm_array['shLocalDept_inf'] ?? [];
+
+                foreach ($shLocalDept_inf as $parm_i) {
+                    $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
+                    extract($parm_i_arr);
+
+                    // step.1 提取現有資料
+                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                    executeQuery($stmt_select, [$OSHORT]);
+                    $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
+
+                    // 防呆
+                    $OSTEXT_30 = $OSTEXT_30 ?? ( $row_data["OSTEXT_30"] ?? "");    // 廠區
+                    $OSTEXT    = $OSTEXT    ?? ( $row_data["OSTEXT"]    ?? "");    // 部門名稱
+                    $remark    = $remark    ?? ( $row_data["remark"]    ?? NULL);  // 備註說明
+                    $flag      = $flag      ?? ( $row_data["flag"]      ?? true);  // 開關
+
+                    // step.4 將更新後的資料編碼為 JSON 字串
+                    $base_str   = json_encode($base,   JSON_UNESCAPED_UNICODE);
+                    $inCare_str = json_encode($inCare, JSON_UNESCAPED_UNICODE);
+                    $remark_str = json_encode($remark, JSON_UNESCAPED_UNICODE);
+
+                    // step.5 準備 SQL 和參數
+                    $values[] = "(?, ?, ?,   ?, ?, ?,   ?, ?,   now(), now())";
+                    $params = array_merge($params, [
+                        $OSTEXT_30, $OSHORT, $OSTEXT,
+                        $base_str, $inCare_str, $remark_str,
+                        $flag, $auth_cname
+                    ]);
+                }
+                
+                $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
+                $stmt = $pdo->prepare($sql);
+                
+                if (executeQuery($stmt, $params)) {
+                    // 製作返回文件
+                    $swal_json["action"] = "success";
+                    $swal_json["content"] .= '儲存成功';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $swal_json["action"] = "error";
+                    $swal_json["content"] .= '儲存失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
+                break;
             case 'load_shLocal_Lists':          // 250217 取得所有特作部門代號清單
                 $pdo = pdo();
                 $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT  

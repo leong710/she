@@ -365,13 +365,13 @@
 
                             <td class="text-center">
                                 <div class="row">
-                                    <div class="col-md-4 px-1">
+                                    <div class="col-12 py-1">
                                         <button type="button" class="btn btn-outline-danger btn-sm btn-xs add_btn eraseDept" value="${post_i.OSHORT}" data-toggle="tooltip" data-placement="bottom" title="移除名單"
                                             onclick="eraseDept(this)"><i class="fa-regular fa-rectangle-xmark"></i></button>&nbsp;&nbsp;
                                         <button type="button" class="btn btn-outline-success btn-sm btn-xs add_btn " id="remark,${post_i.OSHORT}" value="remark,${post_i.OSHORT}" data-toggle="tooltip" data-placement="bottom" title="總窗 備註/有話說"
                                             onclick="memoModal(this.value)" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight"><i class="fa-regular fa-rectangle-list"></i></button>
                                     </div>
-                                    <div class="col-md-8 px-1">
+                                    <div class="col-12 py-1">
                                         <div class="form-check form-switch inb">
                                             <input class="form-check-input" type="checkbox" id="flag,${post_i.OSHORT}" ${ post_i['flag'] ? "checked" : ""} >
                                             <label class="form-check-label" for="flag,${post_i.OSHORT}">啟用</label>
@@ -1100,8 +1100,8 @@
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                             `<div class="form-check px-4">
-                                                <input type="checkbox" name="subScope[]" id="cb,${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="form-check-input" >
-                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
+                                                <input type="checkbox" name="subScope[]" id="${o_value.flag ? 'cb' : 'cc'},${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="form-check-input" ${o_value.flag ? '' : 'disabled'}>
+                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="btn ${o_value.flag ? 'btn-info add_btn' : 'btn-secondary'} my-1" style="width: 100%;text-align: start;" `
                                                 + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>
                                             </div>`
                                         ).join('')}
