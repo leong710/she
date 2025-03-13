@@ -80,24 +80,22 @@
                 // 處理主欄位
                 Object.entries(item_keys).forEach(([key, label]) => {
                     switch (key) { // 使用 switch 判斷提升可讀性
-                        case 'i_targetMonth':   sortedData[label] = i_targetMonth;  break;
-                        case 'i_OSTEXT_30':     sortedData[label] = i_OSTEXT_30; break;
-                        case 'emp_id':          sortedData[label] = staff['emp_id'] ?? ''; break;
-                        case 'cname':           sortedData[label] = staff['cname'] ?? ''; break;
-                        case 'i_OSHORT':        sortedData[label] = i_OSHORT; break;
-                        case 'i_OSTEXT':        sortedData[label] = i_OSTEXT; break;
-                        case '_6shCheck':
-                            // 處理檢查類別
+                        case 'i_targetMonth':   sortedData[label] = i_targetMonth;          break;
+                        case 'i_OSTEXT_30'  :   sortedData[label] = i_OSTEXT_30;            break;
+                        case 'emp_id'       :   sortedData[label] = staff['emp_id'] ?? '';  break;
+                        case 'cname'        :   sortedData[label] = staff['cname']  ?? '';  break;
+                        case 'i_OSHORT'     :   sortedData[label] = i_OSHORT;               break;
+                        case 'i_OSTEXT'     :   sortedData[label] = i_OSTEXT;               break;
+                        case '_6shCheck'    :   // 處理檢查類別
                             sortedData[label] = _cgLog['_6shCheck']?.length > 0 
                                 ? JSON.stringify(_cgLog['_6shCheck']).replace(/[\[{"}\]]/g, '').replace(/,/g, ';') : '';
                             break;
-                        case '_7isCheck':       sortedData[label] = _cgLog['_7isCheck'] ? '是' : '否'; break;
-                        case '_10content':
-                            // 處理定檢資格
+                        case '_7isCheck'    :   sortedData[label] = _cgLog['_7isCheck'] ? '是' : '否'; break;
+                        case '_10content'   :   // 處理定檢資格
                             sortedData[label] = _cgLog['_6shCheck']?.length > 0 
                                 ? `變更(${JSON.stringify(_cgLog['_6shCheck'].map(caseItem => caseItem.split(':')[1] ?? '')).replace(/[\[{"}\]]/g, '')})` : '';
                             break;
-                        default: sortedData[label] = _cgLog[key] ?? ''; // 其他欄位處理
+                        default             :   sortedData[label] = _cgLog[key] ?? ''; // 其他欄位處理
                     }
 
 

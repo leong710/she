@@ -160,15 +160,15 @@
         if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
             Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
                 let ostext_btns = `
-                    <div class="col-lm-3">
+                    <div class="col-lm-3 p-1">
                         <div class="card">
                             <div class="card-header">${ohtext_30}</div>
                             <div class="card-body p-2">
                                 ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                     // <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
-                                    `<div class="form-check px-4">
-                                        <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" check >
-                                        <button type="button" class="btn btn-outline-success add_btn " name="OSHORTs[]" value="${o_key}" >${o_key} (${o_value.OSTEXT}) ${o_value._count}件</button>
+                                    `<div class="form-check pl-5">
+                                        <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" >
+                                        <button type="button" name="OSHORTs[]" value="${o_key}" class="btn btn-outline-success add_btn my-1" style="width: 100%; text-align: start;" >${o_key} ${o_value.OSTEXT} ${o_value._count}件</button>
                                     </div>`
                                 ).join('')}
                             </div>
