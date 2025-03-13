@@ -172,7 +172,9 @@
                                 if ($index > 5) break;
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
-                            $row[4] = strtoupper(trim($row[4]));         // 部門代碼 strtoupper轉大寫
+                            // $row[2] = trim($row[2]);                     // 工號 trim去空格
+                            // $row[4] = strtoupper(trim($row[4]));         // 部門代碼 trim去空格+strtoupper轉大寫
+                            $row[4] = strtoupper($row[4]);         // 部門代碼 trim去空格+strtoupper轉大寫
                             $row[6] = str_replace('、', ',', $row[6]);   // 類別 str_replace符號轉逗號
 
                             // 檢查部門代碼emp_id $row[2]是否空值
