@@ -1107,9 +1107,9 @@
                                     <div class="card-header"><button type="button" name="scope[]" value="${emp_sub_scope}" class="add_btn">${emp_sub_scope}</button></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<div class="form-check px-4">
+                                            `<div class="form-check pl-5">
                                                 <input type="checkbox" name="subScope[]" id="${o_value.flag ? 'cb' : 'cc'},${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="form-check-input" ${o_value.flag ? '' : 'disabled'}>
-                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="btn ${o_value.flag ? 'btn-info add_btn' : 'btn-secondary'} my-1" style="width: 100%;text-align: start;" `
+                                                <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key},${o_value.OSTEXT}" value="${o_key}" class="btn ${o_value.flag ? 'btn-info add_btn' : 'btn-secondary'} my-1" style="width: 100%; text-align: start;" `
                                                 + ` >${o_key}&nbsp;${o_value.OSTEXT}</button>
                                             </div>`
                                         ).join('')}
