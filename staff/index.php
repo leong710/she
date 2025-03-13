@@ -224,10 +224,10 @@
                             <!-- step-1 -->
                             <div class="col-12 p-1">
                                 <div class="row">
-                                    <div class="col-8 col-md-9 py-1">
+                                    <div class="col-8 col-md-8 py-1">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
                                     </div>
-                                    <div class="col-4 col-md-3 py-1 text-end">
+                                    <div class="col-4 col-md-4 py-1 text-end">
                                         <form action="" method="GET">
                                             <div class="input-group">
                                                 <span class="input-group-text">篩選</span>

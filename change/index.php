@@ -236,7 +236,7 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
-                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1">
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1 <?php echo $sys_role <= 1 ? '':'unblock'?>">
                                             <button type="button" id="selectAll_subScopes_btn"  class="btn btn-outline-danger add_btn form-control " ><i class="fa-solid fa-check-double"></i></button>
                                         </snap>
                                         <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護" class="px-1">

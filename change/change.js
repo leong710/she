@@ -1331,7 +1331,6 @@
                         // 手動觸發 change 事件
                         checkbox.dispatchEvent(new Event('change'));
                     });
-
                 });
 
             // step-p3-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)

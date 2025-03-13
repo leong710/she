@@ -236,6 +236,9 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>審查名單：</h5></snap>
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1 <?php echo $sys_role <= 1 ? '':'unblock'?>">
+                                            <button type="button" id="selectAll_subScopes_btn"  class="btn btn-outline-danger add_btn form-control " ><i class="fa-solid fa-check-double"></i></button>
+                                        </snap>
                                         <snap data-toggle="tooltip" data-placement="bottom" title="名單總匯整">
                                             <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid unblock" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
                                             <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->

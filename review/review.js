@@ -311,7 +311,7 @@
                                     <div class="card-header"><button type="button" name="scope[]" value="${emp_sub_scope}" class="add_btn">${emp_sub_scope}</button></div>
                                     <div class="card-body p-2">
                                         ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                            `<div class="form-check px-4">
+                                            `<div class="form-check pl-5">
                                                 <input type="checkbox" name="subScope[]" id="cb,${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="form-check-input" >
                                                 <button type="button" name="deptNo[]" id="${emp_sub_scope},${o_key}" value="${o_value.uuid}" class="btn btn-info add_btn my-1" style="width: 100%;text-align: start;" `
                                                 // + ((userInfo.role <= 1) ? "": "disabled") +` >
@@ -404,6 +404,18 @@
                         // 手動觸發 change 事件
                         checkbox.dispatchEvent(new Event('change'));
                     });
+                });
+            });
+            // step-4. 綁定selectAll_subScopes_btn事件監聽器(全選)
+            const selectAll_subScopes_btn = document.getElementById('selectAll_subScopes_btn');
+            selectAll_subScopes_btn.addEventListener('click', async function() {
+                const target_scope_cbs = document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,"]`);
+                // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                let allChecked = Array.from(target_scope_cbs).every(checkbox => checkbox.checked);
+                target_scope_cbs.forEach(checkbox => {
+                    checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                    // 手動觸發 change 事件
+                    checkbox.dispatchEvent(new Event('change'));
                 });
             });
             // 初始化驗證監聽器
