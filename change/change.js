@@ -1140,7 +1140,7 @@
         const _yearMonthSelt = document.getElementById("_yearMonth");
         if(_yearMonthSelt){
             _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
-            const get_ym = getCurrentAndLastMonth();                // 取得近4個月的值
+            const get_ym = getCurrentAndLastMonth();                // 取得近4個月的值 (上2+今1+下1)
                 for(const [key, value] of Object.entries(get_ym)){  // 將4個月的值取出
                     objKeys_ym.push(value);                         // 並集中彙整
                 }
@@ -1223,7 +1223,6 @@
     // [p1 函數-1] 取得危害地圖...並callBack mk_deptNos_btn進行鋪設
     async function p1_init() {
         await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', mk_deptNos_btn);
-        // mk_selectOpt_ym();
     }
     // [p1 函數-3] 設置p1事件監聽器和
     async function p1_eventListener() {
@@ -1346,8 +1345,7 @@
                             // console.log('多選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
-                    
-                    // console.log(defaultDept_in)
+                            // console.log(defaultDept_in)
                     preProcess_staff(defaultDept_in)
 
                     $('#nav-p3-tab').tab('show');

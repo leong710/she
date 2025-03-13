@@ -9,9 +9,9 @@
     // $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
     // tidy query condition：
-        $get_year = load_workTarget("_year");
+        // $get_year = load_workTarget("_year");
         $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
-        $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
+        $_years   = [ $_year, $_year-1, $_year-2, $_year-3];
       
     // // default fab_scope
     //     $fab_scope   = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
@@ -51,24 +51,10 @@
         // echo $_year.$_month;
 
         // echo "<pre>";
-        // print_r($allShLocalStaff_arr);
+        // print_r($_years);
         // echo "</pre>";
 
         $faSquareCheck = `<i class="fa-regular fa-square-check"></i>&nbsp;`;
-        // 建立表頭
-        $table_th_arr = [
-            "OSTEXT_30"     => "廠區",
-            "OSHORT"        => "部門代碼",
-            "OSTEXT"        => "部門名稱",
-            "base"          => "部門全員",
-            "inCare"        => "變更作業",
-            "remark"        => "備註說明",
-            "flag"          => "開關",
-            "created_at"    => "創建時間",
-            "updated_at"    => "更新時間",
-            "updated_cname" => "更新人員",
-        ];
-
 
     include("../template/header.php");
     include("../template/nav.php"); 
@@ -248,20 +234,17 @@
                                         </snap>
                                     </div>
                                     <div class="col-4 col-md-3 py-1 text-end">
-                                        <form action="" method="GET" >
-                                            <div class="input-group">
-                                                <span class="input-group-text">篩選</span>
-                                                <select name="_year" id="_year" class="form-select" disabled>
-                                                    <option value="" hidden selected >-- 請選擇 問卷年度 --</option>
-                                                    <?php 
-                                                        echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' hidden >-- All 所有年度 --</option>';
-                                                        foreach($_years as $_y){
-                                                            echo "<option for='_year' value='{$_y}' ".($_y == $_year ? "selected" : "" )." >".$_y."y</option>";
-                                                        } ?>
-                                                </select>
-                                                <button type="submit" class="btn btn-outline-secondary search_btn" disabled >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button>
-                                            </div>
-                                        </form>
+                                        <div class="input-group">
+                                            <span class="input-group-text" data-toggle="tooltip" data-placement="bottom" title="作業追蹤年度篩選">篩選</span>
+                                            <select name="_year" id="_year" class="form-select" >
+                                                <option value="" hidden selected >-- 請選擇 篩選年度 --</option>
+                                                <?php 
+                                                    echo '<option for="_year" value="All" '.($_year == "All" ? "selected":"" ).' hidden >-- All 所有年度 --</option>';
+                                                    foreach($_years as $_y){
+                                                        echo "<option for='_year' value='{$_y}' ".($_y == $_year ? "selected" : "" )." >".$_y."y</option>";
+                                                    } ?>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div id="deptNo_opts_inside" class="row p-0">
@@ -299,13 +282,10 @@
                             <table id="hrdb_table" class="table table-striped table-hover">
                                 <thead>
                                     <tr>
-                                        <!-- <php foreach($table_th_arr as $th => $thValue){ echo "<th title='{$th}'>{$thValue}</th>"; } ?> -->
                                         <th title="OSTEXT_30/OSHORT/OSTEXT" >廠區/部門代碼/名稱</th>
-
                                         <th title="base"                    >部門全員</th>
                                         <th title="getOut"                  >轉出</th>
                                         <th title="getIn"                   >轉入</th>
-
                                         <th title="inCare"                  >變更作業</th>
                                         <th title="remark/flag"             >備註說明/開關</th>
                                         <th title="created_at/updated_at/updated_cname" class="unblock">創建/更新/操作人</th>
@@ -694,8 +674,6 @@
     // var _docsIdty_inf    = null;
     
     // [p1 步驟-0] 取得重要資訊
-    // const table_th_arr = <=json_encode($table_th_arr)?>;
-
     // const OSHORTsObj = <=json_encode($shLocal_OSHORTs_str)?>;
     // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
     // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件

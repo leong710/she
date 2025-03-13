@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .iconBlock {
+            /* position: absolute; */
+            display: inline-block;
+            /* 設置一個寬度 */
+            width: 30px;
+            /* 設置一個高度，和寬度要相等以形成圓形 */
+            height: 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all .2s ease-in-out;
+            background-color: #32a6e6;
+            /* top: -15px;
+            right: 15px; */
+            padding: 5px;
+            box-shadow: 0 2px 1px #7996a7;
+            overflow: hidden;
+            cursor: pointer;
+            /* opacity: 0; */
+        }
+
+        .iconBlock:hover {
+            /* 設置一個寬度 */
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    
+    <button type="button" class="iconBlock" data-bs-toggle="modal" data-bs-target="#uploadPic" data-bs-whatever="${rowId}" name='${picCheck}'>
+        <i class="bi ${picValue} circle"></i> <i class="bi bi-file-earmark-image"></i>
+    </button>
+
+</body>
+</html>

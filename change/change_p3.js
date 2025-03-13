@@ -116,19 +116,25 @@
         let mergedData        = [];                         // 存放員工合併訊息，for preCheckStaffData時參考套用訊息
         let source_OSHORT_arr = [];                         // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
 
+        const _yearDiv = document.getElementById('_year');
+        const _year = _yearDiv.value;       // 取得P1的年份篩選
+        // console.log('_year...',_year)
+
         for(const[index, post_i] of Object.entries(shLocalDept_in)){
             const inCare     = post_i["inCare"] ?? [];
             for(const[targetMonth_i, staff_i] of Object.entries(inCare)){
-                staff_i.forEach((staff) => {
-                    // step.1 取得所有的 key
-                        empIDKeys = [...empIDKeys , Object.keys(staff)[0]];
-
-                    // step.2 合併鍵和值
-                        let key = Object.keys(staff)[0];        // 獲取鍵
-                        let value = staff[key];               // 獲取相應的值
-                        mergedData.push(`${key},${value},${post_i["OSTEXT_30"]},${post_i["OSHORT"]},${post_i["OSTEXT"]},${targetMonth_i}`);
-                })
-
+                // 250313 篩選年分功能
+                if(targetMonth_i.includes(_year)){
+                    staff_i.forEach((staff) => {
+                        // step.1 取得所有的 key
+                            empIDKeys = [...empIDKeys , Object.keys(staff)[0]];
+    
+                        // step.2 合併鍵和值
+                            let key = Object.keys(staff)[0];        // 獲取鍵
+                            let value = staff[key];               // 獲取相應的值
+                            mergedData.push(`${key},${value},${post_i["OSTEXT_30"]},${post_i["OSHORT"]},${post_i["OSTEXT"]},${targetMonth_i}`);
+                    })
+                }
             }
             source_OSHORT_arr.push(post_i["OSHORT"]);       // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
         }
