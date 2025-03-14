@@ -1139,7 +1139,7 @@
     function mk_selectOpt_ym(objKeys_ym, dateString){
         const _yearMonthSelt = document.getElementById("_yearMonth");
         if(_yearMonthSelt){
-            _yearMonthSelt.innerHTML = `<option value="" hidden selected >-- 請選擇篩選年月 --</option>`;
+            _yearMonthSelt.innerHTML = ``;
             const get_ym = getCurrentAndLastMonth();                // 取得近4個月的值 (上2+今1+下1)
                 for(const [key, value] of Object.entries(get_ym)){  // 將4個月的值取出
                     objKeys_ym.push(value);                         // 並集中彙整
@@ -1253,6 +1253,7 @@
                             const defaultDept_inf = await preCheckDeptData(thisValue, _dept_inf);
                             post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
 
+                            P2SubmitForReview_btn.disabled = defaultDept_inf.length === 0;
                         //     await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         //     await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
                         //     await post_logs(_doc_inf.logs);       // 鋪設文件歷程
@@ -1332,7 +1333,7 @@
                     });
                 });
 
-            // step-p3-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+            // step-p1-A5. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
                 SubmitForReview_btn.addEventListener('click', async function() {
                     const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
@@ -1343,6 +1344,28 @@
                     // 工作二 把this.id合併進去部門資訊arr 
                         _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
                             // console.log('多選_dept_inf...',_dept_inf)
+                    // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
+                            // console.log('多選selectedValues_str...',selectedValues_str)
+                            // console.log('多選_dept_inf...',_dept_inf)
+                    const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
+                            // console.log(defaultDept_in)
+                    preProcess_staff(defaultDept_in)
+
+                    $('#nav-p3-tab').tab('show');
+                })
+
+            // step-p2-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+                P2SubmitForReview_btn.addEventListener('click', async function() {
+
+                    // // 工作一 清空暫存
+                    // await resetINF(true);               // 清空
+                    const _dept_i_arr = _dept_inf[0].split(',')
+                    const thisValue = _dept_i_arr[1];
+                    const selectedValues_str = JSON.stringify(thisValue).replace(/[\[\]]/g, '');       // 部門代號加工(單選)
+                            console.log('P2.selectedValues_str...', selectedValues_str)
+                    // 工作二 把this.id合併進去部門資訊arr 
+                        // _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
+                            console.log('P2單選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
                             // console.log(defaultDept_in)

@@ -162,12 +162,12 @@
                 let ostext_btns = `
                     <div class="col-lm-3 p-1">
                         <div class="card">
-                            <div class="card-header">${ohtext_30}</div>
+                            <div class="card-header"><button type="button" name="scope[]" value="${ohtext_30}" class="add_btn">${ohtext_30}</button></div>
                             <div class="card-body p-2">
                                 ${Object.entries(oh_value).map(([o_key, o_value]) =>
                                     // <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
                                     `<div class="form-check pl-5">
-                                        <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" >
+                                        <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" data-toggle="tooltip" data-placement="bottom" title="勾選for刪除用">
                                         <button type="button" name="OSHORTs[]" value="${o_key}" class="btn btn-outline-success add_btn my-1" style="width: 100%; text-align: start;" >${o_key} ${o_value.OSTEXT} ${o_value._count}件</button>
                                     </div>`
                                 ).join('')}
@@ -258,6 +258,21 @@
                         $('#nav-p2-tab').tab('show');                // 挑轉頁面到[特危作業清單]
                     })
                 })
+                // step-3. 綁定scope_btns事件監聽器 => card head上的全選btn
+                const scope_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="scope[]"]');
+                scope_btns.forEach(scope_btn => {
+                    scope_btn.addEventListener('click', async function() {
+                        const target_scope_cbs = document.querySelectorAll(`#OSHORTs_opts_inside input[id*="${this.value},"]`);
+                        // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                        let allChecked = Array.from(target_scope_cbs).every(checkbox => checkbox.checked);
+                        target_scope_cbs.forEach(checkbox => {
+                            checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                            // 手動觸發 change 事件
+                            checkbox.dispatchEvent(new Event('change'));
+                        });
+                    });
+                });
+
             // 文件載入成功，resolve
             resolve();
         });

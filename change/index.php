@@ -229,7 +229,7 @@
                                             <button type="button" id="load_subScopes_btn"  class="btn btn-outline-success add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-rotate"></i> 提取勾選部門</button>
                                             <!-- <div class='invalid-feedback pt-0' id='load_subScopes_btn_feedback'>* 請先勾選部門代號至少一項 !! </div> -->
                                         </snap>
-                                        <snap data-toggle="tooltip" data-placement="bottom" title="變更作業名單追蹤" class="px-1">
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="變更作業名單追蹤(by年)" class="px-1">
                                             <button type="button" id="SubmitForReview_btn" class="btn btn-outline-primary add_btn form-control is-invalid block" disabled ><i class="fa-solid fa-arrows-down-to-people"></i> 追蹤維護</button>
                                         </snap>
                                     </div>
@@ -260,19 +260,25 @@
                             <!-- 人員名單： -->
                             <div class="row">
                                 <!-- 左側function -->
-                                <div class="col-md-8 py-0 ">
-                                    <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
-                                    <!-- 上傳EXCEL的觸發 -->
-                                    <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                    <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
-                                    
+                                <div class="col-md-8 py-0 inf">
+                                    <div class="d-grid gap-2 d-md-block">
+                                        <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                        <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                        <!-- 上傳EXCEL的觸發 -->
+                                        <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                        <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                    </div>
+                                    <snap class="px-1" data-toggle="tooltip" data-placement="bottom" title="由此帶入變更作業名單追蹤(by年月)">
+                                        <button type="button" id="P2SubmitForReview_btn" class="btn btn-outline-primary add_btn" disabled ><i class="fa-solid fa-arrows-down-to-people"></i> 追蹤維護</button>
+                                    </snap>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end inf">
                                     <div class="input-group">
                                         <span class="input-group-text">篩選</span>
-                                        <select name="_yearMonth" id="_yearMonth" class="form-select" onchange="post_hrdb('', this.value)"></select>
+                                        <select name="_yearMonth" id="_yearMonth" class="form-select" onchange="post_hrdb('', this.value)">
+                                            <option value="" hidden selected >-- 請篩選年月 --</option>
+                                        </select>
                                         <!-- <button type="submit" class="btn btn-outline-secondary search_btn" >&nbsp<i class="fa-solid fa-magnifying-glass"></i>&nbsp查詢</button> -->
                                     </div>
                       
@@ -327,12 +333,12 @@
                                         <th title="2"  class="table-success"      >廠區</th>
                                         <th title="3"  class="table-success"      >工號</th>
                                         <th title="4"  class="table-success"      >姓名</th>
-                                        <th title="5"  class="table-success"      >5部門代號</th>
-                                        <th title="6"  class="table-success"      >6變更體檢項目</th>
-                                        <th title="7"  class="table-warning wh-75">7是否檢查</th>
-                                        <th title="8"  class="table-warning"      >8備註說明</th>
-                                        <th title="9"  class="table-warning wh-75">9受檢日期</th>
-                                        <th title="10" class="table-primary"      >10總窗備註</th>
+                                        <th title="5"  class="table-success"      >部門代號</th>
+                                        <th title="6"  class="table-success"      >變更體檢項目</th>
+                                        <th title="7"  class="table-warning wh-75">是否檢查</th>
+                                        <th title="8"  class="table-warning"      >備註說明</th>
+                                        <th title="9"  class="table-warning wh-75">受檢日期</th>
+                                        <th title="10" class="table-primary"      >總窗備註</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -643,7 +649,8 @@
     // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
     // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
     // var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
-    var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
+    var SubmitForReview_btn   = document.getElementById('SubmitForReview_btn');    // P1追蹤維護
+    var P2SubmitForReview_btn = document.getElementById('P2SubmitForReview_btn');  // P2追蹤維護
     // var importStaff_btn     = document.getElementById('import_staff_btn');      // 上傳按鈕
     // const memoMsg_input     = document.getElementById('memoMsg');               // 定義出memoMsg_input
     // const postMemoMsg_btn   = document.getElementById('postMemoMsg_btn');       // 定義出postMemoMsg_btn

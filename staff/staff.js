@@ -7,14 +7,14 @@
             loadStaff_tmp = [];
             _docsIdty_inf = null;
             document.querySelector(`#nav-p2_table snap[id="newOmager"]`).innerText = '';    // 清空newOmager指派主管內容；
-            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
-            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
+
         }else{
             // await release_dataTable();                  // 停止並銷毀 DataTable
-            await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
             // await post_preYearShCase(staff_inf);        // step-1-1.重新渲染去年 shCase&判斷  // 241024 停止撲到下面
-            await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
         }
+
+        await post_hrdb(staff_inf);                 // step-1.選染到畫面 hrdb_table
+        await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
         if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
@@ -27,6 +27,7 @@
             changeYearHeMode();
             changeYearPreMode();
         }
+
         await btn_disabled();                       // 讓指定按鈕 依照staff_inf.length 啟停 
 
         await reload_selectShLocalListeners();      // 250214 HE_CATE同一個item只能多選一
@@ -320,7 +321,7 @@
             });
             
         // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
-        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager ) || (emp_arr.length === 0 || _docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
+        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 || _docs_inf[0].idty >= 4);  // 讓 送審 按鈕啟停
 
         // $("body").mLoading("hide");
     }
@@ -442,13 +443,13 @@
 
         // 240826 進行emp_id重複值的比對並合併
             let combined = staff_inf.concat(source_json_value_arr);                                  // 合併2個陣列到combined
-            let uniqueStaffMap = new Map();                                                         // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
+            let uniqueStaffMap = new Map();                                                          // 創建一個 Map 來去除重複的 emp_id 並合併 shCase
             await combined.forEach(item => {
                 if (uniqueStaffMap.has(item.emp_id)) {
                     // 如果 emp_id 已經存在，則合併 shCase 和 shCondition
                     let existingShCase       = uniqueStaffMap.get(item.emp_id).shCase;
                     let existingShCondition  = uniqueStaffMap.get(item.emp_id).shCondition || {};    // 初始化 shCondition 為空物件
-                    let existing_logs  = uniqueStaffMap.get(item.emp_id)._logs || {};                // 初始化 _logs 為空物件
+                    let existing_logs        = uniqueStaffMap.get(item.emp_id)._logs || {};          // 初始化 _logs 為空物件
                     let existing_content     = uniqueStaffMap.get(item.emp_id)._content || {};       // 初始化 _content 為空物件
 
                     // 合併 shCase
@@ -817,7 +818,7 @@
             $('[data-toggle="tooltip"]').tooltip();
             // 250214 增加無主管noOmgaer的橫幅提醒
             if(countNoOmager && userInfo.role <= 2){
-                console.log('countNoOmager =>',countNoOmager);
+                // console.log('countNoOmager =>',countNoOmager);
                 Balert( `注意：目前有 ${countNoOmager} 個部門沒有主管(部門代號錯誤或已消滅)，如紅色粗框標示，請務必前往確認或指派主管！`, 'danger')
             }
 

@@ -137,7 +137,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-12 col-md-6 py-0">
-                                    <snap for="OSHORTs_opts" class="form-label">特危健康場所部門代號：</snap>
+                                    <snap for="OSHORTs_opts" class="form-label">特殊危害健康作業場所(部門)管理：</snap>
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <div class="<?php echo ($per_total != 0) ? "inb":"unblock";?>">

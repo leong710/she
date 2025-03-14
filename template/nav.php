@@ -73,22 +73,11 @@
             <ul class="navbar-nav me-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if($sys_auth){ ?>
                     <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="#"><i class="fa-regular fa-square-plus"></i>&nbsp;外層Link</a></li> -->
-                    <!-- <li class="nav-item"><a class="nav-link active" aria-current="page" href="<php echo $webroot;?>/interView/"><i class="fa fa-edit"></i>&nbsp;</a></li> -->
                     <!-- 下拉式選單 -->
                     <?php if($sys_role >= 0){ 
                         if($sys_role <= 5 ){ ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-map-location-dot"></i>&nbsp;危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a>
-                                              
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/sh_local/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>特殊危害健康作業管理</b></a></li>
-                                    <?php if($sys_role <= 2 ){ ?>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/analyze/" ><i class="fa-solid fa-chart-column"></i>&nbsp;<b>統計(試作版)</b></a></li>
-                                    <?php } ?>
-                                </ul>
-                            </li>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/sh_local/">
+                                <i class="fa-solid fa-map-location-dot"></i>&nbsp;危害健康作業地圖<span class="badge rounded-pill bg-danger"></span></a></li>
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" id="navbarDD_2" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
