@@ -1343,33 +1343,44 @@
                     await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
                         _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            // console.log('多選_dept_inf...',_dept_inf)
+                        console.log('P1-3-1.多選selectedValues_str...',selectedValues_str)
+                        console.log('P1-3-2.多選_dept_inf...',_dept_inf)
+
+                    // 取得P1的年份篩選
+                    const _yearDiv = document.getElementById('_year');
+                    const _year = _yearDiv.value;
+                            console.log('P1-3-3.多選_year...',_year)
+                    
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
-                            // console.log('多選selectedValues_str...',selectedValues_str)
-                            // console.log('多選_dept_inf...',_dept_inf)
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
                             // console.log(defaultDept_in)
-                    preProcess_staff(defaultDept_in)
+                    preProcess_staff(defaultDept_in, _year)
 
                     $('#nav-p3-tab').tab('show');
                 })
 
-            // step-p2-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(多選)
+            // step-p2-A1. 綁定load_subScopes_btn[提取勾選部門]進行撈取員工資料(p2單選)
                 P2SubmitForReview_btn.addEventListener('click', async function() {
-
                     // // 工作一 清空暫存
                     // await resetINF(true);               // 清空
+
                     const _dept_i_arr = _dept_inf[0].split(',')
                     const thisValue = _dept_i_arr[1];
                     const selectedValues_str = JSON.stringify(thisValue).replace(/[\[\]]/g, '');       // 部門代號加工(單選)
-                            console.log('P2.selectedValues_str...', selectedValues_str)
+                            console.log('P2-3-1.selectedValues_str...', selectedValues_str)
                     // 工作二 把this.id合併進去部門資訊arr 
                         // _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            console.log('P2單選_dept_inf...',_dept_inf)
+                            console.log('P2-3-2.單選_dept_inf...',_dept_inf)
+                            
+                    // 取得p2年月篩選
+                    const _yearMonth = document.getElementById("_yearMonth");
+                    const _yearMonthValue = _yearMonth.value;
+                            console.log('P2-3-3.單選_yearMonth...',_yearMonthValue)
+
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
                             // console.log(defaultDept_in)
-                    preProcess_staff(defaultDept_in)
+                    preProcess_staff(defaultDept_in, _yearMonthValue)
 
                     $('#nav-p3-tab').tab('show');
                 })

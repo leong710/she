@@ -1,4 +1,193 @@
- 
+// // 1. 工具函數 (Utility Functions)
+    // fun.0-1: Bootstrap Alarm function
+    function Balert(message, type) {
+        if(message){
+            type = type ?? 'warning';
+            var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+            var wrapper = document.createElement('div')
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}` 
+                                + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            alertPlaceholder.append(wrapper)
+        }
+    }
+    // fun.0-2：吐司顯示字條 +堆疊
+    function inside_toast(sinn, delayTime, type){
+        if(sinn){
+            delayTime = delayTime ?? 3000;
+            type      = type ?? 'warning';
+            // 創建一個新的 toast 元素
+            var newToast = document.createElement('div');
+                newToast.className = 'toast align-items-center bg-'+type;
+                newToast.setAttribute('role', 'alert');
+                newToast.setAttribute('aria-live', 'assertive');
+                newToast.setAttribute('aria-atomic', 'true');
+                newToast.setAttribute('autohide', 'true');
+                newToast.setAttribute('delay', delayTime);
+    
+                // 設置 toast 的內部 HTML
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+    
+            // 將新 toast 添加到容器中
+            document.getElementById('toastContainer').appendChild(newToast);
+    
+            // 初始化並顯示 toast
+            var toast = new bootstrap.Toast(newToast);
+            toast.show();
+    
+            // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
+            newToast.addEventListener('hidden.bs.toast', function () {
+                newToast.remove();
+            });
+        }
+    }
+    // fun.0-3: swal
+    function new_show_swal_fun(swal_value){
+        return new Promise((resolve) => {  
+            $("body").mLoading("hide");
+            if(swal_value && swal_value['fun'] && swal_value['content'] && swal_value['action']){
+                if(swal_value['action'] == 'success'){
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});          // n秒后回首頁
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                          // 手動關閉畫面
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動 載入成功，resolve
+                
+                } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
+
+                } else {                                        // error
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 手動保留在本業; 載入成功，resolve
+                }
+            }else{
+                console.error("Invalid swal_value:", swal_value);
+                location.href = url;
+                resolve(); // 異常情況下也需要resolve
+            }
+        });
+    }
+    // fun.0-4b: 停止並銷毀 DataTable
+    function release_dataTable(_table){
+        return new Promise((resolve) => {
+            _table = _table ?? 'hrdb_table';
+            let table = $(`#${_table}`).DataTable();
+                if(table) {
+                    table.destroy();
+                }
+
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
+    // fun.0-4a: dataTable
+    function reload_dataTable(_table){
+        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
+        return new Promise((resolve) => {
+            _table = _table ?? 'hrdb_table';
+            let table = $(`#${_table}`).DataTable();
+            if(table) {
+                release_dataTable(_table);        // 呼叫[fun.0-4b] 停止並銷毀 DataTable
+            }
+            // 重新初始化 DataTable
+            $(`#${_table}`).DataTable({
+                "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
+                "autoWidth": false,                                              // 自動寬度
+                "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 2, "asc" ]] ,            // 排序
+                "pageLength": 25,                                               // 顯示長度
+                    // "paging": false,                                             // 分頁
+                    // "searching": false,                                          // 搜尋
+                    // "data": hrdb_data,
+                // "columnDefs": [
+                        // { "width": "60px", "targets": [0, 1, 2] },               // 設定第1~3欄的寬度為50px
+                        // { "width": "40px", "targets": [6, 7, 8, 9] },
+                    // ]
+            });
+
+            resolve();      // 當所有設置完成後，resolve Promise
+        });
+    }
+    // fun.0-5 多功能擷取fun 新版改用fetch
+    async function load_fun(fun, parm, myCallback) {        // parm = 參數
+        // mloading(); 
+        if(parm){
+            try {
+                let formData = new FormData();
+                    formData.append('fun', fun);
+                    formData.append('parm', parm);              // 後端依照fun進行parm參數的採用
+
+                let response = await fetch('../mvc/load_fun.php', {
+                    method : 'POST',
+                    body   : formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('fun load ' + fun + ' failed. Please try again.');
+                }
+
+                let responseData = await response.json();
+                let result_obj = responseData['result_obj'];    // 擷取主要物件
+
+                if(parm === 'return' || myCallback === 'return'){
+                    return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
+                }else{
+                    return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
+                }                                               // myCallback：form = bring_form() 、document = edit_show() 、
+            } catch (error) {
+                $("body").mLoading("hide");
+                throw error;                                    // 載入失敗，reject
+            }
+        }else{
+            console.log('error: parm lost...');
+            alert('error: parm lost...');
+            $("body").mLoading("hide");
+        }
+    }
+    // fun.0-6: console.log
+    function console_log(debug_value){
+        return new Promise((resolve) => {  
+            $("body").mLoading("hide");
+            console.log("console_log: ", debug_value);
+            resolve(); // 異常情況下也需要resolve
+        });
+    }
+    // fun.0-7 修改mLoading文字提示...str1=訊息文字, str2=百分比%
+    function Adj_mLoading(str1, str2){
+        if(str1 || str2) {                          // 有內容才來做這件事...
+            const mloading_txt_div = document.querySelector('.mloading-body .mloading-bar .mloading-text'); // 取得mLoading_div
+            if(mloading_txt_div){
+                let adjText  = str1 ? `${str1}...` : ``;        // 組合文字...str1
+                    adjText += str2 ? `(${str2}%)` : '';        // 組合文字...str2
+                    mloading_txt_div.innerText = adjText;       // 渲染項目
+            }else{
+                console.error('mloading_txt_div...missed!');
+            }
+        }else{
+            console.error(`Adj_mLoading(str1 || str2) parm ... missed!`);
+        }
+    } 
+    // fun.0-8 提取指定json_file內容
+    async function load_jsonFile(json_fileName){
+        let json_value;
+        if(json_fileName != undefined && json_fileName != null){
+            await fetch(json_fileName)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('網頁錯誤: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    json_value = data;           // 將讀取的 JSON 資料放入變數
+                })
+                .catch(error => {
+                    console.error('出現錯誤:', error);
+                });
+        }
+        
+        return (json_value);
+    }
+
+
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能
     function op_tab(tab_value){
@@ -28,15 +217,16 @@
         loop();
     }
     // fun_3 延遲模組 延遲模組，返回 Promise
-    function delayedLoop(seconds, callback) {
+    async function delayedLoop(seconds, callback) {
         return new Promise((resolve) => {
+            const myMessage = document.getElementById("myMessage");
             let i = seconds;
             const loop = () => {
                 if (i > 0) {
-                    document.getElementById("myMessage").innerHTML = "Fun: " + callback + " 執行倒數 " + i + " 秒";
+                    myMessage.innerHTML = "Fun: " + callback + " 執行倒數 " + i + " 秒";
                     setTimeout(loop, 1000);
                 } else {
-                    document.getElementById("myMessage").innerHTML = "Fun: " + callback + " 執行！";
+                    myMessage.innerHTML = "Fun: " + callback + " 執行！";
                     resolve();  // 延遲完成後 resolve Promise
                 }
                 i--;
@@ -202,200 +392,174 @@
         return result;                                          // 成功時解析為 true 
     }
 
-    // 0-0.多功能擷取fun 新版改用fetch
-    async function load_fun(fun, parm, myCallback) { // parm = 參數
-        try {
-            let formData = new FormData();
-            formData.append('fun', fun);
-            formData.append('parm', parm); // 後端依照fun進行parm參數的採用
-
-            let response = await fetch('load_fun.php', {
-                method : 'POST',
-                body   : formData
-            });
-
-            if (!response.ok) {
-                throw new Error('fun load ' + fun + ' failed. Please try again.');
-            }
-
-            let responseData = await response.json();
-            let result_obj = responseData['result_obj']; // 擷取主要物件
-            
-            return myCallback(result_obj);               // resolve(true) = 表單載入成功，then 呼叫--myCallback
-                                                         // myCallback：form = bring_form() 、document = edit_show() 、locals = ? 還沒寫好
-        } catch (error) {
-            throw error;                                 // 載入失敗，reject
-        }
-    }
-
-    // 將bpm的email找出來
-    function step1(bpm_obj){
-        return new Promise((resolve) => {
-            Object.keys(bpm_obj).forEach((bpm_key)=>{                               // 依序處理...
-                let emp_id = bpm_obj[bpm_key].emp_id;                               // 依序 取出bpm工號
-                bpm_obj[bpm_key].email = search_fun('showStaff', emp_id);           // 查詢 showStaff
-            })
-            bpm = bpm_obj;
-            resolve(true);                                                          // 成功時解析為 true 
-        });
-    }
-    // 把所有名單上的人頭代上email
-    function step2(lists_obj){
-        return new Promise((resolve) => {
-            Object.keys(lists_obj).forEach((list_key)=>{                            // 依序處理...
-                // s1.先找開單人
-                    let created_emp_id = lists_obj[list_key].created_emp_id;        // 取出開單人工號
-                    let created_email = search_fun('showStaff', created_emp_id);    // 查詢 showStaff
-                    lists_obj[list_key].created_email = created_email;              // 帶入lists_obj
-                // s2.再找site-pm窗口
-                    lists_obj[list_key].spm = [];                                   // 建立初始陣列
-                    let pm_emp_id = lists_obj[list_key].pm_emp_id;                  // 取出窗口名單
-                    let pm_emp_id_arr = pm_emp_id.split(',');                       // 分拆成陣列
-                    for (let i = 0; i < pm_emp_id_arr.length; i += 2) {             // 依序處理...
-                        let spm_emp_id = pm_emp_id_arr[i];                          // 依i序 取出窗口工號
-                        let spm_email = search_fun('showStaff', spm_emp_id);        // 查詢 showStaff
-                        lists_obj[list_key].spm.push({                              // 組合成Obj並帶入
-                            'emp_id' : spm_emp_id,
-                            'cname'  : pm_emp_id_arr[i + 1],
-                            'email'  : spm_email
-                        })
-                    }
-                // s3.把所有名單上代上dept
-                    let sign_code = lists_obj[list_key].sign_code;                  // 取出sign_code
-                    let signDept = search_fun('showSignDept', sign_code);           // 查詢 showSignDept
-                    lists_obj[list_key].signDept = signDept;                        // 帶入lists_obj
-                // s4.將_odd反解
-                    lists_obj[list_key]._odd = JSON.parse(lists_obj[list_key]._odd);// 將_odd反解
-                
-                // s5.把bpm帶入每一筆紀錄....這裡可以優化程序
-                    lists_obj[list_key].bpm = bpm;                                  // 帶入bpm陣列
-            })
-            doc_lists = lists_obj;                                                  // lists_obj傾倒回主清單陣列doc_lists
-            resolve(true);                                                          // 成功時解析為 true 
-        });
-    }
-    // notifyLists 資料清洗
-    function step3(lists_obj, myCallback){
-        return new Promise((resolve) => {
-            Object(lists_obj).forEach((list_i)=>{                        // 依序處理...
-                const {
-                    _remaining, anis_no, _odd : { due_day }, short_name, fab_title, sign_code,
-                    created_cname, created_emp_id, created_email, idty, spm, signDept, bpm
-                } = list_i;
-    
-                const idty_value = {
-                    '1' : '立案/簽核中',
-                    '10': '完成訪談',
-                    '6' : '暫存',
-                    '3' : '取消'
-                }[idty] || 'NA';
-    
-                const anis_no_arr = {
-                    fab_title       : fab_title,
-                    short_name      : short_name,
-                    sign_code       : sign_code,
-                    due_date        : due_day,
-                    remaining_day   : _remaining,
-                    idty            : idty + '_' + idty_value,
-                    created_cname   : created_cname,
-                    created_emp_id  : created_emp_id
-                };
-
-                const addToNotifyList = (i_emp_id, i_cname, i_email, i_action) => {
-                    if(notifyLists[i_emp_id] == undefined){
-                        notifyLists[i_emp_id] = {};
-                    }
-                    if(notifyLists[i_emp_id].anis_no == undefined){
-                        notifyLists[i_emp_id].anis_no = {};
-                    }
-                    notifyLists[i_emp_id].cname = i_cname;
-                    notifyLists[i_emp_id].email = i_email;
-                    notifyLists[i_emp_id].anis_no[anis_no] = anis_no_arr;
-                    notifyLists[i_emp_id].action = i_action;
-                };
-
-                const action = ( _remaining > 3) ? ['email'] : ['email', 'mapp'];
-
-                // console.log(anis_no, _remaining , '1.窗口、課副理 (未結案+開單人) => email');
-                // s1. 建立spm窗口名單
-                    Object(spm).forEach((spm_i)=>{
-                        const spm_emp_id = spm_i.emp_id
-                        addToNotifyList(spm_emp_id, spm_i.cname, spm_i.email, action);
+            // 將bpm的email找出來
+            function step1(bpm_obj){
+                return new Promise((resolve) => {
+                    Object.keys(bpm_obj).forEach((bpm_key)=>{                               // 依序處理...
+                        let emp_id = bpm_obj[bpm_key].emp_id;                               // 依序 取出bpm工號
+                        bpm_obj[bpm_key].email = search_fun('showStaff', emp_id);           // 查詢 showStaff
                     })
-
-                // s2. 課副理
-                    const signDept_emp_id   = signDept.emp_id;
-                    addToNotifyList(signDept_emp_id, signDept.cname, signDept.email, action);
-
-                // s3. 未結案+開單人
-                    if(idty !== '10'){
-                        addToNotifyList(created_emp_id, created_cname, created_email, action);
-                    }
-
-                if ( _remaining <= 3 && _remaining >= 0 ){
-                    // console.log(anis_no, _remaining , '2.窗口、課副理、部經理、大PM (未結案+開單人) => email + mapp')
-                    // s4. 部經理
-                        const signDept_up_emp_id   = signDept.up_emp_id;
-                        addToNotifyList(signDept_up_emp_id, signDept.up_cname, signDept.up_email, action);
-
-                    // s5. 建立bpm大pm名單
-                        Object(bpm).forEach((bpm_i)=>{
-                            const bpm_emp_id = bpm_i.emp_id
-                            if(bpm_emp_id >= 90000000 && bpm_emp_id.includes("9000000")){  // 排除管理員+測試帳號
-                                return; 
-                            }else{
-                                addToNotifyList(bpm_emp_id, bpm_i.cname, bpm_i.email, action);
+                    bpm = bpm_obj;
+                    resolve(true);                                                          // 成功時解析為 true 
+                });
+            }
+            // 把所有名單上的人頭代上email
+            function step2(lists_obj){
+                return new Promise((resolve) => {
+                    Object.keys(lists_obj).forEach((list_key)=>{                            // 依序處理...
+                        // s1.先找開單人
+                            let created_emp_id = lists_obj[list_key].created_emp_id;        // 取出開單人工號
+                            let created_email = search_fun('showStaff', created_emp_id);    // 查詢 showStaff
+                            lists_obj[list_key].created_email = created_email;              // 帶入lists_obj
+                        // s2.再找site-pm窗口
+                            lists_obj[list_key].spm = [];                                   // 建立初始陣列
+                            let pm_emp_id = lists_obj[list_key].pm_emp_id;                  // 取出窗口名單
+                            let pm_emp_id_arr = pm_emp_id.split(',');                       // 分拆成陣列
+                            for (let i = 0; i < pm_emp_id_arr.length; i += 2) {             // 依序處理...
+                                let spm_emp_id = pm_emp_id_arr[i];                          // 依i序 取出窗口工號
+                                let spm_email = search_fun('showStaff', spm_emp_id);        // 查詢 showStaff
+                                lists_obj[list_key].spm.push({                              // 組合成Obj並帶入
+                                    'emp_id' : spm_emp_id,
+                                    'cname'  : pm_emp_id_arr[i + 1],
+                                    'email'  : spm_email
+                                })
                             }
-                        })
-                } 
+                        // s3.把所有名單上代上dept
+                            let sign_code = lists_obj[list_key].sign_code;                  // 取出sign_code
+                            let signDept = search_fun('showSignDept', sign_code);           // 查詢 showSignDept
+                            lists_obj[list_key].signDept = signDept;                        // 帶入lists_obj
+                        // s4.將_odd反解
+                            lists_obj[list_key]._odd = JSON.parse(lists_obj[list_key]._odd);// 將_odd反解
+                        
+                        // s5.把bpm帶入每一筆紀錄....這裡可以優化程序
+                            lists_obj[list_key].bpm = bpm;                                  // 帶入bpm陣列
+                    })
+                    doc_lists = lists_obj;                                                  // lists_obj傾倒回主清單陣列doc_lists
+                    resolve(true);                                                          // 成功時解析為 true 
+                });
+            }
+            // notifyLists 資料清洗
+            function step3(lists_obj, myCallback){
+                return new Promise((resolve) => {
+                    Object(lists_obj).forEach((list_i)=>{                        // 依序處理...
+                        const {
+                            _remaining, anis_no, _odd : { due_day }, short_name, fab_title, sign_code,
+                            created_cname, created_emp_id, created_email, idty, spm, signDept, bpm
+                        } = list_i;
+            
+                        const idty_value = {
+                            '1' : '立案/簽核中',
+                            '10': '完成訪談',
+                            '6' : '暫存',
+                            '3' : '取消'
+                        }[idty] || 'NA';
+            
+                        const anis_no_arr = {
+                            fab_title       : fab_title,
+                            short_name      : short_name,
+                            sign_code       : sign_code,
+                            due_date        : due_day,
+                            remaining_day   : _remaining,
+                            idty            : idty + '_' + idty_value,
+                            created_cname   : created_cname,
+                            created_emp_id  : created_emp_id
+                        };
 
-                if ( _remaining < 0 ){
-                    // console.log(anis_no, _remaining , '3.窗口、課副理、部經理、大PM、處長 (未結案+開單人) => email + mapp')
-                    // s6. 處長
-                        const signDept_uup_emp_id   = signDept.uup_emp_id;
-                        addToNotifyList(signDept_uup_emp_id, signDept.uup_cname, signDept.uup_email, action);
-                }
-            })
-            resolve(myCallback(notifyLists));                            // 成功時執行myCallback，並解析為 true 
-        });
-    }
-    // post_result 將notifyLists渲染到畫面Table
-    function step4(lists_obj){
-        return new Promise((resolve) => {
-            $("#notify_lists table tbody").empty();
-            let totalUsers_i = 0;                       // 計算通知筆數
-            Object.keys(lists_obj).forEach((lists_i)=>{
-                const _action = lists_obj[lists_i].action;
-                let a0 = ''
-                Object(_action).forEach((_a)=>{
-                    a0 += '&nbsp'+ _a +'&nbsp<span id="'+ lists_i +'_'+ _a +'">'+'</span>';
-                })
-                const anis_no_obj = lists_obj[lists_i].anis_no;
-                let a1 = '';
-                let a2 = '';
-                let a3 = '';
-                let a4 = '';
-                let a5 = '';
-                let i  = 0;
-                Object.keys(anis_no_obj).forEach((anis_no_key)=>{
-                    a1 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].fab_title +' ('+ anis_no_obj[anis_no_key].sign_code +')</span>';
-                    a2 += (i>0 ? '</br>':'') + '<span>'+ anis_no_key +' ('+ anis_no_obj[anis_no_key].short_name +')</span>';
-                    a3 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].due_date +' ('+ anis_no_obj[anis_no_key].remaining_day +')</span>';
-                    a4 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].created_cname +' ('+ anis_no_obj[anis_no_key].created_emp_id +')</span>';
-                    a5 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].idty +'</span>';
-                    i++;
-                })
-                const inner_Text = '<tr>'+'<td>'+ a0 +'</td>'+'<td>'+ lists_obj[lists_i].cname +'('+ lists_i +')</td>'
-                                    +'<td class="text-start">'+a1+'</td>'+'<td class="text-start">'+a2+'</td>'+'<td>'+a3+'</td>'+'<td>'+a4+'</td>'+'<td class="text-start">'+a5+'</td>'+'<td>'+i+'</td>'+'</tr>'
-                
-                notifyLists[lists_i].case_count = i;                // 將件數到回notifyLists主檔
-                $("#notify_lists table tbody").append(inner_Text);  // 渲染畫面
-                totalUsers_i++;                                     // 計算通知筆數++
-            })
-            totalUsers_length.innerText = totalUsers_i;             // 渲染通知筆數
-            resolve(true);                                          // 成功時執行myCallback，並解析為 true 
-        });
-    }
+                        const addToNotifyList = (i_emp_id, i_cname, i_email, i_action) => {
+                            if(notifyLists[i_emp_id] == undefined){
+                                notifyLists[i_emp_id] = {};
+                            }
+                            if(notifyLists[i_emp_id].anis_no == undefined){
+                                notifyLists[i_emp_id].anis_no = {};
+                            }
+                            notifyLists[i_emp_id].cname = i_cname;
+                            notifyLists[i_emp_id].email = i_email;
+                            notifyLists[i_emp_id].anis_no[anis_no] = anis_no_arr;
+                            notifyLists[i_emp_id].action = i_action;
+                        };
+
+                        const action = ( _remaining > 3) ? ['email'] : ['email', 'mapp'];
+
+                        // console.log(anis_no, _remaining , '1.窗口、課副理 (未結案+開單人) => email');
+                        // s1. 建立spm窗口名單
+                            Object(spm).forEach((spm_i)=>{
+                                const spm_emp_id = spm_i.emp_id
+                                addToNotifyList(spm_emp_id, spm_i.cname, spm_i.email, action);
+                            })
+
+                        // s2. 課副理
+                            const signDept_emp_id   = signDept.emp_id;
+                            addToNotifyList(signDept_emp_id, signDept.cname, signDept.email, action);
+
+                        // s3. 未結案+開單人
+                            if(idty !== '10'){
+                                addToNotifyList(created_emp_id, created_cname, created_email, action);
+                            }
+
+                        if ( _remaining <= 3 && _remaining >= 0 ){
+                            // console.log(anis_no, _remaining , '2.窗口、課副理、部經理、大PM (未結案+開單人) => email + mapp')
+                            // s4. 部經理
+                                const signDept_up_emp_id   = signDept.up_emp_id;
+                                addToNotifyList(signDept_up_emp_id, signDept.up_cname, signDept.up_email, action);
+
+                            // s5. 建立bpm大pm名單
+                                Object(bpm).forEach((bpm_i)=>{
+                                    const bpm_emp_id = bpm_i.emp_id
+                                    if(bpm_emp_id >= 90000000 && bpm_emp_id.includes("9000000")){  // 排除管理員+測試帳號
+                                        return; 
+                                    }else{
+                                        addToNotifyList(bpm_emp_id, bpm_i.cname, bpm_i.email, action);
+                                    }
+                                })
+                        } 
+
+                        if ( _remaining < 0 ){
+                            // console.log(anis_no, _remaining , '3.窗口、課副理、部經理、大PM、處長 (未結案+開單人) => email + mapp')
+                            // s6. 處長
+                                const signDept_uup_emp_id   = signDept.uup_emp_id;
+                                addToNotifyList(signDept_uup_emp_id, signDept.uup_cname, signDept.uup_email, action);
+                        }
+                    })
+                    resolve(myCallback(notifyLists));                            // 成功時執行myCallback，並解析為 true 
+                });
+            }
+            // post_result 將notifyLists渲染到畫面Table
+            function step4(lists_obj){
+                return new Promise((resolve) => {
+                    $("#notify_lists table tbody").empty();
+                    let totalUsers_i = 0;                       // 計算通知筆數
+                    Object.keys(lists_obj).forEach((lists_i)=>{
+                        const _action = lists_obj[lists_i].action;
+                        let a0 = ''
+                        Object(_action).forEach((_a)=>{
+                            a0 += '&nbsp'+ _a +'&nbsp<span id="'+ lists_i +'_'+ _a +'">'+'</span>';
+                        })
+                        const anis_no_obj = lists_obj[lists_i].anis_no;
+                        let a1 = '';
+                        let a2 = '';
+                        let a3 = '';
+                        let a4 = '';
+                        let a5 = '';
+                        let i  = 0;
+                        Object.keys(anis_no_obj).forEach((anis_no_key)=>{
+                            a1 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].fab_title +' ('+ anis_no_obj[anis_no_key].sign_code +')</span>';
+                            a2 += (i>0 ? '</br>':'') + '<span>'+ anis_no_key +' ('+ anis_no_obj[anis_no_key].short_name +')</span>';
+                            a3 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].due_date +' ('+ anis_no_obj[anis_no_key].remaining_day +')</span>';
+                            a4 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].created_cname +' ('+ anis_no_obj[anis_no_key].created_emp_id +')</span>';
+                            a5 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].idty +'</span>';
+                            i++;
+                        })
+                        const inner_Text = '<tr>'+'<td>'+ a0 +'</td>'+'<td>'+ lists_obj[lists_i].cname +'('+ lists_i +')</td>'
+                                            +'<td class="text-start">'+a1+'</td>'+'<td class="text-start">'+a2+'</td>'+'<td>'+a3+'</td>'+'<td>'+a4+'</td>'+'<td class="text-start">'+a5+'</td>'+'<td>'+i+'</td>'+'</tr>'
+                        
+                        notifyLists[lists_i].case_count = i;                // 將件數到回notifyLists主檔
+                        $("#notify_lists table tbody").append(inner_Text);  // 渲染畫面
+                        totalUsers_i++;                                     // 計算通知筆數++
+                    })
+                    totalUsers_length.innerText = totalUsers_i;             // 渲染通知筆數
+                    resolve(true);                                          // 成功時執行myCallback，並解析為 true 
+                });
+            }
 
 
 // // 主技能--發報用 be await
@@ -666,10 +830,49 @@
             console.error(error);
         }
     }
+
+    async function p2_init(action){
+
+        const load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+        console.log('load_changeTodo...', load_changeTodo);
+
+        // const _method = check3hourse(action);
+        // const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db
+        try {
+            // mloading("show");                               // 啟用mLoading
+
+            // await load_fun(_type, 'notify, true' , step2);  // load_fun先抓json，沒有then抓db(true/false 輸出json檔)，取得highlight內容後用step2把所有名單上的人頭代上emai
+            // await step3(doc_lists, step4);                  // step3資料清洗，後用step4鋪設內容
+
+            // // op_tab('user_lists');                        // 關閉清單
+            // $('#result').append('等待發報 : ');
+
+            // if(check_ip && fun){
+            //     switch (fun) {
+            //         case 'debug':                               // debug mode，mapp&mail=>return true
+            //         case 'notify_process':                      // notify_process待簽發報auto_run
+            //             await delayedLoop(3, 'notify_process'); // delayedLoop延遲3秒後執行 notify_process：整理訊息、發送、顯示發送結果。
+            //             CountDown(15);                          // 倒數 15秒自動關閉視窗~
+            //             break;
+            //         default:
+            //             $('#result').append('function error!</br>');
+            //     }
+            // }else{
+            //     $('#result').append(' ...standBy...</br>');
+            // }
+
+
+            $("body").mLoading("hide");
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
     
     // document.ready啟動自動執行fun
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();             // 在任何地方啟用工具提示框
         checkPopup();                                       // 確認自己是否為彈出視窗 
-        load_init(false);
+        // load_init(false);
+        p2_init(true);
     })

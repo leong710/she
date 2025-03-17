@@ -110,21 +110,17 @@
         
     }
     // 預先處理員工資料 for post_staff()
-    async function preProcess_staff(shLocalDept_in){
+    async function preProcess_staff(shLocalDept_in, _yearMonthValue){
                 // console.log('1a.shLocalDept_in...' ,shLocalDept_in)
         let empIDKeys         = [];
         let mergedData        = [];                         // 存放員工合併訊息，for preCheckStaffData時參考套用訊息
         let source_OSHORT_arr = [];                         // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
 
-        const _yearDiv = document.getElementById('_year');
-        const _year = _yearDiv.value;       // 取得P1的年份篩選
-        // console.log('_year...',_year)
-
         for(const[index, post_i] of Object.entries(shLocalDept_in)){
             const inCare     = post_i["inCare"] ?? [];
             for(const[targetMonth_i, staff_i] of Object.entries(inCare)){
                 // 250313 篩選年分功能
-                if(targetMonth_i.includes(_year)){
+                if(targetMonth_i.includes(_yearMonthValue)){
                     staff_i.forEach((staff) => {
                         // step.1 取得所有的 key
                             empIDKeys = [...empIDKeys , Object.keys(staff)[0]];
@@ -138,7 +134,8 @@
             }
             source_OSHORT_arr.push(post_i["OSHORT"]);       // 存放所有部門代號，for 提取特危工作場所內的 工作項目。
         }
-        empIDKeys = [...new Set(empIDKeys)]; 
+        empIDKeys  = [...new Set(empIDKeys)]; 
+        mergedData = [...new Set(mergedData)]; 
 
         // *** 精煉 shLocal for 提取特危工作場所內的 工作項目。
             const source_OSHORTs_str = (JSON.stringify([...new Set(source_OSHORT_arr)])).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
@@ -192,8 +189,9 @@
                         if(selectStaffArr.length > 0){
                             selectStaffArr.forEach((empId) => {
                                 let newStaffData = {};                                               // 初始化新生成dept物件
-                                newStaffData["_changeLogs"]   = {};
-                                newStaffData["_content"]      = {};
+                                newStaffData["_changeLogs"] = {};
+                                newStaffData["_content"]    = {};
+                                newStaffData["_todo"]       = {};
                                 // newStaffData["created_at"] = getTimeStamp();
                                 empId = empId.replace(/"/g, '');                                     // 去除前後"符號..
                                 const staffStr = mergedData.find(item => item.includes(empId));      // 從_dept_inf找出符合 empId 的原始字串
@@ -205,12 +203,12 @@
                                     // newStaffData["OSTEXT_30"] = staffArr[2] ?? '';                    // 取出陣列 2 = 廠區
                                     // newStaffData["OSHORT"]    = staffArr[3] ?? '';                    // 取出陣列 3 = 部門代號
                                     // newStaffData["OSTEXT"]    = staffArr[4] ?? '';                    // 取出陣列 4 = 部門名稱
-                                    const targetMonth  = staffArr[5] ?? '';                    // 取出陣列 4 = 部門名稱
+                                    const targetMonth  = staffArr[5] ?? '';                    // 取出陣列 5 = 作業年月
                                     newStaffData["_changeLogs"][targetMonth] = {
                                         "OSHORT"    : staffArr[3] ?? '',
                                         // "_0isClose" : false
                                     };
-                                    newStaffData["_content"][targetMonth] = {}
+                                    newStaffData["_content"][targetMonth] = {};
                                 }else{
                                     newStaffData["emp_id"]      = empId; 
                                 }
@@ -482,11 +480,23 @@
 
     // p-3 批次儲存變更作業員工清單...
     async function bat_storeChangeStaff(){
+        // 250317 儲存前確認是否有沒有結案的項目...
+        for(const [index, staff] of Object.entries(staff_inf)){
+            const todo = staff_inf[index]['_todo'] ?? {};                   // 確保 _todo 存在
+            for(const[targetYear, logs] of Object.entries(staff._changeLogs)){
+                if(logs._9checkDate === '' && logs._7isCheck === true){     // 沒有結案...建立--未結案的年月:異動後部門代號
+                    todo[targetYear] = logs.OSHORT;                         // 新增未結案的年月
+                }else{                                                      // 已經結案...找到對應的位置於以刪除
+                    delete todo[targetYear];                                // 刪除對應的項目
+                }
+            }
+            staff_inf[index]['_todo'] = todo;                               // 更新 _todo 屬性
+        }
+            // console.log('bat_storeChangeStaff--staff_inf',staff_inf);
         const bat_storeChangeStaff_value = JSON.stringify({
                 staff_inf : staff_inf
             });
             // console.log('bat_storeChangeStaff_value',bat_storeChangeStaff_value);
         await load_fun('bat_storeChangeStaff', bat_storeChangeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
-
         location.reload();
     }

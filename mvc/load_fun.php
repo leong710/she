@@ -1353,10 +1353,10 @@
     
                 break;
 
-            case 'load_change':                   // 由hrdb撈取人員資料，帶入查詢條件OSHORT
+            case 'load_change':                 // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                     $pdo = pdo();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                    $sql = "SELECT _c.emp_id, _c.cname,   _c._changeLogs, _c._content
+                    $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
                             FROM _change _c
                             -- LEFT JOIN _staff _s ON _c.emp_id = _s.emp_id
                             WHERE _c.emp_id IN ({$parm_re}) ";
@@ -1370,6 +1370,7 @@
                         foreach($chStaffs as $index => $shStaff){
                             $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
                             $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
+                            $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
                         }
 
                         // 製作返回文件
@@ -1393,14 +1394,15 @@
                     "content"   => "批次儲存名單--"
                 );
                 
-                define('SQL_SELECT_DOC', "SELECT emp_id, cname, _changeLogs, _content ,updated_at FROM _change WHERE emp_id = ? ");
-                define('SQL_INSERT_DOC', "INSERT INTO _change ( emp_id, cname, _changeLogs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
+                define('SQL_SELECT_DOC', "SELECT emp_id, cname, _changeLogs, _content, _todo, updated_at FROM _change WHERE emp_id = ? ");
+                define('SQL_INSERT_DOC', "INSERT INTO _change ( emp_id, cname, _changeLogs, _content, _todo, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
                 // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
-                                _changeLogs      = VALUES(_changeLogs),
-                                _content         = VALUES(_content),
-                                updated_cname    = VALUES(updated_cname),
-                                updated_at       = now()");
+                                _changeLogs   = VALUES(_changeLogs),
+                                _content      = VALUES(_content),
+                                _todo         = VALUES(_todo),
+                                updated_cname = VALUES(updated_cname),
+                                updated_at    = now()");
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
@@ -1420,6 +1422,7 @@
                     // step.2b 解析現有資料為陣列
                     $row_changeLogs = isset($row_data['_changeLogs']) ? json_decode($row_data['_changeLogs'] , true) : [];
                     $row_content    = isset($row_data['_content'])    ? json_decode($row_data['_content']    , true) : [];
+                    // $row_todo       = isset($row_data['_todo'])       ? json_decode($row_data['_todo']       , true) : [];
 
                     // step.3a 更新或新增該年份的資料
                     foreach ($_changeLogs as $targetMonth => $new_log_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
@@ -1478,11 +1481,12 @@
                     // step.4 將更新後的資料編碼為 JSON 字串
                     $_changeLogs_str = json_encode($row_changeLogs, JSON_UNESCAPED_UNICODE);
                     $_content_str    = json_encode($row_content,    JSON_UNESCAPED_UNICODE);
+                    $_todo_str       = json_encode($_todo,          JSON_UNESCAPED_UNICODE);
                 
                     // step.5 準備 SQL 和參數
-                    $values[] = "(?, ?, ?, ?,   ?, ?,  now(), now())";
+                    $values[] = "(?, ?, ?, ?, ?,   ?, ?,  now(), now())";
                     $params = array_merge($params, [
-                        $emp_id, $cname, $_changeLogs_str, $_content_str,   $auth_cname, $auth_cname
+                        $emp_id, $cname, $_changeLogs_str, $_content_str, $_todo_str,  $auth_cname, $auth_cname
                     ]);
                 }
                 
@@ -1506,6 +1510,35 @@
                         'fun'        => $fun,
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
+                }
+                break;
+
+            // mail使用
+            case 'load_changeTodo':             // 由hrdb撈取人員資料，帶入查詢條件OSHORT
+                $pdo = pdo();
+                $sql = "SELECT id ,emp_id ,cname , _changeLogs ,_content ,_todo  -- ,JSON_UNQUOTE(JSON_KEYS(_todo)) AS ikey
+                        FROM `_change` 
+                        WHERE _todo <> '[]' AND _todo <> '';
+                        ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute();                                   //處理 byAll
+                    $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    // JSON反解成array
+                    foreach($chStaffs as $index => $shStaff){
+                        $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
+                        $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
+                        $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
+                    }
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $chStaffs,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
                 break;
 
