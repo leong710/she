@@ -673,10 +673,10 @@
                                     const delegation_i = _delegationIn.find(deleg_i => deleg_i.APPLICATIONEMPID === OMAGER_i.emp_id);
 
                                     let omagerDIV = []; 
-                                    if (Object.entries(delegation_i).length > 0 ){
-                                        omagerDIV['cname']
-                                        omagerDIV['emp_id']
-                                        omagerDIV['email']
+                                    if (delegation_i != undefined ){
+                                        omagerDIV['cname']      = delegation_i.DEPUTYCNAME;
+                                        omagerDIV['emp_id']     = delegation_i.DEPUTYEMPID;
+                                        omagerDIV['email']      = delegation_i.comid2;
                                     }else{
                                         omagerDIV['cname']      = OMAGER_i.cname;
                                         omagerDIV['emp_id']     = OMAGER_i.emp_id;
@@ -688,7 +688,7 @@
                                     _todoDIV[3] += `<div class="py-1" id="_todo_value,${emp_id},${targetMonth}">${OSHORT}</div>`;
                                     _todoDIV[4] += `<div class="py-1 text-start" id="_6shCheck,${emp_id},${targetMonth}">${_6shCheckStr}</div>`;
                                     
-                                    _todoDIV[5] += `<div class="py-1 text-start" id="omager,${emp_id},${targetMonth}">${_6shCheckStr}</div>`;
+                                    _todoDIV[5] += `<div class="py-1 text-start" id="omager,${emp_id},${targetMonth}">${omagerDIV.cname}(${omagerDIV.emp_id}) ${omagerDIV.email}</div>`;
                                 }
                             }
 
@@ -705,7 +705,7 @@
                                     <td class="" id="_todo_key,${staff_i.emp_id}">${_todoDIV[2]}</td>
                                     <td class="" id="_todo_value,${staff_i.emp_id}">${_todoDIV[3]}</td>
                                     <td class="" id="_6shCheck,${staff_i.emp_id}">${_todoDIV[4]}</td>
-                                    <td class="" id="omager,${staff_i.emp_id}">omager</td>
+                                    <td class="" id="omager,${staff_i.emp_id}">${_todoDIV[5]}</td>
                                     ;`
                             tr1 += '</tr>';
 
