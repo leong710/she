@@ -482,7 +482,7 @@
     async function bat_storeChangeStaff(){
         // 250317 儲存前確認是否有沒有結案的項目...
         for(const [index, staff] of Object.entries(staff_inf)){
-            const todo = staff_inf[index]['_todo'] ?? {};                   // 確保 _todo 存在
+            let todo = {};                                                  // 確保 _todo 存在
             for(const[targetYear, logs] of Object.entries(staff._changeLogs)){
                 if(logs._9checkDate === '' && logs._7isCheck === true){     // 沒有結案...建立--未結案的年月:異動後部門代號
                     todo[targetYear] = logs.OSHORT;                         // 新增未結案的年月

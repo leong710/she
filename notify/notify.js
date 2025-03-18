@@ -186,7 +186,43 @@
         
         return (json_value);
     }
+    // fun.0-9 多功能API新版改用fetch
+    async function load_API(fun, parm, myCallback) {        // parm = 參數
+        // mloading(); 
+        if(parm){
+            try {
+                let formData = new FormData();
+                    formData.append('functionname', fun);
+                    formData.append('uuid', 'e65fccd1-79e7-11ee-92f1-1c697a98a75f');    // nurse
+                    formData.append('parm', parm);              // 後端依照fun進行parm參數的採用
 
+                let response = await fetch('http://tneship.cminl.oa/api/hrdb/', {
+                    method : 'POST',
+                    body   : formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('fun load ' + fun + ' failed. Please try again.');
+                }
+
+                let responseData = await response.json();
+                let result_obj = responseData['result'];    // 擷取主要物件
+
+                if(parm === 'return' || myCallback === 'return'){
+                    return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
+                }else{
+                    return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
+                }                                               // myCallback：form = bring_form() 、document = edit_show() 、
+            } catch (error) {
+                $("body").mLoading("hide");
+                throw error;                                    // 載入失敗，reject
+            }
+        }else{
+            console.log('error: parm lost...');
+            alert('error: parm lost...');
+            $("body").mLoading("hide");
+        }
+    }
 
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能
@@ -392,6 +428,9 @@
         return result;                                          // 成功時解析為 true 
     }
 
+
+
+
             // 將bpm的email找出來
             function step1(bpm_obj){
                 return new Promise((resolve) => {
@@ -561,6 +600,125 @@
                 });
             }
 
+
+            // step.1 取得._todo非空值之變更作業健檢名單...參數:免
+            async function p2_step1() {
+                // ch.match(/[\^>V<]/);
+                const load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+                    console.log('p2_step1--load_changeTodo...', load_changeTodo);
+
+                return(load_changeTodo); // 返回取得的資料
+            }
+            // step.2 將變更作業健檢名單的每一筆.todo內的Object.values(部門代號)取出成陣列...參數:由step.1取得的資料
+            async function p2_step2(load_changeTodo) {
+                return new Promise((resolve) => {
+                    // 首先對每個員工資料使用 map()，然後透過 Object.values() 來提取 _todo 物件中的值。最後，使用 flat() 將嵌套陣列展平，得到一個包含所有 _todo 值的一維陣列。
+                    const shorts = (load_changeTodo.length != 0 ) ? load_changeTodo.map(staff => Object.values(staff._todo)).flat() : [];
+                    const shortsUniqueArr =  [...new Set(shorts)];                        // 年月去重
+                        console.log('p2_step2--shortsUniqueArr...', shortsUniqueArr);
+                
+                    resolve(shortsUniqueArr); // 返回取得的資料
+                });
+            }
+            // step.3 查找部門主管及訊息...參數:由step.2取得的資料(部門代號陣列)
+            async function p2_step3(shortsUniqueArr) {
+                const shortsUniqueStr = (shortsUniqueArr.length != 0 ) ? JSON.stringify(shortsUniqueArr).replace(/[\[\]]/g, '') : '';   // 把部門代號進行加工(多選)，去除外框
+                    // console.log('p2_step3a--shortsUniqueStr...', shortsUniqueStr);
+                const showSignDeptIn = (shortsUniqueStr != '' ) ? await load_API('showSignDeptIn', shortsUniqueStr, 'return') : [];     // load_fun查詢大PM bpm，並用step1找出email
+                    console.log('p2_step3b--showSignDeptIn...', showSignDeptIn);
+                
+                return(showSignDeptIn); // 返回取得的資料
+            }
+            // step.4 找出簽核代理人...參數:由step.3取得的資料
+            async function p2_step4(showSignDeptIn) {
+                const staffEmpIdArr = (showSignDeptIn.length != 0 ) ? showSignDeptIn.map(staff => staff.emp_id) : [];
+                    // console.log('p2_step4a--staffEmpIdArr...', staffEmpIdArr);
+                const staffEmpIdStr = (staffEmpIdArr.length != 0 ) ? JSON.stringify(staffEmpIdArr).replace(/[\[\]]/g, '') : '';         // 把部門代號進行加工(多選)，去除外框
+                const showDelegationIn = (staffEmpIdStr != '' ) ? await load_API('showDelegationIn', staffEmpIdStr, 'return') : [];     // load_fun查詢大PM bpm，並用step1找出email
+                    console.log('p2_step4b--showDelegationIn...', showDelegationIn);
+                
+                return(showDelegationIn); // 返回取得的資料
+            }
+            // step. 
+            async function p2_step5a(_change, _signDeptIn, _delegationIn) {
+                // 停止並銷毀 DataTable
+                // release_dataTable('p2_table');
+                $('#p2_table tbody').empty();
+
+                if(_change.length === 0){
+                    const table = $('#p2_table').DataTable();                       // 獲取表格的 thead
+                    const columnCount = table.columns().count();                    // 獲取每行的欄位數量
+                    const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
+                    $('#p2_table tbody').append(tr1);
+        
+                }else{
+
+                        // 加工''
+                        function rework_todo(staff_i){
+                            let _todoDIV = [];
+                                _todoDIV[0] = '';
+                                _todoDIV[2] = '';
+                                _todoDIV[3] = '';
+                                _todoDIV[4] = '';
+                                _todoDIV[5] = '';
+
+                            if(staff_i) {
+                                const { emp_id, _todo, _changeLogs } = staff_i;
+                                for(const [targetMonth, OSHORT] of Object.entries(_todo)) {
+                                    const _6shCheck = _changeLogs[targetMonth]._6shCheck ?? [];                 // 取得特作項目
+                                    const _6shCheckStr = JSON.stringify(_6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
+                                    // 處理omager
+                                    const OMAGER_i = _signDeptIn.find(omager_i => omager_i.sign_code === OSHORT);   // 從s_signDeptIn找出符合 OSHORT 的主管資料
+                                    // 處理omager代簽
+                                    const delegation_i = _delegationIn.find(deleg_i => deleg_i.APPLICATIONEMPID === OMAGER_i.emp_id);
+
+                                    let omagerDIV = []; 
+                                    if (Object.entries(delegation_i).length > 0 ){
+                                        omagerDIV['cname']
+                                        omagerDIV['emp_id']
+                                        omagerDIV['email']
+                                    }else{
+                                        omagerDIV['cname']      = OMAGER_i.cname;
+                                        omagerDIV['emp_id']     = OMAGER_i.emp_id;
+                                        omagerDIV['email']      = OMAGER_i.email;
+                                    }
+
+                                    _todoDIV[0] += `<div class="py-1 bg-success" id="action,${emp_id},${targetMonth}"></div>`;
+                                    _todoDIV[2] += `<div class="py-1" id="_todo_key,${emp_id},${targetMonth}">${targetMonth}</div>`;
+                                    _todoDIV[3] += `<div class="py-1" id="_todo_value,${emp_id},${targetMonth}">${OSHORT}</div>`;
+                                    _todoDIV[4] += `<div class="py-1 text-start" id="_6shCheck,${emp_id},${targetMonth}">${_6shCheckStr}</div>`;
+                                    
+                                    _todoDIV[5] += `<div class="py-1 text-start" id="omager,${emp_id},${targetMonth}">${_6shCheckStr}</div>`;
+                                }
+                            }
+
+                            return _todoDIV; 
+                        }
+
+
+                    await _change.forEach((staff_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
+                        const _todoDIV = rework_todo(staff_i);
+
+                        let tr1 = '<tr>';
+                            tr1 += `<td class="t-start edit1" id="action,${staff_i.emp_id}" >${_todoDIV[0]}<div id="base_Badge,${staff_i.emp_id}"></div></td>
+                                    <td class="" id="emp_id,${staff_i.emp_id}">${staff_i.cname ?? ''} (${staff_i.emp_id})</td>
+                                    <td class="" id="_todo_key,${staff_i.emp_id}">${_todoDIV[2]}</td>
+                                    <td class="" id="_todo_value,${staff_i.emp_id}">${_todoDIV[3]}</td>
+                                    <td class="" id="_6shCheck,${staff_i.emp_id}">${_todoDIV[4]}</td>
+                                    <td class="" id="omager,${staff_i.emp_id}">omager</td>
+                                    ;`
+                            tr1 += '</tr>';
+
+                        $('#p2_table tbody').append(tr1);
+
+                        // objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
+        
+                        // thisMonth = targetMonth;                                        // 顯示月份&submit_btn
+                    })
+
+
+                }
+            }
 
 // // 主技能--發報用 be await
     // 20240314 將訊息推送到TN PPC(mapp)給對的人~
@@ -833,8 +991,12 @@
 
     async function p2_init(action){
 
-        const load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
-        console.log('load_changeTodo...', load_changeTodo);
+        const load_changeTodo  = await p2_step1();                  // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
+        const shortsUniqueArr  = await p2_step2(load_changeTodo);   // step.2 把_todo下的部門代號取出來存成陣列
+        const showSignDeptIn   = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
+        const showDelegationIn = await p2_step4(showSignDeptIn);    // step.4 把部門主管名單去找代理人...
+
+        await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
 
         // const _method = check3hourse(action);
         // const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db
