@@ -183,7 +183,7 @@
                             <div class="row">
                                 <div class="col-12 py-0 text-primary">
                                     <button type="button" title="訊息收折" class="op_tab_btn" id="p2_notify_lists_btn" value="p2_notify_lists" onclick="op_tab(this.value)"><i class="fa fa-chevron-circle-down" aria-hidden="true"></i></button>
-                                    待通知名單共：<span id="p2totalUsers_length"></span> 筆
+                                    待通知名單共：<span id="p2totalUsers_length"></span>
                                 </div>
                             </div>
                             <hr>
@@ -191,12 +191,12 @@
                                 <table id="p2_table" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Action</th>
                                             <th>姓名 (工號)</th>
                                             <th>異動時間</th>
                                             <th>異動部門</th>
                                             <th>特作項目</th>
-                                            <th class="table-success text-success">部門主管/工號/email</th>
+                                            <th class="table-success text-success">部門主管 (工號)</th>
+                                            <th class="table-warning">Result</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -259,7 +259,7 @@
                     <b>執行訊息：</b>
                 </div>
                 <!-- append執行訊息 -->
-                <div class="col-12 bg-white border rounded py-2 my-0" id="result"></div>
+                <div class="col-12 bg-white border rounded py-2 my-0" id="p2result"></div>
                 <div class="row">
                     <div class="col-6 col-md-4">
                         <?php echo ($sys_role == 0) ? "* [管理者]" : "* [路人]";
@@ -304,7 +304,7 @@
     var mapp_OK     = '<snap class="fa_check"><i class="fa-solid fa-comment-sms"></i> </snap>';               // 簡訊符號
     var mapp_NG     = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i></snap>';      // 警告符號
     
-    const uuid      = '3cd9a6fd-4021-11ef-9173-1c697a98a75f';       // invest
+    // const uuid      = '3cd9a6fd-4021-11ef-9173-1c697a98a75f';       // invest
 
     const Today     = new Date();
     const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0

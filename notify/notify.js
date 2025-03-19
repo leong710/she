@@ -1,4 +1,5 @@
 // // 1. 工具函數 (Utility Functions)
+    const uuid ='e65fccd1-79e7-11ee-92f1-1c697a98a75f';    // nurse
     // fun.0-1: Bootstrap Alarm function
     function Balert(message, type) {
         if(message){
@@ -193,7 +194,7 @@
             try {
                 let formData = new FormData();
                     formData.append('functionname', fun);
-                    formData.append('uuid', 'e65fccd1-79e7-11ee-92f1-1c697a98a75f');    // nurse
+                    formData.append('uuid', uuid);    // nurse
                     formData.append('parm', parm);              // 後端依照fun進行parm參數的採用
 
                 let response = await fetch('http://tneship.cminl.oa/api/hrdb/', {
@@ -639,23 +640,23 @@
                 
                 return(showDelegationIn); // 返回取得的資料
             }
-            // step. 
+            // step.5 鋪設P2_table畫面 & 製作mail清單 
             async function p2_step5a(_change, _signDeptIn, _delegationIn) {
                 // 停止並銷毀 DataTable
                 // release_dataTable('p2_table');
                 $('#p2_table tbody').empty();
+                let mailArr     = [];       // 初始化mail清單
 
                 if(_change.length === 0){
-                    const table = $('#p2_table').DataTable();                       // 獲取表格的 thead
-                    const columnCount = table.columns().count();                    // 獲取每行的欄位數量
+                    const table = $('#p2_table').DataTable();       // 獲取表格的 thead
+                    const columnCount = table.columns().count();    // 獲取每行的欄位數量
                     const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
                     $('#p2_table tbody').append(tr1);
         
                 }else{
-
-                        // 加工''
+                        // div加工廠
                         function rework_todo(staff_i){
-                            let _todoDIV = [];
+                            let _todoDIV    = {};
                                 _todoDIV[0] = '';
                                 _todoDIV[2] = '';
                                 _todoDIV[3] = '';
@@ -671,52 +672,147 @@
                                     const OMAGER_i = _signDeptIn.find(omager_i => omager_i.sign_code === OSHORT);   // 從s_signDeptIn找出符合 OSHORT 的主管資料
                                     // 處理omager代簽
                                     const delegation_i = _delegationIn.find(deleg_i => deleg_i.APPLICATIONEMPID === OMAGER_i.emp_id);
-
+                                    // 提取對應訊息
                                     let omagerDIV = []; 
-                                    if (delegation_i != undefined ){
-                                        omagerDIV['cname']      = delegation_i.DEPUTYCNAME;
-                                        omagerDIV['emp_id']     = delegation_i.DEPUTYEMPID;
-                                        omagerDIV['email']      = delegation_i.comid2;
+                                    if (delegation_i !== undefined ){
+                                        omagerDIV = {
+                                            'title'  : '&nbsp;<sup class="text-danger">- 代理</sup>',
+                                            'cname'  : delegation_i.DEPUTYCNAME,
+                                            'emp_id' : delegation_i.DEPUTYEMPID,
+                                            'email'  : delegation_i.comid2
+                                        }
                                     }else{
-                                        omagerDIV['cname']      = OMAGER_i.cname;
-                                        omagerDIV['emp_id']     = OMAGER_i.emp_id;
-                                        omagerDIV['email']      = OMAGER_i.email;
+                                        omagerDIV = {
+                                            'title'  : '',  // 非代理，這裡清除
+                                            'cname'  : OMAGER_i.cname,
+                                            'emp_id' : OMAGER_i.emp_id,
+                                            'email'  : OMAGER_i.email
+                                        }
                                     }
-
-                                    _todoDIV[0] += `<div class="py-1 bg-success" id="action,${emp_id},${targetMonth}"></div>`;
-                                    _todoDIV[2] += `<div class="py-1" id="_todo_key,${emp_id},${targetMonth}">${targetMonth}</div>`;
-                                    _todoDIV[3] += `<div class="py-1" id="_todo_value,${emp_id},${targetMonth}">${OSHORT}</div>`;
-                                    _todoDIV[4] += `<div class="py-1 text-start" id="_6shCheck,${emp_id},${targetMonth}">${_6shCheckStr}</div>`;
-                                    
-                                    _todoDIV[5] += `<div class="py-1 text-start" id="omager,${emp_id},${targetMonth}">${omagerDIV.cname}(${omagerDIV.emp_id}) ${omagerDIV.email}</div>`;
+                                    // 組合訊息
+                                    _todoDIV[2] += `<div class=""           id="_todo_key,${emp_id},${targetMonth}" >${targetMonth}</div>`;                                 // 異動時間
+                                    _todoDIV[3] += `<div class=""           id="_todo_value,${emp_id},${targetMonth}" >${OSHORT}&nbsp;${OMAGER_i.sign_dept ?? ''}</div>`;   // 異動部門
+                                    _todoDIV[4] += `<div class="text-start" id="_6shCheck,${emp_id},${targetMonth}" >${_6shCheckStr}</div>`;                                // 特作項目
+                                    _todoDIV[5] += `<div class="text-start" id="omager,${emp_id},${targetMonth}" >${omagerDIV.cname}&nbsp;(${omagerDIV.emp_id})${omagerDIV.title}</div>`;   // 部門主管
+                                    _todoDIV[0] += `<div class="bg-success" id="result,${emp_id},${targetMonth}" ></div>`;
+                                    // &nbsp;&nbsp;${omagerDIV.email}
+                                    // 製作員工異動+特作項目訊息
+                                    const staff_obj = {
+                                        'cname'      : staff_i.cname,
+                                        'emp_id'     : staff_i.emp_id,
+                                        'changeTime' : targetMonth,
+                                        'shCheck'    : _6shCheckStr
+                                    };
+                                    // 合併到寄件訊息
+                                    let mailIn = mailArr.find(omager_i => omager_i.sign_code === OSHORT);
+                                    if(mailIn === undefined){   // || Object.entries(mailIn).length === 0 
+                                        mailIn = {
+                                            'cname'     : omagerDIV.cname,
+                                            'emp_id'    : omagerDIV.emp_id,
+                                            'email'     : omagerDIV.email,
+                                            'sign_dept' : OMAGER_i.sign_dept,
+                                            'sign_code' : OMAGER_i.sign_code,
+                                            'staff_inf' : [staff_obj]
+                                        }
+                                        mailArr.push(mailIn);                   // 把新建的主管+員工訊息推進去
+                                    }else{
+                                        // mailIn['staff_inf'] = [...mailIn['staff_inf'] , ...staff_obj];
+                                        mailIn['staff_inf'].push(staff_obj);    // 把新建的員工訊息推進去
+                                    }
                                 }
                             }
-
-                            return _todoDIV; 
+                            return {_todoDIV}; 
                         }
 
-
                     await _change.forEach((staff_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                        const _todoDIV = rework_todo(staff_i);
-
+                        const {_todoDIV} = rework_todo(staff_i);
                         let tr1 = '<tr>';
-                            tr1 += `<td class="t-start edit1" id="action,${staff_i.emp_id}" >${_todoDIV[0]}<div id="base_Badge,${staff_i.emp_id}"></div></td>
-                                    <td class="" id="emp_id,${staff_i.emp_id}">${staff_i.cname ?? ''} (${staff_i.emp_id})</td>
+                            tr1 += `<td class="" id="emp_id,${staff_i.emp_id}">${staff_i.cname ?? ''} (${staff_i.emp_id})</td>
                                     <td class="" id="_todo_key,${staff_i.emp_id}">${_todoDIV[2]}</td>
                                     <td class="" id="_todo_value,${staff_i.emp_id}">${_todoDIV[3]}</td>
                                     <td class="" id="_6shCheck,${staff_i.emp_id}">${_todoDIV[4]}</td>
                                     <td class="" id="omager,${staff_i.emp_id}">${_todoDIV[5]}</td>
-                                    ;`
+                                    <td class="t-start" id="result,${staff_i.emp_id}" >${_todoDIV[0]}<div id="result_Badge,${staff_i.emp_id}"></div></td>
+                                `;
                             tr1 += '</tr>';
-
                         $('#p2_table tbody').append(tr1);
-
                         // objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
-        
                         // thisMonth = targetMonth;                                        // 顯示月份&submit_btn
+
+                        $('#p2totalUsers_length').empty().append(`${_change.length} 筆 / ${mailArr.length} 封`)
                     })
+                }
 
+                $('#nav-p2-tab').tab('show');
 
+                // console.log('mailArr 3=>', mailArr );
+                return { mailArr };
+            }
+            // step.6 
+                        // async function mailFac( mailArr, sample_mail) {
+                            
+                        //     if(mailArr.length !==0){
+                        //             function rework_itemA(rework_i) {
+                        //                 return rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;')
+                        //             }
+                        //             function rework_itemB(rework_i) {
+                        //                 return '<li>'+ rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;') + '</li>'
+                        //             }
+
+                        //         mailArr.forEach((mail_i) => {
+                        //             const { staff_inf , email: to_email} = mail_i;
+                        //             const staffDiv = staff_inf.map(staff_i =>
+                        //                 `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}</li>`
+                        //             );
+                        //             const staffDivStr = JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '');
+
+                        //             let mailInner = `<br>
+                        //                 ${rework_itemA(sample_mail[1])}
+                        //                 <ul>
+                        //                     ${staffDivStr}
+                        //                 </ul>
+                        //                 ${rework_itemA(sample_mail[2])}<br>
+                        //                 ${rework_itemA(sample_mail[3])}<br>
+                        //                 ${rework_itemA(sample_mail[4])}<br>
+                        //                 ${rework_itemA(sample_mail[5])}
+                        //                 <ul>
+                        //                     ${rework_itemB(sample_mail[61])}
+                        //                     ${rework_itemB(sample_mail[62])}
+                        //                     ${rework_itemB(sample_mail[71])}
+                        //                     ${rework_itemB(sample_mail[72])}
+                        //                     ${rework_itemB(sample_mail[73])}
+                        //                     ${rework_itemB(sample_mail[81])}
+                        //                     ${rework_itemB(sample_mail[82])}
+                        //                 </ul>
+                        //             `
+                        //             $('#p2result').append(mailInner);
+
+                        //             sendmail(to_email, sample_mail[0], mailInner)
+                        //         })
+                        //     }
+                        // }
+            async function mailFac( mailArr, sample_mail) {
+                
+                if(mailArr.length !==0){
+                        function rework_itemA(rework_i) {
+                            return rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;')
+                        }
+                        function rework_itemB(rework_i) {
+                            return '<li>'+ rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;') + '</li>'
+                        }
+
+                    mailArr.forEach((mail_i) => {
+                        const { staff_inf , email: to_email} = mail_i;
+                        const staffDiv = staff_inf.map(staff_i =>
+                            `  ${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}`+'<br>'
+                        );
+                        const staffDivStr = JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '').replace(/<br\s*\/?>/g, '\n') ;
+                        
+                        let mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
+                        $('#p2result').append(mailInner);
+
+                        sendmail(to_email, sample_mail[0], mailInner)
+                    })
                 }
             }
 
@@ -754,24 +850,34 @@
             return true;
         }
         return new Promise((resolve, reject) => {
+            var formData = new FormData();  // 創建 FormData 物件
+            // 將已有的參數加入 FormData
+                formData.append('uuid', uuid);              // nurse
+                formData.append('sysName', 'SHE');          // 貫名
+                // formData.append('to', to_email);            // 傳送對象
+                formData.append('to', 'leong.chen');           // 傳送對象
+                formData.append('subject', int_msg1_title); // 信件標題
+                formData.append('body', mg_msg);            // 訊息內容
+            
+            // 假設你有一個檔案輸入框，其 ID 是 'fileInput'
+                var fileInput = document.getElementById('fileInput');
+                if (fileInput && fileInput.files.length > 0) {
+                    formData.append('file', fileInput.files[0]);  // 把檔案添加到 FormData
+                }
+
             $.ajax({
-                url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2024新版
+                url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2025新版
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
-                data:{
-                    uuid    : uuid,                                         // invest
-                    sysName : 'invest',                                     // 貫名
-                    // to      : to_email,                                  // 傳送對象
-                    to      : 'leong.chen@innolux.com',                     // 傳送對象
-                    subject : int_msg1_title,                               // 信件標題
-                    body    : mg_msg                                        // 訊息內容
-                },
+                data: formData,
+                processData: false,                                         // 不處理資料
+                contentType: false,                                         // 不設置 Content-Type，讓瀏覽器自動設置
                 success: function(res){
                     resolve(true);                                          // 成功時解析為 true 
                 },
                 error: function(res){
-                    console.log("send_mail -- error：",res);
+                    console.error("send_mail -- error：",res);
                     reject(false);                                          // 失敗時拒絕 Promise
                 }
             });
@@ -996,7 +1102,13 @@
         const showSignDeptIn   = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
         const showDelegationIn = await p2_step4(showSignDeptIn);    // step.4 把部門主管名單去找代理人...
 
-        await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
+        const { mailArr } = await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
+        console.log('mailArr 3=>', mailArr );
+
+        const sample_mail = await load_jsonFile('sample_mail.json');
+        // console.log('sample_mail 3=>', sample_mail );
+
+        mailFac( mailArr, sample_mail)
 
         // const _method = check3hourse(action);
         // const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db
