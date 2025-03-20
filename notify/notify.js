@@ -791,7 +791,7 @@
                         //         })
                         //     }
                         // }
-            async function mailFac( mailArr, sample_mail) {
+            async function mailFac( mailArr ) {
                 
                 if(mailArr.length !==0){
                         function rework_itemA(rework_i) {
@@ -801,17 +801,19 @@
                             return '<li>'+ rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;') + '</li>'
                         }
 
+                    const sample_mail = await load_jsonFile('sample_mail.json');
+
                     mailArr.forEach((mail_i) => {
                         const { staff_inf , email: to_email} = mail_i;
                         const staffDiv = staff_inf.map(staff_i =>
-                            `  ${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}`+'<br>'
+                            `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}</li>`
                         );
-                        const staffDivStr = JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '').replace(/<br\s*\/?>/g, '\n') ;
+                        const staffDivStr = "<ul>"+JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '')+"</ul>";
                         
                         let mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
+                            console.log(mailInner)
                         $('#p2result').append(mailInner);
-
-                        sendmail(to_email, sample_mail[0], mailInner)
+                        sendmail(to_email, sample_mail[0], mailInner);
                     })
                 }
             }
@@ -858,7 +860,7 @@
                 formData.append('to', 'leong.chen');           // 傳送對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
-            
+
             // 假設你有一個檔案輸入框，其 ID 是 'fileInput'
                 var fileInput = document.getElementById('fileInput');
                 if (fileInput && fileInput.files.length > 0) {
@@ -866,7 +868,8 @@
                 }
 
             $.ajax({
-                url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式2025新版
+                url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
+                // url:'http://tneship.cminl.oa/apiTest/sendmail/index.php',               // 測式 202503可夾檔+html內文
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
@@ -1105,10 +1108,8 @@
         const { mailArr } = await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
         console.log('mailArr 3=>', mailArr );
 
-        const sample_mail = await load_jsonFile('sample_mail.json');
-        // console.log('sample_mail 3=>', sample_mail );
 
-        mailFac( mailArr, sample_mail)
+        mailFac( mailArr )
 
         // const _method = check3hourse(action);
         // const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db
