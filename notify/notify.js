@@ -811,7 +811,7 @@
                         const staffDivStr = "<ul>"+JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '')+"</ul>";
                         
                         let mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
-                            console.log(mailInner)
+                            // console.log(mailInner)
                         $('#p2result').append(mailInner);
                         sendmail(to_email, sample_mail[0], mailInner);
                     })
@@ -1108,8 +1108,10 @@
         const { mailArr } = await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
         console.log('mailArr 3=>', mailArr );
 
-
-        mailFac( mailArr )
+        const p2_send_btn = document.getElementById('p2_send_btn');
+        p2_send_btn.addEventListener('click', function () {
+            mailFac( mailArr );
+        });
 
         // const _method = check3hourse(action);
         // const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db

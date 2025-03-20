@@ -173,7 +173,7 @@
                                     <h3><i class="fa-solid fa-2"></i>&nbsp;變更作業健檢-待通報清單統計</h3>
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
-                                    <?php if($sys_role == 0 || $check_ip){ ?>
+                                    <?php if($sys_role <= 1 || $check_ip){ ?>
                                         <button type="button" id="p2_send_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
                                             title="P2 send notify" onclick="return confirm('確認發報？') && notify_process()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
                                     <?php } ?>
