@@ -176,6 +176,8 @@
                                     <?php if($sys_role <= 1 || $check_ip){ ?>
                                         <button type="button" id="p2_send_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
                                             title="P2 send notify" onclick="return confirm('確認發報？') && notify_process()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
+                                        <button type="button" class="btn btn-success" value="../_downloadDoc?emp_id=10008048,202503" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;下載通知書</button>
+
                                     <?php } ?>
                                 </div>
                             </div>

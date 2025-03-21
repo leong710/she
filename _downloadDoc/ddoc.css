@@ -1,0 +1,24 @@
+   
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .form-container {
+        width: 1079px;                              /* 根據PNG調整 */
+        height: 1527px;                             /* 根據PNG調整 */
+        background-image: url('doc_p1.png');        /* PNG路徑 */
+        background-size: cover;
+        position: relative;
+    }
+    .input-box {
+        font-family: 'Microsoft Yahei', sans-serif;
+        font-size: 18px;
+        position: absolute;
+        padding: 5px;
+        color: blue;
+        text-align: center;
+        /* 定位點邊框 */
+            /* border: 1px solid #000;              */
+        /* 半透明背景顏色 */
+            /* background: rgba(221, 233, 56, 0.849);   */
+    }

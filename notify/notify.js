@@ -701,7 +701,8 @@
                                         'cname'      : staff_i.cname,
                                         'emp_id'     : staff_i.emp_id,
                                         'changeTime' : targetMonth,
-                                        'shCheck'    : _6shCheckStr
+                                        'shCheck'    : _6shCheckStr,
+                                        // '_docUrl'   : `${staff_i.emp_id},${targetMonth}`
                                     };
                                     // 合併到寄件訊息
                                     let mailIn = mailArr.find(omager_i => omager_i.sign_code === OSHORT);
@@ -712,7 +713,7 @@
                                             'email'     : omagerDIV.email,
                                             'sign_dept' : OMAGER_i.sign_dept,
                                             'sign_code' : OMAGER_i.sign_code,
-                                            'staff_inf' : [staff_obj]
+                                            'staff_inf' : [staff_obj],
                                         }
                                         mailArr.push(mailIn);                   // 把新建的主管+員工訊息推進去
                                     }else{
@@ -806,11 +807,12 @@
                     mailArr.forEach((mail_i) => {
                         const { staff_inf , email: to_email} = mail_i;
                         const staffDiv = staff_inf.map(staff_i =>
-                            `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}</li>`
+                            `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}  <button type="button" title="${staff_i.cname}" onclick="window.open(this.value, '_blank', 'width=1024,height=768')" `
+                            +` value="http://tw059332n.cminl.oa/she/_downloadDoc/?emp_id=${staff_i.emp_id},${staff_i.changeTime}" >列印通知單</buton></li>`
                         );
-                        const staffDivStr = "<ul>"+JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '')+"</ul>";
-                        
-                        let mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
+                        const staffDivStr = `<ul>${staffDiv.join('')}</ul>`;
+                       
+                        const mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
                             // console.log(mailInner)
                         $('#p2result').append(mailInner);
                         sendmail(to_email, sample_mail[0], mailInner);
