@@ -102,11 +102,10 @@
     async function step3(parm) {
         if(parm){
             // const _6shCheckStr = JSON.stringify(parm._6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
-
             const _6shCheckArr = parm._6shCheck.map(item => item.split(':')[1]).flat() + '作業';
-            const _6shCheckStr = JSON.stringify(_6shCheckArr).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
+            const _6shCheckStr = JSON.stringify(_6shCheckArr).replace(/[\[{"}\]]/g, '');        // 特作物件轉字串
 
-            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創     廠)`); // 1.廠區
+            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創     廠)`);      // 1.廠區
             $('#inputBox2').empty().append(`${parm.OSHORT}<br>${parm.OSTEXT}`);    // 2.部門
             $('#inputBox3').empty().append(parm.emp_id);    // 3.工號
             $('#inputBox4').empty().append(parm.cname);     // 4.姓名

@@ -361,7 +361,7 @@
         submitEdit2ClickListener = async function () {
             mloading(); 
 
-            const thisId_arr = this.value.split(',')                   // 分割this.id成陣列
+            const thisId_arr = this.value.split(',');               // 分割this.id成陣列
                 const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
                 const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
                 const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
@@ -451,6 +451,9 @@
 
                         } else if (type === 'checkbox-boolean') {   // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;
+
+                            let label = this.nextElementSibling;            //  250322 switch true=是/false=否
+                            label.textContent = this.checked ? "是" : "否";
                         }
                         // console.log('staffData...', staffData);
         

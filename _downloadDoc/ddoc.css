@@ -18,7 +18,7 @@
         color: blue;
         text-align: center;
         /* 定位點邊框 */
-            /* border: 1px solid #000;              */
+            border: 1px solid #000;             
         /* 半透明背景顏色 */
-            /* background: rgba(221, 233, 56, 0.849);   */
+            background: rgba(221, 233, 56, 0.849);  
     }
