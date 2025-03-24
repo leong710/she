@@ -347,7 +347,7 @@
                 data     : {
                     function : 'storeLog',
                     thisDay  : thisToday,
-                    sys      : 'she',
+                    sys      : 'invest',
                     logs     : logs_msg,
                     t_stamp  : ''
                 },
@@ -430,6 +430,178 @@
     }
 
 
+
+
+            // 將bpm的email找出來
+            function step1(bpm_obj){
+                return new Promise((resolve) => {
+                    Object.keys(bpm_obj).forEach((bpm_key)=>{                               // 依序處理...
+                        let emp_id = bpm_obj[bpm_key].emp_id;                               // 依序 取出bpm工號
+                        bpm_obj[bpm_key].email = search_fun('showStaff', emp_id);           // 查詢 showStaff
+                    })
+                    bpm = bpm_obj;
+                    resolve(true);                                                          // 成功時解析為 true 
+                });
+            }
+            // 把所有名單上的人頭代上email
+            function step2(lists_obj){
+                return new Promise((resolve) => {
+                    Object.keys(lists_obj).forEach((list_key)=>{                            // 依序處理...
+                        // s1.先找開單人
+                            let created_emp_id = lists_obj[list_key].created_emp_id;        // 取出開單人工號
+                            let created_email = search_fun('showStaff', created_emp_id);    // 查詢 showStaff
+                            lists_obj[list_key].created_email = created_email;              // 帶入lists_obj
+                        // s2.再找site-pm窗口
+                            lists_obj[list_key].spm = [];                                   // 建立初始陣列
+                            let pm_emp_id = lists_obj[list_key].pm_emp_id;                  // 取出窗口名單
+                            let pm_emp_id_arr = pm_emp_id.split(',');                       // 分拆成陣列
+                            for (let i = 0; i < pm_emp_id_arr.length; i += 2) {             // 依序處理...
+                                let spm_emp_id = pm_emp_id_arr[i];                          // 依i序 取出窗口工號
+                                let spm_email = search_fun('showStaff', spm_emp_id);        // 查詢 showStaff
+                                lists_obj[list_key].spm.push({                              // 組合成Obj並帶入
+                                    'emp_id' : spm_emp_id,
+                                    'cname'  : pm_emp_id_arr[i + 1],
+                                    'email'  : spm_email
+                                })
+                            }
+                        // s3.把所有名單上代上dept
+                            let sign_code = lists_obj[list_key].sign_code;                  // 取出sign_code
+                            let signDept = search_fun('showSignDept', sign_code);           // 查詢 showSignDept
+                            lists_obj[list_key].signDept = signDept;                        // 帶入lists_obj
+                        // s4.將_odd反解
+                            lists_obj[list_key]._odd = JSON.parse(lists_obj[list_key]._odd);// 將_odd反解
+                        
+                        // s5.把bpm帶入每一筆紀錄....這裡可以優化程序
+                            lists_obj[list_key].bpm = bpm;                                  // 帶入bpm陣列
+                    })
+                    doc_lists = lists_obj;                                                  // lists_obj傾倒回主清單陣列doc_lists
+                    resolve(true);                                                          // 成功時解析為 true 
+                });
+            }
+            // notifyLists 資料清洗
+            function step3(lists_obj, myCallback){
+                return new Promise((resolve) => {
+                    Object(lists_obj).forEach((list_i)=>{                        // 依序處理...
+                        const {
+                            _remaining, anis_no, _odd : { due_day }, short_name, fab_title, sign_code,
+                            created_cname, created_emp_id, created_email, idty, spm, signDept, bpm
+                        } = list_i;
+            
+                        const idty_value = {
+                            '1' : '立案/簽核中',
+                            '10': '完成訪談',
+                            '6' : '暫存',
+                            '3' : '取消'
+                        }[idty] || 'NA';
+            
+                        const anis_no_arr = {
+                            fab_title       : fab_title,
+                            short_name      : short_name,
+                            sign_code       : sign_code,
+                            due_date        : due_day,
+                            remaining_day   : _remaining,
+                            idty            : idty + '_' + idty_value,
+                            created_cname   : created_cname,
+                            created_emp_id  : created_emp_id
+                        };
+
+                        const addToNotifyList = (i_emp_id, i_cname, i_email, i_action) => {
+                            if(notifyLists[i_emp_id] == undefined){
+                                notifyLists[i_emp_id] = {};
+                            }
+                            if(notifyLists[i_emp_id].anis_no == undefined){
+                                notifyLists[i_emp_id].anis_no = {};
+                            }
+                            notifyLists[i_emp_id].cname = i_cname;
+                            notifyLists[i_emp_id].email = i_email;
+                            notifyLists[i_emp_id].anis_no[anis_no] = anis_no_arr;
+                            notifyLists[i_emp_id].action = i_action;
+                        };
+
+                        const action = ( _remaining > 3) ? ['email'] : ['email', 'mapp'];
+
+                        // console.log(anis_no, _remaining , '1.窗口、課副理 (未結案+開單人) => email');
+                        // s1. 建立spm窗口名單
+                            Object(spm).forEach((spm_i)=>{
+                                const spm_emp_id = spm_i.emp_id
+                                addToNotifyList(spm_emp_id, spm_i.cname, spm_i.email, action);
+                            })
+
+                        // s2. 課副理
+                            const signDept_emp_id   = signDept.emp_id;
+                            addToNotifyList(signDept_emp_id, signDept.cname, signDept.email, action);
+
+                        // s3. 未結案+開單人
+                            if(idty !== '10'){
+                                addToNotifyList(created_emp_id, created_cname, created_email, action);
+                            }
+
+                        if ( _remaining <= 3 && _remaining >= 0 ){
+                            // console.log(anis_no, _remaining , '2.窗口、課副理、部經理、大PM (未結案+開單人) => email + mapp')
+                            // s4. 部經理
+                                const signDept_up_emp_id   = signDept.up_emp_id;
+                                addToNotifyList(signDept_up_emp_id, signDept.up_cname, signDept.up_email, action);
+
+                            // s5. 建立bpm大pm名單
+                                Object(bpm).forEach((bpm_i)=>{
+                                    const bpm_emp_id = bpm_i.emp_id
+                                    if(bpm_emp_id >= 90000000 && bpm_emp_id.includes("9000000")){  // 排除管理員+測試帳號
+                                        return; 
+                                    }else{
+                                        addToNotifyList(bpm_emp_id, bpm_i.cname, bpm_i.email, action);
+                                    }
+                                })
+                        } 
+
+                        if ( _remaining < 0 ){
+                            // console.log(anis_no, _remaining , '3.窗口、課副理、部經理、大PM、處長 (未結案+開單人) => email + mapp')
+                            // s6. 處長
+                                const signDept_uup_emp_id   = signDept.uup_emp_id;
+                                addToNotifyList(signDept_uup_emp_id, signDept.uup_cname, signDept.uup_email, action);
+                        }
+                    })
+                    resolve(myCallback(notifyLists));                            // 成功時執行myCallback，並解析為 true 
+                });
+            }
+            // post_result 將notifyLists渲染到畫面Table
+            function step4(lists_obj){
+                return new Promise((resolve) => {
+                    $("#notify_lists table tbody").empty();
+                    let totalUsers_i = 0;                       // 計算通知筆數
+                    Object.keys(lists_obj).forEach((lists_i)=>{
+                        const _action = lists_obj[lists_i].action;
+                        let a0 = ''
+                        Object(_action).forEach((_a)=>{
+                            a0 += '&nbsp'+ _a +'&nbsp<span id="'+ lists_i +'_'+ _a +'">'+'</span>';
+                        })
+                        const anis_no_obj = lists_obj[lists_i].anis_no;
+                        let a1 = '';
+                        let a2 = '';
+                        let a3 = '';
+                        let a4 = '';
+                        let a5 = '';
+                        let i  = 0;
+                        Object.keys(anis_no_obj).forEach((anis_no_key)=>{
+                            a1 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].fab_title +' ('+ anis_no_obj[anis_no_key].sign_code +')</span>';
+                            a2 += (i>0 ? '</br>':'') + '<span>'+ anis_no_key +' ('+ anis_no_obj[anis_no_key].short_name +')</span>';
+                            a3 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].due_date +' ('+ anis_no_obj[anis_no_key].remaining_day +')</span>';
+                            a4 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].created_cname +' ('+ anis_no_obj[anis_no_key].created_emp_id +')</span>';
+                            a5 += (i>0 ? '</br>':'') + '<span>'+ anis_no_obj[anis_no_key].idty +'</span>';
+                            i++;
+                        })
+                        const inner_Text = '<tr>'+'<td>'+ a0 +'</td>'+'<td>'+ lists_obj[lists_i].cname +'('+ lists_i +')</td>'
+                                            +'<td class="text-start">'+a1+'</td>'+'<td class="text-start">'+a2+'</td>'+'<td>'+a3+'</td>'+'<td>'+a4+'</td>'+'<td class="text-start">'+a5+'</td>'+'<td>'+i+'</td>'+'</tr>'
+                        
+                        notifyLists[lists_i].case_count = i;                // 將件數到回notifyLists主檔
+                        $("#notify_lists table tbody").append(inner_Text);  // 渲染畫面
+                        totalUsers_i++;                                     // 計算通知筆數++
+                    })
+                    totalUsers_length.innerText = totalUsers_i;             // 渲染通知筆數
+                    resolve(true);                                          // 成功時執行myCallback，並解析為 true 
+                });
+            }
+
+
             // step.1 取得._todo非空值之變更作業健檢名單...參數:免
             async function p2_step1() {
                 // ch.match(/[\^>V<]/);
@@ -486,11 +658,10 @@
                         function rework_todo(staff_i){
                             let _todoDIV    = {};
                                 _todoDIV[0] = '';
-                                _todoDIV[2] = '';   // 異動時間
-                                _todoDIV[3] = '';   // 異動部門
-                                _todoDIV[4] = '';   // 特作項目
-                                _todoDIV[5] = '';   // 部門主管
-                                _todoDIV['omager'] = '';
+                                _todoDIV[2] = '';
+                                _todoDIV[3] = '';
+                                _todoDIV[4] = '';
+                                _todoDIV[5] = '';
 
                             if(staff_i) {
                                 const { emp_id, _todo, _changeLogs } = staff_i;
@@ -523,9 +694,7 @@
                                     _todoDIV[3] += `<div class=""           id="_todo_value,${emp_id},${targetMonth}" >${OSHORT}&nbsp;${OMAGER_i.sign_dept ?? ''}</div>`;   // 異動部門
                                     _todoDIV[4] += `<div class="text-start" id="_6shCheck,${emp_id},${targetMonth}" >${_6shCheckStr}</div>`;                                // 特作項目
                                     _todoDIV[5] += `<div class="text-start" id="omager,${emp_id},${targetMonth}" >${omagerDIV.cname}&nbsp;(${omagerDIV.emp_id})${omagerDIV.title}</div>`;   // 部門主管
-                                    _todoDIV[0] += `<div class="" id="result,${emp_id},${targetMonth},${omagerDIV.emp_id}"></div>`;
-                                    _todoDIV['omager'] = omagerDIV.emp_id;
-
+                                    _todoDIV[0] += `<div class="bg-success" id="result,${emp_id},${targetMonth}" ></div>`;
                                     // &nbsp;&nbsp;${omagerDIV.email}
                                     // 製作員工異動+特作項目訊息
                                     const staff_obj = {
@@ -580,39 +749,78 @@
                 // console.log('mailArr 3=>', mailArr );
                 return { mailArr };
             }
-            // step.6 信件工廠：生成通知信，並沒有寄出...
+            // step.6 
+                        // async function mailFac( mailArr, sample_mail) {
+                            
+                        //     if(mailArr.length !==0){
+                        //             function rework_itemA(rework_i) {
+                        //                 return rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;')
+                        //             }
+                        //             function rework_itemB(rework_i) {
+                        //                 return '<li>'+ rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;') + '</li>'
+                        //             }
+
+                        //         mailArr.forEach((mail_i) => {
+                        //             const { staff_inf , email: to_email} = mail_i;
+                        //             const staffDiv = staff_inf.map(staff_i =>
+                        //                 `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}</li>`
+                        //             );
+                        //             const staffDivStr = JSON.stringify(staffDiv).replace(/[\[{",}\]]/g, '');
+
+                        //             let mailInner = `<br>
+                        //                 ${rework_itemA(sample_mail[1])}
+                        //                 <ul>
+                        //                     ${staffDivStr}
+                        //                 </ul>
+                        //                 ${rework_itemA(sample_mail[2])}<br>
+                        //                 ${rework_itemA(sample_mail[3])}<br>
+                        //                 ${rework_itemA(sample_mail[4])}<br>
+                        //                 ${rework_itemA(sample_mail[5])}
+                        //                 <ul>
+                        //                     ${rework_itemB(sample_mail[61])}
+                        //                     ${rework_itemB(sample_mail[62])}
+                        //                     ${rework_itemB(sample_mail[71])}
+                        //                     ${rework_itemB(sample_mail[72])}
+                        //                     ${rework_itemB(sample_mail[73])}
+                        //                     ${rework_itemB(sample_mail[81])}
+                        //                     ${rework_itemB(sample_mail[82])}
+                        //                 </ul>
+                        //             `
+                        //             $('#p2result').append(mailInner);
+
+                        //             sendmail(to_email, sample_mail[0], mailInner)
+                        //         })
+                        //     }
+                        // }
             async function mailFac( mailArr ) {
-                let mailFab_Arr = [];    
+                
                 if(mailArr.length !==0){
-                    const sample_mail = await load_jsonFile('sample_mail.json');    // 取得mail範本
+                        function rework_itemA(rework_i) {
+                            return rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;')
+                        }
+                        function rework_itemB(rework_i) {
+                            return '<li>'+ rework_i.replace(/\r\n/g, '<br>').replace(/\n/g, '<br>').replace(/\t/g, '&nbsp;') + '</li>'
+                        }
+
+                    const sample_mail = await load_jsonFile('sample_mail.json');
+
                     mailArr.forEach((mail_i) => {
-                        const { staff_inf , email: to_email, emp_id: to_emp_id, cname: to_cname } = mail_i;
-                        // 把員工繞出來 +上li
+                        const { staff_inf , email: to_email} = mail_i;
                         const staffDiv = staff_inf.map(staff_i =>
+                            // `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}  <button type="button" title="${staff_i.cname}" onclick="window.open(this.value, '_blank', 'width=1024,height=768')" `
+                            // +` value="http://tw059332n.cminl.oa/she/_downloadDoc/?emp_id=${staff_i.emp_id},${staff_i.changeTime}" >列印通知單</buton></li>`
                             `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}  <a title="${staff_i.cname}" target="_blank" `
                                 +` href="http://tw059332n.cminl.oa/she/_downloadDoc/?emp_id=${staff_i.emp_id},${staff_i.changeTime}" >列印通知單</a></li>`
                         );
-                        // 員工打包後 +上外層ul
-                        const staffDivStr = `<ul class="mb-0">${staffDiv.join('')}</ul>`;
-                        // 組合信件 
+                        const staffDivStr = `<ul>${staffDiv.join('')}</ul>`;
+                       
                         const mailInner = `${sample_mail[1]}${staffDivStr}${sample_mail[2]}${sample_mail[3]}${sample_mail[4]}${sample_mail[5]}${sample_mail[61]}${sample_mail[62]}${sample_mail[71]}${sample_mail[72]}${sample_mail[73]}${sample_mail[81]}${sample_mail[82]}`
                             // console.log(mailInner)
-                            // 鋪設選染在畫面p2result
-                            // $('#p2result').append(mailInner);
-                            // 將mail寄出(每次一封，直到forEach完畢)
-                            // sendmail(to_email, sample_mail[0], mailInner);
-                        // 打包mail成mailFab_Arr
-                        mailFab_Arr.push({
-                            'to_cname'  : to_cname,
-                            'to_emp_id' : to_emp_id,
-                            'to_email'  : to_email,
-                            'title'     : sample_mail[0],
-                            'mailInner' : mailInner,
-                            'staffList' : staffDivStr
-                        })
+                        $('#p2result').append(mailInner);
+                        
+                        sendmail(to_email, sample_mail[0], mailInner);
                     })
                 }
-                return mailFab_Arr;
             }
 
 // // 主技能--發報用 be await
@@ -666,7 +874,7 @@
 
             $.ajax({
                 url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
-                // url:'http://tneship.cminl.oa/apiTest/sendmail/index.php',    // 測式 202503可夾檔+html內文
+                // url:'http://tneship.cminl.oa/apiTest/sendmail/index.php',               // 測式 202503可夾檔+html內文
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
@@ -686,13 +894,20 @@
 
 
 // 主技能
-    // 2025/03/24 p2notify_process()整理訊息、發送、顯示發送結果。
-    async function p2notify_process(msgArr){
+    // 2024/07/23 notify_process()整理訊息、發送、顯示發送結果。
+    async function notify_process(){
         mloading("show");                                                       // 啟用mLoading
-        $('#p2result').empty();                                                 // 清空執行訊息欄位
-                // console.log('msgArr...',msgArr);
-
-        // step0.init  
+        $('#result').empty();                                                   // 清空執行訊息欄位
+        
+        // step0.init
+            var invest_url   = '事故訪談系統：'+ uri +'/invest/dashboard/';
+            var int_msg1     = '【tnESH事故訪談系統】待您處理文件提醒';
+            var int_msg2     = '您共有 ';
+            var int_msg3     = ' 件訪問單尚未完成申報';
+            var int_msg4     = '，如已處理完畢，請忽略此訊息！\n\n** 請至以下連結查看待處理文件：\n';
+            var srt_msg4     = '，如已處理完畢，請忽略此訊息！\n\n';
+            var int_msg5     = '\n\n溫馨提示：\n    1.登錄過程中如出現提示輸入帳號密碼，請以cminl\\NT帳號格式\n';
+    
             var push_result  = {                                                // count push time to show_swal_fun
                 'mapp' : {
                     'success' : 0,
@@ -704,66 +919,134 @@
                 }
             }
 
-            var totalUsers = msgArr.length;                                    // 獲取總用戶數量
+            var totalUsers = Object.keys(notifyLists).length;                   // 獲取總用戶數量
             var completedUsers = 0;                                             // 已完成发送操作的用户数量
             var user_logs = [];                                                 // 宣告儲存Log用的 大-陣列Logs
 
+                // _fun1.製作主要信息
+                function make_msg(_value_obj){
+                    // _fun1.step0. init 
+                        let i         = 0;                                          // 計算anis_no陣列下的anis件數
+                        let nok       = 0;                                          // 未結案
+                        let emergency = 0;                                          // 小於等於 0天的急件
+                        const { anis_no } = _value_obj;                             // 取出ANIS_NO這一個陣列
+                        var anis_msg = '';                                          // 初始化ANIS訊息值
+                    // _fun1.step1. 分拆出ANIS訊息 &#9
+                        for (const [anis_k, anis_v] of Object.entries(anis_no)){     
+                            const { fab_title, short_name, due_date, remaining_day, idty } = anis_v;
+                            // anis信息組合
+                            anis_msg += (i > 0 ? '\r\n\r\n':'') +'事故廠區/類別：'+ fab_title +' / '+ short_name +'\nANIS單號：'+ anis_k
+                                    + '\n申報截止日：'+ due_date +'\n剩餘天數：'+ remaining_day + '天' +'\n表單狀態：'+ (idty == '10_結案' ? '未申報' : '未申報 / 未完成訪談' );
+                            i++;
+                            nok += (idty !='10_結案') ? 1 : 0 ;             // 未結案統計
+                            emergency += (remaining_day <= 0 ) ? 1 : 0;     // 統計小於等於 0天的急件
+                        }
+                    // _fun1.step2. 組合訊息文字
+                        var base_anis_msg =  int_msg2 + i + int_msg3 + (nok !=0 ? ' (其中 '+ nok + ' 件尚未完成訪談)' : '')+'\n\n'+ anis_msg;
+                        var mg_msg = int_msg1 +"\r\n"+ base_anis_msg +'\n\n'+ int_msg4 + invest_url + int_msg5;
+                        // 定義每一封mail title
+                        var int_msg1_title = int_msg1 + " (未完成申報共"+ i +"件"+ (nok !=0 ? '，其中'+ nok +'件尚未完成訪談)' : ')');
+                    // _fun1.step3. 訊息打包 
+                        var mg_arr = {
+                            title     : int_msg1_title,                     // 信件title
+                            anis_msg  : base_anis_msg,                      // 核心訊息
+                            mg_msg    : mg_msg,                             // 組合信件
+                            emergency : emergency                           // 急件統計
+                        }
+                    return mg_arr;
+                }
+
+            var promises = [];                                                  // 存储所有异步操作的 Promise
 
         // step1. 將notifyLists逐筆進行分拆作業
-        for (const _value of msgArr){              // 表頭1.外層
-                console.log('_value...',_value);
-
+        for (const [_key, _value] of Object.entries(notifyLists)){              // 表頭1.外層
             // step.1-0 init
-            const { to_cname, to_emp_id, to_email, title, mailInner, staffList } = _value;
+            const to_cname  = String(_value.cname).trim();
+            const to_email  = String(_value.email).trim();                      // 定義 to_email + 去空白
+            const to_emp_id = String(_key).trim();                              // 定義 to_emp_id + 去空白
+            const to_action = _value.action;
 
             // step.1-1 確認工號是否有誤
-            if(to_email === '' || to_email == undefined || to_email == null){
-                console.error("1-1.to_email有誤：", to_email);
+            if(to_emp_id.length < 8){
+                // alert("工號字數有誤 !!");                                    // 避免無人職守時被alert中斷，所以取消改console.log
+                // $("body").mLoading("hide");
+                console.log("工號字數有誤：", user_emp_id);
+                push_result['mapp']['error']++; 
                 push_result['email']['error']++; 
                 continue;                                                       // 使用 continue 代替 return false 以便繼續處理其他用戶
+
+            } else if(to_emp_id >= 90000000 && to_emp_id.includes("9000000")){  // 排除管理員+測試帳號
+                push_result['mapp']['success']++
+                push_result['email']['success']++
+                continue; 
                 
-            } else if(title === '' || title == undefined || title == null) {
-                console.error("1-2.title有誤：", title);
-                push_result['email']['error']++; 
-                continue;                                                       // 使用 continue 代替 return false 以便繼續處理其他用戶
-
-            } else if(mailInner === '' || mailInner == undefined || mailInner == null) {
-                console.error("1-3.mailInner有誤：", mailInner);
-                push_result['email']['error']++; 
-                continue;                                                       // 使用 continue 代替 return false 以便繼續處理其他用戶
-
             } else {
                 // 宣告儲存Log內的單筆 小-物件log
                 let user_log = { 
-                    cname           : to_cname,
                     emp_id          : to_emp_id,
+                    cname           : to_cname,
                     email           : to_email,
                     thisTime        : thisTime                                      // 小-物件log 紀錄thisTime
                 };
 
                 // step.1-2 調用_fun make_msg 帶入個人單筆紀錄進行訊息製作
-                user_log['mg_msg']    = staffList;                         // 小-物件log 紀錄mg_msg訊息
+                mail_msg_arr = make_msg(_value);                                
+                // var logs_source = mail_msg_arr.anis_msg.replace(int_msg1, "");      // 20240514...縮減log文字內容
+                // user_log['mg_msg']   = logs_source;                                 // 小-物件log 紀錄mg_msg訊息 // 20240514...縮減log文字內容
+                user_log['mg_msg']    = mail_msg_arr.anis_msg;                         // 小-物件log 紀錄mg_msg訊息
+                user_log['emergency'] = mail_msg_arr.emergency;                        // 小-物件log 紀錄emergency訊息
                 
                 // step.2 執行通知 --
-                // *** 2-1 發送mail
-                // const mailResult = await sendmail(to_email, title, mailInner);
-                const mailResult = true;
+                // *** 2-1 發送mail     // *** call fun.step_1 將訊息推送到TN PPC(mail)給對的人~
+                    const mail_result_check = async () => {
+                        let mail_result_check = (to_action.includes('email') && to_email) ? await sendmail(to_email, mail_msg_arr.title, mail_msg_arr.mg_msg) : false;
+                        return mail_result_check;
+                    };
+                // *** 2-2 發送mapp     // *** call fun.step_1 將訊息推送到TN PPC(mapp)給對的人~
+                    const mapp_result_check = async () => {
+                        let mapp_result_check = (to_action.includes('mapp') && to_emp_id) ? await push_mapp(to_emp_id, mail_msg_arr.mg_msg) : false;
+                        return mapp_result_check;
+                    };
 
-                // 執行-mail處理-訊息渲染
-                    user_log.mail_res = mailResult ? 'OK' : 'NG';
-                    mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
-                    let fa_icon_mail = window['mail_' + user_log.mail_res];
-                    var console_log = to_cname + " (" + to_emp_id + ")" + ' ...  sendMail：' + fa_icon_mail + user_log.mail_res;    // 初始化下方執行訊息
-                    $('#p2result').append(console_log + '</br>');                                       // 執行訊息渲染1下方
-                    const omagerDivs = document.querySelectorAll(`#p2_table div[id*=",${to_emp_id}"]`);
-                    omagerDivs.forEach((omagerDiv) => omagerDiv.innerHTML = fa_icon_mail);              // 執行訊息渲染2尾部
-
-                // 其他自定義操作
-                user_logs.push(user_log);                                    // 將log單筆小物件 塞入 logs大陣列中
-                completedUsers++;                                            // 增加已完成发送操作的用户数量
+                // step.3 等待每個異步操作Promise...
+                promises.push(
+                    // 等待mapp_result_check() 和mail_result_check()都完成后再執行自定義工作...table渲染完成icon、執行訊息渲染
+                    Promise.all([mapp_result_check(), mail_result_check()])
+                    .then(results => {
+                        const [mappResult, mailResult] = results;
+                        var console_log = '';                                   // 初始化下方執行訊息
+                        // 處理 mapp/mail 结果 // 標記結果顯示OK或NG，並顯示執行訊息
+                        // mail處理
+                            if(to_action.includes('email') && to_email){
+                                user_log.mail_res = mailResult ? 'OK' : 'NG';
+                                mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
+                                let id_mail = document.getElementById(to_emp_id +'_email');
+                                let fa_icon_mail = window['mail_' + user_log.mail_res];
+                                id_mail.innerHTML = fa_icon_mail;
+                                console_log = to_cname + " (" + to_emp_id + ")" + ' ...  sendMail：' + fa_icon_mail + user_log.mail_res;
+                            }
+                        // mapp處理
+                            if(to_action.includes('mapp') && to_emp_id){
+                                user_log.mapp_res = mappResult ? 'OK' : 'NG';
+                                mappResult ? push_result['mapp']['success']++ : push_result['mapp']['error']++; 
+                                let id_mapp = document.getElementById(to_emp_id +'_mapp');
+                                let fa_icon_mapp = window['mapp_' + user_log.mapp_res];
+                                id_mapp.innerHTML = fa_icon_mapp;
+                                console_log += '  /  pushMapp：' + fa_icon_mapp + user_log.mapp_res;
+                            }
+                        // 其他自定義操作
+                        $('#result').append(console_log + '</br>');                  // 自定義代碼执行 -- 執行訊息渲染 
+                        user_logs.push(user_log);                                    // 將log單筆小物件 塞入 logs大陣列中
+                        completedUsers++;                                            // 增加已完成发送操作的用户数量
+                    })
+                    .catch(error => {
+                        console.log('Error:', error);
+                    })
+                );
             }
         }
-
+        // step.4 等待所有異步操作完成后再向下執行...
+        await Promise.all(promises);
         // step.5 確認發送筆數完成，並調用swap_toLog 將user_logs寫入autoLog
         if (completedUsers == totalUsers) {                          // 检查是否所有用户的发送操作都已完成
             swap_toLog(user_logs);                                   // 所有发送操作完成后调用 swap_toLog
@@ -831,14 +1114,8 @@
         console.log('mailArr 3=>', mailArr );
 
         const p2_send_btn = document.getElementById('p2_send_btn');
-        p2_send_btn.addEventListener('click', async function () {
-            if(confirm('確認發報？')){
-                const msgArr = await mailFac( mailArr );
-                p2notify_process(msgArr);
-
-            }else{
-                return false;
-            }
+        p2_send_btn.addEventListener('click', function () {
+            mailFac( mailArr );
         });
 
         // const _method = check3hourse(action);

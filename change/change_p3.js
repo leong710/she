@@ -50,7 +50,7 @@
                             const ifValue = ((i_cLogs['_7isCheck']) && i_cLogs['_7isCheck']) ? "checked" : "";
                             let td7 = `<snap><div class="form-check form-switch"> 
                                         <input class="form-check-input" type="checkbox" name="_8isCheck" id="${i_id},_7isCheck" ${ifValue} >
-                                        <label class="form-check-label" for="${i_id},_7isCheck">是</label></div></snap>`;
+                                        <label class="form-check-label" for="${i_id},_7isCheck">${ifValue ? "是":"否"}</label></div></snap>`;
                             tdObj['7'] = td7;
         
                         return (tdObj);
@@ -446,6 +446,9 @@
                             const _7isCheck = document.getElementById(`${i_OSHORT},${i_targetMonth},${i_empId},_7isCheck`);
                             if(_7isCheck){
                                 _7isCheck.checked = (selectedOptsValues.length > 0);                                    // 更新畫面
+                                let label = _7isCheck.nextElementSibling;            //  250322 switch true=是/false=否
+                                label.textContent = (selectedOptsValues.length > 0) ? "是" : "否";
+
                                 staffData['_changeLogs'][i_targetMonth]['_7isCheck'] = (selectedOptsValues.length > 0); // 更新暫存
                             } 
 
@@ -487,7 +490,7 @@
         for(const [index, staff] of Object.entries(staff_inf)){
             let todo = {};                                                  // 確保 _todo 存在
             for(const[targetYear, logs] of Object.entries(staff._changeLogs)){
-                if(logs._9checkDate === '' && logs._7isCheck === true){     // 沒有結案...建立--未結案的年月:異動後部門代號
+                if((logs._9checkDate === '' || logs._9checkDate === undefined ) && logs._7isCheck === true){     // 沒有結案...建立--未結案的年月:異動後部門代號
                     todo[targetYear] = logs.OSHORT;                         // 新增未結案的年月
                 }else{                                                      // 已經結案...找到對應的位置於以刪除
                     delete todo[targetYear];                                // 刪除對應的項目
@@ -495,7 +498,7 @@
             }
             staff_inf[index]['_todo'] = todo;                               // 更新 _todo 屬性
         }
-            // console.log('bat_storeChangeStaff--staff_inf',staff_inf);
+            console.log('bat_storeChangeStaff--staff_inf',staff_inf);
         const bat_storeChangeStaff_value = JSON.stringify({
                 staff_inf : staff_inf
             });

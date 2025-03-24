@@ -16,9 +16,10 @@
         position: absolute;
         padding: 5px;
         color: blue;
-        text-align: center;
+        text-align: center;     /* 對齊 */
+        letter-spacing:1px;     /* 字距 */
         /* 定位點邊框 */
-            border: 1px solid #000;             
+            /* border: 1px solid #000;  */
         /* 半透明背景顏色 */
-            background: rgba(221, 233, 56, 0.849);  
+            /* background: rgba(221, 233, 56, 0.849);  */
     }

@@ -71,9 +71,9 @@
                 case 'showStaff':                  // 由hrdb查詢簽核代理人，帶入查詢條件emp_id
                     $sql = "SELECT u.*  
                                 -- , s2.emp_id AS s2_emp_id, s2.cname AS s2_cname, s2.emp_scope AS s2_emp_scope, s2.dept_no AS s2_dept_no, s2.emp_dept AS s2_emp_dept, s2.emp_sub_scope AS s2_emp_sub_scope
-                                -- , _E.HIRED
+                                , _E.HIRED
                             FROM staff u
-                            -- LEFT JOIN HCM_VW_EMP01_hiring _E ON u.emp_id = _E.PERNR
+                            LEFT JOIN HCM_VW_EMP01_hiring _E ON u.emp_id = _E.PERNR
                             -- LEFT JOIN staff s2 ON u.omager = s2.emp_id
                             WHERE u.emp_id = ? ";
                             // pass掉的部分是所屬主管部門訊息的部分

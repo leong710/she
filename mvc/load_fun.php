@@ -1541,6 +1541,18 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
                 break;
+            
+            case 'showStaff':       // 250324..因為要加上到職日
+                require_once("../mvc/load_function.php");
+                $showStaff = queryHrdb("showStaff", $parm);                                     // 查詢員工資訊for部門消滅
+                // 製作返回文件
+                $result = [
+                    'result_obj' => $showStaff,
+                    'fun'        => $fun,
+                    'success'    => 'Load '.$fun.' success.',
+                ];
+
+                break;
 
             default:
                 sendErrorResponse('Invalid function', 400);

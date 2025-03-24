@@ -76,8 +76,10 @@
                 const _changeStaffs = await load_fun('load_change', emp_id, 'return');      // load_fun的變數傳遞要用字串
                 const staff_inf = _changeStaffs.find(stafff => stafff.emp_id === emp_id);   // 從_dept_inf找出符合 empId 的原始字串
                 if(staff_inf){
+                    const showStaff     = await load_fun('showStaff', emp_id, 'return');        // load_fun的變數傳遞要用字串
                     const { _changeLogs } = staff_inf;
-                    const OSHORT_i = _changeLogs[targetMonth].OSHORT;
+                    if(!_changeLogs[targetMonth]) return false;
+                    const OSHORT_i = _changeLogs[targetMonth].OSHORT ?? null;
                             // console.log('step2.targetMonth_changeLogs.OSHORT', OSHORT_i)
                     const _shLocalDepts = await load_fun('load_shLocalDepts', '"'+OSHORT_i+'"', 'return');   // load_fun的變數傳遞要用字串
                     const dept_inf = _shLocalDepts.find(dept => dept.OSHORT === OSHORT_i);  // 從_dept_inf找出符合 empId 的原始字串
@@ -85,9 +87,10 @@
                     // 合併整理
                         _changeLogs[targetMonth].cname       = staff_inf.cname    ?? '';
                         _changeLogs[targetMonth].emp_id      = staff_inf.emp_id   ?? '';
+                        _changeLogs[targetMonth].HIRED       = showStaff.HIRED    ?? '';
                         _changeLogs[targetMonth].OSTEXT      = dept_inf.OSTEXT    ?? '';
                         _changeLogs[targetMonth].OSTEXT_30   = dept_inf.OSTEXT_30 ?? '';
-                        _changeLogs[targetMonth].targetMonth = targetMonth ?? '';
+                        _changeLogs[targetMonth].targetMonth = targetMonth        ?? '';
                     return _changeLogs[targetMonth];    // 返回精簡值
                 }else{
                     return false;
@@ -102,14 +105,15 @@
     async function step3(parm) {
         if(parm){
             // const _6shCheckStr = JSON.stringify(parm._6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
-            const _6shCheckArr = parm._6shCheck.map(item => item.split(':')[1]).flat() + '作業';
-            const _6shCheckStr = JSON.stringify(_6shCheckArr).replace(/[\[{"}\]]/g, '');        // 特作物件轉字串
+            const _6shCheckArr = parm._6shCheck.map(item => item.split(':')[1] + '作業').flat(); // ===>> 這裡要改~
+            const _6shCheckStr = JSON.stringify(_6shCheckArr).replace(/[\[{"}\]]/g, '').replace(/,/g, '、');        // 特作物件轉字串
 
-            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創     廠)`);      // 1.廠區
+            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創　廠)`);      // 1.廠區
             $('#inputBox2').empty().append(`${parm.OSHORT}<br>${parm.OSTEXT}`);    // 2.部門
             $('#inputBox3').empty().append(parm.emp_id);    // 3.工號
             $('#inputBox4').empty().append(parm.cname);     // 4.姓名
-            $('#inputBox5').empty().append(_6shCheckStr);   // 5.檢查項目
+            $('#inputBox5').empty().append((parm.HIRED).replace(/-/g, '/'));     // 5.到職日
+            $('#inputBox6').empty().append(_6shCheckStr);   // 6.檢查項目
             return true;
 
         }else{
@@ -129,7 +133,7 @@
 
         if(result){
             document.title += `_${_changeStaff.cname}`; // 訂製檔案名稱加上cname
-            // window.print();                             // 列印畫面...
+            // window.print();                             // 列印畫面...記得打開!!
         }
         
         $("body").mLoading("hide");
