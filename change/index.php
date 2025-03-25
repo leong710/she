@@ -311,18 +311,18 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="P3resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i>&nbsp;儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staffChange_myForm" method="post" action="../_Format/download_excel.php">
                                             <input  type="hidden" name="htmlTable" id="staffChange_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staffChange" onclick="return confirm(`下載前會強制儲存，請問是否要儲存後下載？`) && P3downloadExcel(this.value)" disabled ><i class="fa fa-download"></i> 下載</button>
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staffChange" onclick="return confirm(`下載前會強制儲存，請問是否要儲存後下載？`) && P3downloadExcel(this.value)" disabled ><i class="fa fa-download"></i>&nbsp;下載</button>
                                         </form>
                                     </div>
                                 </div>
                                 <!-- 右側function -->
-                                <div class="col-md-4 py-0 text-end inf">
-                      
+                                <div class="col-md-4 py-0 text-end">
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disable  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
                                 </div>
                             </div>
                             <hr>
@@ -339,6 +339,7 @@
                                         <th title="8"  class="table-warning"      >備註說明</th>
                                         <th title="9"  class="table-warning wh-75">受檢日期</th>
                                         <th title="10" class="table-primary"      >總窗備註</th>
+                                        <th title="11" class="table-danger"       >Notify</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -474,49 +475,46 @@
             </div>
         </div>
     </div> 
-
-
-    <!-- 互動視窗 import_shLocal -->
-    <div class="modal fade" id="import_shLocal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <!-- 互動視窗 p2notify -->
+    <div class="modal fade" id="p2notify" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">挑選作業位置&nbsp;(<snap id="import_shLocal_empId"></snap>)：</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-2"></i>&nbsp;變更作業健檢-待通報清單統計</h5>&nbsp;&nbsp;共：<span id="p2totalUsers_length"></span>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body px-4">
-                    <table id="shLocal_table" class="table table-striped table-hover">
-                        <thead>
-                            <th title="id">aid</th>
-                            <th title="OSTEXT_30">廠區</th>
-                            <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
-                            <th title="OSTEXT">部門名稱</th>
 
-                            <th title="HE_CATE">檢查類別代號</th>
-                            <th title="MONIT_NO">監測編號</th>
-                            <th title="MONIT_LOCAL">監測處所</th>
-                            <th title="WORK_DESC">作業描述</th>
-                            
-                            <th title="AVG_VOL">A權音壓級<br><sup>(dBA)</sup></th>
-                            <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均<br><sup>(dBA)</sup></th>
-                            <th title="">選擇</th>
+                <div class="modal-body px-4">
+                    <table id="p2_table" class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>姓名 (工號)</th>
+                                <th>異動時間</th>
+                                <th>異動部門</th>
+                                <th>特作項目</th>
+                                <th class="table-success text-success">部門主管 (工號)</th>
+                                <th class="table-warning">Result</th>
+                            </tr>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
+                    <hr>
+                    <!-- 頁尾操作訊息 -->
+                    <div class="col-12 py-0"><b>執行訊息：</b></div>
+                    <!-- append執行訊息 -->
+                    <div class="col-12 bg-white border rounded py-2 my-0" id="p2result"></div>
                 </div>
+                
                 <div class="modal-footer">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
-                        <label class="form-check-label" for="useImportShLocal">保留選項</label>
-                    </div>
-                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>
+                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="p2notify_btn">發出</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
         </div>
     </div> 
+
+
 
     <!-- canvas側欄 memoCard-->
     <div class="offcanvas offcanvas-end" id="offcanvasRight" tabindex="-1" aria-labelledby="offcanvasRightLabel" aria-hidden="true">
@@ -664,8 +662,8 @@
     var maintainDept_modal    = new bootstrap.Modal(document.getElementById('maintainDept'), { keyboard: false });
     var edit_modal            = new bootstrap.Modal(document.getElementById('edit_modal'), { keyboard: false });
     var edit2_modal           = new bootstrap.Modal(document.getElementById('edit2_modal'), { keyboard: false });
+    var p2notify_modal        = new bootstrap.Modal(document.getElementById('p2notify'), { keyboard: false });
 
-    // var importShLocal_modal = new bootstrap.Modal(document.getElementById('import_shLocal'), { keyboard: false });
     // var submit_modal        = new bootstrap.Modal(document.getElementById('submitModal'), { keyboard: false });
     // var memoCard_modal      = new bootstrap.Offcanvas(document.getElementById('offcanvasRight'), { keyboard: false });
 
@@ -693,8 +691,8 @@
         'signCode' : '<?=$auth_sign_code?>',
     }
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
-    // const currentYear    = '<=$_year?>';                      // 取得當前年份
-    // const preYear        = String(currentYear - 1);            // 取得去年年份
+    // const currentYear = '<=$_year?>';                      // 取得當前年份
+    // const preYear     = String(currentYear - 1);            // 取得去年年份
 
 </script>
 <script src="../mvc/utility.js?v=<?=time()?>"></script>
@@ -706,6 +704,7 @@
 <script src="change_excel.js?v=<?=time()?>"></script>
 <script src="change_memo.js?v=<?=time()?>"></script>
 <script src="change_p3.js?v=<?=time()?>"></script>
+<script src="change_notify.js?v=<?=time()?>"></script>
 <!-- <script src="change_editModal.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

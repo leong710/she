@@ -20,9 +20,19 @@
                 $('#staff_table tbody').append(tr1);
                 
             }else{
-                    // 部門代號加工+去除[]符號/[{"}]/g, ''
+                    // 通報數據加工+去除[]符號/[{"}]/g, ''
                     function doReplace(_arr){
                         return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
+                    }
+                    // 返回最新的一筆通報數據
+                    function getLatestNotification(notifyArray) {
+                        if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                            return null; // 如果不是陣列或陣列為空，返回 null
+                        }
+                        // 將陣列按照 to_notify 進行排序，最新的在最前面
+                        notifyArray.sort((a, b) => new Date(b.to_notify) - new Date(a.to_notify));
+                        // 返回最新的前一筆數據
+                        return notifyArray[0];
                     }
                     
                     function mkTD(post_i , case_iArr){
@@ -32,7 +42,10 @@
                         const i_targetMonth = case_iArr[5] ?? '';                           // 取出陣列 5 = 目標年月
                         const i_id = `${i_OSHORT},${i_targetMonth},${i_emp_id}`;
 
-                        const i_cLogs       = post_i['_changeLogs'][i_targetMonth] ?? {};
+                        const i_cLogs       = post_i['_changeLogs'][i_targetMonth]         ?? {};
+
+                        const i_cNotify     = post_i['_content']?.[i_targetMonth]?.['notify'] ?? [];
+                        const to_notify     = i_cNotify.length > 0 || i_cLogs._9checkDate !== '';
 
                         // 生成-6:變更體檢項目 - checkbox
                             const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
@@ -40,7 +53,7 @@
                                 for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
                                     const ifValue = ((i_cLogs['_6shCheck']) && i_cLogs['_6shCheck'].includes(o_value)) ? "checked" : "";
                                     td6 += `<div class="form-check m-0"> 
-                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} >
+                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} ${to_notify ? 'disabled':''}>
                                             <label class="form-check-label" for="${i_id},_6shCheck,${o_value}">${o_value}</label></div>`;
                                     }
                             td6 += '</snap>';
@@ -49,7 +62,7 @@
                         // 生成-7:是否補檢 - checkbox-switch
                             const ifValue = ((i_cLogs['_7isCheck']) && i_cLogs['_7isCheck']) ? "checked" : "";
                             let td7 = `<snap><div class="form-check form-switch"> 
-                                        <input class="form-check-input" type="checkbox" name="_8isCheck" id="${i_id},_7isCheck" ${ifValue} >
+                                        <input class="form-check-input" type="checkbox" name="_7isCheck" id="${i_id},_7isCheck" ${ifValue} ${to_notify ? 'disabled':''}>
                                         <label class="form-check-label" for="${i_id},_7isCheck">${ifValue ? "是":"否"}</label></div></snap>`;
                             tdObj['7'] = td7;
         
@@ -72,8 +85,12 @@
                     if(staffArr){
                         const tdObj = mkTD(staffArr, case_iArr);
 
-                        const _cLogs = staffArr['_changeLogs'][i_targetMonth] ?? {};
-                        
+                        const _cLogs    = staffArr['_changeLogs'][i_targetMonth] ?? {};
+                        const _cNotify  = staffArr['_content'][i_targetMonth]['notify'] ?? [];
+                        const _cNotifyLast   = getLatestNotification(_cNotify);
+                        var _cNotifyLast_str = doReplace(_cNotifyLast);
+                            _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
+
                         let tr1 = '<tr>';
                             tr1 += `<td class=""              id="">${i_targetMonth ?? ''}</td>
                                     <td class=""              id="">${i_OSTEXT_30}</td>
@@ -84,8 +101,9 @@
                                     <td class=""              id="">${tdObj['6']}</td>
                                     <td class=""              id="">${tdObj['7']}</td>
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
-                                    <td class="edit2"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
+                                    <td class="${_cLogs['_9checkDate'] === '' || userInfo.role <= 1 ? 'edit2' : ''}"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
                                     <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
+                                    <td class="edit2 "        id="${i_id},_todo"        >${_cNotifyLast_str ?? ''}</td>
                                     `
                             tr1 += '</tr>';
 
@@ -205,10 +223,12 @@
                                     // newStaffData["OSTEXT"]    = staffArr[4] ?? '';                    // 取出陣列 4 = 部門名稱
                                     const targetMonth  = staffArr[5] ?? '';                    // 取出陣列 5 = 作業年月
                                     newStaffData["_changeLogs"][targetMonth] = {
-                                        "OSHORT"    : staffArr[3] ?? '',
+                                        "OSHORT" : staffArr[3] ?? '',
                                         // "_0isClose" : false
                                     };
-                                    newStaffData["_content"][targetMonth] = {};
+                                    newStaffData["_content"][targetMonth] = {
+                                        'notify' : []
+                                    };
                                 }else{
                                     newStaffData["emp_id"]      = empId; 
                                 }
@@ -488,21 +508,28 @@
     async function bat_storeChangeStaff(){
         // 250317 儲存前確認是否有沒有結案的項目...
         for(const [index, staff] of Object.entries(staff_inf)){
-            let todo = {};                                                  // 確保 _todo 存在
+            let { _todo } = staff;                                                  // 確保 _todo 存在
+            if(_todo.length == 0){
+                _todo = {};
+            }
             for(const[targetYear, logs] of Object.entries(staff._changeLogs)){
-                if((logs._9checkDate === '' || logs._9checkDate === undefined ) && logs._7isCheck === true){     // 沒有結案...建立--未結案的年月:異動後部門代號
-                    todo[targetYear] = logs.OSHORT;                         // 新增未結案的年月
+                if((logs._9checkDate === '' || logs._9checkDate === undefined ) && logs._7isCheck === true && logs._6shCheck.length !== 0){     // 沒有結案...建立--未結案的年月:異動後部門代號
+                    _todo[targetYear] = _todo[targetYear] ?? {
+                            'OSHORT' : logs.OSHORT                          // 新增未結案的年月
+                        }
                 }else{                                                      // 已經結案...找到對應的位置於以刪除
-                    delete todo[targetYear];                                // 刪除對應的項目
+                    delete _todo[targetYear];                            // 刪除對應的項目...這裡要注意~~~~~~~~~~~~~~~~~!!!!!!!!!
                 }
             }
-            staff_inf[index]['_todo'] = todo;                               // 更新 _todo 屬性
+            staff_inf[index]['_todo'] = _todo;                               // 更新 _todo 屬性
         }
-            console.log('bat_storeChangeStaff--staff_inf',staff_inf);
+            // console.log('bat_storeChangeStaff--staff_inf',staff_inf);
         const bat_storeChangeStaff_value = JSON.stringify({
                 staff_inf : staff_inf
             });
             // console.log('bat_storeChangeStaff_value',bat_storeChangeStaff_value);
-        await load_fun('bat_storeChangeStaff', bat_storeChangeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
-        location.reload();
+        const result = await load_fun('bat_storeChangeStaff', bat_storeChangeStaff_value, 'return');   // load_fun的變數傳遞要用字串
+        inside_toast(result.content, 3000, result.action);
+
+        // location.reload();
     }

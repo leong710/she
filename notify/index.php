@@ -257,9 +257,7 @@
                 
                 <hr>
                 <!-- 頁尾操作訊息 -->
-                <div class="col-12 py-0">
-                    <b>執行訊息：</b>
-                </div>
+                <div class="col-12 py-0"><b>執行訊息：</b></div>
                 <!-- append執行訊息 -->
                 <div class="col-12 bg-white border rounded py-2 my-0" id="p2result"></div>
                 <div class="row">
@@ -280,9 +278,12 @@
                         <span style="display: inline-block;" id="reload_time" title="" ><?php echo $reloadTime;?></span>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+    <!-- toast -->
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>

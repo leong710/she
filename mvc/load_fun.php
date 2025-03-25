@@ -10,7 +10,7 @@
                 return empty($params) ? $stmt->execute() : $stmt->execute($params);
             } catch (PDOException $e) {
                 error_log($e->getMessage());
-                sendErrorResponse('Database error.');
+                sendErrorResponse("Database error");
             }
         }
 
@@ -1180,7 +1180,7 @@
     
                 break;
 
-            case 'bat_storeDept':               // 批次儲存部門變更作業
+            case 'bat_storeDept':               // 批次儲存部門變更作業P2
                 require_once("../user_info.php");
                 $pdo = pdo();
                 $swal_json = array(                                 // for swal_json
@@ -1258,6 +1258,7 @@
                     ];
                 }
                 break;
+
             case 'load_shLocal_Lists':          // 250217 取得所有特作部門代號清單
                 $pdo = pdo();
                 $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT  
@@ -1386,7 +1387,7 @@
         
                 break;
 
-            case 'bat_storeChangeStaff':        // 250310 變更作業健檢--儲存人員
+            case 'bat_storeChangeStaff':        // 250310 變更作業健檢--儲存人員P3
                 require_once("../user_info.php");
                 $pdo = pdo();
                 $swal_json = array(                                 // for swal_json
@@ -1431,51 +1432,23 @@
                             $row_log_value_str = (isset($row_changeLogs[$targetMonth])) ? json_encode($row_changeLogs[$targetMonth]) : "";
                         // 驗證後的更新
                         if($row_log_value_str !== $new_log_value_str){
-                            // 1.指定覆蓋法
-                                // $row_changeLogs[$targetMonth] = [
-                                //         "OSHORT"            => $new_log_value["OSHORT"]            ?? ($row_changeLogs[$targetMonth]["OSHORT"]            ?? '' ),  // 部門代號
-                                //         "_0_isClose"        => $new_log_value["_0isClose"]         ?? ($row_changeLogs[$targetMonth]["_0isClose"]         ?? '' ),  // 0_是否結案
-                                //         "_6_shCheck"        => $new_log_value["_6shCheck"]         ?? ($row_changeLogs[$targetMonth]["_6shCheck"]         ?? '' ),  // 6_變更體檢項目
-                                //         "_7_keyInMan"       => $new_log_value["_7keyInMan"]        ?? ($row_changeLogs[$targetMonth]["_7keyInMan"]        ?? '' ),  // 7_彙整人員
-                                //         "_8_isCheck"        => $new_log_value["_8isCheck"]         ?? ($row_changeLogs[$targetMonth]["_8isCheck"]         ?? '' ),  // 8_是否補檢
-                                //         "_9_inCareDate"     => $new_log_value["_9inCareDate"]      ?? ($row_changeLogs[$targetMonth]["_9inCareDate"]      ?? '' ),  // 9_受檢開單日
-                                //         "_10_changeRemark"  => $new_log_value["_10changeRemark"]   ?? ($row_changeLogs[$targetMonth]["_10changeRemark"]   ?? '' ),  // 10_備註說明
-                                //         "_11_whyChange"     => $new_log_value["_11whyChange"]      ?? ($row_changeLogs[$targetMonth]["_11whyChange"]      ?? '' ),  // 11_變更原因
-                                //         "_12_checkDate"     => $new_log_value["_12checkDate"]      ?? ($row_changeLogs[$targetMonth]["_12checkDate"]      ?? '' ),  // 12_受檢日期
-                                //         "_13_reportDate"    => $new_log_value["_13reportDate"]     ?? ($row_changeLogs[$targetMonth]["_13reportDate"]     ?? '' ),  // 13_報告收到日期
-                                //         "_14_notifyDate"    => $new_log_value["_14notifyDate"]     ?? ($row_changeLogs[$targetMonth]["_14notifyDate"]     ?? '' ),  // 14_通知日期
-                                //         "_15_bpmRemark"     => $new_log_value["_15bpmRemark"]      ?? ($row_changeLogs[$targetMonth]["_15bpmRemark"]      ?? '' ),  // 15_總窗備註
-                                //     ];
-
-                            // 2.迴圈覆蓋法
-                                // 確保 $row_changeLogs[$targetMonth 是陣列的存在
-                                // $row_changeLogs[$targetMonth] = $row_changeLogs[$targetMonth] ?? []; 
-                                // foreach($new_log_value as $key => $value ){
-                                //     if($key == "_8isCheck"){            // 特例排除，因為它的值直接是 true/false 會影響判斷
-                                //         $row_changeLogs[$targetMonth][$key] = $value;
-
-                                //     }else{
-                                //         // $row_changeLogs[$targetMonth][$key] = ($row_changeLogs[$targetMonth][$key] != $value) ? $value : ($row_changeLogs[$targetMonth][$key] ?? '' );
-                                //         $row_changeLogs[$targetMonth][$key] = $value ?? ($row_changeLogs[$targetMonth][$key] ?? '' );
-                                //     }
-                                // }
                             // 3.強制覆蓋法 -- 只有這招最實在b 
                             $row_changeLogs[$targetMonth] = $new_log_value; 
 
                         }
                     };
 
-                    // step.3b 檢查並串接新的 _content
-                    foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
-                        // 前後驗證                        
-                            $new_content_value_str = json_encode($new_content_value);
-                            $row_content_value_str = (!empty($row_content[$targetMonth])) ? json_encode($row_content[$targetMonth]) : "";
-                        // 驗證後的更新
-                        if($row_content_value_str !== $new_content_value_str){
-                            // 確保 $row_content[$targetMonth 是陣列的存在
-                            $row_content[$targetMonth] = $new_content_value ?? []; 
-                           }
-                    };
+                    // // step.3b 檢查並串接新的 _content
+                    // foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                    //     // 前後驗證                        
+                    //         $new_content_value_str = json_encode($new_content_value);
+                    //         $row_content_value_str = (!empty($row_content[$targetMonth])) ? json_encode($row_content[$targetMonth]) : "";
+                    //     // 驗證後的更新
+                    //     if($row_content_value_str !== $new_content_value_str){
+                    //         // 確保 $row_content[$targetMonth 是陣列的存在
+                    //         $row_content[$targetMonth] = $new_content_value ?? []; 
+                    //        }
+                    // };
 
                
                     // step.4 將更新後的資料編碼為 JSON 字串
@@ -1552,6 +1525,78 @@
                     'success'    => 'Load '.$fun.' success.',
                 ];
 
+                break;
+
+            case 'bat_updateStaffNotify':        // 250325 變更作業健檢--更新人員_content通知訊息P3
+                require_once("../user_info.php");
+                $pdo = pdo();
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "bat_updateStaffNotify",
+                    "content"   => "批次更新人員_content通知訊息--"
+                );
+                
+                function fetchEmployeeData($pdo, $emp_id) {
+                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                    executeQuery($stmt_select, [$emp_id]);
+                    return $stmt_select->fetch(PDO::FETCH_ASSOC);
+                }
+                function updateEmployeeData($pdo, $_content_data, $auth_cname, $emp_id) {
+                    $stmt_update = $pdo->prepare(SQL_UPDATE_DOC);
+                    return executeQuery($stmt_update, [$_content_data, $auth_cname, $emp_id]);
+                }
+
+                define('SQL_SELECT_DOC', "SELECT emp_id, _content, updated_at FROM _change WHERE emp_id = ? ");
+                define('SQL_UPDATE_DOC', "UPDATE _change SET _content = ?, updated_cname = ?, updated_at = now() WHERE emp_id = ?" );
+
+                $params = [];
+                $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
+                // step.3a 檢查並維護現有資料中的 key
+                $staff_inf = $parm_array['staff_inf'] ?? [];
+
+                foreach ($staff_inf as $staff_i) {
+                    $staff_i_arr = (array) $staff_i; // #2.這裡也要由物件轉成陣列
+                    extract($staff_i_arr);
+
+                    // step.2a 提取現有資料
+                    $row_data = fetchEmployeeData($pdo, $emp_id);
+                    if ($row_data){
+                        // step.2b 解析現有資料為陣列
+                        $row_content = isset($row_data['_content']) ? json_decode($row_data['_content'], true) : [];
+    
+                        // step.3 更新或新增個人該變更日期的資料
+                        $row_content[$changeTime] = $row_content[$changeTime] ?? ['notify' => []];
+                        $row_content[$changeTime]['notify'][] = [
+                            "to_cname"  => $to_cname,     // 通知誰
+                            "to_emp_id" => $to_emp_id,    // 誰的工號
+                            "to_email"  => $to_email,     // 誰的信箱
+                            "to_notify" => $to_notify,    // 通知時間
+                            "to_result" => $to_result,    // 通知結果
+                        ];
+    
+                        // step.4 將更新後的資料編碼為 JSON 字串
+                        $_content_str = json_encode($row_content, JSON_UNESCAPED_UNICODE);
+                    
+                        // step.5 執行更新
+                        if (!updateEmployeeData($pdo, $_content_str, $auth_cname, $emp_id)) {
+                            $swal_json["action"] = "error";
+                            $swal_json["content"] .= '儲存失敗';
+                            break; 
+                        }
+                    } else {
+                        $swal_json["action"] = "error";
+                        $swal_json["content"] .= '無法取得員工資料';
+                    }
+                }
+
+                $swal_json["action"] = $swal_json["action"] ?? "success";
+                $swal_json["content"] .= ($swal_json["action"] === "success") ? '儲存成功' : '';
+                
+                $result = [
+                    'result_obj' => $swal_json,
+                    'fun'        => $fun,
+                    'success'    => $swal_json["action"] === "success" ? 'Load ' . $fun . ' success.' : null,
+                    'error'      => $swal_json["action"] === "error" ? 'Load ' . $fun . ' failed...(e or no parm)' : null,
+                ];
                 break;
 
             default:

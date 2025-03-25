@@ -25,7 +25,7 @@
                 newToast.setAttribute('delay', delayTime);
     
                 // 設置 toast 的內部 HTML
-                newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body ${(type == 'success' ? 'text-white':'')}">${sinn}</div>
                         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
     
             // 將新 toast 添加到容器中
@@ -61,9 +61,41 @@
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 手動保留在本業; 載入成功，resolve
                 }
             }else{
-                console.error("Invalid swal_value:", swal_value);
-                location.href = url;
-                resolve(); // 異常情況下也需要resolve
+                // // // // // -- -- -- -- -- 這裡有問題
+                try {
+                    // swal組合訊息，根據發送結果選用提示內容與符號
+                    var swal_title = '通知訊息';
+                    var swal_content = '';
+                    var swal_action = 'info'; // 預設為info
+
+                        function getResultContent(result, type) {
+                            if (result.error == 0 && result.success != 0) {
+                                return `${type}成功：${result.success}`;
+                            } else if (result.error != 0 && result.success == 0) {
+                                return `${type}失敗：${result.error}`;
+                            } else {
+                                return `${type}成功：${result.success}、錯誤：${result.error}`;
+                            }
+                        }
+
+                    // 處理 email 部分
+                    swal_content += getResultContent(swal_value.email, '寄送');
+                    swal_action = (swal_value.email.error != 0 || swal_value.mapp.error != 0) ? 'warning' : 'success';
+
+                    // 處理 mapp 部分
+                    swal_content += ' 、 ' + getResultContent(swal_value.mapp, '推送');
+                    if (swal_value.mapp.error != 0) {
+                        swal_action = 'warning'; // 如果有錯誤，設定為 warning
+                    }
+
+                    $("body").mLoading("hide");                                                       // 關閉mLoading圖示
+                    swal(swal_title ,swal_content ,swal_action, {timer:5000}).then(()=>{resolve();});                        // popOut swal + 自動關閉
+
+                } catch (error) {
+                    console.error("Invalid swal_value:", swal_value);
+                    // location.href = url;  // ---- 需要注意
+                    resolve(); // 異常情況下也需要resolve
+                }
             }
         });
     }

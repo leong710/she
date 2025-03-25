@@ -26,7 +26,7 @@
                 newToast.setAttribute('delay', delayTime);
     
                 // 設置 toast 的內部 HTML
-                newToast.innerHTML = `<div class="d-flex"><div class="toast-body">${sinn}</div>
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body ${(type == 'success' ? 'text-white':'')}">${sinn}</div>
                         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
     
             // 將新 toast 添加到容器中
@@ -224,7 +224,14 @@
             $("body").mLoading("hide");
         }
     }
-
+    // 生成時間戳章 for memoCard
+    function getTimeStamp(){
+        var Today       = new Date();
+        const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        const thisTime  = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0') +':'+ String(Today.getSeconds()).padStart(2,'0');                           // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+        const timeStamp = thisToday+' '+thisTime;
+        return timeStamp;
+    }
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能
     function op_tab(tab_value){
@@ -327,14 +334,14 @@
 
 // // 子技能--C
     // 20240515 整理log記錄檔並轉拋toLog
-    async function swap_toLog(user_logs){
+    async function swap_toLog(to_logs){
         // 打包整理Logs的陣列
-        user_logs_obj = {
+        to_logs_obj = {
             thisDay  : thisToday,
-            autoLogs : user_logs
+            autoLogs : to_logs
         }
-        user_logs_json = JSON.stringify(user_logs_obj);                                   // logs大陣列轉JSON字串
-        await toLog(user_logs_json);                                                            // *** call fun.step_2 寫入log記錄檔
+        to_logs_json = JSON.stringify(to_logs_obj);                                   // logs大陣列轉JSON字串
+        await toLog(to_logs_json);                                                            // *** call fun.step_2 寫入log記錄檔
     }
     // 20231213 寫入log記錄檔~
     function toLog(logs_msg){
@@ -361,31 +368,31 @@
             });
         });
     }
-    // 20240314 配合await將swal外移
+    // 20240314 配合await將swal外移 +
     function show_swal_fun(push_result){
         // swal組合訊息，根據發送結果選用提示內容與符號
-        var swal_title = '領用申請單-發放訊息';
-        
-        if((push_result['email']['error'] == 0) && (push_result['email']['success'] != 0)){
-            var swal_content = '寄送成功：'+ push_result['email']['success'];
-            var swal_action = 'success';
-        } else if((push_result['email']['error'] != 0) && (push_result['email']['success'] == 0)){
-            var swal_content = '寄送失敗：'+ push_result['email']['error'];
-            var swal_action = 'error';
-        } else {
-            var swal_content = '寄送成功：'+ push_result['email']['success'] +'、錯誤：'+ push_result['email']['error'];
-            var swal_action = 'warning';
-        }
+        var swal_title = '通知訊息';
+        var swal_content = '';
+        var swal_action = 'info'; // 預設為info
 
-        if((push_result['mapp']['error'] == 0) && (push_result['mapp']['success'] != 0)){
-            swal_content += ' 、 推送成功：'+ push_result['mapp']['success'];
-            swal_action = 'success';
-        } else if((push_result['mapp']['error'] != 0) && (push_result['mapp']['success'] == 0)){
-            swal_content += ' 、 推送失敗：'+ push_result['mapp']['error'];
-            swal_action = 'error';
-        } else {
-            swal_content += ' 、 推送成功：'+ push_result['mapp']['success'] +'、錯誤：'+ push_result['mapp']['error'];
-            swal_action = 'warning';
+            function getResultContent(result, type) {
+                if (result.error == 0 && result.success != 0) {
+                    return `${type}成功：${result.success}`;
+                } else if (result.error != 0 && result.success == 0) {
+                    return `${type}失敗：${result.error}`;
+                } else {
+                    return `${type}成功：${result.success}、錯誤：${result.error}`;
+                }
+            }
+
+        // 處理 email 部分
+        swal_content += getResultContent(push_result.email, '寄送');
+        swal_action = (push_result.email.error != 0 || push_result.mapp.error != 0) ? 'warning' : 'success';
+
+        // 處理 mapp 部分
+        swal_content += ' 、 ' + getResultContent(push_result.mapp, '推送');
+        if (push_result.mapp.error != 0) {
+            swal_action = 'warning'; // 如果有錯誤，設定為 warning
         }
 
         $("body").mLoading("hide");                                                       // 關閉mLoading圖示
@@ -442,7 +449,8 @@
             async function p2_step2(load_changeTodo) {
                 return new Promise((resolve) => {
                     // 首先對每個員工資料使用 map()，然後透過 Object.values() 來提取 _todo 物件中的值。最後，使用 flat() 將嵌套陣列展平，得到一個包含所有 _todo 值的一維陣列。
-                    const shorts = (load_changeTodo.length != 0 ) ? load_changeTodo.map(staff => Object.values(staff._todo)).flat() : [];
+                    // const shorts = (load_changeTodo.length != 0) ? load_changeTodo.map(staff => Object.values(staff._todo)).flat() : [];
+                    const shorts = (load_changeTodo.length != 0) ? load_changeTodo.map(staff => Object.values(staff._todo).map(item => item.OSHORT)).flat() : [];
                     const shortsUniqueArr =  [...new Set(shorts)];                        // 年月去重
                         console.log('p2_step2--shortsUniqueArr...', shortsUniqueArr);
                 
@@ -494,7 +502,7 @@
 
                             if(staff_i) {
                                 const { emp_id, _todo, _changeLogs } = staff_i;
-                                for(const [targetMonth, OSHORT] of Object.entries(_todo)) {
+                                for(const [targetMonth, { OSHORT , notify }] of Object.entries(_todo)) {
                                     const _6shCheck = _changeLogs[targetMonth]._6shCheck ?? [];                 // 取得特作項目
                                     const _6shCheckStr = JSON.stringify(_6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
                                     // 處理omager
@@ -608,7 +616,8 @@
                             'to_email'  : to_email,
                             'title'     : sample_mail[0],
                             'mailInner' : mailInner,
-                            'staffList' : staffDivStr
+                            'staffList' : staffDivStr,
+                            'staff_inf' : staff_inf
                         })
                     })
                 }
@@ -706,15 +715,14 @@
 
             var totalUsers = msgArr.length;                                    // 獲取總用戶數量
             var completedUsers = 0;                                             // 已完成发送操作的用户数量
-            var user_logs = [];                                                 // 宣告儲存Log用的 大-陣列Logs
-
+            var to_logs = [];                                                  // 宣告儲存Log用的 大-陣列Logs
+            var satff_mailResult = [];
 
         // step1. 將notifyLists逐筆進行分拆作業
         for (const _value of msgArr){              // 表頭1.外層
-                console.log('_value...',_value);
-
+                // console.log('_value...',_value);
             // step.1-0 init
-            const { to_cname, to_emp_id, to_email, title, mailInner, staffList } = _value;
+            const { to_cname, to_emp_id, to_email, title, mailInner, staffList, staff_inf } = _value;
 
             // step.1-1 確認工號是否有誤
             if(to_email === '' || to_email == undefined || to_email == null){
@@ -734,7 +742,7 @@
 
             } else {
                 // 宣告儲存Log內的單筆 小-物件log
-                let user_log = { 
+                let to_log = { 
                     cname           : to_cname,
                     emp_id          : to_emp_id,
                     email           : to_email,
@@ -742,36 +750,47 @@
                 };
 
                 // step.1-2 調用_fun make_msg 帶入個人單筆紀錄進行訊息製作
-                user_log['mg_msg']    = staffList;                         // 小-物件log 紀錄mg_msg訊息
+                to_log['mg_msg']    = staffList;                         // 小-物件log 紀錄mg_msg訊息
                 
                 // step.2 執行通知 --
                 // *** 2-1 發送mail
                 // const mailResult = await sendmail(to_email, title, mailInner);
-                const mailResult = true;
+                const mailResult = true;    // 測試用
 
                 // 執行-mail處理-訊息渲染
-                    user_log.mail_res = mailResult ? 'OK' : 'NG';
+                    to_log.mail_res = mailResult ? 'OK' : 'NG';
                     mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
-                    let fa_icon_mail = window['mail_' + user_log.mail_res];
-                    var console_log = to_cname + " (" + to_emp_id + ")" + ' ...  sendMail：' + fa_icon_mail + user_log.mail_res;    // 初始化下方執行訊息
+                    let fa_icon_mail = window['mail_' + to_log.mail_res];
+                    var console_log = to_cname + " (" + to_emp_id + ")" + ' ...  sendMail：' + fa_icon_mail + to_log.mail_res;    // 初始化下方執行訊息
                     $('#p2result').append(console_log + '</br>');                                       // 執行訊息渲染1下方
                     const omagerDivs = document.querySelectorAll(`#p2_table div[id*=",${to_emp_id}"]`);
                     omagerDivs.forEach((omagerDiv) => omagerDiv.innerHTML = fa_icon_mail);              // 執行訊息渲染2尾部
 
                 // 其他自定義操作
-                user_logs.push(user_log);                                    // 將log單筆小物件 塞入 logs大陣列中
+                to_logs.push(to_log);                                    // 將log單筆小物件 塞入 logs大陣列中
+                // 製作成功清單
+                Object.entries(staff_inf).forEach(([index, staff]) => {
+                    staff.to_cname  = to_cname,         // 通知誰
+                    staff.to_emp_id = to_emp_id,        // 誰的工號
+                    staff.to_email  = to_email,         // 誰的信箱
+                    staff.to_notify = getTimeStamp();   // 通知時間
+                    staff.to_result = mailResult;       // 通知結果
+
+                    satff_mailResult.push(staff);       // 推到主要陣列
+                });
+
                 completedUsers++;                                            // 增加已完成发送操作的用户数量
             }
         }
 
-        // step.5 確認發送筆數完成，並調用swap_toLog 將user_logs寫入autoLog
+        // step.5 確認發送筆數完成，並調用swap_toLog 將to_logs寫入autoLog
         if (completedUsers == totalUsers) {                          // 检查是否所有用户的发送操作都已完成
-            swap_toLog(user_logs);                                   // 所有发送操作完成后调用 swap_toLog
+            swap_toLog(to_logs);                                   // 所有发送操作完成后调用 swap_toLog
         }
         // step.6 調用 show_swal_fun帶入push_result統計
         show_swal_fun(push_result);                                                         // 调用 show_swal_fun
         // 將其歸零，避免汙染
-            user_logs = [];
+            to_logs = [];
             push_result = {
                 'mapp' : {
                     'success' : 0,
@@ -784,7 +803,7 @@
             }
 
             // $("body").mLoading("hide");                                                         // 關閉mLoading圖示
-        return;
+        return satff_mailResult;    // 返回特作員工清單
     }
 
     async function load_init(action){
@@ -826,15 +845,23 @@
         const shortsUniqueArr  = await p2_step2(load_changeTodo);   // step.2 把_todo下的部門代號取出來存成陣列
         const showSignDeptIn   = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
         const showDelegationIn = await p2_step4(showSignDeptIn);    // step.4 把部門主管名單去找代理人...
-
-        const { mailArr } = await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
-        console.log('mailArr 3=>', mailArr );
+        const { mailArr }      = await p2_step5a(load_changeTodo, showSignDeptIn, showDelegationIn);
+            // console.log('mailArr 3=>', mailArr );
 
         const p2_send_btn = document.getElementById('p2_send_btn');
         p2_send_btn.addEventListener('click', async function () {
             if(confirm('確認發報？')){
-                const msgArr = await mailFac( mailArr );
-                p2notify_process(msgArr);
+                const msgArr = await mailFac( mailArr );                                                // step1.生成mail
+
+                const satff_mailResult = (msgArr.length !== 0) ? await p2notify_process(msgArr) : [];   // step2.發送處理
+                
+                if(satff_mailResult.length !== 0){
+                    // 打包同仁的發報紀錄
+                    const staff_inf_str = JSON.stringify({ staff_inf : satff_mailResult });
+                    // 儲存同仁的發報紀錄
+                    const result = await load_fun('bat_updateStaffNotify', staff_inf_str, 'return');   // load_fun的變數傳遞要用字串
+                    inside_toast(result.content, 3000, result.action);
+                }
 
             }else{
                 return false;

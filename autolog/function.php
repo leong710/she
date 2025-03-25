@@ -90,7 +90,7 @@
             // 製作log紀錄前處理：塞進去製作元素
                 $logs_process["thisDay"]  = $row_logs_dec["thisDay"];                   // 表單狀態
                 $logs_process["autoLogs"] = $row_autologs;                              // 帶入新舊整合好的$row_autoLogs
-                $logs_enc = json_encode($logs_process);                                 // 1.將陣列編碼成儲存用JSON字串
+                $logs_enc = json_encode($logs_process, JSON_UNESCAPED_UNICODE);                                 // 1.將陣列編碼成儲存用JSON字串
                 $logs_enc = str_replace(array("\r\n","\r","\n"), "_rn_", $logs_enc);    // 2.去除字串內的換行字元
 
             $sql = "UPDATE autolog 
