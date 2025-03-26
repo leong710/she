@@ -193,6 +193,14 @@
             .edit2Header {
                 background-color: #ffdb99
             }
+            .notify_log {
+                font-size: 12px;
+            }
+            .mcc {
+                display         : flex; 
+                align-items     : center;
+                justify-content : center;
+            }
     </style>
 </head>
 <body>
@@ -485,7 +493,7 @@
                 </div>
 
                 <div class="modal-body px-4">
-                    <table id="p2_table" class="table table-striped table-hover">
+                    <table id="p2notify_table" class="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>姓名 (工號)</th>
@@ -674,6 +682,7 @@
     var staff_inf           = [];
     var shLocal_inf         = [];
     var mergedData_inf      = [];
+    var shItemArr_inf       = [];
     // var loadStaff_tmp    = [];
     // var _docs_inf        = [];
     // var _docsIdty_inf    = null;

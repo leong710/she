@@ -1434,22 +1434,20 @@
                         if($row_log_value_str !== $new_log_value_str){
                             // 3.強制覆蓋法 -- 只有這招最實在b 
                             $row_changeLogs[$targetMonth] = $new_log_value; 
-
                         }
                     };
 
-                    // // step.3b 檢查並串接新的 _content
-                    // foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
-                    //     // 前後驗證                        
-                    //         $new_content_value_str = json_encode($new_content_value);
-                    //         $row_content_value_str = (!empty($row_content[$targetMonth])) ? json_encode($row_content[$targetMonth]) : "";
-                    //     // 驗證後的更新
-                    //     if($row_content_value_str !== $new_content_value_str){
-                    //         // 確保 $row_content[$targetMonth 是陣列的存在
-                    //         $row_content[$targetMonth] = $new_content_value ?? []; 
-                    //        }
-                    // };
-
+                    // step.3b 檢查並串接新的 _content
+                    foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
+                        // 前後驗證                        
+                            $new_content_value_str = json_encode($new_content_value);
+                            $row_content_value_str = (isset($row_content[$targetMonth])) ? json_encode($row_content[$targetMonth]) : "";
+                        // 驗證後的更新
+                        if($row_content_value_str !== $new_content_value_str){
+                            // 確保 $row_content[$targetMonth 是陣列的存在
+                            $row_content[$targetMonth] = $new_content_value; 
+                           }
+                    };
                
                     // step.4 將更新後的資料編碼為 JSON 字串
                     $_changeLogs_str = json_encode($row_changeLogs, JSON_UNESCAPED_UNICODE);
@@ -1566,11 +1564,12 @@
                         // step.3 更新或新增個人該變更日期的資料
                         $row_content[$changeTime] = $row_content[$changeTime] ?? ['notify' => []];
                         $row_content[$changeTime]['notify'][] = [
-                            "to_cname"  => $to_cname,     // 通知誰
-                            "to_emp_id" => $to_emp_id,    // 誰的工號
-                            "to_email"  => $to_email,     // 誰的信箱
-                            "to_notify" => $to_notify,    // 通知時間
-                            "to_result" => $to_result,    // 通知結果
+                            "from_cname" => $from_cname,    // 誰通知
+                            "to_cname"   => $to_cname,      // 通知誰
+                            "to_emp_id"  => $to_emp_id,     // 誰的工號
+                            // "to_email"   => $to_email,      // 誰的信箱
+                            "dateTime"   => $dateTime,      // 通知時間
+                            "result"     => $result,        // 通知結果
                         ];
     
                         // step.4 將更新後的資料編碼為 JSON 字串

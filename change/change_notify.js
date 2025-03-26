@@ -192,28 +192,28 @@
             
             return(showDelegationIn); // 返回取得的資料
         }
-        // step.5 鋪設P2_table畫面 & 製作mail清單 
+        // step.5 鋪設p2notify_table畫面 & 製作mail清單 
         async function p2_step5a(_change, _signDeptIn, _delegationIn) {
             // 停止並銷毀 DataTable
-            // release_dataTable('p2_table');
-            $('#p2_table tbody').empty();
+            // release_dataTable('p2notify_table');
+            $('#p2notify_table tbody').empty();
             let mailArr     = [];       // 初始化mail清單
 
             if(_change.length === 0){
-                const table = $('#p2_table').DataTable();       // 獲取表格的 thead
+                const table = $('#p2notify_table').DataTable();       // 獲取表格的 thead
                 const columnCount = table.columns().count();    // 獲取每行的欄位數量
                 const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
-                $('#p2_table tbody').append(tr1);
+                $('#p2notify_table tbody').append(tr1);
     
             }else{
                     // div加工廠
-                    function rework_todo(staff_i){
+                    function rework_content(staff_i){
                         let _todoDIV    = {};
-                            _todoDIV[0] = '';
                             _todoDIV[2] = '';   // 異動時間
                             _todoDIV[3] = '';   // 異動部門
                             _todoDIV[4] = '';   // 特作項目
                             _todoDIV[5] = '';   // 部門主管
+                            _todoDIV[6] = '';
                             _todoDIV['omager'] = '';
 
                         if(staff_i) {
@@ -247,7 +247,7 @@
                                 _todoDIV[3] += `<div class=""           id="_todo_value,${emp_id},${targetMonth}" >${OSHORT}&nbsp;${OMAGER_i.sign_dept ?? ''}</div>`;   // 異動部門
                                 _todoDIV[4] += `<div class="text-start" id="_6shCheck,${emp_id},${targetMonth}" >${_6shCheckStr}</div>`;                                // 特作項目
                                 _todoDIV[5] += `<div class="text-start" id="omager,${emp_id},${targetMonth}" >${omagerDIV.cname}&nbsp;(${omagerDIV.emp_id})${omagerDIV.title}</div>`;   // 部門主管
-                                _todoDIV[0] += `<div class="" id="result,${emp_id},${targetMonth},${omagerDIV.emp_id}"></div>`;
+                                _todoDIV[6] += `<snap class=""          id="result,${emp_id},${targetMonth},${omagerDIV.emp_id}"></snap>`;
                                 _todoDIV['omager'] = omagerDIV.emp_id;
 
                                 // &nbsp;&nbsp;${omagerDIV.email}
@@ -281,17 +281,17 @@
                     }
 
                 await _change.forEach((staff_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    const {_todoDIV} = rework_todo(staff_i);
+                    const {_todoDIV} = rework_content(staff_i);
                     let tr1 = '<tr>';
-                        tr1 += `<td class="" id="emp_id,${staff_i.emp_id}">${staff_i.cname ?? ''} (${staff_i.emp_id})</td>
-                                <td class="" id="_todo_key,${staff_i.emp_id}">${_todoDIV[2]}</td>
-                                <td class="" id="_todo_value,${staff_i.emp_id}">${_todoDIV[3]}</td>
-                                <td class="" id="_6shCheck,${staff_i.emp_id}">${_todoDIV[4]}</td>
-                                <td class="" id="omager,${staff_i.emp_id}">${_todoDIV[5]}</td>
-                                <td class="t-start" id="result,${staff_i.emp_id}" >${_todoDIV[0]}<div id="result_Badge,${staff_i.emp_id}"></div></td>
+                        tr1 += `<td class=""        id="emp_id,${staff_i.emp_id}">${staff_i.cname ?? ''} (${staff_i.emp_id})</td>
+                                <td class=""        id="_todo_key,${staff_i.emp_id}">${_todoDIV[2]}</td>
+                                <td class=""        id="_todo_value,${staff_i.emp_id}">${_todoDIV[3]}</td>
+                                <td class=""        id="_6shCheck,${staff_i.emp_id}">${_todoDIV[4]}</td>
+                                <td class=""        id="omager,${staff_i.emp_id}">${_todoDIV[5]}</td>
+                                <td class="t-start" id="result,${staff_i.emp_id}" >${_todoDIV[6]}</td>
                             `;
                         tr1 += '</tr>';
-                    $('#p2_table tbody').append(tr1);
+                    $('#p2notify_table tbody').append(tr1);
                     // objKeys_ym = [...objKeys_ym, ...Object.keys(post_i["base"])];   // 把所有的base下的年月key蒐集起來
                     // thisMonth = targetMonth;                                        // 顯示月份&submit_btn
 
@@ -345,8 +345,6 @@
     async function p2notify_process(msgArr){
         mloading("show");                                                       // 啟用mLoading
         $('#p2result').empty();                                                 // 清空執行訊息欄位
-
-
 
         // step0.init  
             var push_result  = {                                                // count push time to show_swal_fun
@@ -407,22 +405,24 @@
                     to_log.mail_res = mailResult ? 'OK' : 'NG';
                     mailResult ? push_result['email']['success']++ : push_result['email']['error']++; 
                     let fa_icon_mail = window['mail_' + to_log.mail_res];
-                    var console_log = to_cname + " (" + to_emp_id + ")" + ' ...  sendMail：' + fa_icon_mail + to_log.mail_res;    // 初始化下方執行訊息
-                    $('#p2result').append(console_log + '</br>');                                       // 執行訊息渲染1下方
+                    var console_log = `${to_cname}(${to_emp_id}) ... sendMail：${getTimeStamp()} ... ${fa_icon_mail} ${to_log.mail_res}`;    // 初始化下方執行訊息
+                    $('#p2result').append(console_log + '</br>');                                           // 執行訊息渲染1下方
 
-                    const omagerDivs = document.querySelectorAll(`#p2notify #p2_table div[id*=",${to_emp_id}"]`);
-                            console.log('omagerDivs', omagerDivs)
-                    omagerDivs.forEach((omagerDiv) => omagerDiv.innerHTML = fa_icon_mail);              // 執行訊息渲染2尾部
+                    const omagerDivs = document.querySelectorAll(`#p2notify_table snap[id*=",${to_emp_id}"]`);
+                            console.log('omagerDivs:', omagerDivs)
+                        // omagerDivs.forEach((omagerDiv) => omagerDiv.innerHTML = fa_icon_mail );                         // 執行訊息渲染2尾部a
+                        omagerDivs.forEach((omagerDiv) => omagerDiv.insertAdjacentHTML('beforeend', fa_icon_mail));     // 執行訊息渲染2尾部b
 
                 // 其他自定義操作
                 to_logs.push(to_log);                                    // 將log單筆小物件 塞入 logs大陣列中
                 // 製作成功清單
                 Object.entries(staff_inf).forEach(([index, staff]) => {
-                    staff.to_cname  = to_cname,         // 通知誰
-                    staff.to_emp_id = to_emp_id,        // 誰的工號
-                    staff.to_email  = to_email,         // 誰的信箱
-                    staff.to_notify = getTimeStamp();   // 通知時間
-                    staff.to_result = mailResult;       // 通知結果
+                    staff.from_cname = userInfo.cname,  // 誰通知
+                    staff.to_cname   = to_cname,        // 通知誰
+                    staff.to_emp_id  = to_emp_id,       // 誰的工號
+                    // staff.to_email = to_email,       // 誰的信箱
+                    staff.dateTime = getTimeStamp();    // 通知時間
+                    staff.result = mailResult;          // 通知結果
 
                     satff_mailResult.push(staff);       // 推到主要陣列
                 });

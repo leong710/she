@@ -12,6 +12,7 @@
                 console.log("mergedData =>", mergedData);
             staff_inf      = post_arr;      // 帶入全域變數
             mergedData_inf = mergedData;    // 帶入全域變數
+            shItemArr_inf  = shItemArr;     // 帶入全域變數
  
             if(post_arr.length === 0){
                 const table = $('#staff_table').DataTable();                    // 獲取表格的 thead
@@ -30,7 +31,7 @@
                             return null; // 如果不是陣列或陣列為空，返回 null
                         }
                         // 將陣列按照 to_notify 進行排序，最新的在最前面
-                        notifyArray.sort((a, b) => new Date(b.to_notify) - new Date(a.to_notify));
+                        notifyArray.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
                         // 返回最新的前一筆數據
                         return notifyArray[0];
                     }
@@ -85,8 +86,8 @@
                     if(staffArr){
                         const tdObj = mkTD(staffArr, case_iArr);
 
-                        const _cLogs    = staffArr['_changeLogs'][i_targetMonth] ?? {};
-                        const _cNotify  = staffArr['_content'][i_targetMonth]['notify'] ?? [];
+                        const _cLogs    = staffArr['_changeLogs']?.[i_targetMonth] ?? {};
+                        const _cNotify  = staffArr['_content']?.[i_targetMonth]?.['notify'] ?? [];
                         const _cNotifyLast   = getLatestNotification(_cNotify);
                         var _cNotifyLast_str = doReplace(_cNotifyLast);
                             _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
@@ -103,7 +104,7 @@
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
                                     <td class="${_cLogs['_9checkDate'] === '' || userInfo.role <= 1 ? 'edit2' : ''}"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
                                     <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
-                                    <td class="edit2 "        id="${i_id},_todo"        >${_cNotifyLast_str ?? ''}</td>
+                                    <td class="edit2 notify_log" id="${i_id},_content"  >${_cNotifyLast_str ?? ''}</td>
                                     `
                             tr1 += '</tr>';
 
@@ -181,7 +182,7 @@
                     const load_change = await load_fun('load_change', selectStaffStr, 'return');                      // step-1. 先從db撈現有的資料
                     const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
  
-                    defaultStaff_inf = [...defaultStaff_inf, ...load_change];                                       // step-2. 合併load_change
+                    defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重
                     console.log('1.defaultStaff_inf...', defaultStaff_inf)
 
                     const selectStaffArr = selectStaffStr.replace(/"/g, '').split(',')                              // step-3. 去除前後"符號..分割staffStr成陣列
@@ -191,7 +192,7 @@
                     if(notExistingStaffs.length > 0) {
                         const notExistingStaffs_str = JSON.stringify(notExistingStaffs).replace(/[\[\]]/g, '');     // step-5. 把不在的部門代號進行加工(多選)，去除外框
                         const bomNewDeptArr = await bomNewStaff(notExistingStaffs_str, mergedData);                 // step-6. 呼叫fun-3 bomNewStaff 生成staff預設值
-                        defaultStaff_inf = [...defaultStaff_inf, ...bomNewDeptArr];                                 // step-6. 合併bomNewDeptArr
+                        defaultStaff_inf = [...new Set([...defaultStaff_inf, ...bomNewDeptArr])];                   // step-6. 合併bomNewDeptArr+去重
                     }
     
                 return(defaultStaff_inf);
@@ -310,9 +311,10 @@
                     const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
                     if(staffData){
                         staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {};    // 防呆
-                        const thisValue = staffData['_changeLogs'][i_targetMonth][i_targetTD] ?? '';                // 賦予內容值
-                        let thisTD = '<div class="row">';
+                        const thisValue = staffData['_changeLogs']?.[i_targetMonth]?.[i_targetTD] ?? '';              // 賦予內容值
+                        let thisTD = '';
                             if(i_targetTD.includes('Date')){
+                                thisTD +=  `<div class="row">`;
                                 thisTD +=  `<div class="col-12 py-0 px-3">
                                                 <div class="form-floating">
                                                     <input type="date" name="${i_targetTD}" id="${this.id},edit2" class="form-control" value="${thisValue}" place_holder >
@@ -325,11 +327,36 @@
                                             </div>`;
 
                             }else if(i_targetTD.includes('Remark')){
+                                thisTD +=  `<div class="row">`;
                                 thisTD +=  `<div class="col-12 py-0 px-3">
                                                 <label for="${this.id},edit2" class="form-label">${i_targetTD}：</label>
                                                 <textarea name="${i_targetTD}" id="${this.id},edit2" class="form-control " style="height: 100px" placeholder="${i_targetTD}">${thisValue}</textarea>
                                             </div>`;
+        
+                            }else if(i_targetTD.includes('_content')){  // 通知紀錄
 
+                                staffData['_content'][i_targetMonth] = staffData['_content'][i_targetMonth] ?? {};    // 防呆
+                                const thisNotifys = staffData['_content']?.[i_targetMonth]?.['notify'] ?? [];         // 賦予內容值
+
+                                thisTD +=  `<div class="row">
+                                                <div class="col-2 col-md-2 p-1 mcc">
+                                                    <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="p-1">
+                                                        <button type="button" id="selectAll_notify_btn" class="btn btn-outline-danger btn-sm btn-xs add_btn"
+                                                            onclick="" ><i class="fa-solid fa-check-double"></i></button>
+                                                    </snap>
+                                                    <snap data-toggle="tooltip" data-placement="bottom" title="刪除" class="p-1">
+                                                        <button type="button" id="delete_notify_btn"    class="btn btn-outline-danger btn-sm btn-xs add_btn"
+                                                            onclick="" ><i class="fa-solid fa-xmark"></i></button>
+                                                    </snap>
+                                                </div>
+                                                <div class="col-10 col-md-10 border rounded p-1 notify_log mcc">-- Notify logs --</div>
+                                            </div>`;
+
+                                thisNotifys.forEach((thisNotify,index) => {
+                                    // 通報數據加工+去除[]符號/[{"}]/g, ''
+                                    const thisNotifyStr = JSON.stringify(thisNotify).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
+                                    thisTD += `<div class="row"><div class="col-2 col-md-2 mcc"><input type="checkbox" id="notify,${i_empId},${i_targetMonth},${index}" value="${index}" class="form-check-input"></div><div class="col-10 col-md-10 border rounded py-1 notify_log">${thisNotifyStr}</div></div>`;
+                                })
                             }
 
                         thisTD += '</div>';
@@ -337,6 +364,11 @@
 
                     }else{
                         console.error(`staff empID：${i_empId} is undefined!!`)
+                    }
+
+
+                    if(i_targetTD.includes('_content')){
+                        reload_notify2_Listeners();
                     }
 
                     reload_submitEdit2_Listeners();
@@ -368,6 +400,44 @@
         document.getElementById(thisID).value = '';             // 清空 input 的值
     };
 
+    // 250326 定義edit2_modal[全選]+[刪除]鈕功能~~；from edit2_modal裡[更新]鈕的呼叫...
+    let selectAllNotify2ClickListener;
+    let deleteNotify2ClickListener;
+    async function reload_notify2_Listeners() {
+        const selectAll_notify_btn = document.querySelector('#edit2_modal #selectAll_notify_btn');   //  定義出範圍1
+        const delete_notify_btn    = document.querySelector('#edit2_modal #delete_notify_btn');      //  定義出範圍2
+        // 檢查並移除已經存在的監聽器
+        if (selectAllNotify2ClickListener) {
+            selectAll_notify_btn.removeEventListener('click', selectAllNotify2ClickListener);   // 將每一個tdItem移除監聽1
+        }   
+        if (deleteNotify2ClickListener) {
+            delete_notify_btn.removeEventListener('click', deleteNotify2ClickListener);         // 將每一個tdItem移除監聽2
+        }   
+    
+        // 定義新的監聽器函數1
+        selectAllNotify2ClickListener = async function () {
+            const target_notify_cbs = document.querySelectorAll(`#edit2_modal input[id*="notify,"]`);
+            // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+            let allChecked = Array.from(target_notify_cbs).every(checkbox => checkbox.checked);
+            target_notify_cbs.forEach(checkbox => {
+                checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+            });
+        }
+        // 定義新的監聽器函數2
+        deleteNotify2ClickListener = async function () {
+            const target_notify_cbs = Array.from(document.querySelectorAll(`#edit2_modal input[id*="notify,"]`));
+            const selectedItems = target_notify_cbs.filter(cb => cb.checked).map(cb => cb);         // 取得所選的NotifyItem(多選)
+                // console.log('2.selectedItems...', selectedItems);
+            selectedItems.map(cb => {
+                var row = cb.parentNode.parentNode; 
+                row.parentNode.removeChild(row);                                    // 刪除在畫面上的該行
+            })
+        }
+
+        // 添加新的監聽器
+        selectAll_notify_btn.addEventListener('click', selectAllNotify2ClickListener);  // 將每一個tdItem增加監聽1
+        delete_notify_btn.addEventListener('click', deleteNotify2ClickListener);        // 將每一個tdItem增加監聽2
+    }
     // 250227 定義edit2_modal[更新]鈕功能~~；from edit2_modal裡[更新]鈕的呼叫...
     let submitEdit2ClickListener;
     async function reload_submitEdit2_Listeners() {
@@ -390,31 +460,49 @@
             // // 撈出該staff資料
             const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
             if(staffData){
-                staffData['_changeLogs'][i_targetMonth]             = staffData['_changeLogs'][i_targetMonth] ?? {};                // 防呆
-                staffData['_changeLogs'][i_targetMonth][i_targetTD] = staffData['_changeLogs'][i_targetMonth][i_targetTD] ?? '';    // 防呆內容值
+                if(i_targetTD.includes('_content')){    // for notify的刪除
+                        // notify過濾小工具...
+                        function filterNotifyByIndexes(target_arr, indexes) {
+                            return target_arr.filter((item, index) => indexes.includes(index.toString()));
+                        }
+                    // 定義notify cb的範圍
+                    const target_notify_cbs = Array.from(document.querySelectorAll(`#edit2_modal input[id*="notify,"]`));
+                    // 取得每一個checkbox的value=index
+                    const selectedValues = target_notify_cbs.map(cb => cb.value);  // 取得所選的NotifyItem(多選)
+                        console.log('3.selectedValues...', selectedValues);
+                    // 取得員工紀錄裡(年月)的notify紀錄陣列
+                    const i_notify = staffData['_content'][i_targetMonth]['notify'] ?? [];
+                    // 1.將取得的紀錄送去過濾 2.返回帶入原來位置。
+                    staffData['_content'][i_targetMonth]['notify'] = filterNotifyByIndexes(i_notify, selectedValues);
 
-                // 取得modal上欄位
-                const item_opts_arr = Array.from(document.querySelectorAll(`#edit2_modal .modal-body input[id*=",edit2"], #edit2_modal .modal-body textarea[id*=",edit2"]`));
-                // 繞出欄位上的值並更新deptData
-                item_opts_arr.forEach(i_td => {
+                    post_staff(staff_inf, mergedData_inf, shItemArr_inf);    // 更新畫面=重新鋪設Page3
 
-                    // 準備更新個人satff內容數值
-                    const tdId_arr = i_td.id.split(',')                   // 分割this.id成陣列
-                        const ii_OSHORT      = tdId_arr[0] ?? '';           // 取出陣列 0 = 部門代號
-                        const ii_targetMonth = tdId_arr[1] ?? '';           // 取出陣列 1 = 目標年月
-                        const ii_empId       = tdId_arr[2] ?? '';           // 取出陣列 2 = 工號
-                        const ii_targetTD    = tdId_arr[3] ?? '';           // 取出陣列 3 = 目標TD
-                    staffData['_changeLogs'][ii_targetMonth][ii_targetTD] = i_td.value;     // 把更新值回填到stafData
-
-                    // 準備更新畫面上數值
-                        const renewItem = i_td.value;                       // 更新目標TD欄位內容
-                        const renewItemID = `${ii_OSHORT},${ii_targetMonth},${ii_empId},${ii_targetTD}`;   // 更新目標TD欄位ID
-                        const renewItemTD = document.getElementById(renewItemID);           // 指引TD欄位目標
-                        if(renewItemTD){
-                            renewItemTD.innerHTML = renewItem;                              // 更新TD欄位內容
-                        } 
-                });
-                // console.log('staffData...', staffData);
+                }else{
+                    staffData['_changeLogs'][i_targetMonth]             = staffData['_changeLogs'][i_targetMonth] ?? {};                // 防呆
+                    staffData['_changeLogs'][i_targetMonth][i_targetTD] = staffData['_changeLogs'][i_targetMonth][i_targetTD] ?? '';    // 防呆內容值
+    
+                    // 取得modal上欄位
+                    const item_opts_arr = Array.from(document.querySelectorAll(`#edit2_modal .modal-body input[id*=",edit2"], #edit2_modal .modal-body textarea[id*=",edit2"]`));
+                    // 繞出欄位上的值並更新deptData
+                    item_opts_arr.forEach(i_td => {
+                        // 準備更新個人satff內容數值
+                        const tdId_arr = i_td.id.split(',')                   // 分割this.id成陣列
+                            const ii_OSHORT      = tdId_arr[0] ?? '';           // 取出陣列 0 = 部門代號
+                            const ii_targetMonth = tdId_arr[1] ?? '';           // 取出陣列 1 = 目標年月
+                            const ii_empId       = tdId_arr[2] ?? '';           // 取出陣列 2 = 工號
+                            const ii_targetTD    = tdId_arr[3] ?? '';           // 取出陣列 3 = 目標TD
+                        staffData['_changeLogs'][ii_targetMonth][ii_targetTD] = i_td.value;     // 把更新值回填到stafData
+    
+                        // 準備更新畫面上數值
+                            const renewItem = i_td.value;                       // 更新目標TD欄位內容
+                            const renewItemID = `${ii_OSHORT},${ii_targetMonth},${ii_empId},${ii_targetTD}`;   // 更新目標TD欄位ID
+                            const renewItemTD = document.getElementById(renewItemID);           // 指引TD欄位目標
+                            if(renewItemTD){
+                                renewItemTD.innerHTML = renewItem;                              // 更新TD欄位內容
+                            } 
+                    });
+                }
+                console.log('staffData...', staffData);
 
             }else{
                 consolr.error(`staff empID：${i_empId} is undefined!!`)
