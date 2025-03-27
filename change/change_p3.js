@@ -35,6 +35,37 @@
                         // 返回最新的前一筆數據
                         return notifyArray[0];
                     }
+                    // 返回最早的第一筆通報數據
+                    function getFirstNotification(notifyArray) {
+                        if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                            return null; // 如果不是陣列或陣列為空，返回 null
+                        }
+                        // 將陣列按照 to_notify 進行排序，最舊的在最前面
+                        notifyArray.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                        // 返回最早的第一筆數據-dateTime日期時間
+                        const _cNotifyFirst = notifyArray[0].dateTime;
+
+                        var timeDiff = 0;
+                        if(_cNotifyFirst !== undefined){
+                            const firstDay = new Date(_cNotifyFirst);
+                            const today = new Date().setHours(0, 0, 0, 0); // 設置時間為 00:00:00
+                            // 計算時間戳（毫秒）
+                            timeDiff = today - firstDay;
+                        }
+                        // 將毫秒轉換為天數，1天 = 24小時 * 60分鐘 * 60秒 * 1000毫秒
+                        const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+                        // 判斷背景樣式
+                        let bgClass = '';
+                        if (dayDiff >= 7) {
+                            bgClass = 'bg-m-warning'; // 超過7天，使用 bg-warning   alert_it
+                        } 
+                        if (dayDiff > 12) {
+                            bgClass = 'bg-m-danger'; // 超過12天，使用 bg-danger
+                        }
+
+                        return { dayDiff, bgClass };
+                    }
                     
                     function mkTD(post_i , case_iArr){
                         let tdObj = [];
@@ -74,7 +105,7 @@
                     // console.log('workList_json...', workListTD_json)
 
                 await mergedData.forEach((case_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...    
-                    const case_iArr         = case_i.split(',')                         // 分割staffStr成陣列
+                    const case_iArr         = case_i.split(',');                         // 分割staffStr成陣列
                         const i_empId       = case_iArr[0] ?? '';                       // 取出陣列 0 = 工號
                         const i_OSTEXT_30   = case_iArr[2] ?? '';                       // 取出陣列 2 = 廠區
                         const i_OSHORT      = case_iArr[3] ?? '';                       // 取出陣列 3 = 部門代號
@@ -88,12 +119,13 @@
 
                         const _cLogs    = staffArr['_changeLogs']?.[i_targetMonth] ?? {};
                         const _cNotify  = staffArr['_content']?.[i_targetMonth]?.['notify'] ?? [];
-                        const _cNotifyLast   = getLatestNotification(_cNotify);
+                        const _cNotifyLast         = getLatestNotification(_cNotify);     // 取得最後一筆通知訊息
+                        const { dayDiff, bgClass } = getFirstNotification(_cNotify);      // 取得最早的第一筆通報時間至今的日期差 & 背景色
                         var _cNotifyLast_str = doReplace(_cNotifyLast);
                             _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
 
-                        let tr1 = '<tr>';
-                            tr1 += `<td class=""              id="">${i_targetMonth ?? ''}</td>
+                        let tr1 = `<tr class="">`;
+                            tr1 += `<td class="${bgClass}"    id="">${i_targetMonth ?? ''}</td>
                                     <td class=""              id="">${i_OSTEXT_30}</td>
                                     <td class=""              id="">${staffArr["emp_id"] }</td>
                                     <td class=""              id="">${staffArr["cname"] }</td>
@@ -104,8 +136,7 @@
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
                                     <td class="${_cLogs['_9checkDate'] === '' || userInfo.role <= 1 ? 'edit2' : ''}"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
                                     <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
-                                    <td class="edit2 notify_log" id="${i_id},_content"  >${_cNotifyLast_str ?? ''}</td>
-                                    `
+                                    <td class="edit2 notify_log" id="${i_id},_content"  >${_cNotifyLast_str ?? ''}<br>dayDiff：${dayDiff}day</td>`;
                             tr1 += '</tr>';
 
                         $('#staff_table tbody').append(tr1);
@@ -183,7 +214,8 @@
                     const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
  
                     defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重
-                    console.log('1.defaultStaff_inf...', defaultStaff_inf)
+                    // defaultStaff_inf = uniqueArr(defaultStaff_inf, load_change);
+                        console.log('1.defaultStaff_inf...', defaultStaff_inf)
 
                     const selectStaffArr = selectStaffStr.replace(/"/g, '').split(',')                              // step-3. 去除前後"符號..分割staffStr成陣列
                     const notExistingStaffs = selectStaffArr.filter(emp_id => !existingStaffStrs.includes(emp_id)); // step-4. 找出不存在於load_shLocalDepts中的部門代號
@@ -193,6 +225,7 @@
                         const notExistingStaffs_str = JSON.stringify(notExistingStaffs).replace(/[\[\]]/g, '');     // step-5. 把不在的部門代號進行加工(多選)，去除外框
                         const bomNewDeptArr = await bomNewStaff(notExistingStaffs_str, mergedData);                 // step-6. 呼叫fun-3 bomNewStaff 生成staff預設值
                         defaultStaff_inf = [...new Set([...defaultStaff_inf, ...bomNewDeptArr])];                   // step-6. 合併bomNewDeptArr+去重
+                        // defaultStaff_inf = uniqueArr(defaultStaff_inf, bomNewDeptArr);
                     }
     
                 return(defaultStaff_inf);

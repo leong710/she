@@ -137,6 +137,13 @@
             .btn-warning {
                 background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
             }
+            .bg-m-warning {
+                background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
+            }
+            .bg-m-danger {
+                background-color: rgba(255, 193, 7, 0.5); /* 這是 Bootstrap 中 btn-warning 的顏色，0.5 表示透明度50% */
+            }
+
             .cover {
                 width: 100%;
                 height: 100px;
@@ -330,7 +337,7 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disable  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
                                 </div>
                             </div>
                             <hr>
@@ -651,6 +658,10 @@
     var import_excel_btn    = document.getElementById('import_excel_btn');      // 載入按鈕
     var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕
+    
+    var p2_send_btn         = document.getElementById('p2_send_btn');           // 1.傳送通知按鈕
+    var p2notify_btn        = document.getElementById('p2notify_btn');          // 2.發出按鈕
+
 
     // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
     // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕

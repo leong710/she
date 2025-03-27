@@ -154,9 +154,13 @@
 
 
         // step.1 取得._todo非空值之變更作業健檢名單...參數:免
-        async function p2_step1() {
+        async function p2_step1(...staff_inf) {
             // ch.match(/[\^>V<]/);
-            const load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+
+            const emp_id_lists = staff_inf.map(staff => staff.emp_id);
+            const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
+                console.log('emp_id_lists_str:', emp_id_lists_str)
+            const load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
                 // console.log('p2_step1--load_changeTodo...', load_changeTodo);
 
             return(load_changeTodo); // 返回取得的資料
@@ -458,7 +462,7 @@
         mloading("show");                               // 啟用mLoading
 
         try {
-            const load_changeTodo  = await p2_step1();                  // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
+            const load_changeTodo  = await p2_step1(...staff_inf);      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
             const shortsUniqueArr  = await p2_step2(load_changeTodo);   // step.2 把_todo下的部門代號取出來存成陣列
             const showSignDeptIn   = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
             const showDelegationIn = await p2_step4(showSignDeptIn);    // step.4 把部門主管名單去找代理人...

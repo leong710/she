@@ -1489,8 +1489,13 @@
                 $pdo = pdo();
                 $sql = "SELECT id ,emp_id ,cname , _changeLogs ,_content ,_todo  -- ,JSON_UNQUOTE(JSON_KEYS(_todo)) AS ikey
                         FROM `_change` 
-                        WHERE _todo <> '[]' AND _todo <> '';
-                        ";
+                        WHERE _todo <> '[]' AND _todo <> '' ";
+
+                if(isset($parm) && $parm != 'load_changeTodo' ){               // 這裡定義的$parm是員工代號
+                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                    $sql .= " AND emp_id IN ({$parm_re})"; 
+                }
+
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();                                   //處理 byAll
@@ -1505,7 +1510,8 @@
                     $result = [
                         'result_obj' => $chStaffs,
                         'fun'        => $fun,
-                        'success'    => 'Load '.$fun.' success.'
+                        'success'    => 'Load '.$fun.' success.',
+                        'sql'        => $sql
                     ];
                 }catch(PDOException $e){
                     echo $e->getMessage();
@@ -1513,7 +1519,7 @@
                 }
                 break;
             
-            case 'showStaff':       // 250324..因為要加上到職日
+            case 'showStaff':                   // 250324..因為要加上到職日
                 require_once("../mvc/load_function.php");
                 $showStaff = queryHrdb("showStaff", $parm);                                     // 查詢員工資訊for部門消滅
                 // 製作返回文件
@@ -1525,7 +1531,7 @@
 
                 break;
 
-            case 'bat_updateStaffNotify':        // 250325 變更作業健檢--更新人員_content通知訊息P3
+            case 'bat_updateStaffNotify':       // 250325 變更作業健檢--更新人員_content通知訊息P3
                 require_once("../user_info.php");
                 $pdo = pdo();
                 $swal_json = array(                                 // for swal_json

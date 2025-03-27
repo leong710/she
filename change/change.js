@@ -6,6 +6,8 @@
             _dept_inf        = [];
             staff_inf        = [];
             mergedData_inf   = [];
+
+            defaultStaff_inf = [];
             // loadStaff_tmp = [];
             // _doc_inf      = [];
             // _doc_inf.idty = null;
@@ -47,14 +49,21 @@
     // 讓指定按鈕 依照shLocalDept_inf.length 啟停
     function btn_disabled(){
         return new Promise((resolve) => {
+            
             // console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
-            resetINF_btn.disabled       = shLocalDept_inf.length === 0;  // 讓 p2清除 按鈕啟停
-            bat_storeDept_btn.disabled  = shLocalDept_inf.length === 0;  // 讓 p2儲存 按鈕啟停
-            // download_excel_btn.disabled = shLocalDept_inf.length === 0;  // 讓 p2下載 按鈕啟停
+            const shLocalDept_inf_length0 = shLocalDept_inf.length === 0;
+            resetINF_btn.disabled         = shLocalDept_inf_length0;  // 讓 p2清除 按鈕啟停
+            bat_storeDept_btn.disabled    = shLocalDept_inf_length0;  // 讓 p2儲存 按鈕啟停
+            // download_excel_btn.disabled = shLocalDept_inf_length0;  // 讓 p2下載 按鈕啟停
 
-            P3resetINF_btn.disabled           = staff_inf.length === 0;  // 讓 p3清除 按鈕啟停
-            bat_storeChangeStaff_btn.disabled = staff_inf.length === 0;  // 讓 p3儲存 按鈕啟停
-            download_excel_btn.disabled       = staff_inf.length === 0;  // 讓 p3下載 按鈕啟停
+            const staff_inf_length0 = staff_inf.length === 0;
+            P3resetINF_btn.disabled           = staff_inf_length0;  // 讓 p3清除 按鈕啟停
+            bat_storeChangeStaff_btn.disabled = staff_inf_length0;  // 讓 p3儲存 按鈕啟停
+            download_excel_btn.disabled       = staff_inf_length0;  // 讓 p3下載 按鈕啟停
+
+            p2_send_btn.disabled              = staff_inf_length0;  // 讓 p3下載 按鈕啟停
+            p2notify_btn.disabled             = staff_inf_length0;  // 讓 p3下載 按鈕啟停
+
             // SubmitForReview_btn.disabled = shLocalDept_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 送審 按鈕啟停
 
             // loadExcel_btn.disabled       = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 新增 按鈕啟停
