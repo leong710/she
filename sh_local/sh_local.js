@@ -318,8 +318,10 @@
             console.error(error);
         }
 
-        let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site護理師</u></b>&nbsp;和&nbsp;<b><u>site工安</u></b>&nbsp;~&nbsp;';
-        Balert( message, 'warning')
+        let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site工安</u></b>&nbsp;~&nbsp;';
+        let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
+        Balert( message2, 'danger');
+        Balert( message, 'warning');
 
         $("body").mLoading("hide");
     }

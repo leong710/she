@@ -178,8 +178,8 @@
                                         <th title="MONIT_NO">監測編號</th>
                                         <th title="MONIT_LOCAL">監測處所</th>
                                         <th title="WORK_DESC">作業描述</th>
-                                        <th title="AVG_VOL">A權音壓級(dBA)</th>
-                                        <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均(dBA)</th>
+                                        <th title="AVG_VOL">A權音壓級 <sup>(dBA)</sup></th>
+                                        <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均 <sup>(dBA)</sup></th>
                                         <th title="flag">開關</th>
                                         <th title="updated">最後更新</th>
                                     </tr>
