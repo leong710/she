@@ -52,17 +52,17 @@
             
             // console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
             const shLocalDept_inf_length0 = shLocalDept_inf.length === 0;
-            resetINF_btn.disabled         = shLocalDept_inf_length0;  // 讓 p2清除 按鈕啟停
-            bat_storeDept_btn.disabled    = shLocalDept_inf_length0;  // 讓 p2儲存 按鈕啟停
-            // download_excel_btn.disabled = shLocalDept_inf_length0;  // 讓 p2下載 按鈕啟停
+                resetINF_btn.disabled         = shLocalDept_inf_length0;  // 讓 p2清除 按鈕啟停
+                bat_storeDept_btn.disabled    = shLocalDept_inf_length0;  // 讓 p2儲存 按鈕啟停
+                // download_excel_btn.disabled = shLocalDept_inf_length0;  // 讓 p2下載 按鈕啟停
 
             const staff_inf_length0 = staff_inf.length === 0;
-            P3resetINF_btn.disabled           = staff_inf_length0;  // 讓 p3清除 按鈕啟停
-            bat_storeChangeStaff_btn.disabled = staff_inf_length0;  // 讓 p3儲存 按鈕啟停
-            download_excel_btn.disabled       = staff_inf_length0;  // 讓 p3下載 按鈕啟停
+                P3resetINF_btn.disabled           = staff_inf_length0;  // 讓 p3清除 按鈕啟停
+                bat_storeChangeStaff_btn.disabled = staff_inf_length0;  // 讓 p3儲存 按鈕啟停
+                download_excel_btn.disabled       = staff_inf_length0;  // 讓 p3下載 按鈕啟停
 
-            p2_send_btn.disabled              = staff_inf_length0;  // 讓 p3下載 按鈕啟停
-            p2notify_btn.disabled             = staff_inf_length0;  // 讓 p3下載 按鈕啟停
+                p2_send_btn.disabled              = staff_inf_length0;  // 讓 p3傳送通知 按鈕啟停
+                // p2notify_btn.disabled             = staff_inf_length0;  // 讓 p3發出 按鈕啟停 => 改由p2_step5控制
 
             // SubmitForReview_btn.disabled = shLocalDept_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 送審 按鈕啟停
 
@@ -399,8 +399,7 @@
                             
                             <td class="t-start px-3 unblock" id="created_at/updated_at/updated_cname,${post_i.OSHORT}" >
                                 ${post_i["created_at"] ?? ''}<br>${post_i["updated_at"] ?? ''}<br>${post_i["updated_cname"] ?? ''}
-                            </td>
-                            ;`
+                            </td> ;`
                     tr1 += '</tr>';
 
                 $('#hrdb_table tbody').append(tr1);
@@ -1094,8 +1093,6 @@
                 resultInfo.innerHTML = result_title;
             }
         }
-                
-
 
 // // phase 1 -- 生成按鈕
     // [p1 函數-2] 動態生成所有按鈕，並重新綁定事件監聽器
@@ -1256,7 +1253,7 @@
 
                         // 工作二 把this.id推進去部門資訊arr 
                             _dept_inf.push(this.id);                        // 推入部門資訊arr     
-                                console.log('單選_dept_inf...',_dept_inf)
+                                // console.log('單選_dept_inf...',_dept_inf)
                         // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                             // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                             const defaultDept_inf = await preCheckDeptData(thisValue, _dept_inf);
@@ -1285,7 +1282,7 @@
                         await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
                         _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            console.log('多選_dept_inf...',_dept_inf)
+                            // console.log('多選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                         // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
@@ -1352,13 +1349,13 @@
                     await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
                         _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                        console.log('P1-3-1.多選selectedValues_str...',selectedValues_str)
-                        console.log('P1-3-2.多選_dept_inf...',_dept_inf)
+                        // console.log('P1-3-1.多選selectedValues_str...',selectedValues_str)
+                        // console.log('P1-3-2.多選_dept_inf...',_dept_inf)
 
                     // 取得P1的年份篩選
                     const _yearDiv = document.getElementById('_year');
                     const _year = _yearDiv.value;
-                            console.log('P1-3-3.多選_year...',_year)
+                            // console.log('P1-3-3.多選_year...',_year)
                     
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
@@ -1376,15 +1373,15 @@
                     const _dept_i_arr = _dept_inf[0].split(',')
                     const thisValue = _dept_i_arr[1];
                     const selectedValues_str = JSON.stringify(thisValue).replace(/[\[\]]/g, '');       // 部門代號加工(單選)
-                            console.log('P2-3-1.selectedValues_str...', selectedValues_str)
+                            // console.log('P2-3-1.selectedValues_str...', selectedValues_str)
                     // 工作二 把this.id合併進去部門資訊arr 
                         // _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            console.log('P2-3-2.單選_dept_inf...',_dept_inf)
+                            // console.log('P2-3-2.單選_dept_inf...',_dept_inf)
                             
                     // 取得p2年月篩選
                     const _yearMonth = document.getElementById("_yearMonth");
                     const _yearMonthValue = _yearMonth.value;
-                            console.log('P2-3-3.單選_yearMonth...',_yearMonthValue)
+                            // console.log('P2-3-3.單選_yearMonth...',_yearMonthValue)
 
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);

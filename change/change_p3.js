@@ -25,59 +25,16 @@
                     function doReplace(_arr){
                         return JSON.stringify(_arr).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                     }
-                    // 返回最新的一筆通報數據
-                    function getLatestNotification(notifyArray) {
-                        if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
-                            return null; // 如果不是陣列或陣列為空，返回 null
-                        }
-                        // 將陣列按照 to_notify 進行排序，最新的在最前面
-                        notifyArray.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
-                        // 返回最新的前一筆數據
-                        return notifyArray[0];
-                    }
-                    // 返回最早的第一筆通報數據
-                    function getFirstNotification(notifyArray) {
-                        if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
-                            return null; // 如果不是陣列或陣列為空，返回 null
-                        }
-                        // 將陣列按照 to_notify 進行排序，最舊的在最前面
-                        notifyArray.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
-                        // 返回最早的第一筆數據-dateTime日期時間
-                        const _cNotifyFirst = notifyArray[0].dateTime;
-
-                        var timeDiff = 0;
-                        if(_cNotifyFirst !== undefined){
-                            const firstDay = new Date(_cNotifyFirst);
-                            const today = new Date().setHours(0, 0, 0, 0); // 設置時間為 00:00:00
-                            // 計算時間戳（毫秒）
-                            timeDiff = today - firstDay;
-                        }
-                        // 將毫秒轉換為天數，1天 = 24小時 * 60分鐘 * 60秒 * 1000毫秒
-                        const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-                        // 判斷背景樣式
-                        let bgClass = '';
-                        if (dayDiff >= 7) {
-                            bgClass = 'bg-m-warning'; // 超過7天，使用 bg-warning   alert_it
-                        } 
-                        if (dayDiff > 12) {
-                            bgClass = 'bg-m-danger'; // 超過12天，使用 bg-danger
-                        }
-
-                        return { dayDiff, bgClass };
-                    }
-                    
+                    // 表格工場-
                     function mkTD(post_i , case_iArr){
                         let tdObj = [];
                         const i_emp_id      = post_i["emp_id"];
-                        const i_OSHORT      = case_iArr[3] ?? '';                           // 取出陣列 3 = 部門代號
-                        const i_targetMonth = case_iArr[5] ?? '';                           // 取出陣列 5 = 目標年月
-                        const i_id = `${i_OSHORT},${i_targetMonth},${i_emp_id}`;
-
-                        const i_cLogs       = post_i['_changeLogs'][i_targetMonth]         ?? {};
-
+                        const i_OSHORT      = case_iArr[3] ?? '';                                       // 取出陣列 3 = 部門代號
+                        const i_targetMonth = case_iArr[5] ?? '';                                       // 取出陣列 5 = 目標年月
+                        const i_id          = `${i_OSHORT},${i_targetMonth},${i_emp_id}`;               // 預設id字串
+                        const i_cLogs       = post_i['_changeLogs'][i_targetMonth]            ?? {};       
                         const i_cNotify     = post_i['_content']?.[i_targetMonth]?.['notify'] ?? [];
-                        const to_notify     = i_cNotify.length > 0 || i_cLogs._9checkDate !== '';
+                        const to_disabled   = (i_cNotify.length > 0 || (i_cLogs._9checkDate !== '' && i_cLogs._9checkDate !== undefined )) ? 'disabled' : '';
 
                         // 生成-6:變更體檢項目 - checkbox
                             const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
@@ -85,7 +42,7 @@
                                 for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
                                     const ifValue = ((i_cLogs['_6shCheck']) && i_cLogs['_6shCheck'].includes(o_value)) ? "checked" : "";
                                     td6 += `<div class="form-check m-0"> 
-                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} ${to_notify ? 'disabled':''}>
+                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} ${to_disabled}>
                                             <label class="form-check-label" for="${i_id},_6shCheck,${o_value}">${o_value}</label></div>`;
                                     }
                             td6 += '</snap>';
@@ -94,7 +51,7 @@
                         // 生成-7:是否補檢 - checkbox-switch
                             const ifValue = ((i_cLogs['_7isCheck']) && i_cLogs['_7isCheck']) ? "checked" : "";
                             let td7 = `<snap><div class="form-check form-switch"> 
-                                        <input class="form-check-input" type="checkbox" name="_7isCheck" id="${i_id},_7isCheck" ${ifValue} ${to_notify ? 'disabled':''}>
+                                        <input class="form-check-input" type="checkbox" name="_7isCheck" id="${i_id},_7isCheck" ${ifValue} ${to_disabled}>
                                         <label class="form-check-label" for="${i_id},_7isCheck">${ifValue ? "是":"否"}</label></div></snap>`;
                             tdObj['7'] = td7;
         
@@ -111,32 +68,43 @@
                         const i_OSHORT      = case_iArr[3] ?? '';                       // 取出陣列 3 = 部門代號
                         const i_OSTEXT      = case_iArr[4] ?? '';                       // 取出陣列 4 = 部門名稱
                         const i_targetMonth = case_iArr[5] ?? '';                       // 取出陣列 5 = 目標年月
-                        const i_id = `${i_OSHORT},${i_targetMonth},${i_empId}`;
+                        const i_id = `${i_OSHORT},${i_targetMonth},${i_empId}`;         // 預設id字串
                     const staffArr = post_arr.find(staff => staff.emp_id == i_empId);   // 從post_arr找出符合 empId 的原始字串
 
                     if(staffArr){
                         const tdObj = mkTD(staffArr, case_iArr);
 
-                        const _cLogs    = staffArr['_changeLogs']?.[i_targetMonth] ?? {};
-                        const _cNotify  = staffArr['_content']?.[i_targetMonth]?.['notify'] ?? [];
-                        const _cNotifyLast         = getLatestNotification(_cNotify);     // 取得最後一筆通知訊息
-                        const { dayDiff, bgClass } = getFirstNotification(_cNotify);      // 取得最早的第一筆通報時間至今的日期差 & 背景色
-                        var _cNotifyLast_str = doReplace(_cNotifyLast);
-                            _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
+                        const _cLogs      = staffArr['_changeLogs']?.[i_targetMonth] ?? {};
+                        const _9checkDate = _cLogs?.['_9checkDate'] ?? '';
+                        const _cNotify    = staffArr['_content']?.[i_targetMonth]?.['notify'] ?? [];
+                        const { dayDiff, bgClass } = (_cNotify.length !== 0) ? getFirstNotification(_cNotify) : {dayDiff:0, bgClass:''};      // 取得最早的第一筆通報時間至今的日期差 & 背景色
+                            const dayDiff_str = ((_9checkDate === '' || _9checkDate === undefined) && (_cNotify.length !== 0)) ? `<br><span class="${dayDiff >= 7 ? "text-danger":"text-primary"}"><b>dayDiff：${dayDiff}day</b></span>` : '';
+                            const bgClass_str = ((_9checkDate === '' || _9checkDate === undefined) && (_cNotify.length !== 0)) ? bgClass : '';
+                                // console.log('dayDiff =>', dayDiff)
+                                // console.log('bgClass =>', bgClass)
+                                // console.log('1.dayDiff_str =>', dayDiff_str)
+                                // console.log('2.bgClass_str =>', bgClass_str)
+                            
+                        const _cNotifyLast         = (_cNotify.length !== 0) ? getLatestNotification(_cNotify) : [];     // 取得最後一筆通知訊息
+                            var _cNotifyLast_str = doReplace(_cNotifyLast);                   // 通知紀錄轉字串
+                                _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
+
+                        const editRole = _9checkDate === '' || userInfo.role <= -1 ? 'edit2' : '';            // 預設edit權限
 
                         let tr1 = `<tr class="">`;
-                            tr1 += `<td class="${bgClass}"    id="">${i_targetMonth ?? ''}</td>
-                                    <td class=""              id="">${i_OSTEXT_30}</td>
-                                    <td class=""              id="">${staffArr["emp_id"] }</td>
-                                    <td class=""              id="">${staffArr["cname"] }</td>
-                                    <td class=""              id="">${i_OSHORT}<br>${i_OSTEXT}</td>
+                            tr1 += `<td class=""    id="">${i_targetMonth ?? ''}</td>
+                                    <td class=""              id="" >${i_OSTEXT_30}</td>
+                                    <td class=""              id="" >${staffArr["emp_id"] }</td>
+                                    <td class=""              id="" >${staffArr["cname"] }</td>
+                                    <td class=""              id="" >${i_OSHORT}<br>${i_OSTEXT}</td>
     
-                                    <td class=""              id="">${tdObj['6']}</td>
-                                    <td class=""              id="">${tdObj['7']}</td>
+                                    <td class=""              id="" >${tdObj['6']}</td>
+                                    <td class=""              id="" >${tdObj['7']}</td>
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
-                                    <td class="${_cLogs['_9checkDate'] === '' || userInfo.role <= 1 ? 'edit2' : ''}"         id="${i_id},_9checkDate" >${_cLogs['_9checkDate'] ?? ''}</td>
+                                    <td class="${editRole} ${bgClass_str}"   id="${i_id},_9checkDate" >${_9checkDate}</td>
                                     <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
-                                    <td class="edit2 notify_log" id="${i_id},_content"  >${_cNotifyLast_str ?? ''}<br>dayDiff：${dayDiff}day</td>`;
+
+                                    <td class="${editRole} notify_log" id="${i_id},_content" >${_cNotifyLast_str ?? ''}${dayDiff_str}</td>`;
                             tr1 += '</tr>';
 
                         $('#staff_table tbody').append(tr1);
@@ -159,6 +127,41 @@
             $("body").mLoading("hide");
         
     }
+            // 返回最新的一筆通報數據  (原本在post_staff裡面)
+            function getLatestNotification(notifyArray) {
+                if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                    return null; // 如果不是陣列或陣列為空，返回 null
+                }
+                // 將陣列按照 to_notify 進行排序，最新的在最前面
+                notifyArray.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+                // 返回最新的前一筆數據
+                return notifyArray[0];
+            }
+            // 返回最早的第一筆通報數據  (原本在post_staff裡面)
+            function getFirstNotification(notifyArray) {
+                if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                    return null; // 如果不是陣列或陣列為空，返回 null
+                }
+                // 將陣列按照 to_notify 進行排序，最舊的在最前面
+                notifyArray.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                // 返回最早的第一筆數據-dateTime日期時間
+                const _cNotifyFirst = notifyArray[0].dateTime;
+
+                var timeDiff = 0;
+                if(_cNotifyFirst !== undefined){
+                    const firstDay = new Date(_cNotifyFirst);
+                    const today = new Date().setHours(0, 0, 0, 0); // 設置時間為 00:00:00
+                    // 計算時間戳（毫秒）
+                    timeDiff = today - firstDay;
+                }
+                // 將毫秒轉換為天數，1天 = 24小時 * 60分鐘 * 60秒 * 1000毫秒
+                const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                // 判斷背景樣式  // 超過12天，使用 bg-danger// 超過7天，使用 bg-warning   alert_it
+                const bgClass = dayDiff >= 12 ? 'table-danger' : (dayDiff >= 7 ? 'table-warning' : '');
+
+                return { dayDiff, bgClass };
+            }
+
     // 預先處理員工資料 for post_staff()
     async function preProcess_staff(shLocalDept_in, _yearMonthValue){
                 // console.log('1a.shLocalDept_in...' ,shLocalDept_in)
@@ -215,11 +218,11 @@
  
                     defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重
                     // defaultStaff_inf = uniqueArr(defaultStaff_inf, load_change);
-                        console.log('1.defaultStaff_inf...', defaultStaff_inf)
+                        // console.log('1.defaultStaff_inf...', defaultStaff_inf)
 
                     const selectStaffArr = selectStaffStr.replace(/"/g, '').split(',')                              // step-3. 去除前後"符號..分割staffStr成陣列
                     const notExistingStaffs = selectStaffArr.filter(emp_id => !existingStaffStrs.includes(emp_id)); // step-4. 找出不存在於load_shLocalDepts中的部門代號
-                        console.log('2.notExistingStaffs...', notExistingStaffs)
+                        // console.log('2.notExistingStaffs...', notExistingStaffs)
 
                     if(notExistingStaffs.length > 0) {
                         const notExistingStaffs_str = JSON.stringify(notExistingStaffs).replace(/[\[\]]/g, '');     // step-5. 把不在的部門代號進行加工(多選)，去除外框
@@ -401,7 +404,7 @@
 
 
                     if(i_targetTD.includes('_content')){
-                        reload_notify2_Listeners();
+                        reload_notify2_Listeners();     // 定義edit2_modal[全選]+[刪除]鈕功能
                     }
 
                     reload_submitEdit2_Listeners();
@@ -652,5 +655,8 @@
         const result = await load_fun('bat_storeChangeStaff', bat_storeChangeStaff_value, 'return');   // load_fun的變數傳遞要用字串
         inside_toast(result.content, 3000, result.action);
 
+        if(result.action === 'success'){
+            post_staff(staff_inf, mergedData_inf, shItemArr_inf);    // 更新畫面=重新鋪設Page3
+        }
         // location.reload();
     }

@@ -34,7 +34,7 @@
                         }
                     // 在此处可以对$data进行进一步处理
                     // 将结果输出为HTML表格
-                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '監測編號', '監測處所(255)', '作業描述(255)', 'A權音壓級(dBA)', '日時量平均(dBA)');  //工作日8小時平均音壓值
+                    $theadTitles = array('廠區', '部門代碼', '部門名稱', '類別', '監測編號', '監測處所(255)', '作業描述(255)', 'A權音壓級 <sup>(dBA)</sup>', '日時量平均 <sup>(dBA)</sup>');  //工作日8小時平均音壓值
                     // 計算陣列中的"key"
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
@@ -82,6 +82,8 @@
                                 $WORK_DESC_check = mb_strlen($row[8], 'UTF-8') <= 255;
                             // 5. HE_CATE_check: 檢查 HE_CATE 是否包含 ":"
                                 $HE_CATE_check = strpos($row[3], ':') !== false;
+                            // 6. 檢查 MONIT_NO $row[4] 是否為空值
+                                $MONIT_NO_check = !empty($row[4]);
                             
                             // 合併檢查結果：
                                 $row_result = array_merge($row, [
@@ -89,10 +91,11 @@
                                     "noise_check"       => $noise_check,
                                     "MONIT_LOCAL_check" => $MONIT_LOCAL_check,
                                     "WORK_DESC_check"   => $WORK_DESC_check,
-                                    "HE_CATE_check"     => $HE_CATE_check
+                                    "HE_CATE_check"     => $HE_CATE_check,
+                                    "MONIT_NO_check"    => $MONIT_NO_check
                                 ]);
 
-                            if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check && $HE_CATE_check) {
+                            if ($OSHORT_check && $noise_check && $MONIT_LOCAL_check && $WORK_DESC_check && $HE_CATE_check && $MONIT_NO_check) {
                                 foreach ($row as $index => $value) {
                                     // row 6 作業敘述需要特殊顯示word_bk處理
                                     echo (($index === 6) ? '<td class="word_bk">' : '<td>'). htmlspecialchars($value) .'</td>';             // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
@@ -411,7 +414,7 @@
                 $td_str .= '<td>' . $row_result[1] . ((!$row_result["OSHORT_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[2] . '</td>';
                 $td_str .= '<td>' . $row_result[3] . ((!$row_result["HE_CATE_check"]) ? '<br><span style="background-color: pink;">注意：此欄格式有誤</span>' : '') . '</td>';
-                $td_str .= '<td>' . $row_result[4] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
+                $td_str .= '<td>' . $row_result[4] . ((!$row_result["MONIT_NO_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[5] . ((!$row_result["noise_check"]) ? '<br><span style="background-color: pink;">注意：此欄有誤</span>' : '') . '</td>';
                 $td_str .= '<td>' . $row_result[6] . '</td>';
                 $td_str .= '<td>' . $row_result[7] . ((!$row_result["MONIT_LOCAL_check"]) ? '<br><span style="background-color: pink;">注意：此欄字數有誤('.mb_strlen($row_result[7], 'UTF-8').')</span>' : '') . '</td>';

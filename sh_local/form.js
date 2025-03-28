@@ -252,7 +252,7 @@
             // 240813 監聽 checkbox 是否有值
             // 240809 監聽'噪音'checkbox 
                 // 选择 noiseCheckbox、AVG_VOL 和 AVG_8HR 元素
-                const noiseCheckbox = document.querySelector('#HE_CATE input[type="checkbox"][value="噪音"]');
+                const noiseCheckbox = document.querySelectorAll(`#HE_CATE input[type="checkbox"][value*="噪音"]`);
                 // 定义一个函数来检查输入框的状态
                 function checkInputs() {
                     if (avgVolInput.value.trim() !== "" || avg8HrInput.value.trim() !== "") {
@@ -289,18 +289,20 @@
                 }
                 // 监听 noiseCheckbox 的 change 事件
                 if (noiseCheckbox) {
-                    noiseCheckbox.addEventListener('change', function() {
-                        if (this.checked) {
-                            // 如果噪音checkbox被选中，添加输入框的事件监听器并检查状态
-                            addInputListeners();
-                            checkInputs();
-                        } else {
-                            // 如果噪音checkbox未被选中，移除所有相关的 class 和事件监听器
-                            avgVolInput.classList.remove('is-invalid', 'is-valid');
-                            avg8HrInput.classList.remove('is-invalid', 'is-valid');
-                            removeInputListeners();
-                        }
-                    });
+                    noiseCheckbox.forEach(noiseCB => {
+                        noiseCB.addEventListener('change', function() {
+                            if (this.checked) {
+                                // 如果噪音checkbox被选中，添加输入框的事件监听器并检查状态
+                                addInputListeners();
+                                checkInputs();
+                            } else {
+                                // 如果噪音checkbox未被选中，移除所有相关的 class 和事件监听器
+                                avgVolInput.classList.remove('is-invalid', 'is-valid');
+                                avg8HrInput.classList.remove('is-invalid', 'is-valid');
+                                removeInputListeners();
+                            }
+                        });
+                    })
                 }
             // 240809 監聽'噪音'checkbox 
             // 文件載入成功，resolve

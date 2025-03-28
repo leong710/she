@@ -117,7 +117,7 @@
             font-size: 12px;
         }
         .import:hover , .edit1:hover , .edit2:hover {
-            background-color: #adff2f;
+            background-color: #adff2f !important;
             transition: .5s;
             font-weight: bold;
             text-shadow: 3px 3px 5px rgba(0, 0, 0, .5);
@@ -522,7 +522,7 @@
                 </div>
                 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="p2notify_btn">發出</button>
+                    <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="p2notify_btn" disabled >發出</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -661,7 +661,6 @@
     
     var p2_send_btn         = document.getElementById('p2_send_btn');           // 1.傳送通知按鈕
     var p2notify_btn        = document.getElementById('p2notify_btn');          // 2.發出按鈕
-
 
     // var bat_storeDept_btn   = document.getElementById('bat_storeDept_btn');     // 儲存按鈕
     // var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕

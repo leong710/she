@@ -187,7 +187,7 @@
                                         <!-- line b2 -->
                                         <div class="col-6 col-md-6 py-1">
                                             <div class="form-floating">
-                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder  >
+                                                <input type="text" name="MONIT_NO" id="MONIT_NO" class="form-control" placeholder required>
                                                 <label for="MONIT_NO" class="form-label">MONIT_NO/監測編號：<sup class="text-danger"> *</sup></label>
                                             </div>
                                         </div>
