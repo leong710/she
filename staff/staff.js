@@ -321,7 +321,17 @@
             });
             
         // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
-        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 || _docs_inf[0].idty >= 4);  // 讓 送審 按鈕啟停
+        // SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 || _docs_inf[0].idty >= 4);  // 讓 送審 按鈕啟停
+        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停
+
+            console.log('1.userInfo.role <= 2 =>', userInfo.role <= 2 )
+            console.log('2.emp_i_omager =>', emp_i_omager)
+            console.log('3.emp_arr.length === 0 =>', emp_arr.length === 0)
+            console.log('4a._docsIdty_inf =>', _docsIdty_inf)
+            console.log('4b._docsIdty_inf >= 4 =>', _docsIdty_inf >= 4)
+            // console.log('5a._docs_inf =>', _docs_inf)
+            // console.log('5b._docs_inf[0].idty >= 4 =>', _docs_inf[0].idty >= 4)
+            console.log('6.',!(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4))
 
         // $("body").mLoading("hide");
     }
@@ -790,16 +800,17 @@
                     mloading();                                               // 啟用mLoading
                     // 工作一 清空暫存
                         await resetINF(true); // 清空
-                    // 工作二 依部門代號撈取員工資料 後 進行鋪設
-                        const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
-                        // console.log('selectedValues_str...',selectedValues_str);
-                        await load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                    // 工作三 
+                    // 工作二
                         const thisId_arr    = this.id.split(',');   // 分割this.id成陣列
                         const emp_sub_scope = thisId_arr[1];        // 取出陣列 1=emp_sub_scope
                         const dept_no       = thisId_arr[2];        // 取出陣列 2=dept_no
                         const _doc = _docs_inf.find(_d => _d.dept_no == dept_no && _d.emp_sub_scope == emp_sub_scope );
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
+                                
+                    // 工作三 依部門代號撈取員工資料 後 進行鋪設
+                        const selectedValues_str = JSON.stringify(this.id).replace(/[\[\]\ ]/g, '');
+                        // console.log('selectedValues_str...',selectedValues_str);
+                        await load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
 
                     // 250213 指派主管開關                        
                         // const noOmager = this.getAttribute('class').includes('noOmager');   // 使用 getAttribute 獲取 class value
@@ -909,11 +920,12 @@
                     })
                     console.log('submitValue =>', JSON.parse(submitValue)); 
         
-                const result = await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
+                const result = await load_fun('bat_storeStaff', submitValue, 'return');     // step1.先進行儲存
                 if(result.action === 'success') {
-                    await load_fun('storeForReview', submitValue, show_swal_fun);       // load_fun的變數傳遞要用字串
+                    await load_fun('storeForReview', submitValue, show_swal_fun);           // step2a.如果成功--進行送審...
+
                 }else{
-                    alert(result.content+' & 尚未提交 !!');
+                    alert(result.content+' & 尚未提交 !!');                                 // step2b.儲存失敗即返回
                     $("body").mLoading("hide");
                 }
                 submit_modal.hide();

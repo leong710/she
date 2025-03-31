@@ -7,6 +7,7 @@
         "4"  : "退回 (Reject)",
         "5"  : "轉呈 (Forwarded)",
         "6"  : "同意 (Approve)",
+        "7"  : "自動同意 (Auto Approve)",
         "10" : "結案 (Close)",
         "99" : "錯誤 (Error)"
     },
@@ -57,6 +58,15 @@
                 "returnTo"      : "2",
                 "approveTo"     : "5"
             },
+            "7" : {
+                    "idty"          : "4",
+                    "approvalStep"  : "簽核審查",
+                    "remark"        : "簽核主管可維調暴露時數",
+                    "group"         : "上層主管/課副理,護理師",
+                    "edit"          : true,
+                    "returnTo"      : "2",
+                    "approveTo"     : "5"
+                },
         "5" : {
                 "idty"          : "5",
                 "approvalStep"  : "收單review",

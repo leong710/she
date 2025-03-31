@@ -610,6 +610,8 @@
                     "content" => "批次送審名單--"
                 ];
 
+                define('SQL_SELECT_FAB', "SELECT _f.pm_emp_id AS pm_empId, _f.osha_id FROM `_fab` _f WHERE _f.BTRTL = ? AND _f.fab_title LIKE ? "); // 找出廠區護理師窗口
+                define('SQL_SELECT_PM', "SELECT GROUP_CONCAT(CONCAT(_u.emp_id, ',', _u.cname) SEPARATOR ',') AS pm_empId FROM _users _u WHERE _u.role = 1 AND _u.emp_id < 90000000 LIMIT 3;");  // 找出大PM
                 define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? AND BTRTL = ? ");
                 define('SQL_INSERT_DOC', "INSERT INTO _document (uuid, age, dept_no, emp_dept, sub_scope, BTRTL, omager, check_list, in_sign, in_signName, idty, flow, flow_remark, _content, created_emp_id, created_cname, updated_cname, logs, created_at, updated_at) VALUES ");
                 define('SQL_UPDATE_DOC', "ON DUPLICATE KEY UPDATE 
@@ -709,9 +711,29 @@
                                 $idty = "2";
                                 break;
                             case "3":       // 送出
+                                if($auth_emp_id === $omager){
+                                    $rowStep = "7";                                     // 自動--簽核審查
+                                    $rowStep_arr = $reviewStep_arr['step'][$rowStep];   // getStep arr 取得目前狀態節點
+                                    $status     = $action_arr[$rowStep] ?? "99";        // 7:自動同意 / 99:錯誤 (Error)
+                                    // 製作log紀錄前處理：塞進去製作元素
+                                    $logs_request = array (
+                                        "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',     // 節點
+                                        "cname"  => $auth_cname." (".$auth_emp_id.")",
+                                        "action" => $status ?? "送出 (Submit)",
+                                        "logs"   => $logs_enc ?? "",
+                                        "remark" => ""
+                                    ); 
+                                    // 呼叫toLog製作log檔
+                                        $logs_enc = toLog($logs_request);
+                                    $idty = "5";
+                                }else{
+                                    $idty = "4";
+                                }
+                                break;  
+
                             case "5":       // 轉呈
                                 $idty = "4";
-                            break;
+                                break;  
                             case "4":       // 退回
                                 $idty = $rowStep_arr['returnTo'];
                                 break;
@@ -740,9 +762,41 @@
                             $showStaffOmager = queryHrdb("showStaff", $omager);                                     // 查詢員工資訊for部門消滅
                         }
                         
-                        $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);              // 查詢部門主管簽核代理人
-                        $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? ($result["OMAGER"] ?? ( $showStaffOmager["emp_id"] ?? "")) );  
-                        $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? ($result["cname"]  ?? ( $showStaffOmager["cname"]  ?? "")) );  
+                        if($action == 3 && $idty == 5){     // *** 這裡是 3名單送審人===4簽核審查人 then 自動跳下一階
+                            $stmt_select_fab = $pdo->prepare(SQL_SELECT_FAB);   // 送審人==簽核人=自動轉下一關
+                            $like_sub_scope = "%".$sub_scope."%";
+                            if (executeQuery($stmt_select_fab, [$BTRTL , $like_sub_scope])) {
+                                $row_fab = $stmt_select_fab->fetch(PDO::FETCH_ASSOC);
+                                
+                                if (!empty($row_fab)) {         // 如果資料存在則帶入更新
+                                    $pm_empId_arr = explode(",", $row_fab["pm_empId"]);                     // 資料表是字串，要炸成陣列
+
+                                } else {                        // 若不存在，改直接帶入大PM
+                                    $stmt_select_pm = $pdo->prepare(SQL_SELECT_PM);   
+                                    if (executeQuery($stmt_select_pm, '')) {
+                                        $row_pm = $stmt_select_pm->fetch(PDO::FETCH_ASSOC);
+                                    
+                                    }else{
+                                        $row_pm = array ( "pm_empId" => "" );
+                                    }
+                                    $pm_empId_arr = explode(",", $row_pm["pm_empId"]);                      // 資料表是字串，要炸成陣列
+                                } 
+
+                                $in_sign      = $pm_empId_arr[0] ?? NULL;                                   // 5-> 窗口護理師 || 大PM
+                                $in_signName  = $pm_empId_arr[1] ?? NULL;                                   // 5-> 窗口護理師 || 大PM
+                            }
+                            $DEPUTY = queryHrdb("showDelegation", $in_sign);                                // 查詢---自動簽核的下一階 簽核代理人
+                            
+                        } else {
+                            $in_sign     = $result["OMAGER"] ?? ( $showStaffOmager["emp_id"] ?? "");        // 5-> 帶入部門主管
+                            $in_signName = $result["cname"]  ?? ( $showStaffOmager["cname"]  ?? "");        // 5-> 帶入部門主管
+                            $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);  // 查詢---部門主管 簽核代理人
+                        }
+
+                        if(isset($DEPUTY["SINGFLAG"])){
+                            $in_sign     = ($DEPUTY["DEPUTYEMPID"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYEMPID"] : $in_sign;     // Y=啟動代理簽核
+                            $in_signName = ($DEPUTY["DEPUTYCNAME"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYCNAME"] : $in_signName; // Y=啟動代理簽核
+                        }
                         
                         // 防呆，使用預設值
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
@@ -901,8 +955,8 @@
                 if($action === "3"){
                     $result = queryHrdb("showSignCode",   $deptNo);                        // 查詢signCode部門主管
                     $DEPUTY = queryHrdb("showDelegation", $result["OMAGER"]);              // 查詢部門主管簽核代理人
-                    $in_sign     = $in_sign     ?? ($DEPUTY["DEPUTYEMPID"] ?? $result["OMAGER"]);  
-                    $in_signName = $in_signName ?? ($DEPUTY["DEPUTYCNAME"] ?? $result["cname"]);  
+                    $in_sign     = $in_sign     ?? (($DEPUTY["DEPUTYEMPID"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYEMPID"] : $result["OMAGER"] ?? "");  
+                    $in_signName = $in_signName ?? (($DEPUTY["DEPUTYCNAME"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYCNAME"] : $result["cname"]  ?? "");  
                     
                 // } else if($action === "5"){
                 //     $in_sign     = $forwarded["in_sign"]     ?? ($row_data["in_sign"]     ?? "");  
