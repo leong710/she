@@ -324,14 +324,14 @@
         // SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 || _docs_inf[0].idty >= 4);  // 讓 送審 按鈕啟停
         SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停
 
-            console.log('1.userInfo.role <= 2 =>', userInfo.role <= 2 )
-            console.log('2.emp_i_omager =>', emp_i_omager)
-            console.log('3.emp_arr.length === 0 =>', emp_arr.length === 0)
-            console.log('4a._docsIdty_inf =>', _docsIdty_inf)
-            console.log('4b._docsIdty_inf >= 4 =>', _docsIdty_inf >= 4)
-            // console.log('5a._docs_inf =>', _docs_inf)
-            // console.log('5b._docs_inf[0].idty >= 4 =>', _docs_inf[0].idty >= 4)
-            console.log('6.',!(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4))
+            // console.log('1.userInfo.role <= 2 =>', userInfo.role <= 2 )
+            // console.log('2.emp_i_omager =>', emp_i_omager)
+            // console.log('3.emp_arr.length === 0 =>', emp_arr.length === 0)
+            // console.log('4a._docsIdty_inf =>', _docsIdty_inf)
+            // console.log('4b._docsIdty_inf >= 4 =>', _docsIdty_inf >= 4)
+            //     // console.log('5a._docs_inf =>', _docs_inf)
+            //     // console.log('5b._docs_inf[0].idty >= 4 =>', _docs_inf[0].idty >= 4)
+            // console.log('6.',!(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4))
 
         // $("body").mLoading("hide");
     }

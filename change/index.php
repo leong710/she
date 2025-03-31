@@ -337,7 +337,7 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init(true)"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
                                 </div>
                             </div>
                             <hr>

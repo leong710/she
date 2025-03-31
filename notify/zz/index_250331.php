@@ -190,7 +190,7 @@
                             </div>
                             <hr>
                             <div id="p2_notify_lists" class="notify_lists col-12 mt-2 border rounded">
-                                <table id="p2notify_table" class="table table-striped table-hover">
+                                <table id="p2_table" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>姓名 (工號)</th>
@@ -300,22 +300,25 @@
     const fun       = '<?=$fun?>';                                  // 是否自動啟動寄送信件給人員
     const check_ip  = '<?=$check_ip?>';
 
-    const reload_time = document.getElementById('reload_time');
+    var fa_OK       = '<snap class="fa_check">&nbsp<i class="fa fa-check" aria-hidden="true"></i></snap>';    // 打勾符號
+    var fa_NG       = '<snap class="fa_remove">&nbsp<i class="fa fa-remove" aria-hidden="true"></i></snap>';  // 打叉符號
+    var mail_OK     = '<snap class="fa_check"><i class="fa-solid fa-paper-plane"></i> </snap>';               // 寄信符號
+    var mail_NG     = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i></snap>';      // 警告符號
+    var mapp_OK     = '<snap class="fa_check"><i class="fa-solid fa-comment-sms"></i> </snap>';               // 簡訊符號
+    var mapp_NG     = '<snap class="fa_remove"><i class="fa-solid fa-triangle-exclamation"></i></snap>';      // 警告符號
+    
+    // const uuid      = '3cd9a6fd-4021-11ef-9173-1c697a98a75f';       // invest
+
+    const Today     = new Date();
+    const thisToday = Today.getFullYear() +'/'+ String(Today.getMonth()+1).padStart(2,'0') +'/'+ String(Today.getDate()).padStart(2,'0');  // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
+    const thisTime  = String(Today.getHours()).padStart(2,'0') +':'+ String(Today.getMinutes()).padStart(2,'0');                           // 20230406_bug-fix: 定義出今天日期，padStart(2,'0'))=未滿2位數補0
 
     var bpm         = {};
     var doc_lists   = {};
     var notifyLists = {};
 
-    const userInfo = {
-        'role'     : '<?=$sys_role?>',
-        'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
-        'empId'    : '<?=$auth_emp_id?>',
-        'cname'    : '<?=$auth_cname?>',
-        'signCode' : '<?=$auth_sign_code?>',
-    }
-
 </script>
-<!-- change 要新載入 -->
+
 <script src="../change/change_notify.js?v=<?=time()?>"></script>
 <script src="notify.js?v=<?=time()?>"></script>
 

@@ -157,11 +157,16 @@
         async function p2_step1(...staff_inf) {
             // ch.match(/[\^>V<]/);
 
-            const emp_id_lists = staff_inf.map(staff => staff.emp_id);
-            const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
-                // console.log('emp_id_lists_str:', emp_id_lists_str)
-            const load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
-                // console.log('p2_step1--load_changeTodo...', load_changeTodo);
+            var load_changeTodo;
+            if(staff_inf){
+                const emp_id_lists = staff_inf.map(staff => staff.emp_id);
+                const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
+                    // console.log('emp_id_lists_str:', emp_id_lists_str)
+                load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
+                    // console.log('p2_step1--load_changeTodo...', load_changeTodo);
+            }else{
+                load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+            }
 
             return(load_changeTodo); // 返回取得的資料
         }
@@ -173,7 +178,7 @@
                     const _cNotify = staff_i['_content']?.[i_targetMonth]?.['notify'] ?? [];
                     if(_cNotify.length !== 0) {
                         const { dayDiff } = getFirstNotification(_cNotify);      // 取得最早的第一筆通報時間至今的日期差 & 背景色
-                        if(dayDiff < 14) {           // 過濾小於指定天數
+                        if(dayDiff < 7) {           // 過濾小於指定天數
                             delete staff_arr[index];
                         }
                     }
@@ -247,7 +252,7 @@
                                 const _6shCheckStr = JSON.stringify(_6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
                                 // 處理omager
                                 const OMAGER_i = _signDeptIn.find(omager_i => omager_i.sign_code === OSHORT);   // 從s_signDeptIn找出符合 OSHORT 的主管資料
-                                console.log('OMAGER_i =>', OMAGER_i);
+                                // console.log('OMAGER_i =>', OMAGER_i);
                                 // 處理omager代簽
                                 const delegation_i = _delegationIn.find(deleg_i => deleg_i.APPLICATIONEMPID === OMAGER_i.emp_id);
                                 // 提取對應訊息
@@ -480,20 +485,17 @@
         return satff_mailResult;    // 返回特作員工清單
     }
 
-    async function p2_init(){
+    async function p2_init(result){
         mloading("show");                               // 啟用mLoading
 
         try {
-            const load_changeTodo   = await p2_step1(...staff_inf);      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
-
+            const load_changeTodo   = await p2_step1(result ? staff_inf : '');      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
             const load_changeTodo14 = await p2_step1a(load_changeTodo);
-
             const shortsUniqueArr   = await p2_step2(load_changeTodo14);   // step.2 把_todo下的部門代號取出來存成陣列
             const showSignDeptIn    = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
             const showDelegationIn  = await p2_step4(showSignDeptIn);    // step.4 把部門主管名單去找代理人...
             const { mailArr }       = await p2_step5(load_changeTodo14, showSignDeptIn, showDelegationIn); // 鋪設p2notify_table畫面 & 製作mail清單
-    
-            const p2notify_btn = document.getElementById('p2notify_btn');
+            const p2notify_btn      = document.getElementById('p2notify_btn');
             p2notify_btn.addEventListener('click', async function () {
                 if(confirm('確認發報？')){
                     mloading("show");                               // 啟用mLoading
