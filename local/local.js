@@ -220,8 +220,7 @@
             }
         }
     }
-    // // // 第三頁：searchUser function 
-    
+    // // // 第三頁：searchUser function  
     $(document).ready(function(){
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();

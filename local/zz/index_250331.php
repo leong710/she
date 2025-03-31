@@ -10,12 +10,15 @@
     // 新增C
     if(isset($_REQUEST["site_submit"])){  store_site($_REQUEST); }
     if(isset($_REQUEST["fab_submit"])){   store_fab($_REQUEST); }
+    if(isset($_REQUEST["local_submit"])){ store_local($_REQUEST); }
     // 更新U
     if(isset($_REQUEST["edit_site_submit"])){  update_site($_REQUEST); }
     if(isset($_REQUEST["edit_fab_submit"])){   update_fab($_REQUEST); }
+    if(isset($_REQUEST["edit_local_submit"])){ update_local($_REQUEST); }
     // 刪除D
     if(isset($_REQUEST["delete_site"])){  delete_site($_REQUEST); }
     if(isset($_REQUEST["delete_fab"])){   delete_fab($_REQUEST); }
+    if(isset($_REQUEST["delete_local"])){ delete_local($_REQUEST); }
     // 調整flag ==> 20230712改用AJAX
     
     // 3.組合查詢陣列
@@ -26,6 +29,9 @@
 
     $sortFab_id = isset($_REQUEST["fab_id"]) ? $_REQUEST["fab_id"] : "0";
 
+    // $locals = (isset($_REQUEST["local_submit"])) ? show_local($_REQUEST) : show_local($query_arr);
+    
+    $locals     = show_local($query_arr);
     $fabs       = show_fab($query_arr);
     $sites      = show_site($query_arr);
     $dept_lists = show_dept();
@@ -91,6 +97,7 @@
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <button class="nav-link" id="nav-site-tab"  data-bs-toggle="tab" data-bs-target="#nav-site_table"  type="button" role="tab" aria-controls="nav-site"  aria-selected="false">Site</button>
                                 <button class="nav-link" id="nav-fab-tab"   data-bs-toggle="tab" data-bs-target="#nav-fab_table"   type="button" role="tab" aria-controls="nav-fab"   aria-selected="false">Fab</button>
+                                <button class="nav-link" id="nav-local-tab" data-bs-toggle="tab" data-bs-target="#nav-local_table" type="button" role="tab" aria-controls="nav-local" aria-selected="false">Local</button>
                             </div>
                         </nav>
                     </div>
@@ -231,6 +238,68 @@
                         </div>
                     </div>
                     
+                    <!-- Local class="show active" -->
+                    <div id="nav-local_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-local-tab">
+                        <div class="row">
+                            <div class="col-12 col-md-4 py-0">
+                                <h3>Local管理</h3>
+                            </div>
+                            <div class="col-12 col-md-4 py-0">
+                                <div class="form-floating">
+                                    <select name="sortFab_id" id="sortFab_id" class="form-select" onchange="groupBy_fab(this.value)">
+                                        <option value="" hidden>-- [請選擇 棟別] --</option>
+                                        <option value="0" selected >-- All Fab --</option>
+                                        <?php foreach($fabs as $fab){
+                                            echo "<option value='{$fab["id"]}' title='{$fab["fab_title"]}' ".((isset($_REQUEST["fab_id"]) && $_REQUEST["fab_id"] == $fab["id"]) ? "selected":"" ) ." class='".($fab["flag"] == "Off" ? "text-danger":"")."'>";
+                                            echo "{$fab["id"]}：{$fab["site_title"]}&nbsp{$fab["fab_title"]}&nbsp({$fab["fab_remark"]})".($fab["flag"] == "Off" ? "&nbsp(已關閉)":"")."</option>";
+                                        } ?>
+                                    </select>
+                                    <label for="sortFab_id" class="form-label">篩選棟別：<sup class="text-danger"> *</sup></label>
+                                </div>    
+                            </div>
+                            <div class="col-12 col-md-4 py-0 text-end">
+                                <?php if($_SESSION[$sys_id]["role"] <= 1){ ?>
+                                    <button type="button" id="add_local_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_local" onclick="add_module('local')" ><i class="fa fa-plus"></i></button>
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="col-12 p-0">
+                                <table id="local_table">
+                                    <thead>
+                                        <tr class="">
+                                            <!-- <th class="unblock">fab_id</th> -->
+                                            <th>ai</th>
+                                            <th>fab_id</th>
+                                            <th>local_title (remark)</th>
+                                            <th>flag</th>
+                                            <th>action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($locals as $local){ ?>
+                                            <tr>
+                                                <!-- <td class="unblock"><php echo $local['fab_id']; ?></td> -->
+                                                <td style="font-size: 12px;"><?php echo $local['id']; ?></td>
+                                                <td class="text-start"><?php echo $local['fab_id']."_".$local['fab_title']." (".$local['fab_remark'].")"; if($local["fab_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php } ?></td>
+                                                <td class="text-start"><?php echo $local['local_title']." (".$local['local_remark'].")"; ?></td>
+                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){
+                                                        echo "<button type='button' name='local' id='{$local['id']}' class='btn btn-sm btn-xs flagBtn ";
+                                                        echo ($local['flag'] == "On" ? "btn-success":"btn-warning")."' value='{$local['flag']}'>{$local['flag']}</button>";
+                                                    }else{
+                                                        echo "<span class='btn btn-sm btn-xs ".($local['flag'] == "On" ? " btn-success ' >顯示":"btn-warning ' >隱藏")."</span>";
+                                                    } ?></td>
+                                                <td><?php if($_SESSION[$sys_id]["role"] <= 1){ ?>    
+                                                    <button type="button" id="edit_local_btn" value="<?php echo $local['id'];?>" class="btn btn-sm btn-xs btn-secondary" 
+                                                        data-bs-toggle="modal" data-bs-target="#edit_local" onclick="edit_module('local',this.value)" ><i class="fa-solid fa-pen-to-square"></i></button>
+                                                <?php } ?></td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     <hr>
                 </div>
 
@@ -444,6 +513,79 @@
             </form>
         </div>
     </div>
+<!-- 模組 新增編輯Local-->
+    <div class="modal fade" id="edit_local" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><span id="local_modal_action"></span>local資訊</h4>
+                    <form action="" method="post">
+                        <input type="hidden" name="id" id="local_delete_id">&nbsp&nbsp&nbsp&nbsp&nbsp
+                        <span id="local_modal_delect_btn" class="<?php echo ($_SESSION[$sys_id]["role"] == 0) ? "":" unblock ";?>"></span>
+                    </form>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="" method="post">
+                    <div class="modal-body px-5">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <select name="fab_id" id="edit_fab_id" class="form-select" required <?php echo ($_SESSION[$sys_id]["role"] > 1) ? "disabled":"";?>>
+                                        <option value="" hidden>--請選擇fab廠別--</option>
+                                        <?php foreach($fabs as $fab){
+                                            echo "<option value='{$fab["id"]}' >{$fab["id"]}_{$fab["fab_title"]}({$fab["fab_remark"]})".($fab["flag"] == "Off" ? ' -- 已關閉':'')."</option>";
+                                        } ?>
+                                    </select>
+                                    <label for="edit_fab_id" class="form-label">fab_id：<sup class="text-danger"><?php echo ($_SESSION[$sys_id]["role"] > 1) ? " - disabled":" *"; ?></sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" name="local_title" id="edit_local_title" class="form-control" required placeholder="local名稱">
+                                    <label for="edit_local_title" class="form-label">local_title/名稱：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-floating">
+                                    <input type="text" name="local_remark" id="edit_local_remark" class="form-control" required placeholder="註解說明">
+                                    <label for="edit_local_remark" class="form-label">local_remark/備註說明：<sup class="text-danger"> *</sup></label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <table>
+                                    <tr>
+                                        <td style="text-align: right;">
+                                            <label for="edit_flag" class="form-label">flag/顯示開關：</label>
+                                        </td>
+                                        <td style="text-align: left;">
+                                            <input type="radio" name="flag" value="On" id="edit_local_On" class="form-check-input" checked>&nbsp
+                                            <label for="edit_local_On" class="form-check-label">On</label>
+                                        </td>
+                                        <td style="text-align: left;">
+                                            <input type="radio" name="flag" value="Off" id="edit_local_Off" class="form-check-input">&nbsp
+                                            <label for="edit_local_Off" class="form-check-label">Off</label>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-12 text-end p-0" id="edit_local_info"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="text-end">
+                            <input type="hidden" name="activeTab" value="2">
+                            <input type="hidden" name="id" id="local_edit_id" >
+                            <input type="hidden" name="updated_user" value="<?php echo $_SESSION["AUTH"]["cname"];?>">
+                                <span id="local_modal_button" class="<?php echo ($_SESSION[$sys_id]["role"] <= 1) ? "":" unblock ";?>"></span>
+                            <input type="reset" class="btn btn-info" id="local_reset_btn" value="清除">
+                            <button type="reset" class="btn btn-danger" data-bs-dismiss="modal">取消</button>
+                        </div>
+                    </div>
+                </form>
+    
+            </div>
+        </div>
+    </div>
 
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
@@ -458,8 +600,10 @@
 
     var site        = <?=json_encode($sites)?>;                                                 // 引入sites資料
     var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
+    var local       = <?=json_encode($locals)?>;                                                // 引入locals資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
     var fab_item    = ['id','site_id','fab_title','fab_remark','osha_id','BTRTL','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
+    var local_item  = ['id','fab_id','local_title','local_remark','flag'];                      // 交給其他功能帶入 delete_local_id
     var sortFab_id  = '<?=$sortFab_id?>';
 
     var tags        = [];                                                                       // fun3-1：search Key_word
