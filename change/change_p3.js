@@ -373,20 +373,21 @@
 
                                 staffData['_content'][i_targetMonth] = staffData['_content'][i_targetMonth] ?? {};    // 防呆
                                 const thisNotifys = staffData['_content']?.[i_targetMonth]?.['notify'] ?? [];         // 賦予內容值
-
-                                thisTD +=  `<div class="row">
-                                                <div class="col-2 col-md-2 p-1 mcc">
-                                                    <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="p-1">
-                                                        <button type="button" id="selectAll_notify_btn" class="btn btn-outline-danger btn-sm btn-xs add_btn"
-                                                            onclick="" ><i class="fa-solid fa-check-double"></i></button>
-                                                    </snap>
-                                                    <snap data-toggle="tooltip" data-placement="bottom" title="刪除" class="p-1">
-                                                        <button type="button" id="delete_notify_btn"    class="btn btn-outline-danger btn-sm btn-xs add_btn"
-                                                            onclick="" ><i class="fa-solid fa-xmark"></i></button>
-                                                    </snap>
-                                                </div>
-                                                <div class="col-10 col-md-10 border rounded p-1 notify_log mcc">-- Notify logs --</div>
-                                            </div>`;
+                                if(userInfo.role <= 1){
+                                    thisTD +=  `<div class="row">
+                                                    <div class="col-2 col-md-2 p-1 mcc">
+                                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="p-1">
+                                                            <button type="button" id="selectAll_notify_btn" class="btn btn-outline-danger btn-sm btn-xs add_btn"
+                                                                onclick="" ><i class="fa-solid fa-check-double"></i></button>
+                                                        </snap>
+                                                        <snap data-toggle="tooltip" data-placement="bottom" title="刪除" class="p-1">
+                                                            <button type="button" id="delete_notify_btn"    class="btn btn-outline-danger btn-sm btn-xs add_btn"
+                                                                onclick="" ><i class="fa-solid fa-xmark"></i></button>
+                                                        </snap>
+                                                    </div>
+                                                    <div class="col-10 col-md-10 border rounded p-1 notify_log mcc">-- Notify logs --</div>
+                                                </div>`;
+                                }
 
                                 thisNotifys.forEach((thisNotify,index) => {
                                     // 通報數據加工+去除[]符號/[{"}]/g, ''
@@ -471,8 +472,10 @@
         }
 
         // 添加新的監聽器
-        selectAll_notify_btn.addEventListener('click', selectAllNotify2ClickListener);  // 將每一個tdItem增加監聽1
-        delete_notify_btn.addEventListener('click', deleteNotify2ClickListener);        // 將每一個tdItem增加監聽2
+        if(userInfo.role <= 1){
+            selectAll_notify_btn.addEventListener('click', selectAllNotify2ClickListener);  // 將每一個tdItem增加監聽1
+            delete_notify_btn.addEventListener('click', deleteNotify2ClickListener);        // 將每一個tdItem增加監聽2
+        }
     }
     // 250227 定義edit2_modal[更新]鈕功能~~；from edit2_modal裡[更新]鈕的呼叫...
     let submitEdit2ClickListener;
