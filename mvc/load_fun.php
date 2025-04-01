@@ -1658,6 +1658,79 @@
                 ];
                 break;
 
+            case 'bat_updateDocumentNotify':       // 250401 定期特殊健檢--更新doc_content通知訊息P3
+                require_once("../user_info.php");
+                $pdo = pdo();
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "bat_updateDocumentNotify",
+                    "content"   => "批次更新doc_content通知訊息--"
+                );
+                
+                function fetchDocumentData($pdo, $uuid) {
+                    $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
+                    executeQuery($stmt_select, [$uuid]);
+                    return $stmt_select->fetch(PDO::FETCH_ASSOC);
+                }
+                function updateDocumentData($pdo, $_content_data, $auth_cname, $uuid) {
+                    $stmt_update = $pdo->prepare(SQL_UPDATE_DOC);
+                    return executeQuery($stmt_update, [$_content_data, $auth_cname, $uuid]);
+                }
+
+                define('SQL_SELECT_DOC', "SELECT _content, updated_at FROM _document WHERE uuid = ? ");
+                define('SQL_UPDATE_DOC', "UPDATE _document SET _content = ?, updated_cname = ?, updated_at = now() WHERE uuid = ?" );
+
+                $params = [];
+                $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
+                // step.3a 檢查並維護現有資料中的 key
+                $doc_inf = $parm_array['doc_inf'] ?? [];
+
+                foreach ($doc_inf as $doc_i) {
+                    $doc_i_arr = (array) $doc_i; // #2.這裡也要由物件轉成陣列
+                    extract($doc_i_arr);
+
+                    // step.2a 提取現有資料
+                    $row_data = fetchDocumentData($pdo, $uuid);
+                    if ($row_data){
+                        // step.2b 解析現有資料為陣列
+                        $row_content = isset($row_data['_content']) ? json_decode($row_data['_content'], true) : [];
+    
+                        // step.3 更新或新增個人該變更日期的資料
+                        $row_content[$age] = $row_content[$age] ?? ['notify' => []];
+                        $row_content[$age]['notify'][] = [
+                            "from_cname" => $from_cname,    // 誰通知
+                            "to_cname"   => $to_cname,      // 通知誰
+                            "to_emp_id"  => $to_emp_id,     // 誰的工號
+                            // "to_email"   => $to_email,      // 誰的信箱
+                            "dateTime"   => $dateTime,      // 通知時間
+                            "result"     => $result,        // 通知結果
+                        ];
+    
+                        // step.4 將更新後的資料編碼為 JSON 字串
+                        $_content_str = json_encode($row_content, JSON_UNESCAPED_UNICODE);
+                    
+                        // step.5 執行更新
+                        if (!updateDocumentData($pdo, $_content_str, $auth_cname, $uuid)) {
+                            $swal_json["action"] = "error";
+                            $swal_json["content"] .= '儲存失敗';
+                            break; 
+                        }
+                    } else {
+                        $swal_json["action"] = "error";
+                        $swal_json["content"] .= '無法取得_document資料';
+                    }
+                }
+
+                $swal_json["action"] = $swal_json["action"] ?? "success";
+                $swal_json["content"] .= ($swal_json["action"] === "success") ? '儲存成功' : '';
+                
+                $result = [
+                    'result_obj' => $swal_json,
+                    'fun'        => $fun,
+                    'success'    => $swal_json["action"] === "success" ? 'Load ' . $fun . ' success.' : null,
+                    'error'      => $swal_json["action"] === "error" ? 'Load ' . $fun . ' failed...(e or no parm)' : null,
+                ];
+                break;
+
             default:
                 sendErrorResponse('Invalid function', 400);
         };

@@ -507,18 +507,12 @@
 
             p2_init(false);
 
-
-
-
         }
         // 定義新的監聽器函數p3_btn
         navP3tabClickListener = async function () {
             console.log('p3_btn')
 
-
-
-
-
+            p3_init();
 
         }
 
@@ -567,7 +561,7 @@
     // document.ready啟動自動執行fun
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();             // 在任何地方啟用工具提示框
-        checkPopup();                                       // 確認自己是否為彈出視窗 
+        // checkPopup();                                       // 確認自己是否為彈出視窗 
         load_init(false);
         // p2_init(true);
     })

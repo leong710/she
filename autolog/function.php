@@ -1,7 +1,7 @@
 <?php
 
 // // // index用到
-    // 20230818 嵌入分頁工具
+    // 20230818 嵌入分頁工具 250401_優化
     function show_log_list($request){
         $pdo = pdo();
         extract($request);
@@ -39,7 +39,7 @@
             }
             $log_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $log_lists;
-            
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }

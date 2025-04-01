@@ -159,17 +159,14 @@
 
             var load_changeTodo;
             if(staff_inf === false){
-                console.log('s1...for dashBoard')
                 load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
 
             }else{
-                console.log('s2...for menu')
                 const emp_id_lists = staff_inf.map(staff => staff.emp_id);
                 const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
                     // console.log('emp_id_lists_str:', emp_id_lists_str)
                 load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
                     // console.log('p2_step1--load_changeTodo...', load_changeTodo);
-
             }
 
             return(load_changeTodo); // 返回取得的資料
@@ -208,9 +205,9 @@
         // step.3 查找部門主管及訊息...參數:由step.2取得的資料(部門代號陣列)
         async function p2_step3(shortsUniqueArr) {
             const shortsUniqueStr = (shortsUniqueArr.length != 0 ) ? JSON.stringify(shortsUniqueArr).replace(/[\[\]]/g, '') : '';   // 把部門代號進行加工(多選)，去除外框
-                console.log('p2_step3a--shortsUniqueStr...', shortsUniqueStr);
+                // console.log('p2_step3a--shortsUniqueStr...', shortsUniqueStr);
             const showSignDeptIn = (shortsUniqueStr != '' ) ? await load_API('showSignDeptIn', shortsUniqueStr, 'return') : [];     // load_fun查詢大PM bpm，並用step1找出email
-                console.log('p2_step3b--showSignDeptIn...', showSignDeptIn);
+                // console.log('p2_step3b--showSignDeptIn...', showSignDeptIn);
             
             return(showSignDeptIn); // 返回取得的資料
         }
@@ -343,7 +340,7 @@
         async function mailFac( mailArr ) {
             let mailFab_Arr = [];    
             if(mailArr.length !==0){
-                const sample_mail = await load_jsonFile('../notify/sample_mail.json');    // 取得mail範本
+                const sample_mail = await load_jsonFile('../notify/p2sample_mail.json');    // 取得mail範本
                 mailArr.forEach((mail_i) => {
                     const { staff_inf , email: to_email, emp_id: to_emp_id, cname: to_cname } = mail_i;
                     // 把員工繞出來 +上li
@@ -435,8 +432,8 @@
                 
                 // step.2 執行通知 --
                 // *** 2-1 發送mail
-                // const mailResult = await sendmail(to_email, title, mailInner);
-                const mailResult = true;    // 測試用
+                // const mailResult = await sendmail(to_email, title, mailInner);   // 正式要打開才能發信
+                const mailResult = true;    // 測試用bypass
 
                 // 執行-mail處理-訊息渲染
                     to_log.mail_res = mailResult ? 'OK' : 'NG';
@@ -493,7 +490,6 @@
 
     async function p2_init(parm){
         mloading("show");                               // 啟用mLoading
-        console.log('s0...parm', parm)
         const request = parm ? staff_inf : false;
         try {
             const load_changeTodo   = await p2_step1(request);      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)

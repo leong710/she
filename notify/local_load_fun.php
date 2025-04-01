@@ -1,7 +1,38 @@
 <?php
+        function sendErrorResponse($errorMessage, $httpCode = 500) {
+            http_response_code($httpCode);
+            echo json_encode(['error' => $errorMessage]);
+            exit();
+        }
+        
+        function executeQuery($stmt, $params) {
+            try {
+                return empty($params) ? $stmt->execute() : $stmt->execute($params);
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                sendErrorResponse("Database error");
+            }
+        }
+
+        function parseJsonParams($parm) {
+            $parm_array = json_decode($parm, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                sendErrorResponse('Invalid JSON format for parameters.', 400);
+            }
+            return $parm_array;
+        }
+
     if(isset($_REQUEST['fun'])) {
+        require_once("../pdo.php");
+        extract($_REQUEST);
+
         $result = [];
-        switch ($_REQUEST['fun']){
+
+        if (!isset($parm) || empty($parm)) {
+            sendErrorResponse('Load '.$fun.' failed...(no parm)', 400);
+        }
+
+        switch ($fun){
 
             case '_json':       // 現撈json檔案 -- by parm
                 if(isset($_REQUEST['parm'])) {
@@ -138,20 +169,31 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
                 break;
+            case 'showP3Notify_list':
+                require_once("function.php");
+                try {
+                    $P3Notify_list = showP3Notify_list(); 
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $P3Notify_list,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+                break;
                 
             default:
-                
+                sendErrorResponse('Invalid function', 400);
         };
 
-        if(isset($result["error"])){
-            http_response_code(500);
-        }else{
-            http_response_code(200);
-        }
+        // 正常返回
+        http_response_code(200);
         echo json_encode($result);
 
     } else {
-        http_response_code(500);
-        echo json_encode(['error' => 'fun is lost.']);
+        sendErrorResponse('fun is lost.', 400);
     }
 ?>

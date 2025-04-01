@@ -98,9 +98,9 @@
         #result {
             text-align: center;
         }
-                /* tr > td {
+        tr > td {
             text-align: left;
-        } */
+        }
         .mg_msg {
             width: 60%;
         }
@@ -152,7 +152,7 @@
                                      </div>
 
                                     <div class="col-4 col-md-5 py-1 text-end">
-                                        <form action="" method="post">
+                                        <form action="" method="get">
                                             <div class="input-group">
                                                 <span class="input-group-text"><i class="fa fa-search"></i>&nbsp篩選</span>
                                                 <select name="_year" id="_year" class="form-select">
@@ -176,7 +176,7 @@
                                     </div>
                                 </div>
 
-                                <div id="p1_logs_inside" class="row p-0">
+                                <div id="p1_logs_inside" class="notify_lists">
                                     <!-- 20211215分頁工具 -->               
                                     <div class="row">
                                         <div class="col-12 col-md-6 pb-0">	
@@ -375,10 +375,8 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <?php if($sys_role <= 1 || $check_ip){ ?>
-                                        <button type="button" id="p2notify_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
+                                        <button type="button" id="p2notify_btn" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" 
                                             title="P2 send notify" ><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
-                                        <button type="button" class="btn btn-success" value="../_downloadDoc?emp_id=10008048,202502" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;預覽通知書</button>
-
                                     <?php } ?>
                                 </div>
                             </div>
@@ -390,7 +388,7 @@
                                 </div>
                             </div>
                             <hr>
-                            <div id="p2_notify_lists" class="notify_lists col-12 mt-2 border rounded">
+                            <div id="p2_notify_lists" class="notify_lists">
                                 <table id="p2notify_table" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
@@ -419,8 +417,8 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <?php if($sys_role == 0 || $check_ip){ ?>
-                                        <button type="button" id="p3_send_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
-                                            title="P3 send notify" onclick="return confirm('確認發報？') && notify_process()"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
+                                        <button type="button" id="p3notify_btn" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" 
+                                            title="P3 send notify" ><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -432,20 +430,17 @@
                                 </div>
                             </div>
                             <hr>
-                            <div id="p3_notify_lists" class="notify_lists col-12 mt-2 border rounded">
-                                <table id="p3_table" class="table table-striped table-hover">
+                            <div id="p3_notify_lists" class="notify_lists">
+                                <table id="p3notify_table" class="table table-striped table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="table-success">年月</th>
-                                            <th class="table-success">廠區</th>
-                                            <th class="table-success">工號</th>
-                                            <th class="table-success">姓名</th>
-                                            <th class="table-success">部門代號</th>
-                                            <th class="table-success">變更體檢項目</th>
-                                            <th class="table-warning">是否檢查</th>
-                                            <th class="table-warning">備註說明</th>
-                                            <th class="table-warning">受檢日期</th>
-                                            <th class="table-primary">總窗備註</th>
+                                            <th class="">年</th>
+                                            <th class="">廠區</th>
+                                            <th class="">部門代號</th>
+                                            <th class="table-primary">表單狀態</th>
+
+                                            <th class="table-success">待簽人員</th>
+                                            <th class="table-warning">Remark</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -519,5 +514,6 @@
 <!-- change 要新載入 -->
 <script src="../change/change_notify.js?v=<?=time()?>"></script>
 <script src="notify.js?v=<?=time()?>"></script>
+<script src="notify_p3.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

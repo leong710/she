@@ -97,16 +97,9 @@
                         <?php } 
                         
                         if($sys_role <= 1 ){ ?>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbarDD_3" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-gear"></i>&nbsp;通知功能區</a>
-                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/autolog/"><i class="fa-regular fa-rectangle-list"></i>&nbsp;發報記錄管理</a></li>
-                                    <?php if($sys_role <= 1 ){ ?>
-                                        <li><a class="dropdown-item" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;待通報清單統計</a></li>
-                                    <?php } ?>
-                                </ul>
-                            </li>
+
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/notify/">
+                                <i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
@@ -114,7 +107,7 @@
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/formcase/"><i class="fa-solid fa-sliders"></i>&nbsp;<i class="fas fa-th-large"></i>&nbsp;表單管理</a></li>
+                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
                                 </ul>
                             </li>
                         <?php }
