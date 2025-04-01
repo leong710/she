@@ -450,6 +450,43 @@
             // async function p2notify_process(msgArr){ }
             // async function p2_init(action){ }
 
+            // 返回最新的一筆通報數據  (原本在post_staff裡面)
+            function getLatestNotification(notifyArray) {
+                if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                    return null; // 如果不是陣列或陣列為空，返回 null
+                }
+                // 將陣列按照 to_notify 進行排序，最新的在最前面
+                notifyArray.sort((a, b) => new Date(b.dateTime) - new Date(a.dateTime));
+                // 返回最新的前一筆數據
+                return notifyArray[0];
+            }
+            // 返回最早的第一筆通報數據  (原本在post_staff裡面)
+            function getFirstNotification(notifyArray) {
+                if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+                    return null; // 如果不是陣列或陣列為空，返回 null
+                }
+                // 將陣列按照 to_notify 進行排序，最舊的在最前面
+                notifyArray.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+                // 返回最早的第一筆數據-dateTime日期時間
+                const _cNotifyFirst = notifyArray[0].dateTime;
+
+                var timeDiff = 0;
+                if(_cNotifyFirst !== undefined){
+                    const firstDay = new Date(_cNotifyFirst);
+                    const today = new Date().setHours(0, 0, 0, 0); // 設置時間為 00:00:00
+                    // 計算時間戳（毫秒）
+                    timeDiff = today - firstDay;
+                }
+                // 將毫秒轉換為天數，1天 = 24小時 * 60分鐘 * 60秒 * 1000毫秒
+                const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                // 判斷背景樣式  // 超過12天，使用 bg-danger// 超過7天，使用 bg-warning   alert_it
+                const bgClass = dayDiff >= 12 ? 'table-danger' : (dayDiff >= 7 ? 'table-warning' : '');
+
+                return { dayDiff, bgClass };
+            }
+
+
+
     // 250331 定義nav-tab [nav-p2-tab]+[nav-p3-tab]鈕功能~~
     let navP2tabClickListener;
     let navP3tabClickListener;

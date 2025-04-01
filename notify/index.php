@@ -3,6 +3,7 @@
     require_once("../sso.php");
     require_once("../user_info.php");
     require_once("function.php");
+    require_once("../autolog/function.php");
     // accessDenied();
     if(!isset($_SESSION)){ session_start(); }                                                          // 確認session是否啟動
     if(!empty($_SESSION["AUTH"]["pass"]) && !isset($_SESSION[$sys_id])){ accessDenied_sys($sys_id); }  // 套用sys_id權限
@@ -11,6 +12,7 @@
         $uri      .= $_SERVER['HTTP_HOST'];                                                                // 組合成http_host
         $pc        = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                            // 取得user IP
         $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
+        $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : "";      // 取出$_session引用
 
         $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
         // $notify_lists    = notify_list();                                                                  // 載入所有待簽名單
@@ -33,26 +35,30 @@
             '_month' => $_month
         );
 
-    // $row_lists    = show_log_list($query_arr);
-    // $row_lists_yy = show_log_GB_year();              // 取Logs所有年月作為篩選
+    $row_lists    = show_log_list($query_arr);
+    $row_lists_yy = show_log_GB_year();              // 取Logs所有年月作為篩選
 
     // <!-- 20211215分頁工具 -->
-        // $per_total = count($row_lists);     //計算總筆數
-        // $per = 5;                           //每頁筆數
-        // $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
-        // // !isset 判斷有沒有$_GET['page']這個變數
-        // $page = (!isset($_GET['page'])) ? 1 : $_GET['page'];
-        // $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
-        // // 合併嵌入分頁工具
-        //     $query_arr["start"]  = $start;
-        //     $query_arr["per"]    = $per;
-        // $row_lists_div = show_log_list($query_arr);
-        // $page_start = $start +1;            //選取頁的起始筆數
-        // $page_end = $start + $per;          //選取頁的最後筆數
-        // if($page_end>$per_total){           //最後頁的最後筆數=總筆數
-        //     $page_end = $per_total;
-        // }
+        $per_total = count($row_lists);     //計算總筆數
+        $per = 5;                           //每頁筆數
+        $pages = ceil($per_total/$per);     //計算總頁數;ceil(x)取>=x的整數,也就是小數無條件進1法
+        // !isset 判斷有沒有$_GET['page']這個變數
+        $page = (!isset($_GET['page'])) ? 1 : $_GET['page'];
+        $start = ($page-1)*$per;            //每一頁開始的資料序號(資料庫序號是從0開始)
+        // 合併嵌入分頁工具
+            $query_arr["start"]  = $start;
+            $query_arr["per"]    = $per;
+        $row_lists_div = show_log_list($query_arr);
+        $page_start = $start +1;            //選取頁的起始筆數
+        $page_end = $start + $per;          //選取頁的最後筆數
+        if($page_end>$per_total){           //最後頁的最後筆數=總筆數
+            $page_end = $per_total;
+        }
     // <!-- 20211215分頁工具 -->
+
+    // echo "<pre>";
+        // print_r($row_lists_div);
+    // echo "</pre>";
 
 
     include("../template/header.php"); 
@@ -63,6 +69,8 @@
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer" ></script>
+    <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">  <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
+    <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
     <script src="../../libs/jquery/jquery.mloading.js"></script>
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">
     <script src="../../libs/jquery/mloading_init.js"></script>
@@ -89,6 +97,26 @@
         }
         #result {
             text-align: center;
+        }
+                /* tr > td {
+            text-align: left;
+        } */
+        .mg_msg {
+            width: 60%;
+        }
+        .NG {
+            background-color: pink;
+            font-weight: bold;
+        }
+        .today {
+            background-color: paleturquoise;
+            font-weight: bold;
+        }
+        .inb {
+            display: inline-block;
+        }
+        .inf {
+            display: inline-flex;
         }
     </style>
 </head>
@@ -149,6 +177,69 @@
                                 </div>
 
                                 <div id="p1_logs_inside" class="row p-0">
+                                    <!-- 20211215分頁工具 -->               
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 pb-0">	
+                                            <?php //每頁顯示筆數明細
+                                                echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                            ?>
+                                        </div>
+                                        <div class="col-12 col-md-6 pb-0 text-end">
+                                            <?php
+                                                if($pages>1){  //總頁數>1才顯示分頁選單
+            
+                                                    //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                                    if($page=='1'){
+                                                        echo "首頁 ";
+                                                        echo "上一頁 ";		
+                                                    }else if(isset($list_ym)){
+                                                        echo "<a href=?list_ym=".$list_ym."&page=1>首頁 </a> ";
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".($page-1).">上一頁 </a> ";	
+                                                    }else{
+                                                        echo "<a href=?page=1>首頁 </a> ";
+                                                        echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                                    }
+            
+                                                    //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                                    for($i=1 ; $i<=$pages ;$i++){ 
+                                                        $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                                        $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+            
+                                                        //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                                        if($page <= $lnum){
+                                                            $rnum = $rnum + ($lnum-$page+1);
+                                                        }
+            
+                                                        if($page+$rnum > $pages){
+                                                            $lnum = $lnum + ($rnum - ($pages-$page));
+                                                        }
+                                                        //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                                        if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                            if($i==$page){
+                                                                echo $i.' ';
+                                                            }else if(isset($list_ym)){
+                                                                echo '<a href=?list_ym='.$list_ym.'&page='.$i.'>'.$i.'</a> ';
+                                                            }else{
+                                                                echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                            }
+                                                        }
+                                                    }
+                                                    //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                                    if($page==$pages){
+                                                        echo " 下一頁";
+                                                        echo " 末頁";
+                                                    }else if(isset($list_ym)){
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".($page+1)."> 下一頁</a>";
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".$pages."> 末頁</a>";		
+                                                    }else{
+                                                        echo "<a href=?page=".($page+1)."> 下一頁</a>";
+                                                        echo "<a href=?page=".$pages."> 末頁</a>";		
+                                                    }
+                                                }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <!-- 20211215分頁工具 -->
                                     <table id="p1_log_table" class="display responsive nowrap" style="width:100%">
                                         <thead>
                                             <tr>
@@ -157,8 +248,118 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <?php foreach($row_lists_div as $log){ 
+                                                $logs_log = json_decode($log['logs']);                        // 1.把json字串反解成物件或陣列
+                                                if(is_object($logs_log)) { $logs_log = (array)$logs_log; }    // 2.判斷 物件轉陣列
+                                                $logs_json = $logs_log['autoLogs'];                           // 3.只取autoLogs的部分
+                                            ?>
+                                                <tr id="<?php echo $log['id']; ?>">
+                                                    <!-- 第1格.thisInfo 紀錄敘述 -->
+                                                    <td class="<?php echo ($log['thisDay'] == date('Y/m/d')) ? 'today':'';?>">
+                                                        <?php echo $log['thisDay']."</br>";
+                                                            if($sys_role == 0){ ?>
+                                                                <form action="" method="post" class='inf'>
+                                                                    <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
+                                                                    <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
+                                                                    <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
+                                                                    <input type="submit" name="deleteLog" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                                </form>
+                                                        <?php echo "&nbsp(aid:".$log['id'].")&nbsp" .$log['sys']." => ".count($logs_json)."次  ";
+                                                    
+                                                        }?>
+                                                    </td>
+                                                    <!-- 第2格.Logs 紀錄內容 -->
+                                                    <td>
+                                                        <table>
+                                                            <?php $i = 0;
+                                                                foreach($logs_json AS $l){
+                                                                    if(is_object($l)) { $l = (array)$l; } 
+                                                                    echo "<tr><td class='".(isset($l["mail_res"]) ? $l["mail_res"]:' '). (!empty($l["emergency"]) ? ' alert_it':' ') ."' style='text-align: left;'>";
+                                                                    if($sys_role == 0){ ?>
+                                                                        <form action="" method="post" class='inf'>
+                                                                            <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
+                                                                            <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">
+                                                                            <input type="hidden" name="log_id"      value="<?php echo $i;?>">
+                                                                            <input type="hidden" name="id"          value="<?php echo $log['id'];?>">
+                                                                            <input type="submit" name="delLog_item" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
+                                                                        </form>
+                                                                    <?php echo "&nbsp"; } 
+                                                                    echo ($i+1) ."_" .$l["cname"]." (".$l["emp_id"].") ". (isset($l["emergency"]) ? "&nbsp急件：".$l["emergency"] : "") ;
+                                                                    echo "&nbsp&nbsp".$l["thisTime"]." => " .(isset($l["mail_res"]) ? $l["mail_res"]:$l["mapp_res"]) ;
+                                                                    echo "</td>" ."<td class='word_bk mg_msg' >".$l["mg_msg"]."</td></tr>";
+                                                                    $i++;
+                                                                } 
+                                                            ?>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            <?php } ?>
                                         </tbody>
                                     </table>
+                                    <hr>
+                                    <!-- 20211215分頁工具 -->               
+                                    <div class="row">
+                                        <div class="col-12 col-md-6 pt-0">	
+                                            <?php //每頁顯示筆數明細
+                                                echo '顯示 '.$page_start.' 到 '.$page_end.' 筆 共 '.$per_total.' 筆，目前在第 '.$page.' 頁 共 '.$pages.' 頁'; 
+                                            ?>
+                                        </div>
+                                        <div class="col-12 col-md-6 pt-0 text-end">
+                                            <?php
+                                                if($pages>1){  //總頁數>1才顯示分頁選單
+            
+                                                    //分頁頁碼；在第一頁時,該頁就不超連結,可連結就送出$_GET['page']
+                                                    if($page=='1'){
+                                                        echo "首頁 ";
+                                                        echo "上一頁 ";		
+                                                    }else if(isset($list_ym)){
+                                                        echo "<a href=?list_ym=".$list_ym."&page=1>首頁 </a> ";
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".($page-1).">上一頁 </a> ";	
+                                                    }else{
+                                                        echo "<a href=?page=1>首頁 </a> ";
+                                                        echo "<a href=?page=".($page-1).">上一頁 </a> ";		
+                                                    }
+            
+                                                    //此分頁頁籤以左、右頁數來控制總顯示頁籤數，例如顯示5個分頁數且將當下分頁位於中間，則設2+1+2 即可。若要當下頁位於第1個，則設0+1+4。也就是總合就是要顯示分頁數。如要顯示10頁，則為 4+1+5 或 0+1+9，以此類推。	
+                                                    for($i=1 ; $i<=$pages ;$i++){ 
+                                                        $lnum = 2;  //顯示左分頁數，直接修改就可增減顯示左頁數
+                                                        $rnum = 2;  //顯示右分頁數，直接修改就可增減顯示右頁數
+            
+                                                        //判斷左(右)頁籤數是否足夠設定的分頁數，不夠就增加右(左)頁數，以保持總顯示分頁數目。
+                                                        if($page <= $lnum){
+                                                            $rnum = $rnum + ($lnum-$page+1);
+                                                        }
+            
+                                                        if($page+$rnum > $pages){
+                                                            $lnum = $lnum + ($rnum - ($pages-$page));
+                                                        }
+                                                        //分頁部份處於該頁就不超連結,不是就連結送出$_GET['page']
+                                                        if($page-$lnum <= $i && $i <= $page+$rnum){
+                                                            if($i==$page){
+                                                                echo $i.' ';
+                                                            }else if(isset($list_ym)){
+                                                                echo '<a href=?list_ym='.$list_ym.'&page='.$i.'>'.$i.'</a> ';
+                                                            }else{
+                                                                echo '<a href=?page='.$i.'>'.$i.'</a> ';
+                                                            }
+                                                        }
+                                                    }
+                                                    //在最後頁時,該頁就不超連結,可連結就送出$_GET['page']	
+                                                    if($page==$pages){
+                                                        echo " 下一頁";
+                                                        echo " 末頁";
+                                                    }else if(isset($list_ym)){
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".($page+1)."> 下一頁</a>";
+                                                        echo "<a href=?list_ym=".$list_ym."&page=".$pages."> 末頁</a>";		
+                                                    }else{
+                                                        echo "<a href=?page=".($page+1)."> 下一頁</a>";
+                                                        echo "<a href=?page=".$pages."> 末頁</a>";		
+                                                    }
+                                                }
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <!-- 20211215分頁工具 -->
                                 </div> 
                             </div>
                         </div>
@@ -174,7 +375,7 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <?php if($sys_role <= 1 || $check_ip){ ?>
-                                        <button type="button" id="p2_send_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
+                                        <button type="button" id="p2notify_btn" class="btn <?php echo !$mailTo_notify ? 'btn-primary':'btn-warning';?>" data-toggle="tooltip" data-placement="bottom" 
                                             title="P2 send notify" ><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
                                         <button type="button" class="btn btn-success" value="../_downloadDoc?emp_id=10008048,202502" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;預覽通知書</button>
 

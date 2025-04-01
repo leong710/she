@@ -4,36 +4,42 @@
     // 20230818 嵌入分頁工具
     function show_log_list($request){
         $pdo = pdo();
-        $stmt_arr = array();
         extract($request);
         $sql = "SELECT al.*
                 FROM `autolog` al ";
+
+        // tidy query condition：初始查詢陣列
+        $conditions = [];
+        $stmt_arr   = [];    
         
-        if($_year != 'All'){
-            $sql .= " WHERE year(al.thisDay) = ? ";
-            array_push($stmt_arr, $_year);
+        // 中間-組合變數
+        if(isset($_year) && $_year != 'All'){
+            $conditions[] = "year(al.thisDay) = ?";
+            $stmt_arr[]   = $_year;
         }
-        if($_month != 'All'){
-            $sql .= ($_year != "All" ? " AND ":" WHERE ") ;
-            $sql .= " month(al.thisDay) = ? ";
-            array_push($stmt_arr, $_month);
+        if(isset($_month) && $_month != 'All'){
+            $conditions[] = "month(al.thisDay) = ?";
+            $stmt_arr[]   = $_month;
         }
+        // 最後-組合變數
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        // 後段-加入排序
         $sql .= " ORDER BY al.thisDay DESC ";
         // 決定是否採用 page_div 20230803
-            if(isset($start) && isset($per)){
-                $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per); //讀取選取頁的資料=分頁
-            }else{
-                $stmt = $pdo->prepare($sql);                // 讀取全部=不分頁
-            }  
+        $stmt = $pdo -> prepare(isset($start) && isset($per) ? $sql.' LIMIT '.$start.', '.$per : $sql);   // 讀取選取頁的資料=分頁 : 讀取全部=不分頁
        
         try {
-            if(($_year != 'All') || ($_month != "All")){
+            if(!empty($stmt_arr)){
                 $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{
                 $stmt->execute();
             }
             $log_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $log_lists;
+            
         }catch(PDOException $e){
             echo $e->getMessage();
         }

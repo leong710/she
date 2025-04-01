@@ -154,18 +154,22 @@
 
 
         // step.1 取得._todo非空值之變更作業健檢名單...參數:免
-        async function p2_step1(...staff_inf) {
+        async function p2_step1(staff_inf) {
             // ch.match(/[\^>V<]/);
 
             var load_changeTodo;
-            if(staff_inf){
+            if(staff_inf === false){
+                console.log('s1...for dashBoard')
+                load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+
+            }else{
+                console.log('s2...for menu')
                 const emp_id_lists = staff_inf.map(staff => staff.emp_id);
                 const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
                     // console.log('emp_id_lists_str:', emp_id_lists_str)
                 load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
                     // console.log('p2_step1--load_changeTodo...', load_changeTodo);
-            }else{
-                load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+
             }
 
             return(load_changeTodo); // 返回取得的資料
@@ -371,6 +375,8 @@
             return mailFab_Arr;
         }
 
+        
+
     // 主技能
     // 2025/03/24 p2notify_process()整理訊息、發送、顯示發送結果。
     async function p2notify_process(msgArr){
@@ -485,11 +491,12 @@
         return satff_mailResult;    // 返回特作員工清單
     }
 
-    async function p2_init(result){
+    async function p2_init(parm){
         mloading("show");                               // 啟用mLoading
-
+        console.log('s0...parm', parm)
+        const request = parm ? staff_inf : false;
         try {
-            const load_changeTodo   = await p2_step1(result ? staff_inf : '');      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
+            const load_changeTodo   = await p2_step1(request);      // step.1 取得需要體檢的員工名單 (_change._todo == 非空值)
             const load_changeTodo14 = await p2_step1a(load_changeTodo);
             const shortsUniqueArr   = await p2_step2(load_changeTodo14);   // step.2 把_todo下的部門代號取出來存成陣列
             const showSignDeptIn    = await p2_step3(shortsUniqueArr);   // step.3 用部門代號陣列找出部門主管簽核名單
@@ -508,7 +515,7 @@
                         const result = await load_fun('bat_updateStaffNotify', staff_inf_str, 'return');   // load_fun的變數傳遞要用字串
                         inside_toast(result.content, 3000, result.action);
                         
-                        if(result.action === 'success'){
+                        if(result.action === 'success' && parm !== false ){
                             post_staff(staff_inf, mergedData_inf, shItemArr_inf);    // 更新畫面=重新鋪設Page3
                         }
                     }

@@ -41,6 +41,24 @@
                 $("body").mLoading("hide");
             }
         }
+        // fun.0-6 找出自己廠區...
+        function findKeyByValue(value) {
+                const fabGroup = {
+                    'A' : ['FAB1', 'TS1'],
+                    'B' : ['FAB2', 'FAB3', 'FAB5'],
+                    'C' : ['FABC', 'LCMA', 'LCMB'],
+                    'D' : ['TAC', 'TOC', 'FAB7'],
+                    'E' : ['FAB6'],
+                    'F' : ['FAB8','T6'],
+                    'JN': ['HQ','JOC','T3']
+                };
+            for (let key in fabGroup) {
+                if (fabGroup[key].includes(value)) {
+                    return key;
+                }
+            }
+            return null;    // 如果沒有找到，則返回 null
+        }
 
     // step1.提取URL參數...呼叫getUrlParameter
     async function step1() {
@@ -107,13 +125,14 @@
             // const _6shCheckStr = JSON.stringify(parm._6shCheck).replace(/[\[{"}\]]/g, '');   // 特作物件轉字串
             const _6shCheckArr = parm._6shCheck.map(item => item.split(':')[1] + '作業').flat();                
             const _6shCheckStr = JSON.stringify(_6shCheckArr).replace(/[\[{"}\]]/g, '').replace(/,/g, '、');        // 特作物件轉字串
+            const fabGroup = findKeyByValue(parm.OSTEXT_30);                            // 找出自己廠區
 
-            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創 　廠)`);      // 1.廠區
-            $('#inputBox2').empty().append(`${parm.OSHORT}<br>${parm.OSTEXT}`); // 2.部門
-            $('#inputBox3').empty().append(parm.emp_id);                        // 3.工號
-            $('#inputBox4').empty().append(parm.cname);                         // 4.姓名
-            $('#inputBox5').empty().append((parm.HIRED).replace(/-/g, '/'));    // 5.到職日
-            $('#inputBox6').empty().append(_6shCheckStr);                       // 6.檢查項目
+            $('#inputBox1').empty().append(`${parm.OSTEXT_30} (群創${fabGroup}廠)`);    // 1.廠區
+            $('#inputBox2').empty().append(`${parm.OSHORT}<br>${parm.OSTEXT}`);         // 2.部門
+            $('#inputBox3').empty().append(parm.emp_id);                                // 3.工號
+            $('#inputBox4').empty().append(parm.cname);                                 // 4.姓名
+            $('#inputBox5').empty().append((parm.HIRED).replace(/-/g, '/'));            // 5.到職日
+            $('#inputBox6').empty().append(_6shCheckStr);                               // 6.檢查項目
             return true;
         }else{
             console.error('step3.參數有誤!! ', parm)
