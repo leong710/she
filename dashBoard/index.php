@@ -135,7 +135,7 @@
                 /* color: #636b6f; */
             }
     </style>
-    <link rel="stylesheet" href="zz/wave.css">
+    <link rel="stylesheet" href="wave.css">
 </head>
 
 <body>
@@ -164,7 +164,7 @@
                             </div>
                             <!-- 測試圖2 -->
                             <div class="col-12 seed text-center">
-                                <img src="../image/safetyFirst.jfif" alt="tnESH Logo">
+                                <img src="../image/safetyFirst.jfif" alt="tnESH Logo" class="img-thumbnail">
                             </div>
                             <!-- 測試權限 -->
                             <div class="col-12 p-0">
