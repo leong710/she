@@ -158,11 +158,19 @@
                 /* 若綠 わかみどり */
                 /* background-color: #98D98E; */
                 /* 若草色 わかくさいろ */
-                background-color: #C3D825;
+                /* background-color: #C3D825; */
                 /* 若竹色 わかたけいろ */
                 /* background-color: #68BE8D; */
                 /* 若芽色 わかめいろ */
                 /* background-color: #E0EBAF; */
+                /* CornflowerBlue */
+                /* background-color: #6495ED; */
+                /* Cornsilk */
+                /* background-color: #FFF8DC; */
+                /* Khaki */
+                /* background-color: #F0E68C; */
+                /* SkyBlue */
+                background-color: #87CEEB;
             }
             .banner-img{
                 width: auto;

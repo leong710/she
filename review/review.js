@@ -486,8 +486,8 @@
 
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init() {
-        postBanner(4, 6, 'pic-2-2.png');
-        // postBanner(6, 10, 'safetyFirst.jfif');
+        postBanner('reviewStep', 4, 6, 'pic-2-2.png');
+        // postBanner('reviewStep', 6, 10, 'safetyFirst.jfif');
 
         // p1-1. 取得_docs裡的所有部門代號，並生成btn
             let parm = { _year : currentYear };

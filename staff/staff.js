@@ -888,7 +888,7 @@
 
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init(deptNosObj) {
-        postBanner(1, 3, 'pic-1-2.png');
+        postBanner('reviewStep', 1, 3, 'pic-1-2.png');
         // await rework_staff(deptNosObj);
         await mk_deptNos_btn(deptNosObj);             // 呼叫函數-2 生成p3部門slt按鈕
     }

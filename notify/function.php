@@ -6,7 +6,8 @@
         $sql = "SELECT _d.*, _f.osha_id, _f.pm_emp_id
                 FROM `_document` _d
                 LEFT JOIN _fab _f ON _d.BTRTL = _f.BTRTL
-                WHERE _d.idty > 3 AND _d.idty < 10 ";
+                WHERE _d.idty > 3 AND _d.idty < 10 
+                GROUP BY _d.uuid";
         $stmt = $pdo->prepare($sql);
         try {
             $stmt->execute();

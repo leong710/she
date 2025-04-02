@@ -1129,6 +1129,20 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
                 break;
+            case 'changeStep':
+                require_once("../mvc/load_function.php");
+                $step_arr = changeStep();                         // changeStep
+                if ($step_arr) {
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $step_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+                break;
 
             case 'loadFabs':                    // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo();
@@ -1626,7 +1640,7 @@
                         $row_content[$changeTime]['notify'][] = [
                             "from_cname" => $from_cname,    // 誰通知
                             "to_cname"   => $to_cname,      // 通知誰
-                            "to_emp_id"  => $to_emp_id,     // 誰的工號
+                            // "to_emp_id"  => $to_emp_id,     // 誰的工號
                             // "to_email"   => $to_email,      // 誰的信箱
                             "dateTime"   => $dateTime,      // 通知時間
                             "result"     => $result,        // 通知結果
@@ -1699,7 +1713,7 @@
                         $row_content[$age]['notify'][] = [
                             "from_cname" => $from_cname,    // 誰通知
                             "to_cname"   => $to_cname,      // 通知誰
-                            "to_emp_id"  => $to_emp_id,     // 誰的工號
+                            // "to_emp_id"  => $to_emp_id,     // 誰的工號
                             // "to_email"   => $to_email,      // 誰的信箱
                             "dateTime"   => $dateTime,      // 通知時間
                             "result"     => $result,        // 通知結果

@@ -463,7 +463,7 @@
             // 返回最早的第一筆通報數據  (原本在post_staff裡面)
             function getFirstNotification(notifyArray) {
                 if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
-                    return null; // 如果不是陣列或陣列為空，返回 null
+                    return { dayDiff: null, bgClass: null }; // 如果不是陣列或陣列為空，返回 null
                 }
                 // 將陣列按照 to_notify 進行排序，最舊的在最前面
                 notifyArray.sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));

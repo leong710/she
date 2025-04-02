@@ -346,7 +346,7 @@
                     // 把員工繞出來 +上li
                     const staffDiv = staff_inf.map(staff_i =>
                         `<li>${staff_i.cname} (${staff_i.emp_id}) = ${staff_i.shCheck.replace(/,/g, '、')}  <a title="${staff_i.cname}" target="_blank" `
-                            +` href="http://tw059332n.cminl.oa/she/_downloadDoc/?emp_id=${staff_i.emp_id},${staff_i.changeTime}" >列印通知單</a></li>`
+                            +` href="${uri}/she/_downloadDoc/?emp_id=${staff_i.emp_id},${staff_i.changeTime}" >列印通知單</a></li>`
                     );
                     // 員工打包後 +上外層ul
                     const staffDivStr = `<ul class="mb-0">${staffDiv.join('')}</ul>`;
@@ -432,8 +432,8 @@
                 
                 // step.2 執行通知 --
                 // *** 2-1 發送mail
-                // const mailResult = await sendmail(to_email, title, mailInner);   // 正式要打開才能發信
-                const mailResult = true;    // 測試用bypass
+                // const mailResult = await sendmail(to_email, title, mailInner);   // 很重要 -- 正式要打開才能發信
+                const mailResult = true;    // 很重要 -- 測試用bypass
 
                 // 執行-mail處理-訊息渲染
                     to_log.mail_res = mailResult ? 'OK' : 'NG';

@@ -262,7 +262,7 @@
                                                         <?php echo $log['thisDay']."</br>";
                                                             if($sys_role == 0){ ?>
                                                                 <form action="" method="post" class='inf'>
-                                                                    <input type="hidden" name="list_ym" value="<?php echo $list_ym; ?>">
+                                                                    <input type="hidden" name="list_ym" value="<?php echo isset($list_ym) ? $list_ym : ''; ?>">
                                                                     <input type="hidden" name="page" value="<?php echo $page == '1' ? '1':$page; ?>">
                                                                     <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
                                                                     <input type="submit" name="deleteLog" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
@@ -280,7 +280,7 @@
                                                                     echo "<tr><td class='".(isset($l["mail_res"]) ? $l["mail_res"]:' '). (!empty($l["emergency"]) ? ' alert_it':' ') ."' style='text-align: left;'>";
                                                                     if($sys_role == 0){ ?>
                                                                         <form action="" method="post" class='inf'>
-                                                                            <input type="hidden" name="list_ym"     value="<?php echo $list_ym; ?>">
+                                                                            <input type="hidden" name="list_ym"     value="<?php echo isset($list_ym) ? $list_ym : ''; ?>">
                                                                             <input type="hidden" name="page"        value="<?php echo $page == '1' ? '1':$page; ?>">
                                                                             <input type="hidden" name="log_id"      value="<?php echo $i;?>">
                                                                             <input type="hidden" name="id"          value="<?php echo $log['id'];?>">

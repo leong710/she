@@ -1228,6 +1228,7 @@
 
     // [p1 函數-1] 取得危害地圖...並callBack mk_deptNos_btn進行鋪設
     async function p1_init() {
+        postBanner('changeStep', 1, 4, 'pic-3-2.png');
         await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', mk_deptNos_btn);
     }
     // [p1 函數-3] 設置p1事件監聽器和
@@ -1484,7 +1485,7 @@
         let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
         if(message) {
             // Balert( message, 'warning')
-            document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目
+            document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目 到 footer
         }
 
         // p1. [通用]在任何地方啟用工具提示框

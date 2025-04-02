@@ -104,7 +104,8 @@
                                 }
                             }
                             // 組合訊息
-                            _p3DIV[5] += `<div class="text-start" id="inSign,${id},${inSignDIV.emp_id}" >${inSignDIV.cname}&nbsp;(${inSignDIV.emp_id})${inSignDIV.title}</div>`;   // 部門主管
+                            _p3DIV[5] += `<div class="text-start" id="inSign,${id},${inSignDIV.emp_id}" >${inSignDIV.cname}&nbsp;(${inSignDIV.emp_id})${inSignDIV.title}`
+                                            + `<snap class="" id="result,${id},${inSignDIV.emp_id}"></snap></div>`;   // 簽核人員
                             _p3DIV['inSign'] = inSignDIV.emp_id;
 
                             // &nbsp;&nbsp;${inSignDIV.email}
@@ -160,12 +161,12 @@
                     const flow_remark = doReplace(JSON.parse(doc_i.flow_remark));
                     
                     const _content = JSON.parse(doc_i['_content']);
-                    const _cNotify = _content?.[doc_i.age]?.['notify'] ?? '[]';
+                    const _cNotify = _content?.[doc_i.age]?.['notify'] ?? [];
                             // console.log('_cNotify =>', _cNotify)
 
                     const { dayDiff, bgClass } = (_cNotify.length !== 0) ? getFirstNotification(_cNotify) : {dayDiff:0, bgClass:''};      // 取得最早的第一筆通報時間至今的日期差 & 背景色
-                        const dayDiff_str = (_cNotify.length !== 0) ? `<br><span class="${dayDiff >= 7 ? "text-danger":"text-primary"}"><b>dayDiff：${dayDiff}day</b></span>` : '';
-                        const bgClass_str = (_cNotify.length !== 0) ? bgClass : '';
+                    const dayDiff_str = (_cNotify.length !== 0) ? `<br><span class="${dayDiff >= 7 ? "text-danger":"text-primary"}"><b>dayDiff：${dayDiff}day</b></span>` : '';
+                    const bgClass_str = (_cNotify.length !== 0) ? bgClass : '';
                             // console.log('dayDiff =>', dayDiff)
                             // console.log('bgClass =>', bgClass)
                             // console.log('1.dayDiff_str =>', dayDiff_str)
@@ -180,9 +181,9 @@
                                 <td class=""        id="" >${doc_i.sub_scope ?? ''} (${doc_i.BTRTL ?? ''})</td>
                                 <td class=""        id="" >${doc_i.dept_no ?? ''} ${doc_i.emp_dept ?? ''}</td>
                                 <td class=""        id="" >${doc_i.idty ?? ''} ${doc_i.flow ?? ''}</td>
-                                <td class=""        id="" >${doc_i.in_signName ?? ''} (${doc_i.in_sign ?? ''})<br>${_p3DIV[5]}</td>
+                                <td class=""        id="" >${_p3DIV[5]}</td>
                                 <td class="t-start" id="" >${flow_remark}</td>
-                                <td class="notify_log" id="${doc_i.uuid},_content" >${_cNotifyLast_str ?? ''}${dayDiff_str}</td>
+                                <td class="notify_log ${bgClass_str}" id="_content,${doc_i.uuid},${doc_i.in_sign}" >${_cNotifyLast_str ?? ''}${dayDiff_str}</td>
                             `;
                         tr1 += '</tr>';
                     $('#p3notify_table tbody').append(tr1);

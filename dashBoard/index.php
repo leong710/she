@@ -2,6 +2,8 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("../user_info.php");
+    require_once("service_window.php");             // service window
+    $sw_arr = (array) json_decode($sw_json);        // service window 物件轉陣列
     if(!isset($_SESSION)){                          // 確認session是否啟動
 		session_start();
 	}
@@ -116,6 +118,22 @@
                 /* 100-900, bold 加粗=600, bolder, lighter=200細字-看字體支援, normal一般, */
                 font-style: bolder;
             }
+            .title {
+                flex-grow: 1;
+                align-items: center;
+                text-align: center;
+                /* display: flex; */
+                /* justify-content: start; */
+                font-size: 22px;
+                /* font-family: 'Nunito', sans-serif; */
+                font-weight: 200;
+                /* height: 100vh; */
+                margin: 0;
+                /* 文字陰影效果 */
+                letter-spacing: 3px;
+                text-shadow: 3px 3px 5px rgba(0,0,0,.5);
+                /* color: #636b6f; */
+            }
     </style>
     <link rel="stylesheet" href="zz/wave.css">
 </head>
@@ -127,10 +145,11 @@
                 <div class="row">
                     <!-- 左測：單 -->
                     <div class="col-3 col-md-3 px-2 py-0">
-                        <h2><span class="badge bg-primary w-100">--&nbsp;<i class="fa fa-edit"></i>&nbsp;左側&nbsp;--</span></h2>
+                        <h2><span class="badge bg-primary w-100">--&nbsp;<i class="fa fa-edit"></i>&nbsp;Menu&nbsp;--</span></h2>
                         <div class="col-12 p-0" id="btn_list">
                             <div id="overlay">Permission Denied</div>
                             <!-- append button here -->
+                            <!-- 測試圖1 -->
                             <div class="rounded wave_div">
                                 <div class="waveform">
                                     <div class="bar"></div>
@@ -143,37 +162,82 @@
                                     <div class="bar"></div>
                                 </div>
                             </div>
+                            <!-- 測試圖2 -->
                             <div class="col-12 seed text-center">
                                 <img src="../image/safetyFirst.jfif" alt="tnESH Logo">
                             </div>
+                            <!-- 測試權限 -->
+                            <div class="col-12 p-0">
+                                <form action="sys_role.php" method="get">
+                                    <div class="input-group">
+                                        <span class="input-group-text">測試權限</span>
+                                        <select name="role" id="role" class="form-select" onchange="submit()">
+                                            <option for="role" hidden selected>-- 調整role權限 --</option>
+                                            <option for="role" value="0" >0 管理員</option>
+                                            <option for="role" value="1" >1 大PM/總窗護理師</option>
+                                            <option for="role" value="2" >2 廠-護理師</option>
+                                            <option for="role" value="2.2" >2.2 廠-工安</option>
+                                            <option for="role" value="2.5" >2.5 ESH工安</option>
+                                            <option for="role" value="3" >3 現場窗口</option>
+                                            <option for="role" value="3.5" >3.5 unknow</option>
+                                        </select>
+                                        <input type="hidden" name="sys_id" value="she">
+                                    </div>
+                                </form>  
+                            </div>
+
                         </div>
                     </div>
 
                     <!-- 右上：各廠燈號 -->
                     <div class="col-9 col-md-9 px-2 py-0 mb-2 ">
                         <!-- 廠區燈號欄 -->
-                        <h2><span class="badge bg-c-blue w-100">--&nbsp;右上&nbsp;--</span></h2>
+                        <h2><span class="badge bg-c-blue w-100">--&nbsp;Main&nbsp;--</span></h2>
                         <div class="col-12 bg-white rounded p-0" id="highLight">
                             <!-- append site here -->
                         </div>
                         <!-- 說明欄 -->
-                        <div class="col-12 bg-white border rounded p-3 my-2 bs-b" id="remark">
+                        <div class="col-12 bg-white border rounded p-3 my-2 bs-b text-center" id="remark">
                             <div class="text-center">
                                 <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
                             </div>
-            
                             <hr>
-                            <b>說明欄位：</b></br>
-           
-                            <div class="col-12 py-0 px-3 text-end">
-                                <a href="sys_role.php?sys_id=she&role=0"    class="btn btn-outline-success add_btn">0 管理員</a>
-                                <a href="sys_role.php?sys_id=she&role=1"    class="btn btn-outline-success add_btn">1 大PM/總窗護理師</a>
-                                <a href="sys_role.php?sys_id=she&role=2"    class="btn btn-outline-success add_btn">2 廠-護理師</a>
-                                <a href="sys_role.php?sys_id=she&role=2.2"  class="btn btn-outline-success add_btn">2.2 廠-工安</a>
-                                <a href="sys_role.php?sys_id=she&role=2.5"  class="btn btn-outline-success add_btn">2.5 ESH工安</a>
-                                <a href="sys_role.php?sys_id=she&role=3"    class="btn btn-outline-success add_btn">3 現場窗口</a>
-                                <a href="sys_role.php?sys_id=she&role=3.5"  class="btn btn-outline-success add_btn">3.5 unknow</a>
-                            </div>
+                            <!-- 中下：聯絡窗口 -->
+                            <span class="badge bg-info mb-3 p-2 title"><i class="fa-solid fa-circle-info"></i>&nbsp;各廠聯絡窗口</span>
+                            <table id="service_window" class="table table-striped table-hover bs-b">
+                                <thead>
+                                    <tr>
+                                        <th>FAB</th>
+                                        <th>窗口姓名</th>
+                                        <th>分機</th>
+                                        <th>email</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($sw_arr as $sw_key => $sw_value){
+                                        $value_length = count($sw_value);
+                                        if($value_length < 1){
+                                            $append_str = '<tr><td>'.$sw_key.'</td><td>null</td><td></td><td></td></tr>';
+                                        }else{
+                                            if(is_object($sw_value)) { $sw_value = (array)$sw_value; }                      // 物件轉陣列
+                                            $td_key = '<td rowspan="'.$value_length.'">'.$sw_key.'</td>';
+                                            $append_str = "";
+                                            $i = 1;
+                                            foreach($sw_value as $sw_item => $sw_item_value){
+                                                if(is_object($sw_item_value)) { $sw_item_value = (array)$sw_item_value; }   // 物件轉陣列
+                                                $td_value = '. '.$sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
+                                                if($i === 1){
+                                                    $append_str .= '<tr>'.$td_key.'<td>'.$i.$td_value;
+                                                }else{
+                                                    $append_str .= '<tr><td>'.$i.$td_value;
+                                                }
+                                                $i++;
+                                            }
+                                        };
+                                        echo $append_str;
+                                    }?>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -189,12 +253,8 @@
 </body>
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
-<script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
+<!-- <script src="../../libs/openUrl/openUrl.js"></script>       彈出子畫面 -->
 
-<script>
-    
-</script>
-
-<!-- <script src="dashboard.js?v=<?=time()?>"></script> -->
+<!-- <script src="dashboard.js?v=<=time()?>"></script> -->
 
 <?php include("../template/footer.php"); ?>

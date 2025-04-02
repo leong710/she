@@ -58,6 +58,25 @@
 
             return $reviewStep_arr;
         }
+        
+        function changeStep() {
+            $changeStep_file = "../change/changeStep.json";
+            $changeStep_arr = [];
+
+            if(file_exists($changeStep_file)){
+                $changeStep_json = file_get_contents($changeStep_file); // 从JSON文件加载内容
+                // 嘗試解碼 JSON，並檢查是否成功
+                $decoded_data = json_decode($changeStep_json, true);    // 解析JSON数据并将其存储在$变量中，如果想解析为陣列，请传入true，否则将解析为物件
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $changeStep_arr = $decoded_data;                    // 直接賦值
+                } else {
+                    // 處理 JSON 解碼錯誤，您可以在這裡記錄錯誤或拋出異常
+                    // error_log('JSON Error: ' . json_last_error_msg());
+                }
+            }
+
+            return $changeStep_arr;
+        }
                 
         function queryHrdb($hrdb_fun, $request) {
             $pdo_hrdb = pdo_hrdb();

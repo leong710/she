@@ -198,28 +198,28 @@
         }
     }
 
-
-    async function postBanner(a, b, pic) {
-        const reviewStep = await load_fun('reviewStep', 'reviewStep', 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+    // 鋪設Banner = 步驟,啟,迄,概念圖
+    async function postBanner(fun, a, b, pic) {
         let banner = 'sorry! reviewStep error ...';
-        if(reviewStep){
-            const banS = '<span><h5><ul class="mb-0">';
-            const banM = '&nbsp;<sup class="text-danger">- ';
-            const banli= '</sup></li>';
-            const banE = '</ul></h5></span>';
-            banner = banS;
-            for (let i = a; i <= b; i++) {
-                if(reviewStep.step[i] != undefined){
-                    banner += `<li>step.${reviewStep.step[i].idty}&nbsp;${reviewStep.step[i].approvalStep}&nbsp;(${reviewStep.step[i].remark})`+ banM + `${reviewStep.step[i].group}` + banli ;
+        if(fun){
+            const reviewStep = await load_fun(fun, fun, 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+            if(reviewStep){
+                const banS = '<span><h5><ul class="mb-0">';
+                const banM = '&nbsp;<sup class="text-danger">- ';
+                const banli= '</sup></li>';
+                const banE = '</ul></h5></span>';
+                banner = banS;
+                for (let i = a; i <= b; i++) {
+                    if(reviewStep.step[i] != undefined){
+                        banner += `<li>step.${reviewStep.step[i].idty}&nbsp;${reviewStep.step[i].approvalStep}&nbsp;(&nbsp;${reviewStep.step[i].remark}&nbsp;)`
+                                    + banM + `${reviewStep.step[i].group}` + banli ;
+                    }
                 }
+                banner += banE + `<img src="../image/${pic}" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
             }
-            // banner += banE + `<img src="../image/banner-1-2.png" alt="banner pic" class="img-thumbnail banner-img" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
-            // banner += banE + `<img src="../image/pic-2-2.png" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
-            banner += banE + `<img src="../image/${pic}" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
         }
         document.getElementById(`banner`).insertAdjacentHTML('beforeend', banner);     // 渲染各項目
     }
-
 
     // 點擊姓名鋪設到下面 渲染preYear去年特危項目 for p-2特作欄位(select_empId)     // 241024 
     async function show_preYearShCase(select_empId){
