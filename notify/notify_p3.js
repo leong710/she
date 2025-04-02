@@ -9,6 +9,25 @@
                     console.log('p3_step1...', P3Notify_list);
             return(P3Notify_list); // 返回取得的資料
         }
+        // 排除14天
+        async function p3_step1a(P3Notify_list) {
+            P3Notify_list.forEach((doc_i, index) => {
+                const i_keys = (doc_i._todo.length != 0) ? Object.keys(doc_i._todo) : [];
+                i_keys.forEach((i_targetMonth) => {
+                    const _cNotify = doc_i['_content']?.[i_targetMonth]?.['notify'] ?? [];
+                    if(_cNotify.length !== 0) {
+                        const { dayDiff } = getFirstNotification(_cNotify);      // 取得最早的第一筆通報時間至今的日期差 & 背景色
+                        if(dayDiff < 7) {           // 過濾小於指定天數
+                            delete P3Notify_list[index];
+                        }
+                    }
+                })
+            })
+            // 重新排序陣列，移除 undefined
+            P3Notify_list = P3Notify_list.filter(item => item !== undefined);
+
+            return P3Notify_list;
+        }
         // step.2 將_document的每一筆in_sign取出成陣列...參數:由step.1取得的資料
         async function p3_step2(P3Notify_list) {
             return new Promise((resolve) => {
@@ -119,15 +138,42 @@
                     }
                     // 部門代號加工+去除[]符號/[{"}]/g, ''
                     function doReplace(_arr){
-                        const newObj = Object.fromEntries(
-                            Object.entries(_arr).map(([key, value]) => [key, value.replace(/,/g, "、")])
-                        );
+                        let newObj;
+                        if (Array.isArray(_arr)) {
+                                // console.log('這是一個陣列');
+                            newObj = Object.fromEntries(
+                                Object.entries(_arr).map(([key, value]) => [key, value.replace(/,/g, "、")])
+                            );
+                        } else if (typeof _arr === 'object' && _arr !== null) {
+                                // console.log('這是一個物件');
+                            newObj = _arr;
+                        } else {
+                                // console.log('這既不是陣列也不是物件');
+                            newObj = _arr;
+                        }
+      
                         return JSON.stringify(newObj).replace(/[\[{"}\]]/g, '').replace(/:/g, ' : ').replace(/,/g, '<br>'); 
                     }
 
                 await P3Notify_list.forEach((doc_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
-                    const { _p3DIV } = rework_content(doc_i);
+                    const { _p3DIV }  = rework_content(doc_i);
                     const flow_remark = doReplace(JSON.parse(doc_i.flow_remark));
+                    
+                    const _content = JSON.parse(doc_i['_content']);
+                    const _cNotify = _content?.[doc_i.age]?.['notify'] ?? '[]';
+                            // console.log('_cNotify =>', _cNotify)
+
+                    const { dayDiff, bgClass } = (_cNotify.length !== 0) ? getFirstNotification(_cNotify) : {dayDiff:0, bgClass:''};      // 取得最早的第一筆通報時間至今的日期差 & 背景色
+                        const dayDiff_str = (_cNotify.length !== 0) ? `<br><span class="${dayDiff >= 7 ? "text-danger":"text-primary"}"><b>dayDiff：${dayDiff}day</b></span>` : '';
+                        const bgClass_str = (_cNotify.length !== 0) ? bgClass : '';
+                            // console.log('dayDiff =>', dayDiff)
+                            // console.log('bgClass =>', bgClass)
+                            // console.log('1.dayDiff_str =>', dayDiff_str)
+                            // console.log('2.bgClass_str =>', bgClass_str)
+                        
+                    const _cNotifyLast         = (_cNotify.length !== 0) ? getLatestNotification(_cNotify) : [];     // 取得最後一筆通知訊息
+                        var _cNotifyLast_str = doReplace(_cNotifyLast);                   // 通知紀錄轉字串
+                            _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
 
                     let tr1 = '<tr>';
                         tr1 += `<td class=""        id="" >${doc_i.age ?? ''}</td>
@@ -136,6 +182,7 @@
                                 <td class=""        id="" >${doc_i.idty ?? ''} ${doc_i.flow ?? ''}</td>
                                 <td class=""        id="" >${doc_i.in_signName ?? ''} (${doc_i.in_sign ?? ''})<br>${_p3DIV[5]}</td>
                                 <td class="t-start" id="" >${flow_remark}</td>
+                                <td class="notify_log" id="${doc_i.uuid},_content" >${_cNotifyLast_str ?? ''}${dayDiff_str}</td>
                             `;
                         tr1 += '</tr>';
                     $('#p3notify_table tbody').append(tr1);
@@ -246,8 +293,8 @@
                 
                 // step.2 執行通知 --
                 // *** 2-1 發送mail
-                // const mailResult = await sendmail(to_email, title, mailInner);   // 正式要打開才能發信
-                const mailResult = true;    // 測試用bypass
+                // const mailResult = await sendmail(to_email, title, mailInner);   // 很重要 -- 正式要打開才能發信
+                const mailResult = true;    // 很重要 -- 測試用bypass
 
                 // 執行-mail處理-訊息渲染
                     to_log.mail_res = mailResult ? 'OK' : 'NG';
@@ -267,7 +314,7 @@
                 Object.entries(doc_inf).forEach(([index, doc]) => {
                     doc.from_cname = userInfo.cname,  // 誰通知
                     doc.to_cname   = to_cname,        // 通知誰
-                    doc.to_emp_id  = to_emp_id,       // 誰的工號
+                    // doc.to_emp_id  = to_emp_id,    // 誰的工號
                     // doc.to_email = to_email,       // 誰的信箱
                     doc.dateTime = getTimeStamp();    // 通知時間
                     doc.result = mailResult;          // 通知結果
@@ -307,7 +354,7 @@
 
         try {
             const P3Notify_list        = await p3_step1();      // step.1 取得p3待簽名單
-            // const load_changeTodo14 = await p3_step1a(load_changeTodo);
+            // const P3Notify_list14 = await p3_step1a(P3Notify_list);
             const inSignListsUniqueArr = await p3_step2(P3Notify_list);   // step.2 將_document的每一筆in_sign取出成陣列
             const inSignLists          = await p3_step3(inSignListsUniqueArr);   // step.3 查找簽核人員訊息
             const delegationIn         = await p3_step4(inSignLists);    // step.4 找出簽核代理人...

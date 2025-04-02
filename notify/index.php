@@ -118,6 +118,9 @@
         .inf {
             display: inline-flex;
         }
+        .notify_log {
+            font-size: 12px;
+        }
     </style>
 </head>
 
@@ -441,6 +444,7 @@
 
                                             <th class="table-success">待簽人員</th>
                                             <th class="table-warning">Remark</th>
+                                            <th class="table-danger">Notify</th>
                                         </tr>
                                     </thead>
                                     <tbody>

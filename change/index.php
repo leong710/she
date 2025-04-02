@@ -349,7 +349,7 @@
                                         <th title="3"  class="table-success"      >工號</th>
                                         <th title="4"  class="table-success"      >姓名</th>
                                         <th title="5"  class="table-success"      >部門代號</th>
-                                        <th title="6"  class="table-success"      >變更體檢項目</th>
+                                        <th title="6"  class="table-success"      >變更檢查項目</th>
                                         <th title="7"  class="table-warning wh-75">是否檢查</th>
                                         <th title="8"  class="table-warning"      >備註說明</th>
                                         <th title="9"  class="table-warning wh-75">受檢日期</th>

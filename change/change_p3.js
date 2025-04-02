@@ -89,7 +89,7 @@
                             var _cNotifyLast_str = doReplace(_cNotifyLast);                   // 通知紀錄轉字串
                                 _cNotifyLast_str = (_cNotifyLast_str !== 'null' ) ? _cNotifyLast_str : '';
 
-                        const editRole = _9checkDate === '' || userInfo.role <= -1 ? 'edit2' : '';            // 預設edit權限
+                        const editRole = _9checkDate === '' || userInfo.role <= 1 ? 'edit2' : '';            // 預設edit權限
 
                         let tr1 = `<tr class="">`;
                             tr1 += `<td class=""    id="">${i_targetMonth ?? ''}</td>
