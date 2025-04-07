@@ -21,9 +21,9 @@
                     const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
                     const _yearHe = empData?.['_content']?.[empData.year_key]?.['import']?.['yearHe'] ?? '';
                     const _yearHe_obj = {};
-                    _yearHe.split(',').forEach(item => {        // 炸成陣列
-                        const [key, value] = item.split(':');   // 炸成物件
-                        _yearHe_obj[key] = value;               // 物件組成
+                    _yearHe.split(',').forEach(item => {        // 1.炸成陣列
+                        const [key, value] = item.split(':');   // 2.炸成物件
+                        _yearHe_obj[key] = value;               // 3.物件組成
                     });
                     const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]'));
                     // 遍歷所有checkbox，並根據值來控制disabled屬性

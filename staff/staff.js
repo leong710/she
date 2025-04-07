@@ -287,6 +287,10 @@
 
                 importItem_arr.forEach((importItem) => {
                     let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                    // step.5 250407 連動變更作業項目
+                        if(importItem === 'yearPre'){
+                            importItem_value += ( importItem_value === '' ? '' : '<br>' ) + emp_i._changeValue;
+                        }
                     tr1 += `<td class="${importItem}`+(userInfo.role <='3' ? '':' unblock')+`" id="${emp_i.cname},${emp_i.emp_id},${importItem}">${importItem_value}</td>`;
                 })
 
@@ -388,6 +392,9 @@
             if (!source_json_value_arr[e_key]['_content']) { source_json_value_arr[e_key]['_content'] = {}; }     // 1.通聯紀錄陣列建立
             if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]) { source_json_value_arr[e_key]['_content'][`${currentYear}`] = {}; }   // 2.'年度'通聯紀錄陣列建立
             if (!source_json_value_arr[e_key]['_content'][`${currentYear}`]['import']) { source_json_value_arr[e_key]['_content'][`${currentYear}`]['import'] = {}; }   // 3.年度通聯-匯入紀錄陣列建立
+
+            if (!source_json_value_arr[e_key]['_changeValue']) { source_json_value_arr[e_key]['_changeValue'] = ''; }                               // 4a.連動變更管理
+
             // 建立一個新的物件來儲存合併的資料
             let mergedData = {};
             let importData = {};
@@ -416,6 +423,24 @@
                     delete source_json_value_arr[e_key][addIn_i];                    // 刪除合併後的屬性
                 }
             });
+
+            // step.3 250407 連動變更作業項目 主要for作業年度 (3部分: 1.staff.js>mgInto_staff_inf、2.utility.js>show_preYearShCase、3.excel.js>downloadExcel)
+            const { _changeLogs, year_key } = source_json_value_arr[e_key];
+            const changeYear = String(Number(year_key) - 1 );   // 這裡要定義作業年度的去年，所以是-1
+            let _6shCheck_str = '';
+            if(_changeLogs !== null){
+                let _6shCheck_arr = [];
+                for(const [i_key, i_value] of Object.entries(_changeLogs)){
+                    if (i_key.includes(changeYear) && (i_value._7isCheck === true) && (i_value._6shCheck.length > 0)){
+                        i_value._6shCheck.forEach(item => {        // 1.繞出來
+                            const [key, value] = item.split(':');  // 2.炸成陣列
+                            _6shCheck_arr.push(value);             // 3.物件組成
+                        });
+                    }
+                }
+                _6shCheck_str = JSON.stringify(_6shCheck_arr).replace(/[\[\]{"}]/g, '').replace(/,/g, ';'); // 4.轉換字串
+            }
+            source_json_value_arr[e_key]['_changeValue'] = _6shCheck_str !== '' ? `變更(${_6shCheck_str})` : _6shCheck_str;
 
             // 241028 補強提取資料後原本只抓最外層的部門代號'shCase，補上_logs內當年度'shCase
             if(source_json_value_arr[e_key]['_logs'] !== undefined && source_json_value_arr[e_key]['_logs'][currentYear]){

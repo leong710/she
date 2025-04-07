@@ -163,10 +163,11 @@
                 $emp_sub_scope  = explode(',', $parm)[1];
                 $deptNo         = explode(',', $parm)[2];
                 // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
-                $sql = "SELECT '{$year}' AS year_key, emp_id, cname, gesch, natiotxt, HIRED, _logs, _content
-                        FROM _staff
-                        WHERE JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
-                          AND JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
+                $sql = "SELECT '{$year}' AS year_key, _s.emp_id, _s.cname, _s.gesch, _s.natiotxt, _s.HIRED, _s._logs, _s._content, _c._changeLogs
+                        FROM _staff _s
+                        LEFT JOIN _change _c ON _s.emp_id = _c.emp_id
+                        WHERE JSON_UNQUOTE(JSON_EXTRACT(_s._logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
+                          AND JSON_UNQUOTE(JSON_EXTRACT(_s._logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
                             -- WHERE JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
                             --    OR JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
                             --    OR JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
@@ -183,6 +184,7 @@
                         $shStaffs[$index]['shCase']      = $shStaffs[$index]['_logs'][$year]['shCase'];
                         $shStaffs[$index]['shCondition'] = $shStaffs[$index]['_logs'][$year]['shCondition'];
                         $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
+                        $shStaffs[$index]['_changeLogs'] = json_decode($shStaffs[$index]['_changeLogs'], true);     // 來自left join _change
                     }
                 // 製作返回文件
                     $result = [

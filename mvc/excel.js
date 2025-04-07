@@ -79,10 +79,15 @@
                     const _import = staff[key][currentYear][label];
                     Object.entries(import_keys).forEach(([iKey, iLabel]) => {       
                         const value = _import[iKey];
+                        let _changeValue = (iKey === 'yearPre') ? staff._changeValue : '';  // 250407 連動變更作業項目 主要for下載作業年度 (3部分: 1.staff.js>mgInto_staff_inf、2.utility.js>show_preYearShCase、3.excel.js>downloadExcel)
                         if(value !== undefined){
-                            sortedData[iLabel] = JSON.stringify(value).replace(/[{"}]/g, '').replace(/,/g, ',\r\n');
+                            let yearPre_str = JSON.stringify(value).replace(/[{"}]/g, '').replace(/,/g, ',\r\n')
+                            if(iKey === 'yearPre'){
+                                yearPre_str += (yearPre_str !== '' && _changeValue !== '' ) ? ',\r\n' + _changeValue : _changeValue ;
+                            }
+                            sortedData[iLabel] = yearPre_str;
                         }else{
-                            sortedData[iLabel] = '';
+                            sortedData[iLabel] = ''+_changeValue;
                         }
                     });
 

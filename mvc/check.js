@@ -269,6 +269,30 @@
                     }
                 });
 
+            // // step.3 250407 連動變更作業項目
+            // const { _changeLogs, year_key } = empData;
+            // const changeYear = String(Number(year_key) + 1 );   // 這裡要定義作業年度的去年，所以是-1
+            //         // console.log('empData._changeLogs', _changeLogs, changeYear);
+            // if(_changeLogs !== null){
+            //     let _6shCheck_arr = [];
+            //     for(const [i_key, i_value] of Object.entries(_changeLogs)){
+            //         if (i_key.includes(changeYear) && i_value._7isCheck === true ) {
+            //                 // console.log('yes!', i_key);
+            //             if(i_value._6shCheck.length > 0){
+            //                 i_value._6shCheck.forEach(item => {        // 1.炸成陣列
+            //                     const [key, value] = item.split(':');  // 2.炸成物件
+            //                     _6shCheck_arr.push(value);             // 3.物件組成
+            //                 });
+            //             }
+            //         }
+            //     }
+            //     const _6shCheck_str = JSON.stringify(_6shCheck_arr).replace(/[\[\]{"}]/g, '').replace(/,/g, ';');
+            //             // console.log('_6shCheck_arr!', _6shCheck_arr);
+            //             console.log('_6shCheck_str!', _6shCheck_str);
+
+            // }
+            
+
             resolve();  // 當所有設置完成後，resolve Promise
         });
     }

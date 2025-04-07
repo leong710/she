@@ -229,7 +229,7 @@
 
         let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
         if(empData._logs != undefined && (empData._logs[preYear] != undefined)){
-            // console.log('show_preYearShCase...empData...', empData._logs);
+            console.log('show_preYearShCase...empData...', empData._logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -254,7 +254,7 @@
                 tr1 += '</tr>';
             $('#shCase_table tbody').empty().append(tr1);
 
-            const { _logs , _content } = empData;
+            const { _logs , _content , _changeLogs , year_key } = empData;
             const preYear_logs = _logs[preYear];
 
             if(preYear_logs){
@@ -337,15 +337,39 @@
                 if(shCondition) {
                     await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                 }
+
+                // step.3a 250407 連動變更作業項目 主要for渲染preYear去年特危項目 (3部分: 1.staff.js>mgInto_staff_inf、2.utility.js>show_preYearShCase、3.excel.js>downloadExcel)
+                const changeYear = String(Number(year_key) - 2 );       // 這裡要定義作業年度的去前年，所以是-2
+                let _6shCheck_str = '';
+                if(_changeLogs !== null){
+                    let _6shCheck_arr = [];
+                    for(const [i_key, i_value] of Object.entries(_changeLogs)){
+                        if (i_key.includes(changeYear) && (i_value._7isCheck === true) && (i_value._6shCheck.length > 0)){
+                            i_value._6shCheck.forEach(item => {        // 1.繞出來
+                                const [key, value] = item.split(':');  // 2.炸成陣列
+                                _6shCheck_arr.push(value);             // 3.物件組成
+                            });
+                        }
+                    }
+                    _6shCheck_str = JSON.stringify(_6shCheck_arr).replace(/[\[\]{"}]/g, '').replace(/,/g, ';'); // 4.轉換字串
+                    _6shCheck_str = _6shCheck_str !== '' ? `變更(${_6shCheck_str})` : _6shCheck_str;
+                }
+
                 // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
                 const _content_import = _content[`${preYear}`] != undefined ? (_content[`${preYear}`].import ?? {}) : {};
                 if(_content_import){
                     const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
                     importItem_arr.forEach((importItem) => {
                         let importItem_value = (_content_import[importItem] != undefined ? _content_import[importItem] :'').replace(/,/g, '<br>');
+                        // step.5 250407 連動變更作業項目
+                            if(importItem === 'yearPre'){
+                                importItem_value += ( importItem_value === '' ? '' : '<br>' ) + _6shCheck_str;
+                            }
                         document.getElementById(`${importItem},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', importItem_value);     // 渲染各項目
                     })
                 }
+
+
             }
         }else{
             $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
@@ -382,7 +406,7 @@
                 Adj_mLoading('post_shCase', loading); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
             }
 
-            const { emp_id: select_empId, shCase ,shCondition} = emp_i;
+            const { emp_id: select_empId, shCase ,shCondition, _changeLogs } = emp_i;
             // doCheck(select_empId);          // 更新驗證項目(1by1)
             await clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
             if (shCase) {
