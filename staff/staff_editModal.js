@@ -17,9 +17,28 @@
                 const edit_emp_id = this_id_arr[1];                     // 取出陣列1=emp_id
                 $('#import_shLocal #import_shLocal_empId').empty().append(`${edit_cname},${edit_emp_id}`); // 清空+填上工號
 
-                // const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
-                
-                // 241203 這裡要加上原本已選的項目...做不到
+                // 250407_限制只有檢查類別的項目可用...
+                    const empData = staff_inf.find(emp => emp.emp_id === edit_emp_id);
+                    const _yearHe = empData?.['_content']?.[empData.year_key]?.['import']?.['yearHe'] ?? '';
+                    const _yearHe_obj = {};
+                    _yearHe.split(',').forEach(item => {        // 炸成陣列
+                        const [key, value] = item.split(':');   // 炸成物件
+                        _yearHe_obj[key] = value;               // 物件組成
+                    });
+                    const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]'));
+                    // 遍歷所有checkbox，並根據值來控制disabled屬性
+                    selectedOptsValues.forEach(checkbox => {
+                        const HE_CATE_id_arr = Object.keys(shLocal_inf[checkbox.value]['HE_CATE']); // 從shLocal_inf中對應的this_i取出它的HE_CATE內容(物件的key=HE_CATE_id)
+                        for (const HE_CATE_id of HE_CATE_id_arr){                               // 把HE_CATE_id_arr繞出來...假動作
+                            if (Object.keys(_yearHe_obj).includes(HE_CATE_id)) {
+                                checkbox.disabled = false;   // 如果checkbox的value在obj的值裡，啟用checkbox
+                            } else {
+                                checkbox.disabled = true;    // 否則，禁用checkbox
+                            }
+                        }   
+                    });
+
+                // 241203 這裡要加上原本已選的項目...暫時不做
                 // const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked'));
 
                 importShLocal_modal.show();

@@ -18,9 +18,9 @@
 
         if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
             await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
-            await reload_shConditionTable_Listeners();
-            await reload_yearHeTable_Listeners();
-            await reload_yearPreTable_Listeners();
+            await reload_shConditionTable_Listeners();  // td 特檢資格
+            await reload_yearHeTable_Listeners();       // td 檢查類別
+            await reload_yearPreTable_Listeners();      // td 去年檢查項目
         }else{
             changeHE_CATEmode();                    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
             changeShConditionMode();
