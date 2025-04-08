@@ -50,7 +50,7 @@
                 }else{
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
-            break;
+                break;
 
             case 'truncate_shLocal':               // 清空_shLocal
                 $swal_json = array(                                 // for swal_json
@@ -96,7 +96,7 @@
                         'error'      => 'Load '.$fun.' failed...(no parm)'
                     ];
                 }
-            break;
+                break;
 
             case 'deleteSelected_shLocal':         // 刪除選定的_shLocal (可多筆)
                 $swal_json = array(                                 // for swal_json
@@ -143,9 +143,8 @@
                         'error'      => 'Load '.$fun.' failed...(no parm)'
                     ];
                 }
-            break;
+                break;
 
-            
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
                     "fun"       => "update_heCate",
@@ -175,7 +174,7 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-            break;
+                break;
             
             default:
                 // $result['error'] = 'Load '.$fun.' failed...(function)';

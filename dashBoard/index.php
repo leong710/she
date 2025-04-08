@@ -15,6 +15,7 @@
     // 複製本頁網址藥用
     // $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
 
+    $reloadTime = (file_exists("reloadTime.txt")) ? file_get_contents("reloadTime.txt") : "";       // 從文件加载reloadTime内容
 
     include("../template/header.php");
     include("../template/nav.php"); 
@@ -27,6 +28,7 @@
     <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
+    <script type="text/javascript" src="../../libs/charts/loader.js"></script>                      <!-- 引用Google Chart script 1/3 -->
     <style>
             /* 當螢幕寬度小於或等於 1366px時 */
             @media (max-width: 1366px) {
@@ -141,112 +143,167 @@
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
-            <div class="col-mm-10 col-12 rounded p-4 " style="background-color: rgba(255, 255, 255, .7);">
-                <div class="row">
-                    <!-- 左測：單 -->
-                    <div class="col-3 col-md-3 px-2 py-0">
-                        <h2><span class="badge bg-primary w-100">--&nbsp;<i class="fa fa-edit"></i>&nbsp;Menu&nbsp;--</span></h2>
-                        <div class="col-12 p-0" id="btn_list">
-                            <div id="overlay">Permission Denied</div>
-                            <!-- append button here -->
-                            <!-- 測試圖1 -->
-                            <div class="rounded wave_div">
-                                <div class="waveform">
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                    <div class="bar"></div>
-                                </div>
-                            </div>
-                            <!-- 測試圖2 -->
-                            <div class="col-12 seed text-center">
-                                <img src="../image/safetyFirst.jfif" alt="tnESH Logo" class="img-thumbnail">
-                            </div>
-                            <!-- 測試權限 -->
-                            <div class="col-12 p-0">
-                                <form action="sys_role.php" method="get">
-                                    <div class="input-group">
-                                        <span class="input-group-text">測試權限</span>
-                                        <select name="role" id="role" class="form-select" onchange="submit()">
-                                            <option for="role" hidden selected>-- 調整role權限 --</option>
-                                            <option for="role" value="0" >0 管理員</option>
-                                            <option for="role" value="1" >1 大PM/總窗護理師</option>
-                                            <option for="role" value="2" >2 廠-護理師</option>
-                                            <option for="role" value="2.2" >2.2 廠-工安</option>
-                                            <option for="role" value="2.5" >2.5 ESH工安</option>
-                                            <option for="role" value="3" >3 現場窗口</option>
-                                            <option for="role" value="3.5" >3.5 unknow</option>
-                                        </select>
-                                        <input type="hidden" name="sys_id" value="she">
+            <div class="col-mm-10 col-12 rounded p-3 " style="background-color: rgba(255, 255, 255, .7);">
+                <!-- Bootstrap Alarm -->
+                <div id="liveAlertPlaceholder" class="col-12 text-center m-0 p-0"></div>
+                <!-- NAV分頁標籤與統計 -->
+                <div class="col-12 p-0">
+                    <nav>
+                        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">p1</button>
+                            <button type="button" class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false">各式統計</button>
+                            <button type="button" class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false">各廠聯絡窗口</button>
+                        </div>
+                    </nav>
+                </div>
+                <!-- 內頁 -->
+                <div class="tab-content bs-b " id="nav-tabContent">
+                    <!-- p1 -->
+                    <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
+                        <div class="col-12 bg-white pb-2">
+                            <!-- p1-head -->
+                            <span class="badge bg-c-blue w-100 title">--&nbsp;P1&nbsp;--</span>
+                            <!-- p1-body -->
+                            <div class="col-12 px-0 py-1" id="p1Body">
+                                <!-- 廠區燈號欄 append p1map here -->
+                                    <!-- 測試曲線圖1 -->
+                                    <div class="rounded wave_div">
+                                        <div class="waveform">
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                        </div>
                                     </div>
-                                </form>  
                             </div>
-
+                            <hr>
+                            <!-- 20231108-資料更新時間 -->
+                            <div class="col-12 p-0 text-end inb">
+                                <span><button type="button" class="btn btn-outline-success add_btn" onclick="dashboard_init(true)" data-toggle="tooltip" data-placement="bottom" title="強制更新" 
+                                        <?php echo ($sys_role <= 1 && isset($sys_role)) ? "":"disabled";?> > <i class="fa-solid fa-rotate"></i></button>&nbsp;Last reload time：</span>
+                                <span id="reload_time" title="" ><?php echo $reloadTime;?> </span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- 右上：各廠燈號 -->
-                    <div class="col-9 col-md-9 px-2 py-0 mb-2 ">
-                        <!-- 廠區燈號欄 -->
-                        <h2><span class="badge bg-c-blue w-100">--&nbsp;Main&nbsp;--</span></h2>
-                        <div class="col-12 bg-white rounded p-0" id="highLight">
-                            <!-- append site here -->
+                    <!-- p2 -->
+                    <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
+                        <div class="col-12 bg-white">
+                            <!-- p2-head -->
+                            <span class="badge bg-c-blue w-100 title">--&nbsp;P2&nbsp;--</span>
+                            <!-- p2-body -->
+                            <div class="col-12 px-0 py-1" id="p2Body">
+                                <!-- chart圖表元素 2/3 -->
+                                <div class="row px-3 py-1" id="p2chart_div">
+                                </div>
+                            </div>
                         </div>
-                        <!-- 說明欄 -->
-                        <div class="col-12 bg-white border rounded p-3 my-2 bs-b text-center" id="remark">
-                            <div class="text-center">
+                    </div>
+
+                    <!-- p3 -->
+                    <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
+                        <div class="col-12 bg-white text-center">
+                            <!-- p3-head -->
+                            <!-- 測試圖1 -->
+                            <div class="pb-2">
                                 <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
                             </div>
-                            <hr>
-                            <!-- 中下：聯絡窗口 -->
-                            <span class="badge bg-info mb-3 p-2 title"><i class="fa-solid fa-circle-info"></i>&nbsp;各廠聯絡窗口</span>
-                            <table id="service_window" class="table table-striped table-hover bs-b">
-                                <thead>
-                                    <tr>
-                                        <th>FAB</th>
-                                        <th>窗口姓名</th>
-                                        <th>分機</th>
-                                        <th>email</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach($sw_arr as $sw_key => $sw_value){
-                                        $value_length = count($sw_value);
-                                        if($value_length < 1){
-                                            $append_str = '<tr><td>'.$sw_key.'</td><td>null</td><td></td><td></td></tr>';
-                                        }else{
-                                            if(is_object($sw_value)) { $sw_value = (array)$sw_value; }                      // 物件轉陣列
-                                            $td_key = '<td rowspan="'.$value_length.'">'.$sw_key.'</td>';
-                                            $append_str = "";
-                                            $i = 1;
-                                            foreach($sw_value as $sw_item => $sw_item_value){
-                                                if(is_object($sw_item_value)) { $sw_item_value = (array)$sw_item_value; }   // 物件轉陣列
-                                                $td_value = '. '.$sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
-                                                if($i === 1){
-                                                    $append_str .= '<tr>'.$td_key.'<td>'.$i.$td_value;
-                                                }else{
-                                                    $append_str .= '<tr><td>'.$i.$td_value;
+                            <!-- p3-body -->
+                            <div class="col-12 px-0 py-1" id="p3Body">
+                                <!-- 聯絡窗口 -->
+                                <span class="badge bg-info mb-3 p-2 title"><i class="fa-solid fa-circle-info"></i>&nbsp;各廠聯絡窗口</span>
+                                <table id="service_window" class="table table-striped table-hover bs-b">
+                                    <thead>
+                                        <tr>
+                                            <th>FAB</th>
+                                            <th>窗口姓名</th>
+                                            <th>分機</th>
+                                            <th>email</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($sw_arr as $sw_key => $sw_value){
+                                            $value_length = count($sw_value);
+                                            if($value_length < 1){
+                                                $append_str = '<tr><td>'.$sw_key.'</td><td>null</td><td></td><td></td></tr>';
+                                            }else{
+                                                if(is_object($sw_value)) { $sw_value = (array)$sw_value; }                      // 物件轉陣列
+                                                $td_key = '<td rowspan="'.$value_length.'">'.$sw_key.'</td>';
+                                                $append_str = "";
+                                                $i = 1;
+                                                foreach($sw_value as $sw_item => $sw_item_value){
+                                                    if(is_object($sw_item_value)) { $sw_item_value = (array)$sw_item_value; }   // 物件轉陣列
+                                                    $td_value = '. '.$sw_item_value["cname"].'</td><td>'.$sw_item_value["tel_no"].'</td><td>'.strtolower($sw_item_value["email"]).'</td></tr>';
+                                                    if($i === 1){
+                                                        $append_str .= '<tr>'.$td_key.'<td>'.$i.$td_value;
+                                                    }else{
+                                                        $append_str .= '<tr><td>'.$i.$td_value;
+                                                    }
+                                                    $i++;
                                                 }
-                                                $i++;
-                                            }
-                                        };
-                                        echo $append_str;
-                                    }?>
-                                </tbody>
-                            </table>
+                                            };
+                                            echo $append_str;
+                                        }?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <span>系統維護：tnESH iT 陳建良 5014-42117</span>
                         </div>
                     </div>
                 </div>
+
+                <!-- 說明欄 -->
+                <!-- 下：測試 -->
+                    <div class="col-12 bg-light border rounded p-3 my-2 bs-b text-center">
+                    <div class="row">
+                        <div class="col-9 col-md-9">
+                            <!-- 測試圖1 -->
+                            <div class="text-center">
+                                <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
+                            </div>
+                        </div>
+                        <div class="col-3 col-md-3 seed text-center">
+                            <!-- 測試圖2 -->
+                            <img src="../image/safetyFirst.jfif" alt="tnESH Logo" class="img-thumbnail">
+                            <!-- 測試權限 -->
+                            <form action="sys_role.php" method="get">
+                                <div class="input-group">
+                                    <span class="input-group-text">測試</span>
+                                    <select name="role" id="role" class="form-select" onchange="submit()">
+                                        <option for="role" hidden selected>-- 調整role權限 --</option>
+                                        <option for="role" value="0" >0 管理員</option>
+                                        <option for="role" value="1" >1 大PM/總窗護理師</option>
+                                        <option for="role" value="2" >2 廠-護理師</option>
+                                        <option for="role" value="2.2" >2.2 廠-工安</option>
+                                        <option for="role" value="2.5" >2.5 ESH工安</option>
+                                        <option for="role" value="3" >3 現場窗口</option>
+                                        <option for="role" value="3.5" >3.5 unknow</option>
+                                    </select>
+                                    <input type="hidden" name="sys_id" value="she">
+                                </div>
+                            </form>  
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-<!-- Bootstrap Alarm -->
-    <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 pb-0"></div>
+    <!-- toast -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
+            <div class="d-flex">
+                <div class="toast-body" id="toast-body"></div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -255,6 +312,6 @@
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <!-- <script src="../../libs/openUrl/openUrl.js"></script>       彈出子畫面 -->
 
-<!-- <script src="dashboard.js?v=<=time()?>"></script> -->
+<script src="dashboard.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

@@ -225,7 +225,7 @@
                     <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
                     </div>
                 </div>
-                </br>
+                <br>
             </div>
         </div>
     </div>

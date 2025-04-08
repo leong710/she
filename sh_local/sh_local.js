@@ -298,12 +298,33 @@
             let responseData = await response.json();
             let result_obj = responseData['result_obj'];    // 擷取主要物件
 
-            return myCallback(result_obj);                  // resolve(true) = 表單載入成功，then 呼叫--myCallback
-                                                            // myCallback：form = bring_form() 、document = edit_show() 、locals = ? 還沒寫好
+            if(parm === 'return' || myCallback === 'return'){
+                return result_obj;                          // resolve(true) = 表單載入成功，then 直接返回值
+            }else{
+                return myCallback(result_obj);              // resolve(true) = 表單載入成功，then 呼叫--myCallback
+            }                                               // myCallback：form = bring_form() 、document = edit_show() 、locals = ? 還沒寫好
         } catch (error) {
             $("body").mLoading("hide");
             throw error;                                    // 載入失敗，reject
         }
+    }
+
+    // 生成dashBoard統計數據1
+    function _dashB1(_OSHORTsObj){
+
+        const countFabItem = {
+            'total' : 0
+        };
+
+        for (const i_fab in _OSHORTsObj) {
+            let totalCount = 0;
+            for (const i_oshort in _OSHORTsObj[i_fab]) {
+                totalCount += _OSHORTsObj[i_fab][i_oshort]['_count'];
+            }
+            countFabItem[i_fab] = totalCount;
+            countFabItem['total'] += totalCount;
+        }
+        console.log(countFabItem);
     }
 
     async function loadData() {
@@ -314,18 +335,22 @@
 
             await eventListener();                      // step_1-2 eventListener();
 
+            _dashB1(OSHORTsObj);      // 生成dashBoard統計數據1
+
         } catch (error) {
             console.error(error);
         }
+
+        $("body").mLoading("hide");
+    }
+
+    $(function(){
+
+        loadData();
 
         let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site工安</u></b>&nbsp;~&nbsp;';
         let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
         Balert( message2, 'danger');
         Balert( message, 'warning');
 
-        $("body").mLoading("hide");
-    }
-
-    $(function(){
-        loadData();
     })
