@@ -198,8 +198,7 @@
                             <!-- p2-body -->
                             <div class="col-12 px-0 py-1" id="p2Body">
                                 <!-- chart圖表元素 2/3 -->
-                                <div class="row px-3 py-1" id="p2chart_div">
-                                </div>
+                                <div class="row px-3 py-1" id="p2chart_div"></div>
                             </div>
                         </div>
                     </div>
