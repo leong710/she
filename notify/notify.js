@@ -92,7 +92,7 @@
             $(`#${_table}`).DataTable({
                 "language": { url: "../../libs/dataTables/dataTable_zh.json" }, // 中文化
                 "autoWidth": false,                                              // 自動寬度
-                "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 2, "asc" ]] ,            // 排序
+                "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 0, "asc" ]] ,            // 排序
                 "pageLength": 25,                                               // 顯示長度
                     // "paging": false,                                             // 分頁
                     // "searching": false,                                          // 搜尋
