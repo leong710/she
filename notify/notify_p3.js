@@ -189,7 +189,8 @@
                     // thisMonth = targetMonth;                                        // 顯示月份&submit_btn
                 })
                 p3notify_btn.disabled = mailArr.length === 0;
-                $('#p3notify_table').DataTable();
+                // $('#p3notify_table').DataTable();
+                reload_dataTable('p3notify_table');
             }
 
             $('#p3totalUsers_length').empty().append(`${P3Notify_list.length} 筆 / ${mailArr.length} 封`);

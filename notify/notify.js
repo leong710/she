@@ -545,7 +545,7 @@
             // await step3(doc_lists, step4);                  // step3資料清洗，後用step4鋪設內容
 
             // op_tab('user_lists');                        // 關閉清單
-            $('#notifyResult').append('等待發報 : ');
+            $('#notifyResult').append('等待發報 :</br>');
 
             const check_ipp = true;
             if(check_ipp && fun){

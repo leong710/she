@@ -149,6 +149,7 @@
                         <div class="col-12 bg-white">
                             <!-- step-1 -->
                             <div class="col-12 p-1">
+                                <!-- p1 head -->
                                 <div class="row">
                                     <div class="col-8 col-md-7 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h3>已登錄之發報紀錄：</h3></snap>
@@ -178,7 +179,7 @@
                                         </form>  
                                     </div>
                                 </div>
-
+                                <!-- p1 body -->
                                 <div id="p1_logs_inside" class="notify_lists">
                                     <!-- 20211215分頁工具 -->               
                                     <div class="row">
@@ -242,7 +243,7 @@
                                             ?>
                                         </div>
                                     </div>
-                                    <!-- 20211215分頁工具 -->
+                                    <!-- 20211215分頁工具e -->
                                     <table id="p1_log_table" class="display responsive nowrap" style="width:100%">
                                         <thead>
                                             <tr>
@@ -267,7 +268,7 @@
                                                                     <input type="hidden" name="id" value="<?php echo $log['id']; ?>">
                                                                     <input type="submit" name="deleteLog" value="Del" class="btn btn-sm btn-xs btn-secondary" onclick="return confirm('確認刪除？')">
                                                                 </form>
-                                                        <?php echo "&nbsp(aid:".$log['id'].")&nbsp" .$log['sys']." => ".count($logs_json)."次  ";
+                                                            <?php echo "&nbsp(aid:".$log['id'].")&nbsp" .$log['sys']." => ".count($logs_json)."次  ";
                                                     
                                                         }?>
                                                     </td>
@@ -362,7 +363,7 @@
                                             ?>
                                         </div>
                                     </div>
-                                    <!-- 20211215分頁工具 -->
+                                    <!-- 20211215分頁工具e -->
                                 </div> 
                             </div>
                         </div>
