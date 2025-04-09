@@ -420,8 +420,7 @@
                                 </div>
                                 <div class="col-12 col-md-6 py-0 text-end">
                                     <?php if($sys_role == 0 || $check_ip){ ?>
-                                        <button type="button" id="p3notify_btn" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" 
-                                            title="P3 send notify" ><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送&nbsp;Email</button>
+                                        <button type="button" id="p3notify_btn" class="btn btn-primary" data-toggle="tooltip" data-placement="bottom" title="P3 send notify" ><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送Email</button>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -459,7 +458,7 @@
                 <!-- 頁尾操作訊息 -->
                 <div class="col-12 py-0"><b>執行訊息：</b></div>
                 <!-- append執行訊息 -->
-                <div class="col-12 bg-white border rounded py-2 my-0" id="p2result"></div>
+                <div class="col-12 bg-white border rounded py-2 my-0" id="notifyResult"></div>
                 <div class="row">
                     <div class="col-6 col-md-4">
                         <?php echo ($sys_role == 0) ? "* [管理者]" : "* [路人]";
@@ -497,7 +496,7 @@
 <script>
     // init
     const uri       = '<?=$uri?>';
-    const fun       = '<?=$fun?>';                                  // 是否自動啟動寄送信件給人員
+    // const fun       = '<=$fun?>';                                  // 是否自動啟動寄送信件給人員 // 改用getUrlParm()取得
     const check_ip  = '<?=$check_ip?>';
 
     const reload_time = document.getElementById('reload_time');

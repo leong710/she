@@ -267,6 +267,17 @@
         const timeStamp = thisToday+' '+thisTime;
         return timeStamp;
     }
+    // 提取URL參數...呼叫getUrlParm
+    function getUrlParm(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
+        const results = regex.exec(window.location.href);
+        const urlParm = results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+
+        return(urlParm); // 異常情況下也需要resolve
+    }
+    const fun = getUrlParm('fun');    // 解析url指定參數值
+
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能
     function op_tab(tab_value){
@@ -339,6 +350,7 @@
 // // 子功能--B
     // 0-1.確認是否超過3小時；true=_db/更新時間；false=_json          // 呼叫來源：load_init
     function check3hourse(action){
+        const reload_time = document.getElementById('reload_time');
         let currentDate = new Date();                               // 取得今天日期時間
         let reloadTime  = new Date(reload_time.innerText);          // 取得reloadTime時間
 
@@ -350,7 +362,8 @@
             recordTime();       // 1.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
         }
         const _title = ('時間差：'+ Number(hoursDifference.toFixed(2)) +'（小時）>= 3小時：'+ result +' => '+ _method);
-        document.getElementById('reload_time').title = _title;
+        reload_time.title = _title;
+
         return _method;
     }
     // 0-2.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間        // 呼叫來源：check3hourse
@@ -503,17 +516,13 @@
     
         // 定義新的監聽器函數p2_btn
         navP2tabClickListener = async function () {
-            console.log('p2_btn')
-
-            p2_init(false);
-
+                console.log('p2_btn click...')
+            await p2_init(false);
         }
         // 定義新的監聽器函數p3_btn
         navP3tabClickListener = async function () {
-            console.log('p3_btn')
-
-            p3_init();
-
+                console.log('p3_btn click...')
+            await p3_init();
         }
 
         // 添加新的監聽器
@@ -529,33 +538,42 @@
         try {
             mloading("show");                               // 啟用mLoading
 
-            reload_notify2_Listeners();
+            await reload_notify2_Listeners();                     // 250331 定義nav-tab [nav-p2-tab]+[nav-p3-tab]鈕功能~~
 
             // await load_fun(_type, 'bpm, true',     step1);  // load_fun查詢大PM bpm，並用step1找出email
             // await load_fun(_type, 'notify, true' , step2);  // load_fun先抓json，沒有then抓db(true/false 輸出json檔)，取得highlight內容後用step2把所有名單上的人頭代上emai
             // await step3(doc_lists, step4);                  // step3資料清洗，後用step4鋪設內容
 
             // op_tab('user_lists');                        // 關閉清單
-            $('#result').append('等待發報 : ');
+            $('#notifyResult').append('等待發報 : ');
 
-            if(check_ip && fun){
+            const check_ipp = true;
+            if(check_ipp && fun){
                 switch (fun) {
-                    case 'debug':                               // debug mode，mapp&mail=>return true
-                    case 'notify_process':                      // notify_process待簽發報auto_run
-                        await delayedLoop(3, 'notify_process'); // delayedLoop延遲3秒後執行 notify_process：整理訊息、發送、顯示發送結果。
-                        CountDown(15);                          // 倒數 15秒自動關閉視窗~
+                    case 'debug':                                                               // debug mode，mapp&mail=>return true
+                    case 'p2notify_mailSend':                                                   // p2notify_mailSend待簽發報auto_run
+                        // await delayedLoop(3, 'p3notify_mailSend');                           // delayedLoop延遲3秒後執行 p3notify_mailSend：整理訊息、發送、顯示發送結果。
+                        // step.1 切換到p3-tab 並觸發p3_init()準備工作
+                        const navP2tab_btn = document.querySelector('#nav-tab #nav-p2-tab');    // 定義出p2_btn範圍
+                              navP2tab_btn.dispatchEvent(new Event('click'));                   // 手動觸發 click 事件
                         break;
-                    default:
-                        $('#result').append('function error!</br>');
-                }
-            }else{
-                $('#result').append(' ...standBy...</br>');
-            }
-            $("body").mLoading("hide");
 
+                    case 'p3notify_mailSend':                                                   // p3notify_mailSend待簽發報auto_run
+                        // await delayedLoop(3, 'p3notify_mailSend');                           // delayedLoop延遲3秒後執行 p3notify_mailSend：整理訊息、發送、顯示發送結果。
+                        // step.1 切換到p3-tab 並觸發p3_init()準備工作
+                        const navP3tab_btn = document.querySelector('#nav-tab #nav-p3-tab');    // 定義出p3_btn範圍
+                              navP3tab_btn.dispatchEvent(new Event('click'));                   // 手動觸發 click 事件
+                        break;
+
+                    default:
+                        $('#notifyResult').append('function error!</br>');
+                }
+            }
         } catch (error) {
             console.error(error);
         }
+
+        $("body").mLoading("hide");
     }
     
     // document.ready啟動自動執行fun

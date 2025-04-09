@@ -104,10 +104,10 @@
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     function p2drawChart(_OSHORTsObj) {
         console.log('_OSHORTsObj...', _OSHORTsObj)
-        
+
         // 定義一個數據陣列for繪圖用              // {role: 'annotation'} == 資料標籤
         // var myData = [[('string', 'month_系統'), ('number','月統計') ,{role: 'style'}, ('number','User'),{role: 'style'}, ('number','Guest'),{role: 'style'} ]];
-        var myChart_data = [[('string', 'month_月份'), ('number','user'),{role: 'annotation'} , ('number','guest'),{role: 'annotation'} ]]        // 20240415_繪圖專用陣列~ 同時初始定義[0]的標籤
+        var myChart_data = [[('string', 'month_月份') ,('number','user'),{role: 'annotation'} ,('number','guest'),{role: 'annotation'}]]        // 20240415_繪圖專用陣列~ 同時初始定義[0]的標籤
         let sortData_arr = []           // 整理用暫存
         let m_list = Array.from({ length: 12 }, (_, index) => (index + 1).toString().padStart(2, '0'));                // 月份清單
         let temp_work_data = [];
