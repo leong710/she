@@ -240,7 +240,9 @@
                     document.getElementById(`${sh_item},${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', inner_Value);     // 渲染各項目
 
                     // step.2b 噪音驗證 .contains('噪音')
-                    if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                    // if (sh_item === 'HE_CATE' && Object.values(sh_value['HE_CATE']).includes('噪音') && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                    if (sh_item === 'HE_CATE' && (Object.values(sh_value['HE_CATE']).some(value => value.includes('噪音'))) && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
+                        // console.log('含噪音...')
                         const eh_time_input = document.querySelector(`input[id="eh_time,${select_empId},${currentYear}"]`);
                         // 2b1. 檢查元素是否存在+是否有值
                             // eh_time_input.removeAttribute('disabled');
