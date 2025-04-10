@@ -82,6 +82,16 @@
             $("body").mLoading("hide");
         }
     }
+    // 提取URL參數...呼叫getUrlParm
+    function getUrlParm(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
+        const results = regex.exec(window.location.href);
+        const urlParm = results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+
+        return(urlParm); // 異常情況下也需要resolve
+    }
+    const fun = getUrlParm('fun');    // 解析url指定參數值
 
 // // 主技能--發報用 be await
     // 20240314 將訊息推送到TN PPC(mapp)給對的人~

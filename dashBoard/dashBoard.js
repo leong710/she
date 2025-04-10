@@ -109,6 +109,7 @@
         // // S.1 取得資料
             const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
             const _method = await check3hourse(action);                                                 // _db/_json
+                console.log('_method =>', _method)
             const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
             // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
             const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
@@ -211,8 +212,8 @@
             //     // console.log('step.2 OSHORTsObj =>', OSHORTsObj);
     
             // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-            await google.charts.load('current', {'packages':['corechart']});
-            await google.charts.setOnLoadCallback(p2drawChart);
+            // await google.charts.load('current', {'packages':['corechart']});
+            // await google.charts.setOnLoadCallback(p2drawChart);
     
         } catch (error) {
             console.error(error);
@@ -235,7 +236,6 @@
         // 定義新的監聽器函數p2_btn
         navP2tabClickListener = async function () {
             mloading(); 
-
                 console.log('p2_btn click...')
             // p2_init(false);
             // p2chart_init(false);

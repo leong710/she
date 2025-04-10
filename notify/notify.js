@@ -267,16 +267,16 @@
         const timeStamp = thisToday+' '+thisTime;
         return timeStamp;
     }
-    // 提取URL參數...呼叫getUrlParm
-    function getUrlParm(name) {
-        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
-        const results = regex.exec(window.location.href);
-        const urlParm = results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    // // 提取URL參數...呼叫getUrlParm
+    // function getUrlParm(name) {
+    //     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    //     const regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
+    //     const results = regex.exec(window.location.href);
+    //     const urlParm = results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
 
-        return(urlParm); // 異常情況下也需要resolve
-    }
-    const fun = getUrlParm('fun');    // 解析url指定參數值
+    //     return(urlParm); // 異常情況下也需要resolve
+    // }
+    // const fun = getUrlParm('fun');    // 解析url指定參數值
 
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能

@@ -428,7 +428,7 @@
             const { _changeLogs, year_key } = source_json_value_arr[e_key];
             const changeYear = String(Number(year_key) - 1 );   // 這裡要定義作業年度的去年，所以是-1
             let _6shCheck_str = '';
-            if(_changeLogs !== null){
+            if(_changeLogs !== null && _changeLogs !== undefined){
                 let _6shCheck_arr = [];
                 for(const [i_key, i_value] of Object.entries(_changeLogs)){
                     if (i_key.includes(changeYear) && (i_value._7isCheck === true) && (i_value._6shCheck.length > 0)){
