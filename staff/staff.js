@@ -70,7 +70,7 @@
                 const select_empId = this_value_arr[1];            // 取出陣列1=emp_id
                 const selectedOptsValues = Array.from(document.querySelectorAll('#import_shLocal #shLocal_table input[type="checkbox"]:checked')).map(cb => cb.value);
                 const empData = staff_inf.find(emp => emp.emp_id === select_empId);
-                const useImportShLocal_value = document.getElementById('useImportShLocal');     // 保留沿用選項值
+                const useImportShLocal_value = document.getElementById('useImportShLocal');     // 保留沿用選項值(保留選項)
                 
                 if (empData) {
                     empData.shCase = [];            // 特檢項目：直接清空，讓後面重新帶入

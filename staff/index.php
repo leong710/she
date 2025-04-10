@@ -390,7 +390,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="useImportShLocal" checked>
+                        <input class="form-check-input" type="checkbox" id="useImportShLocal"  >
                         <label class="form-check-label" for="useImportShLocal">保留選項</label>
                     </div>
                     <button type="button" class="btn btn-success"   data-bs-dismiss="modal" id="import_shLocal_btn">載入</button>

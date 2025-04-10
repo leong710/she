@@ -32,8 +32,10 @@
                         for (const HE_CATE_id of HE_CATE_id_arr){                               // 把HE_CATE_id_arr繞出來...假動作
                             if (Object.keys(_yearHe_obj).includes(HE_CATE_id)) {
                                 checkbox.disabled = false;   // 如果checkbox的value在obj的值裡，啟用checkbox
+                                checkbox.checked = true;
                             } else {
                                 checkbox.disabled = true;    // 否則，禁用checkbox
+                                checkbox.checked = false;
                             }
                         }   
                     });
