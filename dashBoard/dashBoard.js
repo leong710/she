@@ -52,7 +52,7 @@
     
             let timeDifference = currentDate - reloadTime;              // 計算兩個時間之間的毫秒差異
             let hoursDifference = timeDifference / (1000 * 60 * 60);    // 將毫秒差異轉換為小時數
-            let result = hoursDifference >= 3 ;                          // 判斷相差時間是否大於3小時，並顯示結果
+            let result = hoursDifference >= 3 ;                         // 判斷相差時間是否大於3小時，並顯示結果
             let _method = result ? '_db' : '_json';
             if(result || action){
                 recordTime();       // 1.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
@@ -102,32 +102,31 @@
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function p2drawChart() {
-        const action = false;
-        const _method = await check3hourse(action);
-        const _type = action ?  "_db" : _method;      // action來決定 false=自動判斷check3hourse 或 true=強制_db
-        // // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
-        const _shLocal   = await load_fun(_type, '_shLocal, true' , 'return');      // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
-            // console.log('step.1 _shLocal =>', _shLocal);
-        const _OSHORTsObj = await process_p2dB1(_shLocal);                                 // step.1a 統計_shLocal內容
-            // console.log('step.2 OSHORTsObj =>', OSHORTsObj);
+        // // S.0 防止重複畫圖...
+            const p2drawChart_div = document.querySelector('#p2drawChart');
+            if(p2drawChart_div !== null) return;
 
-        console.log('p2drawChart _OSHORTsObj...', _OSHORTsObj)
+        // // S.1 取得資料
+            const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
+            const _method = await check3hourse(action);                                                 // _db/_json
+            const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
+            // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
+            const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
+            const _OSHORTsObj = await process_p2dB1(_shLocal);                                          // step.1a 統計_shLocal內容
+                // console.log('p2drawChart _OSHORTsObj...', _OSHORTsObj)
 
-        // 定義一個數據陣列for繪圖用 {role: 'annotation'} == 資料標籤
-        // var myData = [[('string', 'month_系統'), ('number','月統計') ,{role: 'style'}, ('number','User'),{role: 'style'}, ('number','Guest'),{role: 'style'} ]];
-        // var myChart_data = [[('string', 'FAB_廠區') ,('number','case'),{role: 'annotation'}]]        // 繪圖專用陣列~ 同時初始定義[0]的標籤
-        var myChart_data = [[('string', 'FAB_廠區') ,('number','case')]]        // 繪圖專用陣列~ 同時初始定義[0]的標籤
+        // // S.2 定義一個數據陣列for繪圖用 {role: 'annotation'} == 資料標籤
+            // var myData = [[('string', 'month_系統'), ('number','月統計') ,{role: 'style'}, ('number','User'),{role: 'style'}, ('number','Guest'),{role: 'style'} ]];
+            var myChart_data = [[('string', 'FAB_廠區') ,('number','特危場所'),{role: 'annotation'}]]    // 繪圖專用陣列~ 同時初始定義[0]的標籤
 
-        // rework_1.把rol_logs倒進來繞
-        for (const [i_fab, i_count] of Object.entries(_OSHORTsObj)) {
-            if(i_fab !== 'total' ){        // 跳過total
-                myChart_data.push([i_fab, i_count])
+        // // S.3 整理資料：把_OSHORTsObj統計數據倒進來繞，組合成指定格式=> [廠區, 數據, 文字標籤]
+            for (const [i_fab, i_count] of Object.entries(_OSHORTsObj)) {
+                if(i_fab !== 'total' ){        // 跳過total
+                    myChart_data.push([i_fab, i_count, i_count]);
+                }
             }
-        }
-        console.log('myChart_data', myChart_data );
+            // console.log('myChart_data', myChart_data )
 
-        let temp_div = '<div class="col-12 border rounded bg-white p-3" style="height: 300px;" id="p2drawChart"></div>';
-        $('#p2chart_div').append(temp_div);
 
         // 將數據陣列傳遞給arrayToDataTable()函數以創建數據表格
         var data = google.visualization.arrayToDataTable(myChart_data);
@@ -138,17 +137,18 @@
                         duration : 1000,
                         easing   : 'out',
                     },
-            title: 'y_點擊率身份統計圖',
+            title: '統計件數',
             isStacked: true,                    // 堆疊選項  == > 這個是關鍵
             vAxis: {        
                         0: {scaleType: 'log'},
                         format: '#'             // 刻度不要有小數點
                     },
-            vAxes: {    // 雙Y軸 標題 + 樣式
+            // vAxes: {    
+                        // 雙Y軸 標題 + 樣式
                         // 0: {title: 'click count(月計)', maxValue: (hit_maxVal * 1.1)}
                         // 1: {title: 'Hit (次)'}            // , textStyle: {color: 'green'}, minValue: 200, maxValue: (hit_maxVal * 1.1)
-                    },
-            hAxis: { title: 'month(月份)'}, // ,format: '####'
+                    // },
+            hAxis: { title: '特殊危害健康作業場所統計'}, // ,format: '####'
             seriesType: 'bars',
             bars: 'vertical',
             // series: {
@@ -157,10 +157,9 @@
                         // 2: {targetAxisIndex: 1, type: 'line', lineDashStyle: [4, 4], pointSize: 5, pointShape: 'circle'}    // lineDashStyle: 虛線
                     // },
 
-            // colors: ['blue', '#4682b4', '#a3c2db' , '#0a9bf5' , '#87cefa',  '#7FFF00', '#2E8B57' ],                      // 自訂顏色
-            colors: [ '#4682b4', '#a3c2db' , '#0a9bf5' , '#87cefa',  '#7FFF00', '#2E8B57' ],                      // 自訂顏色
-            legend: { position: 'right' },                         // 圖例設置在底部bottom
-            // chartArea: { left: '5%', top: '15%', right: '5%'}     // 設置圖表區域大小和位置
+            colors: [ '#4682b4', '#a3c2db' , '#0a9bf5' , '#87cefa',  '#7FFF00', '#2E8B57', 'blue'],                      // 自訂顏色
+            legend: { position: 'right' },                          // 圖例設置在底部 bottom；right
+            // chartArea: { left: '5%', top: '15%', right: '5%'}    // 設置圖表區域大小和位置
             annotations: {                                          // 對應 {role: 'annotation'} == 資料標籤
                 textStyle: {
                     fontName: 'Arial',
@@ -179,6 +178,11 @@
                 }
             }
         };
+
+        // // S.4 定義圖表外框並貼上 
+        let temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="p2drawChart"></div>';
+        $('#p2chart_div').empty().append(temp_div);
+                
         // 創建一個新的ColumnChart對象，並將數據表格和選項傳遞給它
         var cunt_chart = new google.visualization.ColumnChart(document.getElementById('p2drawChart'));
         // 繪製圖表
@@ -189,7 +193,6 @@
                 cunt_chart.draw(data, options);
             }
         })(cunt_chart, data, options));
-        
     }
     
     async function p2chart_init(action) {
@@ -208,8 +211,8 @@
             //     // console.log('step.2 OSHORTsObj =>', OSHORTsObj);
     
             // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(p2drawChart);
+            await google.charts.load('current', {'packages':['corechart']});
+            await google.charts.setOnLoadCallback(p2drawChart);
     
         } catch (error) {
             console.error(error);
@@ -231,11 +234,15 @@
     
         // 定義新的監聽器函數p2_btn
         navP2tabClickListener = async function () {
+            mloading(); 
+
                 console.log('p2_btn click...')
             // p2_init(false);
             // p2chart_init(false);
-            google.charts.load('current', {'packages':['corechart']});
-            google.charts.setOnLoadCallback(p2drawChart);
+            await google.charts.load('current', {'packages':['corechart']});
+            await google.charts.setOnLoadCallback(p2drawChart);
+            
+            $("body").mLoading("hide");
         }
 
         // 添加新的監聽器

@@ -193,12 +193,21 @@
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
-                            <!-- p2-head -->
-                            <span class="badge bg-c-blue w-100 title">--&nbsp;P2&nbsp;--</span>
-                            <!-- p2-body -->
-                            <div class="col-12 px-0 py-1" id="p2Body">
-                                <!-- chart圖表元素 2/3 -->
-                                <div class="row px-3 py-1" id="p2chart_div"></div>
+                            <!-- chart圖表元素 2/3 -->
+                            <div class="row px-3 py-1" id="p2chart_div">
+                                <!-- 測試曲線圖1 -->
+                                <div class="rounded wave_div">
+                                    <div class="waveform">
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                        <div class="bar"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
