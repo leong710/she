@@ -308,6 +308,29 @@
             throw error;                                    // 載入失敗，reject
         }
     }
+    // 鋪設Banner = 步驟,啟,迄,概念圖
+    async function postBanner(fun, a, b, pic) {
+        let banner = 'sorry! reviewStep error ...';
+        if(fun){
+            const reviewStep = await load_fun(fun, fun, 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+            if(reviewStep){
+                const banS = '<span><h5><ul class="mb-0">';
+                const banM = '&nbsp;<sup class="text-danger">- ';
+                const banli= '</sup></li>';
+                const banE = '</ul></h5></span>';
+                banner = banS;
+                for (let i = a; i <= b; i++) {
+                    if(reviewStep.step[i] != undefined){
+                        banner += `<li>step.${reviewStep.step[i].idty}&nbsp;${reviewStep.step[i].approvalStep}&nbsp;(&nbsp;${reviewStep.step[i].remark}&nbsp;)`
+                                    + banM + `${reviewStep.step[i].group}` + banli ;
+                    }
+                }
+                banner += banE + `<img src="../image/${pic}" alt="banner pic" class="banner-img rounded" onerror="this.onerror=null; this.src='../image/lvl.png';">`;
+            }
+        }
+        document.getElementById(`banner`).insertAdjacentHTML('beforeend', banner);     // 渲染各項目
+    }
+    
 
     // 生成dashBoard統計數據1
     function _dashB1(_OSHORTsObj){
@@ -346,11 +369,11 @@
 
     $(function(){
 
+        postBanner('shLocalStep', 0, 4, 'ct_map3.png');
+
         loadData();
 
-        let message  = '*** <b>請注意</b> 後續維護對象：<b><u>site工安</u></b>&nbsp;~&nbsp;';
-        let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
-        Balert( message2, 'danger');
-        Balert( message, 'warning');
+        // let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
+        // Balert( message2, 'danger');
 
     })

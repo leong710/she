@@ -362,7 +362,7 @@
                                         <th title="6"  class="table-success"      >變更檢查項目</th>
                                         <th title="7"  class="table-warning wh-75">是否檢查</th>
                                         <th title="8"  class="table-warning"      >備註說明</th>
-                                        <th title="9"  class="table-warning wh-75">受檢日期</th>
+                                        <th class="table-warning wh-75" data-toggle="tooltip" data-placement="bottom" title="通知時間：黃底 >=7、紅底 >=12" >受檢日期 <i class="fa-solid fa-circle-info"></i></th>
                                         <th title="10" class="table-primary"      >總窗備註</th>
                                         <th title="11" class="table-danger"       >Notify</th>
                                     </tr>

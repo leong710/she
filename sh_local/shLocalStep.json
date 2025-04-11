@@ -1,0 +1,34 @@
+{
+    "step" : {
+        "0" : {
+                "idty"          : "0",
+                "approvalStep"  : "危害健康作業地圖維護",
+                "remark"        : "更新",
+                "group"         : "總窗護理師"
+            },
+        "1" : {
+                "idty"          : "1",
+                "approvalStep"  : "先完成作業環境測定",
+                "remark"        : "特別注意不常出現的作業也要納入!!",
+                "group"         : "作測PM"
+            },
+        "2" : {
+                "idty"          : "2",
+                "approvalStep"  : "上傳職安署",
+                "remark"        : "檢測報告依照時間規定上傳至主管機關",
+                "group"         : "作測PM"
+            },
+        "3" : {
+                "idty"          : "3",
+                "approvalStep"  : "上傳載入到此系統前的清單準備",
+                "remark"        : "請主管完成清單Review與審閱!",
+                "group"         : "作測PM"
+            },
+        "4" : {
+                "idty"          : "4",
+                "approvalStep"  : "上傳載入到此系統",
+                "remark"        : "確認作測PM已完成主管審閱",
+                "group"         : "總窗護理師"
+            }
+    }
+}

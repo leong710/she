@@ -175,6 +175,21 @@
                     ];
                 }
                 break;
+
+            case 'shLocalStep':
+                require_once("../mvc/load_function.php");
+                $step_arr = shLocalStep();                         // shLocalStep
+                if ($step_arr) {
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $step_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+                break;
             
             default:
                 // $result['error'] = 'Load '.$fun.' failed...(function)';
