@@ -143,7 +143,6 @@
 <body>
     <header>
         <div class="col-12">
-
             <div class="row justify-content-center">
                 <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .5);">
                     
