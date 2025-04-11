@@ -78,7 +78,7 @@
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-            padding-top: 10px;
+            /* padding-top: 10px; */
             padding-bottom: 30px;
             /* text-align: center; */
         }
@@ -144,15 +144,15 @@
     <header>
         <div class="col-12">
 
-            <div id="banner" class="col-12 mb-3 p-1 border rounded banner inf infb"></div>
-            <!-- Bootstrap Alarm -->
-            <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0 my-1"></div>
-
             <div class="row justify-content-center">
                 <div class="col_xl_11 col-12 rounded" style="background-color: rgba(255, 255, 255, .5);">
+                    
+                    <div id="banner" class="col-12 my-3 p-1 border rounded banner inf infb"></div>
+                    <!-- Bootstrap Alarm -->
+                    <div id="liveAlertPlaceholder" class="col-12 text-center mb-0 p-0"></div>
 
                     <!-- NAV分頁標籤與統計 -->
-                    <div class="col-12 p-0 pt-3">
+                    <div class="col-12 p-0 ">
                         <nav>
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">特危作業管理</button>

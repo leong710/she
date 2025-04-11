@@ -373,7 +373,7 @@
 
         loadData();
 
-        // let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
-        // Balert( message2, 'danger');
+        let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
+        Balert( message2, 'danger');
 
     })
