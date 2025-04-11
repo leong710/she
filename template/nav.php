@@ -88,26 +88,23 @@
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核與彙整</b></a></li>
-                                    <?php if($sys_role <= 2.2 ){ ?>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/pickup/"><i class="fa-brands fa-stack-overflow"></i>&nbsp;<b>名單總匯整</b></a></li>
-                                    <?php } ?>
+               
                                 </ul>
                             </li>
                         <?php } 
                         
+                        if($sys_role <= 2.2 ){ ?>
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
+                        <?php } 
                         if($sys_role <= 1 ){ ?>
-
-                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/notify/">
-                                <i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
-
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false" >
-                                    <i class="fa-solid fa-gear"></i>&nbsp;管理員專區</a>
+                                <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false" ><i class="fa-solid fa-gear"></i>&nbsp;管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
+                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/pickup/"><i class="fa-brands fa-stack-overflow"></i>&nbsp;<b>名單總匯整</b></a></li>
                                 </ul>
                             </li>
                         <?php }
