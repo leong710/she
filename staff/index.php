@@ -389,7 +389,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <div class="form-check form-switch">
+                    <div class="form-check form-switch unblock">
                         <input class="form-check-input" type="checkbox" id="useImportShLocal"  >
                         <label class="form-check-label" for="useImportShLocal">保留選項</label>
                     </div>

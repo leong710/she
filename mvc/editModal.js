@@ -153,7 +153,8 @@
                 const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
                 const { shCase, shCondition, _content } = empData;
                 const _yearHe = _content[`${currentYear}`]['import']['yearHe'] !== undefined ? _content[`${currentYear}`]['import']['yearHe'] : '';
-                const _yearHe_arr = _yearHe.includes(',') ? _yearHe.split(',') : [];
+                const _yearHe_arr = _yearHe.includes(',') ? _yearHe.split(',') : [_yearHe];
+                console.log('_yearHe_arr...', _yearHe_arr);
                 // step.2.2 讓存在既有名單的清單打勾
                 const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]'));
                 heCate_arr.forEach(heCate_checkbox => {
