@@ -18,7 +18,7 @@
         $balert_arr = [];
     }
 
-    echo "<pre>";
+    // echo "<pre>";
         // print_r($balert_json);
         // echo "<br>";
         // print_r($balert_arr);
@@ -26,7 +26,7 @@
         //     // 這裡將 _value 輸出到網頁
         //     echo $item['_value']; // 這將保留 HTML 標籤
         // }
-    echo "</pre>";
+    // echo "</pre>";
 
     include("../template/header.php");
     include("../template/nav.php"); 
