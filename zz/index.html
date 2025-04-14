@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新聞標題相似度</title>
+    <style>
+        #container {
+            /* display: flex; */
+        }
+        .column {
+            width: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: auto;
+        }
+        .high-similarity {
+            background-color: #e7f4e4;
+        }
+        .low-similarity {
+            background-color: #f4e4e4;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div class="column high-similarity" id="high-similarity">
+            <h3>高相似度</h3>
+            <ul id="high-similarity-list"></ul>
+        </div>
+        <div class="column low-similarity" id="low-similarity">
+            <h3>低相似度</h3>
+            <ul id="low-similarity-list"></ul>
+        </div>
+    </div>
+    <script>
+        function jaccardSimilarity(str1, str2) {
+            const set1 = new Set(str1.split(""));
+            const set2 = new Set(str2.split(""));
+            const intersection = new Set([...set1].filter(x => set2.has(x)));
+            const union = new Set([...set1, ...set2]);
+            return intersection.size / union.size;
+        }
+
+        const headlines = [
+            "[知新聞]台中火力發電廠工安意外 員工量測粉煤機觸電送醫 (4 分鐘前)",
+            "[TVBS新聞網]台中火力發電廠工安意外 工人量測粉煤機觸電送醫 (1 小時前)",
+            "[奇摩新聞]斗六工安悲劇！弟「只是來幫忙」與哥困3米池…雙雙中毒慘死 (2 小時前)",
+            "[ETtoday新聞雲]台中火力發電廠工安意外！工人遭電擊緊急送醫 (8 小時前)"
+        ];
+
+        const similarityThreshold = 0.5;
+        const highSimilarityList = document.getElementById('high-similarity-list');
+        const lowSimilarityList = document.getElementById('low-similarity-list');
+
+        for (let i = 0; i < headlines.length; i++) {
+            for (let j = i + 1; j < headlines.length; j++) {
+                const sim = jaccardSimilarity(headlines[i], headlines[j]);
+                const listItem = document.createElement('li');
+                listItem.textContent = `「${headlines[i]}」和「${headlines[j]}」的相似度：${sim.toFixed(2)}`;
+                if (sim > similarityThreshold) {
+                    highSimilarityList.appendChild(listItem);
+                } else {
+                    lowSimilarityList.appendChild(listItem);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

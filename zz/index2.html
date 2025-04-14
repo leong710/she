@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新聞標題關鍵字提取</title>
+    <script src="https://unpkg.com/jieba-js@1.0.9/dist/jieba.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #output { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>使用 Jieba 提取關鍵字</h1>
+    <p>新聞標題分詞與關鍵字提取</p>
+    <input type="text" id="newsTitle" placeholder="輸入新聞標題" size="50">
+    <button onclick="processTitle()">提取關鍵字</button>
+
+    <div id="output"></div>
+
+    <script>
+        function processTitle() {
+            const newsTitle = document.getElementById('newsTitle').value;
+
+            // 使用 jieba 進行分詞
+            const words = jieba.cut(newsTitle);
+            console.log("分詞結果：", words);
+
+            // 使用 jieba 提取關鍵詞
+            const keywords = jieba.extract(newsTitle, 3); // 提取前3個重要詞
+            console.log("關鍵詞提取結果：", keywords);
+
+            // 顯示結果
+            document.getElementById('output').innerHTML = `
+                <strong>分詞結果：</strong> ${words.join(', ')} <br>
+                <strong>關鍵詞：</strong> ${keywords.map(k => k.word).join(', ')}
+            `;
+        }
+    </script>
+</body>
+</html>

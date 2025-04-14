@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+    <html lang="zh-Hant">
+    <head>
+        <meta charset="UTF-8">
+        <title>使用 jieba 提取關鍵字</title>
+        <!-- <script src="https://cdn.jsdelivr.net/npm/jieba-zh@1.0.3/dist/jieba.min.js"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/jieba-zh@latest/dist/jieba.min.js"></script>
+    </head>
+    <body>
+        <h3>新聞標題關鍵字提取 (jieba-js)</h3>
+        <textarea id="titleInput" rows="3" cols="60" placeholder="輸入新聞標題"></textarea><br>
+        <button onclick="extractKeywords()">提取關鍵字</button>
+        <pre id="output"></pre>
+
+        <script>
+            // async function extractKeywords() {
+            //     const title = document.getElementById('titleInput').value.trim();
+            //     if (!title) return;
+
+            //     // 載入 jieba 模型
+            //     await jieba.load();
+
+            //     // 使用 jieba 提取詞
+            //     const words = jieba.cut(title);
+
+            //     // 停用詞清單（可根據實際需求擴充）
+            //     const stopWords = ['的', '是', '在', '和', '了', '與', '及', '也', '將', '為', '於', '對', '被', '一', '不', '上', '下'];
+
+            //     // 過濾掉停用詞 & 只保留長度 ≥ 2 的詞
+            //     const keywords = words.filter(word => word.length >= 2 && !stopWords.includes(word));
+
+            //     const jsonOutput = JSON.stringify({ keywords }, null, 2);
+            //     document.getElementById('output').textContent = jsonOutput;
+            // }
+
+            // 使用一個自我執行函數來確保jieba加載完成後再執行
+                (async () => {
+                    // 等待 jieba 載入
+                    await jieba.load();
+                    // 啟用提取關鍵字的函數
+                    window.extractKeywords = async function() {
+                        const title = document.getElementById('titleInput').value.trim();
+                        if (!title) return;
+
+                        // 使用 jieba 提取詞
+                        const words = jieba.cut(title);
+
+                        // 停用詞清單
+                        const stopWords = ['的', '是', '在', '和', '了', '與', '及', '也', '將', '為', '於', '對', '被', '一', '不', '上', '下'];
+
+                        // 過濾掉停用詞 & 保留長度 ≥ 2 的詞
+                        const keywords = words.filter(word => word.length >= 2 && !stopWords.includes(word));
+
+                        const jsonOutput = JSON.stringify({ keywords }, null, 2);
+                        document.getElementById('output').textContent = jsonOutput;
+                    }
+                })();
+        </script>
+    </body>
+</html>

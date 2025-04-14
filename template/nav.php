@@ -91,8 +91,9 @@
                
                                 </ul>
                             </li>
+
+                            <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/guide/"><i class="fa-solid fa-circle-question"></i>&nbsp;導覽文件</a></li>
                         <?php } 
-                        
                         if($sys_role <= 2.2 ){ ?>
                             <li class="nav-item"><a class="nav-link active" aria-current="page" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
                         <?php } 
@@ -101,6 +102,8 @@
                                 <a class="nav-link dropdown-toggle" id="navbarDD_4" role="button" data-bs-toggle="dropdown" aria-expanded="false" ><i class="fa-solid fa-gear"></i>&nbsp;管理員專區</a>
                                 <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item " href="<?php echo $webroot;?>/balert/"><i class="fa-solid fa-bell"></i>&nbsp;橫幅警語管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
                                     <li><hr class="dropdown-divider"></li>

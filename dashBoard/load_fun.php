@@ -179,6 +179,23 @@
                 }
                 break;
 
+            case 'load_balert':       // 250414 讀取balert的jason字串並返回
+                if(isset($_REQUEST['parm'])) {
+                    extract($_REQUEST);
+                    $filename = "../balert/balert.json";
+                    $balert_jsonFile = fopen($filename,"r");
+                    $balert_str = trim(fgets($balert_jsonFile));
+                    fclose($balert_jsonFile);
+                    $result = [                         // 製作返回文件
+                        'result_obj' => $balert_str ? json_decode($balert_str, true) : [],
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.'
+                    ];
+                } else {
+                    $result['error'] = 'Load '.$fun.' failed...(no parm)';
+                }
+                break;
+
             default:
                 
         };

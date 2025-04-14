@@ -132,7 +132,7 @@
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
                 // formData.append('to', to_email);            // 傳送對象
-                formData.append('to', 'leong.chen');           // 傳送對象
+                formData.append('to', 'leong.chen; vivi.lee; HUIHSU.HSIAO;');           // 傳送對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 

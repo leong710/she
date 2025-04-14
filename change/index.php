@@ -359,7 +359,7 @@
                                         <th title="3"  class="table-success"      >工號</th>
                                         <th title="4"  class="table-success"      >姓名</th>
                                         <th title="5"  class="table-success"      >部門代號</th>
-                                        <th title="6"  class="table-success"      >變更檢查項目</th>
+                                        <th title="6"  class="table-warning"      >變更檢查項目</th>
                                         <th title="7"  class="table-warning wh-75">是否檢查</th>
                                         <th title="8"  class="table-warning"      >備註說明</th>
                                         <th class="table-warning wh-75" data-toggle="tooltip" data-placement="bottom" title="通知時間：黃底 >=7、紅底 >=12" >受檢日期 <i class="fa-solid fa-circle-info"></i></th>
