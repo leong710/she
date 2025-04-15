@@ -87,7 +87,8 @@
                         <!-- <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
                     </div>
                 </div>
-    
+                <!-- Bootstrap Alarm -->
+                <div id="liveAlertPlaceholder" class="col-12 text-center m-0 p-0"></div>
                 <!-- container -->
                 <div class="row">
                     <!-- 添加 -->

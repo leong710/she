@@ -1,4 +1,15 @@
 
+    // fun.0-1: Bootstrap Alarm function
+    function Balert(message, type) {
+        if(message){
+            type = type ?? 'warning';
+            var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
+            var wrapper = document.createElement('div')
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}` 
+                                + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+            alertPlaceholder.append(wrapper)
+        }
+    }
     // 吐司顯示字條 // init toast
     function inside_toast(sinn){
         let toastLiveExample = document.getElementById('liveToast');
@@ -183,4 +194,7 @@
             await step1_make_inValue();
         // step.2 建立append+submit+delete監聽
             eventListener();
+
+        const message = '*** <b>溫馨提醒：&nbsp;文字內容可以使用基本html符號，例如:&lt;/b&gt; &lt;/u&gt; &lt;/i&gt; </b>&nbsp;~&nbsp;';
+        Balert( message, 'success');
     })
