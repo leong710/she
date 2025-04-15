@@ -84,7 +84,7 @@
                     </div>
                     <div class="col-6 col-md-6 py-0 text-end head_btn">
                         <button type="button" class="btn btn-primary" id="append_submit" >儲存 (Save)</button> 
-                        <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button>
+                        <!-- <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
                     </div>
                 </div>
     
@@ -103,8 +103,6 @@
                             <input type="text" id="append_value" placeholder="文字內容" class="form-control mb-0 w70" >
                             <button type="append" class="btn btn-outline-secondary" value="append" data-toggle="tooltip" data-placement="bottom" title="添加">&nbsp;<i class="fa-solid fa-plus"></i>&nbsp;</button>
                         </div>
-                        <!-- 舊數值內容 -->
-                        <?php echo "<snap name='balert_json' id='balert_json' class='t-left block' style='font-size: 12px;'></snap>"; ?>
                     </div>
 
                     <!-- 編輯新類別 -->

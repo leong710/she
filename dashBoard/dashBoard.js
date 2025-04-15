@@ -2,8 +2,8 @@
     function Balert(message, type) {
         var alertPlaceholder = document.getElementById("liveAlertPlaceholder")      // Bootstrap Alarm
         var wrapper = document.createElement('div')
-        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' + message 
-                            + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+        wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" role="alert">${message}`
+            + `<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
         alertPlaceholder.append(wrapper)
     }
     // Bootstrap 吐司顯示字條
@@ -253,28 +253,23 @@
 
     // 250414 製造橫幅
     async function make_balert(){
-        
         const balert_arr = await load_fun('load_balert','load_balert','return');
-        console.log('balert_arr...', balert_arr)
         if(balert_arr.length !==0 ){
             balert_arr.forEach(item => {
                 Balert( item._value, item._type);                
             });
-        }        
-        // let message  = '*** <b>請注意&nbsp<u>網頁改版測試中</u>!!</b>&nbsp;~&nbsp;';
-        // Balert( message, 'success');
+        } else {
+            // let message  = '*** <b>請注意&nbsp<u>網頁改版測試中</u>!!</b>&nbsp;~&nbsp;';
+            // Balert( message, 'success');
+        }       
     }
 
 
     $(function () {         // $(document).ready()
-
         // ready.1 在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
-
         // ready.2 產生警告橫幅
             make_balert();
-
         // ready.3 定義nav-tab [nav-p2-tab]鈕功能，並建立監聽
             reload_navTab_Listeners();
-                
     })

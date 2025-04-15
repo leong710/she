@@ -15,7 +15,7 @@
                 if(swal_value['action'] == 'success'){
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});     // n秒后回首頁
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});        // 手動關閉畫面
-                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
+                    swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
                 
                 } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
@@ -78,154 +78,109 @@
     // step.1 抓json數值 + 生成數值+渲染
     async function step1_make_inValue(){
         balertArr = await load_fun('load_balert','load_balert','return');
-        // console.log('balertArr...', balertArr)
         balertObj = [...balertObj, ...balertArr];
-        make_inValue(balertArr, false);
+
+        if(balertArr.length !== 0){
+            balertArr.forEach((item, key) => {
+                make_inValue(item, key, false);     // false=存檔的舊資料
+            })
+        }
     }
-        // 生成數值+渲染
-        function make_inValue(balertArr, newOne){
-            if(balertArr.length !== 0){
-                let autoinput = newOne ? 'autoinput' : '';
-                balertArr.forEach((item, key) => {
-                    let append_item = `<div class="input-group p-1" id="balert_${key}" >`
-                        + `<span class="form-control ${autoinput} mb-0 text-center alert-${item._type}" >${item._type}</span>`
-                        + `<span class="form-control ${autoinput} mb-0 w70" >${item._value}</span>`;
-                    if (userInfo.role <= 1){
-                        append_item += `<button type="delete" class="btn btn-outline-danger" name="balert_${key}" value="${key}" title="刪除" >&nbsp;<i class="fa-solid fa-xmark"></i>&nbsp;</button>`;
-                    }
-                    append_item += `</div>`;
-                    $('#balert').append(append_item); // 渲染
-                })
+
+        // step.1a 生成數值+渲染
+        function make_inValue(item, key, newOne){
+            let autoinput = newOne ? 'autoinput' : '';
+            let append_item = `<div class="input-group p-1" id="balert_${key}" >`
+                + `<span class="form-control ${autoinput} mb-0 text-center alert-${item._type}" >${item._type}</span>`
+                + `<span class="form-control ${autoinput} mb-0 w70" >${item._value}</span>`;
+            if (userInfo.role <= 1){
+                append_item += `<button type="delete" class="btn btn-outline-danger" name="balert_${key}" value="${key}" title="刪除" >&nbsp;<i class="fa-solid fa-xmark"></i>&nbsp;</button>`;
             }
+            append_item += `</div>`;
+            $('#balert').append(append_item); // 渲染
         }
 
     // step.2 
     function eventListener(){
-
-        // 240813 監聽 delete 是否有點擊
-            const balertContainer = document.getElementById('balert');
-            const balerts_delete = Array.from(balertContainer.querySelectorAll('button[type="delete"]'));
-            balerts_delete.forEach(balerts_del => {
-                balerts_del.addEventListener('click', function() {
-                    // console.log('delete...', this.name);
-                    delete balertObj[this.value];                   // 刪除陣列的某值
-                    // console.log('balertObj...', balertObj);
-                    $('#balert_json').empty().append(JSON.stringify(balertObj)); // 更新畫面中json
-                    $(`#${this.name}`).remove();                      // 畫面中清除某值
-                    let sinn = `**&nbsp;移除index[ ${this.value} ]&nbsp;!!`;
-                    inside_toast(sinn);
-                });
-            });
-        // 240813 監聽 delete 是否有點擊
-
         // 240814 監聽 append 是否有點擊
-            const balertAppend = document.getElementById('balert_append');
-            const balerts_append = Array.from(balertAppend.querySelectorAll('button[type="append"]'));
-            balerts_append.forEach(balerts_app => {
-                balerts_app.addEventListener('click', function() {
-                    const app_type = $(`#${this.value}_type`).val();             // 取得內為內容
-                    const app_value = $(`#${this.value}_value`).val();         
+            const balerts_append = document.querySelector('#balert_append button[type="append"]');
+            balerts_append.addEventListener('click', function() {
+                const app_type = $(`#${this.value}_type`).val();                // 取得內為內容
+                const app_value = $(`#${this.value}_value`).val();         
 
-                    const missingValues = [];                                   // 建立確認陣列
-                    if (!app_type) missingValues.push('代碼 沒有選值');          // 確認app_type
-                    if (!app_value) missingValues.push('類別 沒有填值');        // 確認app_value
-            
-                    if (missingValues.length > 0) {
-                        alert(missingValues.join('、'));                        // 警示
-                    } else {
-                        // console.log('append...', this.value, app_type, app_value);
-                        // balertObj[app_type] = app_value;                     // 添加陣列的某值
-                        balertObj.push({"_type" : app_type, "_value" : app_value});                     // 添加陣列的某值
-                        console.log('balertObj...', balertObj);
-                        // 獲取該物件的索引
-                        let key = balertObj.length - 1; // 這裡 index 就是新加物件的索引
+                const missingValues = [];                                       // 建立確認陣列
+                if (!app_type) missingValues.push('底色 沒有選值');              // 確認app_type
+                if (!app_value) missingValues.push('內容 沒有填值');             // 確認app_value
+        
+                if (missingValues.length > 0) {
+                    alert(missingValues.join('、'));                            // 警示
 
-
-                        $('#balert_json').empty().append(JSON.stringify(balertObj)); // 更新畫面中json
-
-                        const append_item = `<div class="input-group p-1" id="balert_${key}" >`
-                                + `<span class="form-control autoinput mb-0 text-center alert-${app_type}" >${app_type}</span>`
-                                + `<span class="form-control autoinput mb-0 w70" >${app_value}</span>`
-                                + `<button type="delete" class="btn btn-outline-danger" name="balert_${key}" value="${key}" title="刪除" onclick="append_delete(this.name, this.value)">&nbsp;<i class="fa-solid fa-xmark"></i>&nbsp;</button>`
-                                + `</div>`;
-                        $('#balert').append(append_item);                          // 渲染
-                        $(`#${this.value}_key, #${this.value}_value`).val('');    // 清除input內值
-                        let sinn = `**&nbsp;添加訊息[ ${key} => ${app_type}：${app_value} ]&nbsp;!!`;
-                        inside_toast(sinn);
+                } else {
+                    const item = {
+                        "_type"  : app_type,
+                        "_value" : app_value
                     }
-                });
+                    balertObj.push(item);                                       // 添加陣列的某值
+                    let key = balertObj.length - 1;                             // 這裡 key 就是新加物件的索引
+                    make_inValue(item, key, true);                              // true = 新增項目
+                    $(`#${this.value}_type, #${this.value}_value`).val('');     // 清除input內值
+
+                    let sinn = `**&nbsp;添加訊息[ ${key} => ${app_type}：${app_value} ]&nbsp;!!`;
+                    inside_toast(sinn);
+
+                    reload_delete_Listeners();                                  // 更新delete監聽
+                }
             });
         // 240814 監聽 append 是否有點擊
         
         // 240814 監聽 append_submit 是否有點擊
             const append_submit = document.getElementById('append_submit');
             append_submit.addEventListener('click', () => {
-                // console.log('append_submit...',balertObj);
-                let balertObj_filter = balertObj.filter(item => item !== undefined);    // 去除空白
+                const balertObj_filter = balertObj.filter(item => item !== undefined);    // 去除空白
                 const balertStr = JSON.stringify(balertObj_filter);
-                load_fun('update_balert', balertStr, show_swal_fun);   // step_2 load_shLocal(id);
+                load_fun('update_balert', balertStr, show_swal_fun);
             })
         // 240814 監聽 append_submit 是否有點擊
 
+        reload_delete_Listeners();  // 呼叫建立delete監聽
     }
 
-    // 250331 定義nav-tab [nav-p2-tab]+[nav-p3-tab]鈕功能~~
-    let balerts_deleteClickListener;
-    let navP3tabClickListener;
-    async function reload_notify2_Listeners() {
-        const balerts_delete_btn = document.querySelector('#nav-tab #nav-p2-tab');   //  定義出p2_btn範圍
-        const navP3tab_btn = document.querySelector('#nav-tab #nav-p3-tab');   //  定義出p3_btn範圍
+    // 250331 定義delete鈕功能~~
+    let deleteClickListener;
+    async function reload_delete_Listeners() {
+        const balerts_delete_btn = Array.from(document.querySelectorAll('#balert button[type="delete"]'));   //  定義出delete_btn範圍
         // 檢查並移除已經存在的監聽器
-            if (balerts_deleteClickListener) {
-                balerts_delete_btn.removeEventListener('click', balerts_deleteClickListener);   // 移除監聽p2_btn
-            }   
-            if (navP3tabClickListener) {
-                navP3tab_btn.removeEventListener('click', navP3tabClickListener);   // 移除監聽p3_btn
-            }   
-    
-        // 定義新的監聽器函數p2_btn
-        balerts_deleteClickListener = async function () {
-                console.log('p2_btn click...')
-            await p2_init(false);
-        }
-        // 定義新的監聽器函數p3_btn
-        navP3tabClickListener = async function () {
-                console.log('p3_btn click...')
-            await p3_init();
-        }
+        if (deleteClickListener) {
+            balerts_delete_btn.forEach( del_btn => {
+                del_btn.removeEventListener('click', deleteClickListener);   // 移除監聽delete_btn
+            })
+        }   
+        // 定義新的監聽器函數delete_btn
+        deleteClickListener = async function () {
+            delete balertObj[this.value];                                   // 刪除陣列的某值
+            $(`#${this.name}`).remove();                                    // 畫面中清除某值
 
+            let sinn = `**&nbsp;移除index[ ${this.value} ]&nbsp;!!`;
+            inside_toast(sinn);
+        }
         // 添加新的監聽器
         if(userInfo.role <= 1){
-            balerts_delete_btn.addEventListener('click', balerts_deleteClickListener);  // 增加監聽p2_btn
-            navP3tab_btn.addEventListener('click', navP3tabClickListener);  // 增加監聽p3_btn
+            balerts_delete_btn.forEach( del_btn => {
+                del_btn.addEventListener('click', deleteClickListener);  // 增加監聽delete_btn
+            })
         }
     }
-                            // // 240814 new append 呼叫 delete
-                            // function append_delete(this_name, this_value){
-                            //     // console.log('append_delete...', this_name, this_value);
-                            //     delete balertObj[this_value];                   // 刪除陣列的某值
-                            //     // console.log('balertObj...', balertObj);
-                            //     $('#balert_json').empty().append(JSON.stringify(balertObj)); // 更新畫面中json
-                            //     $('#'+this_name).remove();                      // 畫面中清除某值
-                            //     let sinn = `**&nbsp;移除index[ ${this_value} ]&nbsp;!!`;
-                            //     inside_toast(sinn);
-                            // }
-                            // // 240814 new append 呼叫 delete
+
 
     let balertArr = [];     // int.1 定義全域變數：arr
     let balertObj = [];     // int.1 定義全域變數：obj
     $(async function () {
         // 在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
-
         // 確認是主頁面或popup
             checkPopup();
-
-        // step.1
-        await step1_make_inValue();
-
-        // step_1-2 eventListener();
-        eventListener();
-
-
+        // step.1 抓json數值 + 生成數值+渲染
+            await step1_make_inValue();
+        // step.2 建立append+submit+delete監聽
+            eventListener();
     })
