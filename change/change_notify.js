@@ -92,7 +92,27 @@
         return(urlParm); // 異常情況下也需要resolve
     }
     const fun = getUrlParm('fun');    // 解析url指定參數值
+    // 取得指定天數(14)後的日期(dueDay)
+    async function getAddDay(thisDay , addDay){
+        return new Promise((resolve) => {
+            thisDay = thisDay ?? thisToday;         // 預設日期今天
+            addDay  = addDay  ?? 14;                // 預設天數14天
+            let date = new Date(thisToday);         // 將字符串轉換為 Date 對象
+            date.setDate(date.getDate() + addDay);  // 在當前日期上加addDay天
+            // 格式化結果為 YYYY/MM/DD
+                let year = date.getFullYear();
+                let month = String(date.getMonth() + 1).padStart(2, '0'); // 月份是從0開始的，所以要加1
+                let day = String(date.getDate()).padStart(2, '0');
+            // 獲取星期幾
+                let weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+                let weekDay = weekDays[date.getDay()];  // 獲取星期幾的數字，並找到對應的中文名稱
+            // 組合結果日期
+                let resultDate = `${year}/${month}/${day} ${weekDay}`; // 在結果中加入星期幾
+            // console.log(resultDate); // 輸出結果
+            resolve(resultDate);    // 返回取得的日期
+        });
 
+    }
 // // 主技能--發報用 be await
     // 20240314 將訊息推送到TN PPC(mapp)給對的人~
     function push_mapp(to_emp_id, mg_msg) {
@@ -133,6 +153,7 @@
                 formData.append('sysName', 'SHE');          // 貫名
                 // formData.append('to', to_email);            // 傳送對象
                 formData.append('to', 'leong.chen; vivi.lee; HUIHSU.HSIAO;');           // 傳送對象
+                // formData.append('to', 'leong.chen;');           // 傳送對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 
@@ -351,7 +372,13 @@
         async function mailFac( mailArr ) {
             let mailFab_Arr = [];    
             if(mailArr.length !==0){
-                const sample_mail = await load_jsonFile('../notify/p2sample_mail.json');    // 取得mail範本
+                const dueDay = await getAddDay() +'前';   // 取得指定天數(14)後的日期(dueDay)
+                    console.log('dueDay:', dueDay);
+                let sample_mail = await load_jsonFile('../notify/p2sample_mail.json');    // 取得mail範本
+                // 替換%YMDW% 加上dueDay
+                    sample_mail[0] = sample_mail[0].replace(/\%YMDW\%/g, dueDay);
+                    sample_mail[2] = sample_mail[2].replace(/\%YMDW\%/g, dueDay);
+
                 mailArr.forEach((mail_i) => {
                     const { staff_inf , email: to_email, emp_id: to_emp_id, cname: to_cname } = mail_i;
                     // 把員工繞出來 +上li
