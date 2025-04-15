@@ -151,9 +151,9 @@
             // 將已有的參數加入 FormData
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
-                // formData.append('to', to_email);            // 傳送對象
-                formData.append('to', 'leong.chen; vivi.lee; HUIHSU.HSIAO;');           // 傳送對象
-                // formData.append('to', 'leong.chen;');           // 傳送對象
+                // formData.append('to', to_email);            // 1.傳送對象
+                // formData.append('to', 'leong.chen; vivi.lee; HUIHSU.HSIAO;');           // 2.傳送測試對象
+                formData.append('to', 'leong.chen;');           // 3.傳送開發對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 
