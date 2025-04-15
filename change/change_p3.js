@@ -120,7 +120,11 @@
             await reload_staffP3ShCheckOnchange_Listeners();        // 6
             await reload_staffP3IsCheckOnchange_Listeners();        // 8
             // await reload_staffP3WhyChangeOnchange_Listeners();      // 11
-            await reload_edit2TD_Listeners();
+            if(userInfo.role <= 2 ) {
+                await reload_edit2TD_Listeners();
+            }else{
+                changEdit2TDmode();
+            }
 
             await btn_disabled();                       // 讓指定按鈕 依照shLocalDept_inf.length 啟停 
 
@@ -423,6 +427,16 @@
             resolve();
         });
     }
+    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changEdit2TDmode(){
+        const isEdit2 = userInfo.role <= 2;
+        const targetTD = document.querySelectorAll(isEdit2 ? '.edit2' : '.xedit2');  
+        targetTD.forEach(tdItem => {
+            tdItem.classList.toggle(isEdit2 ? 'edit2'  : 'xedit2');
+            tdItem.classList.toggle(isEdit2 ? 'xedit2' : 'edit2');
+        });
+    }
+
     // 250312 modal-edit2 指定今天日期
     function setTodayBtn(thisID) {
         let today = new Date();

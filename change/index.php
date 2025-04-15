@@ -290,8 +290,8 @@
                                         <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
                                         <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                         <!-- 上傳EXCEL的觸發 -->
-                                        <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                        <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? "":"isabled block";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                        <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                        <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
                                     </div>
                                     <snap class="px-1" data-toggle="tooltip" data-placement="bottom" title="由此帶入變更作業名單追蹤(by年月)">
                                         <button type="button" id="P2SubmitForReview_btn" class="btn btn-outline-primary add_btn" disabled ><i class="fa-solid fa-arrows-down-to-people"></i> 追蹤維護</button>
@@ -336,18 +336,18 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="P3resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i>&nbsp;儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i>&nbsp;儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staffChange_myForm" method="post" action="../_Format/download_excel.php">
                                             <input  type="hidden" name="htmlTable" id="staffChange_htmlTable" value="">
-                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staffChange" onclick="return confirm(`下載前會強制儲存，請問是否要儲存後下載？`) && P3downloadExcel(this.value)" disabled ><i class="fa fa-download"></i>&nbsp;下載</button>
+                                            <button type="submit" name="submit" id="download_excel_btn" class="btn btn-outline-success add_btn" value="staffChange" onclick="return confirm(`下載前建議您進行儲存，請問是否要繼續下載？\r\n(請注意：未儲存的下載資料可能會與資料庫有所差異)`) && P3downloadExcel(this.value)" disabled ><i class="fa fa-download"></i>&nbsp;下載</button>
                                         </form>
                                     </div>
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init(true)"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init(true)"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
                                 </div>
                             </div>
                             <hr>
