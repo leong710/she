@@ -262,6 +262,7 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-outline-danger add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" id="batDelete_btn" title="整批刪除" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`[地獄模式]：\r\n  確認要從db中刪除畫面上的資料？ (刪除後無法恢復!)`) && bat_deleteStaff()" disabled><i class="fa-solid fa-user-slash"></i></button>
                                     <button type="button" class="btn btn-outline-success add_btn" id="bat_storeStaff_btn" onclick="bat_storeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
@@ -606,6 +607,7 @@
     var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
+    var batDelete_btn       = document.getElementById('batDelete_btn');         // 刪除按鈕
     var editModal_btn       = document.getElementById('edit_modal_btn');        // 編輯更新ShCondition按鈕
     var SubmitForReview_btn = document.getElementById('SubmitForReview_btn');   // 送審功能
     var loadExcel_btn       = document.getElementById('load_excel_btn');        // 上傳按鈕

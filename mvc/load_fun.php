@@ -85,6 +85,7 @@
                 }
     
                 break;
+
             case 'load_shLocal':                // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
@@ -117,6 +118,7 @@
                 }
 
                 break;
+
             case 'load_sample':                 // 帶入查詢條件
                 $pdo = pdo_hrdb();
                 $sql = "SELECT s.emp_sub_scope, s.dept_no, s.emp_dept, s.emp_id, s.cname, s.cstext, s.gesch, s.emp_group, s.natiotxt, s.schkztxt, s.updated_at
@@ -154,6 +156,7 @@
                 }
 
                 break;
+
             case 'load_staff_byDeptNo':
                 $pdo = pdo();
                 $parm = str_replace('"', '', $parm);
@@ -202,6 +205,7 @@
                 }
 
                 break;
+
             case 'load_staff_byCheckList':      // 主要參考_doc中的checkList名單，不會亂抓!
                 $pdo = pdo();
                 $parm = str_replace(['[', ']', '"'], '', $parm);
@@ -249,6 +253,7 @@
                     ];
                 }
                 break;
+
             case 'bat_storeStaff':              // 
                 require_once("../user_info.php");
                 $pdo = pdo();
@@ -369,8 +374,38 @@
                     ];
                 }
                 break;
-            
-
+            // 250415 批次刪除員工資料
+            case 'bat_deleteStaff':              // 
+                $pdo = pdo();
+                $swal_json = array(                                 // for swal_json
+                    "fun"       => "bat_deleteStaff",
+                    "content"   => "批次刪除名單--"
+                );
+                $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                $sql = "DELETE FROM _staff
+                        WHERE emp_id IN ({$parm_re}) ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute();                                   //處理 byAll
+                      // 製作返回文件
+                      $swal_json["action"] = "success";
+                      $swal_json["content"] .= '刪除成功';
+                      $result = [
+                          'result_obj' => $swal_json,
+                          'fun'        => $fun,
+                          'success'    => 'Load '.$fun.' success.'
+                      ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $swal_json["action"] = "error";
+                    $swal_json["content"] .= '刪除失敗';
+                    $result = [
+                        'result_obj' => $swal_json,
+                        'fun'        => $fun,
+                        'error'      => 'Load '.$fun.' failed...(e or no parm)'
+                    ];
+                }
+                break;
 
             case 'update_heCate':
                 $swal_json = array(                                 // for swal_json
@@ -402,6 +437,7 @@
                     ];
                 }
                 break;
+
             case 'load_heCate':                 // for 提取危害類別
                 // load 作業類別json
                 $heCateFile = "../sh_local/he_cate.json";              // 預設sw.json檔案位置
@@ -1117,6 +1153,7 @@
                 }
 
                 break;
+
             case 'reviewStep':
                 require_once("../mvc/load_function.php");
                 $step_arr = reviewStep();                         // 取得reviewStep
@@ -1131,6 +1168,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
                 break;
+
             case 'changeStep':
                 require_once("../mvc/load_function.php");
                 $step_arr = changeStep();                         // changeStep

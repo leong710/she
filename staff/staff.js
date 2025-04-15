@@ -37,6 +37,7 @@
         return new Promise((resolve) => {
             download_excel_btn.disabled  = staff_inf.length === 0;  // 讓 下載 按鈕啟停
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
+            batDelete_btn.disabled       = staff_inf.length === 0;  // 讓 刪除 按鈕啟停
             bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 儲存 按鈕啟停
             // 改在post_hrdb下進行判斷
             // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_docsIdty_inf >= 4);  // 讓 送審 按鈕啟停
@@ -163,6 +164,21 @@
             });
         await load_fun('bat_storeStaff', bat_storeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
         location.reload();
+    }
+    // p-2 自db中批次刪除員工資料...
+    async function bat_deleteStaff(){
+ 
+        // *** 精煉 empId 
+        const all_empId = Object.values(staff_inf).map(i_value => i_value.emp_id);
+        const all_empId_str = (JSON.stringify(all_empId)).replace(/[\[\]]/g, ''); // 過濾 + 轉字串
+            console.log('all_empId_str...',all_empId_str);
+ 
+        if(all_empId_str !== ''){
+            await load_fun('bat_deleteStaff', all_empId_str, show_swal_fun);         // 
+        }
+
+        // await load_fun('bat_storeStaff', bat_storeStaff_value, show_swal_fun);   // load_fun的變數傳遞要用字串
+        // location.reload();
     }
 
     // [p2 函數-3] 設置事件監聽器和MutationObserver
