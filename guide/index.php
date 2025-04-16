@@ -21,70 +21,83 @@
         <link rel="stylesheet" type="text/css" href="../../libs/dataTables/jquery.dataTables.css">  <!-- dataTable參照 https://ithelp.ithome.com.tw/articles/10230169 --> <!-- data table CSS+JS -->
         <script type="text/javascript" charset="utf8" src="../../libs/dataTables/jquery.dataTables.js"></script>
     <style>
+        header {
+            background-image: 
+                linear-gradient(to right, rgba(0,0,0,0.8), transparent),
+                URL("../image/guide.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            padding-top: 10px;
+            padding-bottom: 30px;
+            /* text-align: center; */
+        }
         tr > td {
             text-align: left;
         }
     </style>
 </head>
 
-<div class="col-12">
-    <div class="row justify-content-center">
-        <div class="col-xl-12 col-12 border rounded bg-white p-4 ">
-            <div class="row">
-                <div class="col-md-6 pb-0">
-                    <div>
-                        <h5>導覽文件清單：</h5>
+<header>
+    <div class="col-12">
+        <div class="row justify-content-center">
+            <div class="col-xl-12 col-12 rounded p-4 " style="background-color: rgba(255, 255, 255, .7);">
+                <div class="row">
+                    <div class="col-md-6 py-1">
+                        <div>
+                            <h5>導覽文件清單：</h5>
+                        </div>
+                    </div>
+                    <div class="col-md-6 py-1 text-end">
+                        <?php if($sys_role <= 1){ ?>
+                            <button type="button" id="add_guide_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module('guide')" > <i class="fa fa-plus"></i> 新增文件</button>
+                        <?php } ?>
+                        <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
                     </div>
                 </div>
-                <div class="col-md-6 pb-0 text-end">
-                    <?php if($sys_role <= 1){ ?>
-                        <button type="button" id="add_guide_btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="add_module('guide')" > <i class="fa fa-plus"></i> 新增文件</button>
-                    <?php } ?>
-                    <a href="index.php" title="回上層列表" class="btn btn-secondary"><i class="fa fa-external-link" aria-hidden="true"></i> 返回管理</a>
-                </div>
-            </div>
-            <hr>
-            <!-- 分類列表 -->
-            <div class="row">
-                <div class="col-12 pt-0">
-                    <table class="table table-striped table-hover" id="guide_list">
-                        <thead>
-                            <tr>
-                                <th>id</th>
-                                <th>_title</th>
-                                <th>_remark</th>
-                                <th>_file</th>
-                                <th>created/updated</th>
-                                <th>updated_user/flag<?php echo ($sys_role <= "1") ? "/action":"";?></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach($_guides as $_guide){ 
-                                if($_guide['flag'] == 'Off' && $sys_role > "1"){
-                                    continue; // 跳過本次迭代
-                                }else{ ?>
-                                    <tr>
-                                        <td><?php echo $_guide["id"];?></td>
-                                        <td><?php echo $_guide["_title"];?></td>
-                                        <td><?php echo $_guide["_remark"];?></td>
-                                        <td><button type="button" value="./doc/<?php echo $_guide["_file"];?>.pdf" class="btn btn-outline-primary add_btn" onclick="openUrl(this.value)"><?php echo $_guide["_file"];?></button></td>
-                                        <td><?php echo $_guide["created_at"]."</br>".$_guide["updated_at"];?></td>
-                                        <td><?php echo $_guide["updated_user"]."&nbsp";?> 
-                                            <span class="badge rounded-pill <?php echo $_guide['flag'] == 'On' ? 'bg-success':'bg-warning';?>"><?php echo $_guide['flag'];?></span>
-                                            <?php if($sys_role <= "1"){ ?>
-                                                <button type="button" id="update_guide_btn" value="<?php echo $_guide['id'];?>" class="btn btn-sm btn-xs btn-info" 
-                                                    data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="edit_module('_guide',this.value)" >編輯</button>
-                                            <?php } ?>
-                                        </td>
-                                    </tr>
-                            <?php }} ?>
-                        </tbody>
-                    </table>
+                <!-- <hr> -->
+                <!-- 分類列表 -->
+                <div class="row">
+                    <div class="col-12 bg-white rounded">
+                        <table class="table table-striped table-hover" id="guide_list">
+                            <thead>
+                                <tr>
+                                    <th>id</th>
+                                    <th>_title</th>
+                                    <th>_remark</th>
+                                    <th>_file</th>
+                                    <th>created/updated</th>
+                                    <th>updated_user/flag<?php echo ($sys_role <= "1") ? "/action":"";?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach($_guides as $_guide){ 
+                                    if($_guide['flag'] == 'Off' && $sys_role > "1"){
+                                        continue; // 跳過本次迭代
+                                    }else{ ?>
+                                        <tr>
+                                            <td><?php echo $_guide["id"];?></td>
+                                            <td><?php echo $_guide["_title"];?></td>
+                                            <td><?php echo $_guide["_remark"];?></td>
+                                            <td><button type="button" value="./doc/<?php echo $_guide["_file"];?>.pdf" class="btn btn-outline-primary add_btn" onclick="openUrl(this.value)"><?php echo $_guide["_file"];?></button></td>
+                                            <td><?php echo $_guide["created_at"]."</br>".$_guide["updated_at"];?></td>
+                                            <td><?php echo $_guide["updated_user"]."&nbsp";?> 
+                                                <span class="badge rounded-pill <?php echo $_guide['flag'] == 'On' ? 'bg-success':'bg-warning';?>"><?php echo $_guide['flag'];?></span>
+                                                <?php if($sys_role <= "1"){ ?>
+                                                    <button type="button" id="update_guide_btn" value="<?php echo $_guide['id'];?>" class="btn btn-sm btn-xs btn-info" 
+                                                        data-bs-toggle="modal" data-bs-target="#edit_modal" onclick="edit_module('_guide',this.value)" >編輯</button>
+                                                <?php } ?>
+                                            </td>
+                                        </tr>
+                                <?php }} ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</header>
 
 <!-- 模組 編輯、新增-->
 <div class="modal fade" id="edit_modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" aria-modal="true" role="dialog" >

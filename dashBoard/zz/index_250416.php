@@ -28,7 +28,8 @@
     <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
     <script src="../../libs/jquery/mloading_init.js"></script>                                      <!-- mLoading_init.js 3/3 -->
-    <script src="../../libs/apache-echarts/560/echarts.min.js"></script>                            <!-- 引用eChart script 1/3 -->
+    <!-- <script type="text/javascript" src="../../libs/charts/loader.js"></script> -->                     <!-- 引用Google Chart script 1/3 -->
+    <script src="../../libs/apache-echarts/560/echarts.min.js"></script>                            <!-- 引用Google Chart script 1/3 -->
     <style>
             /* 當螢幕寬度小於或等於 1366px時 */
             @media (max-width: 1366px) {
@@ -193,7 +194,7 @@
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
-                            <!-- eChart圖表元素 2/3 -->
+                            <!-- chart圖表元素 2/3 -->
                             <div class="row px-3 py-1" id="p2chart_div">
                                 <!-- 測試曲線圖1 -->
                                 <div class="rounded wave_div">
@@ -320,8 +321,6 @@
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <!-- <script src="../../libs/openUrl/openUrl.js"></script>       彈出子畫面 -->
 
-<!-- <script src="../mvc/utility.js?v=<?=time()?>"></script> -->
-<script src="_change.js?v=<?=time()?>"></script>
 <script src="dashboard.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

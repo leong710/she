@@ -1278,7 +1278,7 @@
 
                         // 工作二 把this.id推進去部門資訊arr 
                             _dept_inf.push(this.id);                        // 推入部門資訊arr     
-                                // console.log('單選_dept_inf...',_dept_inf)
+                                console.log('單選_dept_inf...',_dept_inf)
                         // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                             // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                             const defaultDept_inf = await preCheckDeptData(thisValue, _dept_inf);
@@ -1300,14 +1300,14 @@
                     const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
                     const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
-                            // console.log('多選 selectedValues_str =>', selectedValues_str)
-                            // console.log('多選 selectedIDs =>', selectedIDs)
+                            console.log('多選 selectedValues_str =>', selectedValues_str)
+                            console.log('多選 selectedIDs =>', selectedIDs)
 
                     // 工作一 清空暫存
                         await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
                         _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            // console.log('多選_dept_inf...',_dept_inf)
+                            console.log('多選_dept_inf...',_dept_inf)
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                         // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);

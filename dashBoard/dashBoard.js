@@ -101,125 +101,123 @@
     }
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-    async function p2drawChart() {
+    async function drawEchart1() {
+
         // // S.0 防止重複畫圖...
-            const p2drawChart_div = document.querySelector('#p2drawChart');
-            if(p2drawChart_div !== null) return;
+            const eChart1_div = document.querySelector('#eChart1');
+            if(eChart1_div !== null) return;
 
         // // S.1 取得資料
             const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
             const _method = await check3hourse(action);                                                 // _db/_json
-                console.log('_method =>', _method)
             const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
             // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
             const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
             const _OSHORTsObj = await process_p2dB1(_shLocal);                                          // step.1a 統計_shLocal內容
-                // console.log('p2drawChart _OSHORTsObj...', _OSHORTsObj)
 
         // // S.2 定義一個數據陣列for繪圖用 {role: 'annotation'} == 資料標籤
-            // var myData = [[('string', 'month_系統'), ('number','月統計') ,{role: 'style'}, ('number','User'),{role: 'style'}, ('number','Guest'),{role: 'style'} ]];
-            var myChart_data = [[('string', 'FAB_廠區') ,('number','特危場所'),{role: 'annotation'}]]    // 繪圖專用陣列~ 同時初始定義[0]的標籤
+            var i_title = [];
+            var i_value = [];
 
         // // S.3 整理資料：把_OSHORTsObj統計數據倒進來繞，組合成指定格式=> [廠區, 數據, 文字標籤]
             for (const [i_fab, i_count] of Object.entries(_OSHORTsObj)) {
                 if(i_fab !== 'total' ){        // 跳過total
-                    myChart_data.push([i_fab, i_count, i_count]);
+                    i_title.push(i_fab);
+                    i_value.push(i_count);
                 }
             }
-            // console.log('myChart_data', myChart_data )
 
-
-        // 將數據陣列傳遞給arrayToDataTable()函數以創建數據表格
-        var data = google.visualization.arrayToDataTable(myChart_data);
-
-        var options = {
-            animation: {  //載入動畫
-                        startup  : true,
-                        duration : 1000,
-                        easing   : 'out',
-                    },
-            title: '統計件數',
-            isStacked: true,                    // 堆疊選項  == > 這個是關鍵
-            vAxis: {        
-                        0: {scaleType: 'log'},
-                        format: '#'             // 刻度不要有小數點
-                    },
-            // vAxes: {    
-                        // 雙Y軸 標題 + 樣式
-                        // 0: {title: 'click count(月計)', maxValue: (hit_maxVal * 1.1)}
-                        // 1: {title: 'Hit (次)'}            // , textStyle: {color: 'green'}, minValue: 200, maxValue: (hit_maxVal * 1.1)
-                    // },
-            hAxis: { title: '特殊危害健康作業場所統計'}, // ,format: '####'
-            seriesType: 'bars',
-            bars: 'vertical',
-            // series: {
-                        // 0: {targetAxisIndex: 0, type: 'line', pointSize: 5, pointShape: 'circle' }                         // pointSize: 圓點的大小、pointShape: 圓點的形狀
-                        // 1: {targetAxisIndex: 0, type: 'line', visibleInLegend: false},                                      // visibleInLegend: 圖例
-                        // 2: {targetAxisIndex: 1, type: 'line', lineDashStyle: [4, 4], pointSize: 5, pointShape: 'circle'}    // lineDashStyle: 虛線
-                    // },
-
-            colors: [ '#4682b4', '#a3c2db' , '#0a9bf5' , '#87cefa',  '#7FFF00', '#2E8B57', 'blue'],                      // 自訂顏色
-            legend: { position: 'right' },                          // 圖例設置在底部 bottom；right
-            // chartArea: { left: '5%', top: '15%', right: '5%'}    // 設置圖表區域大小和位置
-            annotations: {                                          // 對應 {role: 'annotation'} == 資料標籤
-                textStyle: {
-                    fontName: 'Arial',
-                    fontSize: 12,
-                    color: 'black',
-                },
-                alwaysOutside: false,
-                stem: {
-                    length: 10,
-                    color: 'none'
-                },
-                highContrast: true,
-                datum: {
-                    color: '#000',
-                    fontSize: 12,
-                }
-            }
-        };
+            // 計算數據的最大值
+            const maxDataValue = Math.max(...i_value);
+            const yMaxValue = Math.round(maxDataValue * 1.2);   // 設定Y軸最大值1.2倍 + 四捨五入取整數
 
         // // S.4 定義圖表外框並貼上 
-        let temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="p2drawChart"></div>';
-        $('#p2chart_div').empty().append(temp_div);
-                
-        // 創建一個新的ColumnChart對象，並將數據表格和選項傳遞給它
-        var cunt_chart = new google.visualization.ColumnChart(document.getElementById('p2drawChart'));
-        // 繪製圖表
-        cunt_chart.draw(data, options);
-        // 監聽窗口大小改變事件，調整圖表的大小
-        window.addEventListener('resize', (function(cunt_chart, data, options) {
-            return function() {
-                cunt_chart.draw(data, options);
-            }
-        })(cunt_chart, data, options));
+            const temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="eChart1"></div>';
+            $('#p2chart_div').empty().append(temp_div);
+
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: `特殊危害健康作業場所統計${_method}`,  // 1.主標題
+                subtext: '件數統計'                         // 2.Y軸標題
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                },
+                formatter: function (params) {
+                    var tar = params[1];
+                    return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                splitLine: { show: false },
+                // 以下放欄位-標籤
+                // data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                data: i_title
+            },
+            yAxis: {
+                type: 'value',
+                max: yMaxValue  // 設置 y 軸的最大值
+            },
+            series: [
+                {
+                    name: 'Placeholder',
+                    type: 'bar',
+                    stack: 'Total',
+                    itemStyle: {
+                        borderColor: 'transparent',
+                        color: 'transparent'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            borderColor: 'transparent',
+                            color: 'transparent'
+                        }
+                    },
+                    data: [0, 0, 0, 0, 0, 0, 0]
+                },
+                {
+                    name: '特作件數',
+                    type: 'bar',
+                    stack: 'Total',
+                    label: {
+                        show: true,
+                        position: 'inside'
+                    },
+                    // 以下放欄位-數據
+                    // data: [120, 200, 150, 80, 70, 110, 130]
+                    data: i_value
+                }
+            ]
+        };
+
+        // 基于准备好的dom，初始化echarts实例
+        var eChart1 = echarts.init(document.getElementById('eChart1'));
+        // 使用刚指定的配置项和数据显示图表。
+        eChart1.setOption(option);
+
+        // // 監聽窗口大小改變事件，調整圖表的大小
+        window.addEventListener('resize', function() {
+            eChart1.resize();
+        });
     }
-    
-    async function p2chart_init(action) {
-        // const _method = await check3hourse(action);
-        // const _type = action ?  "_db" : _method;      // action來決定 false=自動判斷check3hourse 或 true=強制_db
-        try {
-            mloading(); 
-                // await load_fun('_db',   'formcase,'       , bring_form);     // step_1 直接抓db(true/false 輸出json檔)，取得 formcase 內容後鋪設內容
-                // await load_fun('_json', 'formcase, true'  , bring_form);     // step_1 先抓json，沒有then抓db(true/false 輸出json檔)，取得 formcase 內容後鋪設內容
-                // await load_fun(_type,   'formcase, true'  , bring_form);     // step_1 先抓json，沒有then抓db(true/false 輸出json檔)，取得 formcase 內容後鋪設內容
-    
-            // // // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
-            // const _shLocal   = await load_fun(_type, '_shLocal, true' , 'return');      // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
-            //     // console.log('step.1 _shLocal =>', _shLocal);
-            // const OSHORTsObj = await process_p2dB1(_shLocal);                                 // step.1a 統計_shLocal內容
-            //     // console.log('step.2 OSHORTsObj =>', OSHORTsObj);
-    
-            // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-            // await google.charts.load('current', {'packages':['corechart']});
-            // await google.charts.setOnLoadCallback(p2drawChart);
-    
-        } catch (error) {
-            console.error(error);
-        }
-    
-        await $("body").mLoading("hide");
+
+    // <!-- 在JavaScript中繪製堆疊圖 3/3-->
+    async function drawEchart2() {
+        const _dept_inf = await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', 'return');
+        console.log('1._dept_inf => ',_dept_inf)
+        const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
+        console.log('2.defaultDept_inf => ',defaultDept_inf)
+
     }
 
 // // // 
@@ -239,8 +237,15 @@
                 console.log('p2_btn click...')
             // p2_init(false);
             // p2chart_init(false);
-            await google.charts.load('current', {'packages':['corechart']});
-            await google.charts.setOnLoadCallback(p2drawChart);
+
+            try {
+                await drawEchart1();
+                
+                await drawEchart2();
+
+            } catch (error) {
+                console.error(error);
+            }
             
             $("body").mLoading("hide");
         }
@@ -265,11 +270,12 @@
     }
 
 
-    $(function () {         // $(document).ready()
+    $(async function () {         // $(document).ready()
         // ready.1 在任何地方啟用工具提示框
             $('[data-toggle="tooltip"]').tooltip();
         // ready.2 產生警告橫幅
             make_balert();
         // ready.3 定義nav-tab [nav-p2-tab]鈕功能，並建立監聽
             reload_navTab_Listeners();
+
     })

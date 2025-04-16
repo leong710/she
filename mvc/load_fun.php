@@ -1247,6 +1247,7 @@
                         'result_obj' => $shLocal_OSHORTs_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
+                        'debug'      => $shLocal_OSHORTs
                     ];
                 }catch(PDOException $e){
                     echo $e->getMessage();
