@@ -55,7 +55,9 @@
         // echo "<pre>";
         // print_r($_years);
         // echo "</pre>";
-
+        $sys_role1 = ($sys_role <= 1) ? "" : "disabled unblock";
+        $sys_role2 = ($sys_role <= 2) ? "" : "disabled unblock";
+        $sys_role3 = ($sys_role <= 3) ? "" : "unblock";
         $faSquareCheck = `<i class="fa-regular fa-square-check"></i>&nbsp;`;
 
     include("../template/header.php");
@@ -247,7 +249,7 @@
                                 <div class="row">
                                     <div class="col-8 col-md-9 py-1 inf">
                                         <snap for="deptNo_opts" class="form-label"><h5>已存檔之部門代號：</h5></snap>
-                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1 <?php echo $sys_role <= 1 ? '':'unblock'?>">
+                                        <snap data-toggle="tooltip" data-placement="bottom" title="全選" class="px-1 <?php echo $sys_role1;?>">
                                             <button type="button" id="selectAll_subScopes_btn"  class="btn btn-outline-danger add_btn form-control " ><i class="fa-solid fa-check-double"></i></button>
                                         </snap>
                                         <snap data-toggle="tooltip" data-placement="bottom" title="特作部門名單維護" class="px-1">
@@ -287,11 +289,11 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 inf">
                                     <div class="d-grid gap-2 d-md-block">
-                                        <button type="button" class="btn btn-outline-danger add_btn" id="resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                        <button type="button" class="btn btn-outline-success add_btn" id="bat_storeDept_btn" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
+                                        <button type="button" id="resetINF_btn"      class="btn btn-outline-danger  add_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
+                                        <button type="button" id="bat_storeDept_btn" class="btn btn-outline-success add_btn <?php echo $sys_role2;?>" onclick="bat_storeDept()" disabled ><i class="fa-solid fa-floppy-disk"></i> 儲存</button>
                                         <!-- 上傳EXCEL的觸發 -->
-                                        <button type="button" id="load_excel_btn"      class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
-                                        <button type="button" id="maintainDept_btn"    class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? "":"disabled unblock";?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
+                                        <button type="button" id="load_excel_btn"    class="btn btn-outline-primary add_btn <?php echo $sys_role2;?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" inert ></i> 上傳</button>
+                                        <button type="button" id="maintainDept_btn"  class="btn btn-outline-primary add_btn <?php echo $sys_role2;?>" data-bs-toggle="modal" data-bs-target="#maintainDept"><i class="fa fa-plus"></i> 新增</button>
                                     </div>
                                     <snap class="px-1" data-toggle="tooltip" data-placement="bottom" title="由此帶入變更作業名單追蹤(by年月)">
                                         <button type="button" id="P2SubmitForReview_btn" class="btn btn-outline-primary add_btn" disabled ><i class="fa-solid fa-arrows-down-to-people"></i> 追蹤維護</button>
@@ -336,7 +338,7 @@
                                 <!-- 左側function -->
                                 <div class="col-md-8 py-0 ">
                                     <button type="button" class="btn btn-outline-danger add_btn" id="P3resetINF_btn" title="清除清單" data-toggle="tooltip" data-placement="bottom" onclick="return confirm(`確認放棄畫面上的資料？`) && resetINF(true)" disabled><i class="fa-solid fa-trash-arrow-up"></i></button>
-                                    <button type="button" class="btn btn-outline-success add_btn <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i>&nbsp;儲存</button>
+                                    <button type="button" class="btn btn-outline-success add_btn <?php echo $sys_role2;?>" id="bat_storeChangeStaff_btn" onclick="bat_storeChangeStaff()" disabled ><i class="fa-solid fa-floppy-disk"></i>&nbsp;儲存</button>
                                     <!-- 下載EXCEL的觸發 -->
                                     <div class="inb">
                                         <form id="staffChange_myForm" method="post" action="../_Format/download_excel.php">
@@ -347,7 +349,7 @@
                                 </div>
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
-                                    <button type="button" class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init(true)"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
+                                    <button type="button" class="btn btn-outline-primary add_btn <?php echo $sys_role2;?>" id="p2_send_btn" title="通知部門主管" data-toggle="tooltip" data-placement="bottom" disabled  data-bs-toggle="modal" data-bs-target="#p2notify" onclick="p2_init(true)"><i class="fa-solid fa-paper-plane"></i>&nbsp;傳送通知</button>
                                 </div>
                             </div>
                             <hr>
@@ -437,11 +439,11 @@
                                 <span class="input-group-text">部門代號</span>
                                 <input id="searchkeyWord" class="form-control col-sm-10 mb-0" type="text" placeholder="請輸入查詢部門代號" required disabled>
                                 <!-- <button type="button" class="btn btn-outline-primary" onclick="search_fun('search','searchkeyWord')"><i class="fa-solid fa-magnifying-glass"></i> 搜尋</button> -->
-                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="清除" onclick="resetMaintainDept()">&nbsp;<i class="fa-solid fa-delete-left"></i>&nbsp;</button>
-                                <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="搜尋" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')">&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;</button>
+                                <button type="button" class="btn btn-outline-primary <?php echo $sys_role2;?>" data-toggle="tooltip" data-placement="bottom" title="清除" onclick="resetMaintainDept()">&nbsp;<i class="fa-solid fa-delete-left"></i>&nbsp;</button>
+                                <button type="button" class="btn btn-outline-primary <?php echo $sys_role2;?>" data-toggle="tooltip" data-placement="bottom" title="搜尋" onclick="load_deptStaff('load_deptStaff_formHrdb','searchkeyWord')">&nbsp;<i class="fa-solid fa-magnifying-glass"></i>&nbsp;</button>
                             </div>
                                 &nbsp;
-                            <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="套用名單"  onclick="loadInCare(false)">&nbsp;套&nbsp;</button>
+                            <button type="button" class="btn btn-outline-primary <?php echo $sys_role2;?>" data-toggle="tooltip" data-placement="bottom" title="套用名單"  onclick="loadInCare(false)">&nbsp;套&nbsp;</button>
                         </div>
                     </div>
                     <div class="col-12 bg-light border rounded unblock_b" id="loadInCare_div">
@@ -477,7 +479,7 @@
                 <div class="modal-body px-4"></div>
                 <div class="modal-footer">
                     <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
-                    <button type="submit" class="btn btn-success"   id="edit_modal_btn" value="">更新</button>
+                    <button type="submit" class="btn btn-success <?php echo $sys_role2;?>"   id="edit_modal_btn" value="">更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -494,7 +496,7 @@
                 <div class="modal-body px-4"></div>
                 <div class="modal-footer">
                     <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit2_modal_btn" >更新</button> -->
-                    <button type="submit" class="btn btn-success"   id="edit2_modal_btn" value="">更新</button>
+                    <button type="submit" class="btn btn-success <?php echo $sys_role2;?>"   id="edit2_modal_btn" value="">更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
@@ -555,8 +557,8 @@
         </div>
         <div class="modal-footer bg-light">
             <div class="input-group">
-                <input type="text"    class="form-control mb-0 bg-white" id="memoMsg" name="memoMsg" placeholder="請輸入文字訊息" required>
-                <button type="submit" class="btn btn-outline-primary add_btn" id="postMemoMsg_btn" value="" title="Paste">&nbsp;<i class="fa-regular fa-paste"></i>&nbsp;</button>
+                <input type="text"    class="form-control mb-0 bg-white <?php echo $sys_role2;?>" id="memoMsg" name="memoMsg" placeholder="請輸入文字訊息" required>
+                <button type="submit" class="btn btn-outline-primary add_btn  <?php echo $sys_role2;?>" id="postMemoMsg_btn" value="" title="Paste">&nbsp;<i class="fa-regular fa-paste"></i>&nbsp;</button>
             </div>
             <label for="memoMsg" class="form-label text-danger"><h6>* 任何編輯備註行為，最後請記得按[儲存]！</h6></label>
         </div>
@@ -594,9 +596,9 @@
                                 <th title="NC"                 >噪音資格</th>
                                 <th title="shCondition"        >特檢資格</th>
                                 <th title="change"             >轉調</th>
-                                <th title="匯入1yearHe"      <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >項目類別代號</th>
-                                <th title="匯入2yearCurrent" <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >檢查項目</th>
-                                <th title="匯入3yearPre"     <?php echo ($sys_role <= '3') ? "":"class='unblock'";?> >去年檢查項目</th>
+                                <th title="匯入1yearHe"      class="<?php echo $sys_role3;?>">項目類別代號</th>
+                                <th title="匯入2yearCurrent" class="<?php echo $sys_role3;?>">檢查項目</th>
+                                <th title="匯入3yearPre"     class="<?php echo $sys_role3;?>">去年檢查項目</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -636,7 +638,7 @@
                     <textarea name="sign_comm" id="sign_comm" class="form-control" rows="5"></textarea>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" id="reviewSubmit" value="" class="btn btn-primary <?php echo ($sys_role <= 3) ? '':'unblock';?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
+                    <button type="submit" id="reviewSubmit" value="" class="btn btn-primary <?php echo $sys_role3;?>" ><i class="fa fa-paper-plane" aria-hidden="true"></i> Agree</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>

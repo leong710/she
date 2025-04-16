@@ -361,6 +361,7 @@
                 }
             let objKeys_ym = [];    // 把所有的base下的年月key蒐集起來
             let thisMonth;          // 顯示月份&submit_btn
+            const sys_role2 = (userInfo.role <= 2) ? '' : 'disabled';
             await shLocalDept_inf.forEach((post_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
                 const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(post_i, dateString);
                     // const baseAll_str = (baseAll_arr) ? doReplace(baseAll_arr) : '';      
@@ -370,16 +371,10 @@
 
                 let tr1 = '<tr>';
                     tr1 += `<td class="t-start edit1" id="OSTEXT_30/OSHORT/OSTEXT,${post_i.OSHORT}" >${post_i["OSTEXT_30"] ?? ''}<br>${post_i["OSHORT"]}<br>${post_i["OSTEXT"] ?? ''}</td>
-                            <td class="word_bk import" id="base,${post_i.OSHORT},${targetMonth}"  ><b>${targetMonth}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...<div id="base_Badge"></div></td>
-                            <td class="word_bk" id="getOut" >
-                                <b>${targetMonth}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}
-                            </td>
-                            <td class="word_bk" id="getIn" >
-                                <b>${targetMonth}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}
-                                <div id="base_Badge"></div>
-                            </td>
-                            <td class="word_bk import" id="inCare,${post_i.OSHORT},${targetMonth}"><b>${targetMonth}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}<div id="inCare_Badge"></div></td>
-
+                            <td class="word_bk import" id="base,${post_i.OSHORT},${targetMonth}"  ><b>${targetMonth}：${baseAll_arr.length ?? '0'}人</b><br>...(以下略)...</td>
+                            <td class="word_bk" id="getOut" ><b>${targetMonth}：${getOut_arr.length ?? '0'}人轉出</b><br>${getOut_str}</td>
+                            <td class="word_bk" id="getIn" ><b>${targetMonth}：${getIn_arr.length ?? '0'}人轉入</b><br>${getIn_str}</td>
+                            <td class="word_bk" id="inCare,${post_i.OSHORT},${targetMonth}"><b>${targetMonth}：${inCare_arr.length ?? '0'}人</b><br>${inCare_str}</td>
                             <td class="text-center">
                                 <div class="row">
                                     <div class="col-12 py-1">
@@ -390,7 +385,7 @@
                                     </div>
                                     <div class="col-12 py-1">
                                         <div class="form-check form-switch inb">
-                                            <input class="form-check-input" type="checkbox" id="flag,${post_i.OSHORT}" ${ post_i['flag'] ? "checked" : ""} >
+                                            <input class="form-check-input" type="checkbox" id="flag,${post_i.OSHORT}" ${ post_i['flag'] ? "checked" : ""} ${sys_role2}>
                                             <label class="form-check-label" for="flag,${post_i.OSHORT}">啟用</label>
                                         </div>
                                     </div>
@@ -417,9 +412,14 @@
         }
 
         await reload_dataTable();                   // 倒參數(陣列)，直接由dataTable渲染
-        await reload_baseInCareTD_Listeners();      // 呼叫監聽[base]、[inCare]這兩格td
-        await reload_deptFlagOnchange_Listeners();  // 呼叫監聽[flag]這個inpute改變的狀態，並直接更新到dept的資料
-        await reload_edit1TD_Listeners();           // 呼叫監聽[廠區/部門代碼/名稱]，並直接更新到dept的資料
+        if(userInfo.role <= 2 ) {
+            await reload_baseInCareTD_Listeners();      // 呼叫監聽[base]、[inCare]這兩格td
+            await reload_deptFlagOnchange_Listeners();  // 呼叫監聽[flag]這個inpute改變的狀態，並直接更新到dept的資料
+            await reload_edit1TD_Listeners();           // 呼叫監聽[廠區/部門代碼/名稱]，並直接更新到dept的資料
+        }else{
+            changBaseInCareTDmode();                // 250416 改變BaseInCare class吃css的狀態；主要是主管以上不需要底色編輯提示
+            changEdit1TDmode();                     // 250416 改變edit1 class吃css的狀態；主要是主管以上不需要底色編輯提示
+        }
 
         await btn_disabled();                       // 讓指定按鈕 依照shLocalDept_inf.length 啟停 
 
@@ -692,6 +692,18 @@
             resolve();
         });
     }
+    // 250416 改變edit1 class吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changEdit1TDmode(){
+        console.log('changEdit1TDmode...')
+        // const isEdit1 = userInfo.role <= 2;
+        // const targetTD = document.querySelectorAll(isEdit1 ? '.edit1' : '.xedit1');  
+        const targetTD = document.querySelectorAll('.edit1');  
+        targetTD.forEach(tdItem => {
+            tdItem.classList.toggle('edit1');
+            // tdItem.classList.toggle(isEdit1 ? 'edit1'  : 'xedit1');
+            // tdItem.classList.toggle(isEdit1 ? 'xedit1' : 'edit1');
+        });
+    }
     // 250227 定義edit_modal[更新]鈕功能~~；from edit_modal裡[更新]鈕的呼叫...
     let submitEdit1ClickListener;
     async function reload_submitEdit1_Listeners() {
@@ -797,7 +809,7 @@
                 // 防止空值被帶入shLocalDept_inf
                     const selectDeptStaff_btn = document.querySelector('#maintainDept #select_deptStaff');     //  定義出[全選]範圍
                     const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出[代入]範圍
-                    if(res_r.length > 0) {
+                    if(res_r.length > 0 && userInfo.role <= 2) {
                         // 有2個監聽
                         reload_selectDeptStaff_Listeners();   // 呼叫監聽[select]全選功能...
                         reload_submitDeptStaff_Listeners();   // 呼叫監聽[代入]鈕功能
@@ -812,8 +824,8 @@
                             submitDeptStaff_btn.removeEventListener('click', submitDeptStaffClickListener);   // 將每一個tdItem移除監聽, 當按下click
                         }   
                     }
-                    submitDeptStaff_btn.disabled = (res_r.length == 0);
-                    submitDeptStaff_btn.classList.toggle('unblock', res_r.length == 0);
+                    submitDeptStaff_btn.disabled = (res_r.length == 0 || userInfo.role > 2);
+                    submitDeptStaff_btn.classList.toggle('unblock', res_r.length == 0 || userInfo.role > 2);
                     
                 // reload_dataTable('maintainDept_table');
 
@@ -962,6 +974,18 @@
             })
 
             resolve();
+        });
+    }
+    // 250416 改變BaseInCare class吃css的狀態；主要是主管以上不需要底色編輯提示
+    function changBaseInCareTDmode(){
+        console.log('changBaseInCareTDmode...')
+        // const isBaseInCare = userInfo.role <= 2;
+        // const targetTD = document.querySelectorAll(isBaseInCare ? '.import' : '.ximport');  
+        const targetTD = document.querySelectorAll('.import');  
+        targetTD.forEach(tdItem => {
+            tdItem.classList.toggle('import');
+            // tdItem.classList.toggle(isimport ? 'import'  : 'ximport');
+            // tdItem.classList.toggle(isimport ? 'ximport' : 'import');
         });
     }
     // 定義[代入]鈕功能~~；from maintainDept_modal裡[代入]鈕的呼叫...

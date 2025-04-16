@@ -35,6 +35,7 @@
                         const i_cLogs       = post_i['_changeLogs'][i_targetMonth]            ?? {};       
                         const i_cNotify     = post_i['_content']?.[i_targetMonth]?.['notify'] ?? [];
                         const to_disabled   = (i_cNotify.length > 0 || (i_cLogs._9checkDate !== '' && i_cLogs._9checkDate !== undefined )) ? 'disabled' : '';
+                        const sys_role2     = (userInfo.role <= 2) ? '' : 'disabled';
 
                         // 生成-6:變更體檢項目 - checkbox
                             const i_OSHORTshItemArr = shItemArr[i_OSHORT] ?? [];
@@ -42,7 +43,7 @@
                                 for(const [o_key, o_value] of Object.entries(i_OSHORTshItemArr)){
                                     const ifValue = ((i_cLogs['_6shCheck']) && i_cLogs['_6shCheck'].includes(o_value)) ? "checked" : "";
                                     td6 += `<div class="form-check m-0"> 
-                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} ${to_disabled}>
+                                            <input class="form-check-input" type="checkbox" name="_6shCheck" id="${i_id},_6shCheck,${o_value}" value="${o_value}" ${ifValue} ${to_disabled} ${sys_role2}>
                                             <label class="form-check-label" for="${i_id},_6shCheck,${o_value}">${o_value}</label></div>`;
                                     }
                             td6 += '</snap>';
@@ -51,7 +52,7 @@
                         // 生成-7:是否補檢 - checkbox-switch
                             const ifValue = ((i_cLogs['_7isCheck']) && i_cLogs['_7isCheck']) ? "checked" : "";
                             let td7 = `<snap><div class="form-check form-switch"> 
-                                        <input class="form-check-input" type="checkbox" name="_7isCheck" id="${i_id},_7isCheck" ${ifValue} ${to_disabled}>
+                                        <input class="form-check-input" type="checkbox" name="_7isCheck" id="${i_id},_7isCheck" ${ifValue} ${to_disabled} ${sys_role2}>
                                         <label class="form-check-label" for="${i_id},_7isCheck">${ifValue ? "是":"否"}</label></div></snap>`;
                             tdObj['7'] = td7;
         
@@ -60,7 +61,7 @@
 
                 // const workListTD_json = await load_jsonFile('workList.json');   // 提取指定json_file內容
                     // console.log('workList_json...', workListTD_json)
-
+                
                 await mergedData.forEach((case_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...    
                     const case_iArr         = case_i.split(',');                         // 分割staffStr成陣列
                         const i_empId       = case_iArr[0] ?? '';                       // 取出陣列 0 = 工號
@@ -92,16 +93,16 @@
                         const editRole = _9checkDate === '' || userInfo.role <= 1 ? 'edit2' : '';            // 預設edit權限
 
                         let tr1 = `<tr class="">`;
-                            tr1 += `<td class=""    id="">${i_targetMonth ?? ''}</td>
-                                    <td class=""              id="" >${i_OSTEXT_30}</td>
-                                    <td class=""              id="" >${staffArr["emp_id"] }</td>
-                                    <td class=""              id="" >${staffArr["cname"] }</td>
-                                    <td class=""              id="" >${i_OSHORT}<br>${i_OSTEXT}</td>
+                            tr1 += `<td class=""              id="">${i_targetMonth ?? ''}</td>
+                                    <td class=""              id="">${i_OSTEXT_30}</td>
+                                    <td class=""              id="">${staffArr["emp_id"] }</td>
+                                    <td class=""              id="">${staffArr["cname"] }</td>
+                                    <td class=""              id="">${i_OSHORT}<br>${i_OSTEXT}</td>
     
-                                    <td class=""              id="" >${tdObj['6']}</td>
-                                    <td class=""              id="" >${tdObj['7']}</td>
+                                    <td class=""              id="">${tdObj['6']}</td>
+                                    <td class=""              id="">${tdObj['7']}</td>
                                     <td class="edit2 word_bk" id="${i_id},_8Remark">${_cLogs['_8Remark'] ?? ''}</td>
-                                    <td class="${editRole} ${bgClass_str}"   id="${i_id},_9checkDate" >${_9checkDate}</td>
+                                    <td class="${editRole} ${bgClass_str}" id="${i_id},_9checkDate" >${_9checkDate}</td>
                                     <td class="edit2 word_bk" id="${i_id},_10bpmRemark" >${_cLogs['_10bpmRemark'] ?? ''}</td>
 
                                     <td class="${editRole} notify_log" id="${i_id},_content" >${_cNotifyLast_str ?? ''}${dayDiff_str}</td>`;
@@ -123,7 +124,7 @@
             if(userInfo.role <= 2 ) {
                 await reload_edit2TD_Listeners();
             }else{
-                changEdit2TDmode();
+                changEdit2TDmode();                     // 250416 改變edit2 class吃css的狀態；主要是主管以上不需要底色編輯提示
             }
 
             await btn_disabled();                       // 讓指定按鈕 依照shLocalDept_inf.length 啟停 
