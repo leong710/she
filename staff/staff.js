@@ -342,7 +342,7 @@
             
         // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
         // SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 || _docs_inf[0].idty >= 4);  // 讓 送審 按鈕啟停
-        SubmitForReview_btn.disabled = !(userInfo.role <= 2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停
+        SubmitForReview_btn.disabled = !(userInfo.role <= 2.2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停
 
             // console.log('1.userInfo.role <= 2 =>', userInfo.role <= 2 )
             // console.log('2.emp_i_omager =>', emp_i_omager)
