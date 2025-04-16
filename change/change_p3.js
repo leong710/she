@@ -427,13 +427,16 @@
             resolve();
         });
     }
-    // 241108 改變HE_CATE calss吃css的狀態；主要是主管以上不需要底色編輯提示
+    // 250416 改變edit2 class吃css的狀態；主要是主管以上不需要底色編輯提示
     function changEdit2TDmode(){
-        const isEdit2 = userInfo.role <= 2;
-        const targetTD = document.querySelectorAll(isEdit2 ? '.edit2' : '.xedit2');  
+        console.log('changEdit2TDmode...')
+        // const isEdit2 = userInfo.role <= 2;
+        // const targetTD = document.querySelectorAll(isEdit2 ? '.edit2' : '.xedit2');  
+        const targetTD = document.querySelectorAll('.edit2');  
         targetTD.forEach(tdItem => {
-            tdItem.classList.toggle(isEdit2 ? 'edit2'  : 'xedit2');
-            tdItem.classList.toggle(isEdit2 ? 'xedit2' : 'edit2');
+            tdItem.classList.toggle('edit2');
+            // tdItem.classList.toggle(isEdit2 ? 'edit2'  : 'xedit2');
+            // tdItem.classList.toggle(isEdit2 ? 'xedit2' : 'edit2');
         });
     }
 
