@@ -197,6 +197,17 @@
                 border: 5px solid red;
                 /* padding: 5px; */
             }
+            .custom-checkbox {
+                display: inline-block;
+                /* 邊框的寬度 */
+                /* width: 20px;  */
+                /* 邊框的高度 */
+                /* height: 20px; */
+                border: 2px solid red; /* 紅色的邊框 */
+                border-radius: 2px;     /* 邊框圓角 */
+                position: relative;
+                cursor: pointer;
+            }
     </style>
 </head>
 <body>
@@ -388,6 +399,7 @@
 
                         </tbody>
                     </table>
+                    <snap class="text-center text-danger"><h4>只能選一個選項！</h4></snap>
                 </div>
                 <div class="modal-footer">
                     <div class="form-check form-switch unblock">

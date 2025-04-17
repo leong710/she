@@ -445,7 +445,7 @@
                     }
                     tr += '<td>' + s_value + '</td>';
                 }
-                tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" check ></td>`;
+                tr += `<td class="text-center"><input type="checkbox" name="shLocal_id[]" value="${sh_key}" class="form-check-input" ></td>`;
                 tr += '</tr>';
                 $('#shLocal_table tbody').append(tr);
             })

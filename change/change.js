@@ -1384,7 +1384,7 @@
                     
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
-                            // console.log(defaultDept_in)
+                            console.log('defaultDept_in ==',defaultDept_in)
                     preProcess_staff(defaultDept_in, _year)
 
                     $('#nav-p3-tab').tab('show');
@@ -1410,7 +1410,7 @@
 
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
-                            // console.log(defaultDept_in)
+                            console.log('defaultDept_in ==',defaultDept_in)
                     preProcess_staff(defaultDept_in, _yearMonthValue)
 
                     $('#nav-p3-tab').tab('show');

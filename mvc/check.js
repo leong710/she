@@ -65,118 +65,118 @@
     function checkNewOne(hiredDate) {
         return new Date(hiredDate).getFullYear() === currentYear ? String(currentYear) : false;
     }
-    // 240906 check fun-3 驗證[變更檢查]是否符合   
-    function checkChange(asIs_deptNo, toBe_deptNo) {
-        return asIs_deptNo !== toBe_deptNo;        // 比較 dept_no 前後是否一致
-        // return asIs_deptNo !== toBe_deptNo  ? String(asIs_deptNo) : false;        // 比較 dept_no 前後是否一致
-    }
-    // 240906 check fun-4 驗證[定期檢查]是否符合
-    function checkRegular(shCase) {
-        return shCase.length > 0;
-    }
+                // // 240906 check fun-3 驗證[變更檢查]是否符合   
+                // function checkChange(asIs_deptNo, toBe_deptNo) {
+                //     return asIs_deptNo !== toBe_deptNo;        // 比較 dept_no 前後是否一致
+                //     // return asIs_deptNo !== toBe_deptNo  ? String(asIs_deptNo) : false;        // 比較 dept_no 前後是否一致
+                // }
+                // // 240906 check fun-4 驗證[定期檢查]是否符合
+                // function checkRegular(shCase) {
+                //     return shCase.length > 0;
+                // }
 
-    function do_checkChange(empData){
-        // step.4 進行部門代號dept_no的變更檢查 // 241022----深層比對調部門這件事: 加強版
-        let asIs_deptNo_arr = {};
-        // step.4a1 取個人[外層]部門代號: (今年)目前的所屬部門代號
-        const toBe_deptNo = (empData.dept_no !== undefined) ? empData.dept_no : false;
+                // function do_checkChange(empData){
+                //     // step.4 進行部門代號dept_no的變更檢查 // 241022----深層比對調部門這件事: 加強版
+                //     let asIs_deptNo_arr = {};
+                //     // step.4a1 取個人[外層]部門代號: (今年)目前的所屬部門代號
+                //     const toBe_deptNo = (empData.dept_no !== undefined) ? empData.dept_no : false;
 
-            empData['shCondition']['change'] = [];
-            empData['shCondition']['regular'] = [];
+                //         empData['shCondition']['change'] = [];
+                //         empData['shCondition']['regular'] = [];
 
-        // step.4b1 取個人[shCase]部門代號: (今年)待過的特作場所
-        if((empData.shCase != undefined) && empData.shCase.length > 0){
-            if(asIs_deptNo_arr[currentYear] == undefined){ asIs_deptNo_arr[currentYear] = []; }
-            // step.4b2 取個人[shCase]部門代號工作：(每一筆) currentYear
-            for (const [ec_key, ec_value] of Object.entries(empData.shCase)) {
-                asIs_deptNo_arr[currentYear].push((ec_value.OSHORT) ? ec_value.OSHORT : 'undefined_b1')
-                
-                let HE_CATE_value = Object.values(ec_value.HE_CATE)[0];         // 241030--特檢資格串接4c_change_前置作業
-                if(checkChange(ec_value.OSHORT, toBe_deptNo)){
-                    empData['shCondition']['change'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
-                }else{
-                    empData['shCondition']['regular'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
-                }
-            }
-        }
-        // step.4c 取_logs裡的部門代號工作：preYear
-        if(empData._logs !== undefined && Object.keys(empData._logs).length > 0){
-            // // 只取今年 currentYear 、去年 preYear
-            const getYearArr = [currentYear, preYear];
-            for (const getYear of getYearArr) {
-                // 確認年分紀錄存在 且 有內容
-                if(empData._logs[getYear] != undefined && Object.keys(empData._logs[getYear]).length > 0 ){
-                    if(asIs_deptNo_arr[getYear] == undefined){ asIs_deptNo_arr[getYear] = []; }
-                    // step.4c1 取_logs裡的[外層]部門代號工作：
-                    asIs_deptNo_arr[getYear].push((empData._logs[getYear].dept_no) ? empData._logs[getYear].dept_no : 'undefined_c1')
-
-                    // step.4c2 取_logs裡的[shCase]部門代號工作：
-                    if(empData._logs[getYear].shCase != undefined){
-                        let preYearChange = (getYear !== currentYear) ? '_轉出':'';             // 241030--特檢資格串接4c_change_前置作業
-
-                        for (const [log_sc_key, log_sc_value] of Object.entries(empData._logs[getYear].shCase)) {
-                            asIs_deptNo_arr[getYear].push((log_sc_value.OSHORT) ? log_sc_value.OSHORT : 'undefined_c2')
+                //     // step.4b1 取個人[shCase]部門代號: (今年)待過的特作場所
+                //     if((empData.shCase != undefined) && empData.shCase.length > 0){
+                //         if(asIs_deptNo_arr[currentYear] == undefined){ asIs_deptNo_arr[currentYear] = []; }
+                //         // step.4b2 取個人[shCase]部門代號工作：(每一筆) currentYear
+                //         for (const [ec_key, ec_value] of Object.entries(empData.shCase)) {
+                //             asIs_deptNo_arr[currentYear].push((ec_value.OSHORT) ? ec_value.OSHORT : 'undefined_b1')
                             
-                            let HE_CATE_value = Object.values(log_sc_value.HE_CATE)[0];
-                            if(checkChange(log_sc_value.OSHORT, toBe_deptNo)){
-                                empData['shCondition']['change'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
-                            }else{
-                                empData['shCondition']['regular'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
-                            }
-                        }
-                    }
-                }
-            }
-        }
+                //             let HE_CATE_value = Object.values(ec_value.HE_CATE)[0];         // 241030--特檢資格串接4c_change_前置作業
+                //             if(checkChange(ec_value.OSHORT, toBe_deptNo)){
+                //                 empData['shCondition']['change'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
+                //             }else{
+                //                 empData['shCondition']['regular'].push(HE_CATE_value);  // 241030--特檢資格串接4b_change
+                //             }
+                //         }
+                //     }
+                //     // step.4c 取_logs裡的部門代號工作：preYear
+                //     if(empData._logs !== undefined && Object.keys(empData._logs).length > 0){
+                //         // // 只取今年 currentYear 、去年 preYear
+                //         const getYearArr = [currentYear, preYear];
+                //         for (const getYear of getYearArr) {
+                //             // 確認年分紀錄存在 且 有內容
+                //             if(empData._logs[getYear] != undefined && Object.keys(empData._logs[getYear]).length > 0 ){
+                //                 if(asIs_deptNo_arr[getYear] == undefined){ asIs_deptNo_arr[getYear] = []; }
+                //                 // step.4c1 取_logs裡的[外層]部門代號工作：
+                //                 asIs_deptNo_arr[getYear].push((empData._logs[getYear].dept_no) ? empData._logs[getYear].dept_no : 'undefined_c1')
 
-        empData['shCondition']['change']  = arr_de_double(empData['shCondition']['change']);         // 241101 陣列去重：
-        empData['shCondition']['regular'] = arr_de_double(empData['shCondition']['regular']);        // 241101 陣列去重：
-        empData['shCondition']['change']  = empData['shCondition']['change'].join('; ');             // 241113 陣列轉字串：
-        empData['shCondition']['regular'] = empData['shCondition']['regular'].join('; ');            // 241113 陣列轉字串：
-        // console.log(empData['shCondition']['change']);
-        // console.log(empData['shCondition']['regular']);
+                //                 // step.4c2 取_logs裡的[shCase]部門代號工作：
+                //                 if(empData._logs[getYear].shCase != undefined){
+                //                     let preYearChange = (getYear !== currentYear) ? '_轉出':'';             // 241030--特檢資格串接4c_change_前置作業
 
-        asIs_deptNo_arr = obj_de_double(asIs_deptNo_arr)        // 241022 物件去重：
-        let asIs_deptNo_check = [];
-        // console.log('emp_shCase...asIs_deptNo_arr', (asIs_deptNo_arr));
+                //                     for (const [log_sc_key, log_sc_value] of Object.entries(empData._logs[getYear].shCase)) {
+                //                         asIs_deptNo_arr[getYear].push((log_sc_value.OSHORT) ? log_sc_value.OSHORT : 'undefined_c2')
+                                        
+                //                         let HE_CATE_value = Object.values(log_sc_value.HE_CATE)[0];
+                //                         if(checkChange(log_sc_value.OSHORT, toBe_deptNo)){
+                //                             empData['shCondition']['change'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
+                //                         }else{
+                //                             empData['shCondition']['regular'].push(HE_CATE_value + preYearChange);  // 241030--特檢資格串接4c_change
+                //                         }
+                //                     }
+                //                 }
+                //             }
+                //         }
+                //     }
 
-        // step.4d 進行輪番驗證:
-        if(Object.keys(asIs_deptNo_arr).length > 0 && toBe_deptNo){
-            for (const [asIs_deptNo_key, asIs_deptNo_value] of Object.entries(asIs_deptNo_arr)) {
-                if(asIs_deptNo_value.length > 0){
-                    for (const asIs_deptNo of asIs_deptNo_value) {
-                        // 240906 check fun-3 驗證[變更檢查]是否符合        // 取得當前年份currentYear -1 = 去年preYear  ** asIs_deptNo / toBe_deptNo：要注意是否in_array(特作區域) 
-                        if(checkChange(asIs_deptNo, toBe_deptNo)){        // 240906 check fun-3 驗證[變更檢查]是否符合
-                            // console.log(asIs_deptNo_key+' : '+asIs_deptNo+(toBe_deptNo != asIs_deptNo));
-                            // empData['shCondition']['change'] = true;        // 驗證並帶入shCondidion.change      // 241030--特檢資格串接4c_change_配合作業-暫停
-                            // asIs_deptNo_check = await in_arrayKey(asIs_deptNo) ? `${asIs_deptNo} 特危轉出` : `${asIs_deptNo} 轉出`;    // 確認是否在[特危場所名單]
-                            // break;
-                            asIs_deptNo_check.push(in_arrayKey(asIs_deptNo) ? `${asIs_deptNo} 特危轉出` : `${asIs_deptNo} 轉出`);    // 確認是否在[特危場所名單]
-                        } 
-                    }
-                }
-            }
-        }
+                //     empData['shCondition']['change']  = arr_de_double(empData['shCondition']['change']);         // 241101 陣列去重：
+                //     empData['shCondition']['regular'] = arr_de_double(empData['shCondition']['regular']);        // 241101 陣列去重：
+                //     empData['shCondition']['change']  = empData['shCondition']['change'].join('; ');             // 241113 陣列轉字串：
+                //     empData['shCondition']['regular'] = empData['shCondition']['regular'].join('; ');            // 241113 陣列轉字串：
+                //     // console.log(empData['shCondition']['change']);
+                //     // console.log(empData['shCondition']['regular']);
 
-        asIs_deptNo_check = arr_de_double(asIs_deptNo_check);        // 241101 陣列去重：
-        asIs_deptNo_check = asIs_deptNo_check.join('; ');            // 241113 陣列轉字串：
+                //     asIs_deptNo_arr = obj_de_double(asIs_deptNo_arr)        // 241022 物件去重：
+                //     let asIs_deptNo_check = [];
+                //     // console.log('emp_shCase...asIs_deptNo_arr', (asIs_deptNo_arr));
 
-        // step.4e 假如真的是轉調單位： 渲染轉調     // 241029 [轉調]渲染unblock
-        if(empData['shCondition']['change'] !== ''){
-            const toBe_deptNo_check = in_arrayKey(toBe_deptNo) ? `轉入特危 ${toBe_deptNo}` : `轉入 ${toBe_deptNo}`;    // 確認是否在[特危場所名單]
-            // 組合轉調訊息
-            const change_inner_Value = asIs_deptNo_check !== '' ? `<div class="change_">${asIs_deptNo_check}`+(asIs_deptNo_check !== '' ? '<br>':'')+`${toBe_deptNo_check}</div>`:'';
-            // document.getElementById(`change,${select_empId},${currentYear}`).innerText = '';                                // 清空innerText內容
-            // document.getElementById(`change,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', change_inner_Value);     // 渲染轉調
-            console.log('change_inner_Value...',change_inner_Value);
-        }
-    // step.5 進行定期檢查驗證
-        // const shCase = (empData['shCase'] != undefined) ? empData['shCase'] : false;
-        // empData['shCondition']['regular']  = (shCase) ? checkRegular(shCase) : false;                                       // 240906 check fun-4 驗證[定期檢查]是否符合
-        // console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
+                //     // step.4d 進行輪番驗證:
+                //     if(Object.keys(asIs_deptNo_arr).length > 0 && toBe_deptNo){
+                //         for (const [asIs_deptNo_key, asIs_deptNo_value] of Object.entries(asIs_deptNo_arr)) {
+                //             if(asIs_deptNo_value.length > 0){
+                //                 for (const asIs_deptNo of asIs_deptNo_value) {
+                //                     // 240906 check fun-3 驗證[變更檢查]是否符合        // 取得當前年份currentYear -1 = 去年preYear  ** asIs_deptNo / toBe_deptNo：要注意是否in_array(特作區域) 
+                //                     if(checkChange(asIs_deptNo, toBe_deptNo)){        // 240906 check fun-3 驗證[變更檢查]是否符合
+                //                         // console.log(asIs_deptNo_key+' : '+asIs_deptNo+(toBe_deptNo != asIs_deptNo));
+                //                         // empData['shCondition']['change'] = true;        // 驗證並帶入shCondidion.change      // 241030--特檢資格串接4c_change_配合作業-暫停
+                //                         // asIs_deptNo_check = await in_arrayKey(asIs_deptNo) ? `${asIs_deptNo} 特危轉出` : `${asIs_deptNo} 轉出`;    // 確認是否在[特危場所名單]
+                //                         // break;
+                //                         asIs_deptNo_check.push(in_arrayKey(asIs_deptNo) ? `${asIs_deptNo} 特危轉出` : `${asIs_deptNo} 轉出`);    // 確認是否在[特危場所名單]
+                //                     } 
+                //                 }
+                //             }
+                //         }
+                //     }
 
-        return empData;
-    }
+                //     asIs_deptNo_check = arr_de_double(asIs_deptNo_check);        // 241101 陣列去重：
+                //     asIs_deptNo_check = asIs_deptNo_check.join('; ');            // 241113 陣列轉字串：
+
+                //     // step.4e 假如真的是轉調單位： 渲染轉調     // 241029 [轉調]渲染unblock
+                //     if(empData['shCondition']['change'] !== ''){
+                //         const toBe_deptNo_check = in_arrayKey(toBe_deptNo) ? `轉入特危 ${toBe_deptNo}` : `轉入 ${toBe_deptNo}`;    // 確認是否在[特危場所名單]
+                //         // 組合轉調訊息
+                //         const change_inner_Value = asIs_deptNo_check !== '' ? `<div class="change_">${asIs_deptNo_check}`+(asIs_deptNo_check !== '' ? '<br>':'')+`${toBe_deptNo_check}</div>`:'';
+                //         // document.getElementById(`change,${select_empId},${currentYear}`).innerText = '';                                // 清空innerText內容
+                //         // document.getElementById(`change,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', change_inner_Value);     // 渲染轉調
+                //         console.log('change_inner_Value...',change_inner_Value);
+                //     }
+                // // step.5 進行定期檢查驗證
+                //     // const shCase = (empData['shCase'] != undefined) ? empData['shCase'] : false;
+                //     // empData['shCondition']['regular']  = (shCase) ? checkRegular(shCase) : false;                                       // 240906 check fun-4 驗證[定期檢查]是否符合
+                //     // console.log(asIs_deptNo, toBe_deptNo, checkChange(asIs_deptNo, toBe_deptNo), empData['shCondition']);
+
+                //     return empData;
+                // }
 
 
     // 通用的函數，用於更新 DOM (1by1) for p-2特作欄位 (含 1.噪音、新人特殊 驗證)
@@ -189,8 +189,8 @@
                     empData.shCondition = {
                         "noise"   : false,          // 噪音判定
                         "newOne"  : false,          // 新人
-                        "regular" : false,          // 定期
-                        "change"  : false           // 變更
+                        // "regular" : false,          // 定期
+                        // "change"  : false           // 變更
                     };   
                 }
                 // const empData_shCase_Noise = Object.values(empData.shCase[sh_key_up]['HE_CATE']).includes('噪音');   // 250204 改回每一筆都要有一個 eh_time
@@ -283,8 +283,8 @@
             const hired = (empData['HIRED'] != undefined) ? empData['HIRED'] : false;
             empData['shCondition']['newOne'] = (hired) ? checkNewOne(hired)  : false;                            // 240906 check fun-2 驗證[新進特殊]是否符合
             
-        // step.4 進行部門代號dept_no的變更檢查
-            do_checkChange(empData);
+                    // // step.4 進行部門代號dept_no的變更檢查
+                    //     do_checkChange(empData);
     }
     // 更新資格驗證(1by1)
     async function updateShCondition(ShCondition_value, select_empId, targetYear) {

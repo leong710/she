@@ -63,8 +63,8 @@
                 const shCondition_key = {
                     'newOne'  : { 'item' : '新人', 'type' : 'checkbox' },
                     'noise'   : { 'item' : '噪音', 'type' : 'checkbox' },
-                    'regular' : { 'item' : '定期', 'type' : 'text' },
-                    'change'  : { 'item' : '變更', 'type' : 'text' },
+                    // 'regular' : { 'item' : '定期', 'type' : 'text' },
+                    // 'change'  : { 'item' : '變更', 'type' : 'text' },
                 };
                 // step.2-2 逐條逐項 組合TR/TD並渲染到身段
                 for (const [sh_key, sh_Vitem] of Object.entries(shCondition_key)) {
@@ -339,7 +339,8 @@
                     }
                 });
                 // 進行強迫排序
-                let sort_item = ['newOne', 'noise', 'regular', 'change'];
+                // let sort_item = ['newOne', 'noise', 'regular', 'change'];
+                let sort_item = ['newOne', 'noise'];
                 let sorted_result = {};
                 for (const sortKey of sort_item) {
                     if((result[sortKey] !== undefined) || (result[sortKey] == false)){

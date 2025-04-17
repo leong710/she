@@ -205,10 +205,10 @@
 
         const empIDKeys_str = JSON.stringify(empIDKeys).replace(/[\[\]]/g, '');                 // 工號加工
         const preCheckStaffData_result = await preCheckStaffData(empIDKeys_str, mergedData);    // 呼叫 fun-2 preCheckStaffData 檢查staff是否都有存在，不然就生成staff預設值
-                // console.log('1.empIDKeys =>',  empIDKeys)
-                // console.log('2.mergedData =>', mergedData)
-                // console.log('3.empIDKeys_str =>', empIDKeys_str)
-                // console.log('4.preCheckStaffData_result =>', preCheckStaffData_result)
+                console.log('1.empIDKeys =>',  empIDKeys)
+                console.log('2.mergedData =>', mergedData)
+                console.log('3.empIDKeys_str =>', empIDKeys_str)
+                console.log('4.preCheckStaffData_result =>', preCheckStaffData_result)
 
         post_staff(preCheckStaffData_result, mergedData, shItemArr);           // 渲染..帶(員工, 指定年月, 特作項目)
         

@@ -175,7 +175,7 @@
                 break;
 
             // 取自 load_shLocal_OSHORTs => 修改後給eChart繪圖用
-            case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
+            case '---load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
                 $pdo = pdo();
                    $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
                             FROM `_shlocaldept` _sl
@@ -195,6 +195,41 @@
                         'result_obj' => $shLocal_OSHORTs_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
+                break;
+
+            case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
+                $pdo = pdo();
+
+                $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
+                        FROM `_shlocaldept` _sl
+                        GROUP BY _sl.OSHORT
+                        ORDER BY OSTEXT_30, OSHORT ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute();
+                    $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    $shLocal_OSHORTs_arr = [];
+                    $shLocal_OSHORTs_obj = [];
+                    foreach($shLocal_OSHORTs as $OSHORT_i){
+                        $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["OSTEXT"] = $OSHORT_i["OSTEXT"];
+                        $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["flag"]   = $OSHORT_i["flag"];
+                    }
+                    foreach($shLocal_OSHORTs_obj as $key => $value){
+                        $i = [];
+                        $i[$key] = $value;
+                        array_push($shLocal_OSHORTs_arr, $i);
+                    }
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $shLocal_OSHORTs_arr,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.',
+                        'debug'      => $shLocal_OSHORTs
                     ];
                 }catch(PDOException $e){
                     echo $e->getMessage();

@@ -215,8 +215,10 @@
     async function drawEchart2() {
         const _dept_inf = await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', 'return');
         console.log('1._dept_inf => ',_dept_inf)
-        const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
-        console.log('2.defaultDept_inf => ',defaultDept_inf)
+
+
+        // const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
+        // console.log('2.defaultDept_inf => ',defaultDept_inf)
 
     }
 

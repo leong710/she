@@ -17,7 +17,7 @@
         await post_shCase(staff_inf);               // step-1-2.重新渲染 shCase&判斷
 
         if(userInfo.role <= '3' && !(_docsIdty_inf >= 4) ){                        // 限制role <= 3 現場窗口以下...排除主管和路人
-            await reload_HECateTable_Listeners();   // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
+            await reload_HECateTable_Listeners();       // 重新定義HE_CATE td   // 關閉可防止更動 for簽核
             await reload_shConditionTable_Listeners();  // td 特檢資格
             await reload_yearHeTable_Listeners();       // td 檢查類別
             await reload_yearPreTable_Listeners();      // td 去年檢查項目
@@ -102,7 +102,6 @@
                     }
                     renewYearCurrent(empData);  // 250210 更新匯入2，生成檢查代碼
                     // console.log('reload_shLocalTable_Listeners--empData...', empData);      // 這裡會顯示一筆empData
-
                     // const yearCurrent_str = JSON.stringify(empData['_content'][currentYear]['yearCurrent']).replace(/[\[\]\{"}]/g, '');
                     // console.log(yearCurrent_str)
                 }
@@ -118,7 +117,7 @@
         });
     }
 
-    // 250214 HE_CATE同一個item只能多選一
+    // 250214 HE_CATE同一個item只能多選一、單選
     let selectShLocalListener;
     async function reload_selectShLocalListeners() {
         return new Promise((resolve) => {
@@ -144,6 +143,7 @@
                 for (const doDisabled_index of doDisabled_arr) {
                     if(doDisabled_index != this_index){
                         shLocal_table.querySelector(`#shLocal_table input[value="${doDisabled_index}"]`).disabled = this_checked;
+                        // shLocal_table.querySelector(`#shLocal_table input[value="${doDisabled_index}"]`).classList.toggle('custom-checkbox', this_checked);
                     }
                 }
             }
