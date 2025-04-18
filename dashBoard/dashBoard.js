@@ -248,7 +248,7 @@
             grid: {
               left: '3%',
               right: '4%',
-              bottom: '10%',
+              bottom: '3%',
               containLabel: true
             },
             yAxis: {
