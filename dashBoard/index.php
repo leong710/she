@@ -160,26 +160,30 @@
                 <div class="tab-content bs-b " id="nav-tabContent">
                     <!-- p1 -->
                     <div id="nav-p1_table" class="tab-pane fade show active" role="tabpanel" aria-labelledby="nav-p1-tab">
-                        <div class="col-12 bg-white pb-2">
-                            <!-- p1-head -->
-                            <span class="badge bg-c-blue w-100 title">--&nbsp;P1&nbsp;--</span>
-                            <!-- p1-body -->
-                            <div class="col-12 px-0 py-1" id="p1Body">
-                                <!-- 廠區燈號欄 append p1map here -->
-                                    <!-- 測試曲線圖1 -->
-                                    <div class="rounded wave_div">
-                                        <div class="waveform">
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
-                                            <div class="bar"></div>
+                        <div class="col-12 bg-white">
+                            <!-- eChart圖表元素 2/3 -->
+                            <div class="row px-3 py-1" id="p1chart_div">
+                                <!-- p1-head -->
+                                <span class="badge bg-c-blue w-100 title">--&nbsp;P1&nbsp;--</span>
+                                <!-- p1-body -->
+                                <div class="col-12 px-0 py-1" id="p1Body">
+                                    <!-- 廠區燈號欄 append p1map here -->
+                                        <!-- 測試曲線圖1 -->
+                                        <div class="rounded wave_div">
+                                            <div class="waveform">
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                                <div class="bar"></div>
+                                            </div>
                                         </div>
-                                    </div>
+                                </div>
                             </div>
+
                             <hr>
                             <!-- 20231108-資料更新時間 -->
                             <div class="col-12 p-0 text-end inb">

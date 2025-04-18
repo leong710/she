@@ -213,13 +213,116 @@
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function drawEchart2() {
-        const _dept_inf = await load_fun('load_shLocal_OSHORTs', 'load_shLocal_OSHORTs', 'return');
-        console.log('1._dept_inf => ',_dept_inf)
 
+        // // S.0 防止重複畫圖...
+        const eChart2_div = document.querySelector('#eChart2');
+        if(eChart2_div !== null) return;
 
-        // const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
-        // console.log('2.defaultDept_inf => ',defaultDept_inf)
+        // step.1 提取變更部門清單
+        const _shLocalDepts = await load_fun('load_shLocalDepts', 'load_shLocalDepts', 'return');
+        // step.2 從step1整理出inCare在指定年份的名單
+        const result = await preProcess_staff(_shLocalDepts, '2025'); // 這裡要改成活的數值
+        // console.log('2.5.result =>', result)
 
+        // // S.4 定義圖表外框並貼上 
+        const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart2"></div>';
+        $('#p1chart_div').empty().append(temp_div);
+
+        
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: `變更作業健檢統計`,  // 1.主標題
+                subtext: '統計件數'                         // 2.Y軸標題
+            },
+            tooltip: {
+              trigger: 'axis',
+              axisPointer: {
+                // Use axis to trigger tooltip
+                type: 'shadow' // 'shadow' as default; can also be 'line' or 'shadow'
+              }
+            },
+            legend: {
+                // bottom: 1  // 將圖例移到底部
+            },
+            grid: {
+              left: '3%',
+              right: '4%',
+              bottom: '10%',
+              containLabel: true
+            },
+            yAxis: {
+              type: 'value'
+            },
+            xAxis: {
+              type: 'category',
+            //   data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+              data: result['fab_title']
+            },
+            series: [
+              {
+                name: '已完成',
+                type: 'bar',
+                stack: 'total',
+                label: {
+                  show: true
+                },
+                emphasis: {
+                  focus: 'series'
+                },
+                // data: [320, 302, 301, 334, 390, 330, 320]
+                data: result['primary']
+              },
+              {
+                name: '等待中-7天內',
+                type: 'bar',
+                stack: 'total',
+                label: {
+                  show: true
+                },
+                emphasis: {
+                  focus: 'series'
+                },
+                // data: [120, 132, 101, 134, 90, 230, 210]
+                data: result['success']
+              },
+              {
+                name: '等待中-7天以上',
+                type: 'bar',
+                stack: 'total',
+                label: {
+                  show: true
+                },
+                emphasis: {
+                  focus: 'series'
+                },
+                // data: [220, 182, 191, 234, 290, 330, 310]
+                data: result['warning']
+              },
+              {
+                name: '等待中-12天以上',
+                type: 'bar',
+                stack: 'total',
+                label: {
+                  show: true
+                },
+                emphasis: {
+                  focus: 'series'
+                },
+                // data: [150, 212, 201, 154, 190, 330, 410]
+                data: result['danger']
+              }
+            ]
+        };
+        
+        // 基于准备好的dom，初始化echarts实例
+        var eChart2 = echarts.init(document.getElementById('eChart2'));
+        // 使用刚指定的配置项和数据显示图表。
+        eChart2.setOption(option);
+        // // 監聽窗口大小改變事件，調整圖表的大小
+        window.addEventListener('resize', function() {
+            eChart2.resize();
+        });
     }
 
 // // // 
@@ -243,7 +346,7 @@
             try {
                 await drawEchart1();
                 
-                await drawEchart2();
+                // await drawEchart2();
 
             } catch (error) {
                 console.error(error);
@@ -277,6 +380,8 @@
             $('[data-toggle="tooltip"]').tooltip();
         // ready.2 產生警告橫幅
             make_balert();
+            await drawEchart2();
+
         // ready.3 定義nav-tab [nav-p2-tab]鈕功能，並建立監聽
             reload_navTab_Listeners();
 

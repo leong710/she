@@ -174,25 +174,25 @@
                 ];
                 break;
 
-            // 取自 load_shLocal_OSHORTs => 修改後給eChart繪圖用
-            case '---load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
+
+
+        // 取自 load_shLocalDepts => 修改後給eChart繪圖用
+            case 'load_shLocalDepts':           // 250217 取得in[範圍內]特作部門內容
                 $pdo = pdo();
-                   $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
-                            FROM `_shlocaldept` _sl
-                            GROUP BY _sl.OSHORT
-                            ORDER BY OSTEXT_30, OSHORT ";
+                $sql = "SELECT _sl.OSTEXT_30, _sl.OSHORT, _sl.OSTEXT, _sl.inCare, _sl.flag
+                        FROM `_shlocaldept` _sl 
+                        WHERE _sl.flag IS true ";
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();
-                    $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    $shLocal_OSHORTs_arr = [];
-                    // 整理成多選的數據型態...
-                    foreach($shLocal_OSHORTs as $OSHORT_i){
-                        array_push($shLocal_OSHORTs_arr, "{$OSHORT_i["OSTEXT_30"]},{$OSHORT_i["OSHORT"]},{$OSHORT_i["OSTEXT"]}");
+                    $shLocalDepts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    // JSON解碼  true = 還原成陣列
+                    foreach($shLocalDepts as $index => $shLocalDept){
+                        $shLocalDepts[$index]['inCare'] = json_decode($shLocalDept['inCare']);
                     }
                     // 製作返回文件
                     $result = [
-                        'result_obj' => $shLocal_OSHORTs_arr,
+                        'result_obj' => $shLocalDepts,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
                     ];
@@ -202,34 +202,26 @@
                 }
                 break;
 
-            case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
+            case 'load_change':                 // 由hrdb撈取人員資料，帶入查詢條件OSHORT
                 $pdo = pdo();
-
-                $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
-                        FROM `_shlocaldept` _sl
-                        GROUP BY _sl.OSHORT
-                        ORDER BY OSTEXT_30, OSHORT ";
+                $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
+                        FROM _change _c
+                        WHERE _c.emp_id IN ({$parm_re}) ";
                 $stmt = $pdo->prepare($sql);
                 try {
-                    $stmt->execute();
-                    $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                    $shLocal_OSHORTs_arr = [];
-                    $shLocal_OSHORTs_obj = [];
-                    foreach($shLocal_OSHORTs as $OSHORT_i){
-                        $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["OSTEXT"] = $OSHORT_i["OSTEXT"];
-                        $shLocal_OSHORTs_obj[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]]["flag"]   = $OSHORT_i["flag"];
-                    }
-                    foreach($shLocal_OSHORTs_obj as $key => $value){
-                        $i = [];
-                        $i[$key] = $value;
-                        array_push($shLocal_OSHORTs_arr, $i);
+                    $stmt->execute();                                   //處理 byAll
+                    $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    foreach($chStaffs as $index => $shStaff){
+                        $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
+                        $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
+                        $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
                     }
                     // 製作返回文件
                     $result = [
-                        'result_obj' => $shLocal_OSHORTs_arr,
+                        'result_obj' => $chStaffs,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
-                        'debug'      => $shLocal_OSHORTs
                     ];
                 }catch(PDOException $e){
                     echo $e->getMessage();
