@@ -1,6 +1,6 @@
     // from dashBoard fun drawEchart2()-step.2 從step1整理出inCare在指定年份的名單::
     // step.2.1 預先處理員工資料
-    async function preProcess_staff(shLocalDept_in, _yearValue){
+    async function preProcess_staff(shLocalDept_in, _yearValue, _type){
         // console.log('2.1a.shLocalDept_in...' ,shLocalDept_in)
         // s.2.1.0 陣列初始化
         let empIDKeys         = [];                         // 收集所有指定年度的inCare工號
@@ -29,7 +29,7 @@
         
         // s.2.1.2 把員工ID清單empIDKeys進行處理，撈出IN empIDKeys的所有員工資料
         const empIDKeys_str = JSON.stringify(empIDKeys).replace(/[\[\]]/g, '');                 // 工號加工
-        const staffData_result = await preCheckStaffData(empIDKeys_str, mergedData);        // 呼叫 fun-2 preCheckStaffData 檢查staff是否都有存在，不然就生成staff預設值
+        const staffData_result = await preCheckStaffData(empIDKeys_str, mergedData, _type);     // 呼叫 fun-2 preCheckStaffData 檢查staff是否都有存在，不然就生成staff預設值
                 // console.log('2.1.empIDKeys =>',  empIDKeys)
                 // console.log('2.3.empIDKeys_str =>', empIDKeys_str)
                 // console.log('2.2.mergedData =>', mergedData)
@@ -93,9 +93,10 @@
 
 
     // fun-2 檢查load_fun('load_change') 是否都有存在，不然就生成staff預設值 :: call from step.2.1
-    async function preCheckStaffData(empIDKeys_str, mergedData){
+    async function preCheckStaffData(empIDKeys_str, mergedData, _type){
         if(empIDKeys_str == '') return(false);
-            const load_change = await load_fun('load_change', empIDKeys_str, 'return');                     // step-1. 先從db撈現有的資料
+        console.log('[empIDKeys_str]',empIDKeys_str)
+            const load_change = await load_fun(_type, `_change, true, ${empIDKeys_str}`, 'return');     // step-1. 先從db撈現有的資料
             const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
             let defaultStaff_inf = [];
             defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重
