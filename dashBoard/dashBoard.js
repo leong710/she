@@ -206,9 +206,8 @@
         eChart1.setOption(option);
 
         // // 監聽窗口大小改變事件，調整圖表的大小
-        window.addEventListener('resize', function() {
-            eChart1.resize();
-        });
+        charts.push(eChart1);
+        addResizeListener(); // 添加監聽器
     }
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
@@ -319,9 +318,19 @@
         var eChart2 = echarts.init(document.getElementById('eChart2'));
         // 使用刚指定的配置项和数据显示图表。
         eChart2.setOption(option);
+        
         // // 監聽窗口大小改變事件，調整圖表的大小
+        charts.push(eChart2);
+        addResizeListener(); // 添加監聽器
+    }
+
+    // 250422 定義監聽窗口大小改變事件，調整所有圖表的大小
+    let charts = [];        // 存儲所有圖表實例
+    function addResizeListener() {
         window.addEventListener('resize', function() {
-            eChart2.resize();
+            charts.forEach(chart => {
+                chart.resize();
+            });
         });
     }
 
