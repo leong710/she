@@ -24,8 +24,8 @@
             $("body").mLoading("hide");
             if(swal_value && swal_value['fun'] && swal_value['content'] && swal_value['action']){
                 if(swal_value['action'] == 'success'){
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});     // n秒后回首頁
-                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});        // 手動關閉畫面
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.href = url});  // n秒后回首頁
+                    // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{closeWindow(true)});                                  // 手動關閉畫面
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
                 
                 } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
@@ -74,7 +74,6 @@
     function checkPopup() {
         const urlParams = new URLSearchParams(window.location.search);
         if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener)) {
-            // console.log('这是 弹窗');
             let rtn_btns = document.querySelectorAll('.rtn_btn');   // 獲取所有帶有 'rtn_btn' class 的按鈕
             rtn_btns.forEach(function(btn) {                        // 遍歷這些按鈕，並設置 onclick 事件
                 btn.onclick = function() {
@@ -142,7 +141,6 @@
                     reload_delete_Listeners();                                  // 更新delete監聽
                 }
             });
-        // 240814 監聽 append 是否有點擊
         
         // 240814 監聽 append_submit 是否有點擊
             const append_submit = document.getElementById('append_submit');
@@ -151,7 +149,6 @@
                 const balertStr = JSON.stringify(balertObj_filter);
                 load_fun('update_balert', balertStr, show_swal_fun);
             })
-        // 240814 監聽 append_submit 是否有點擊
 
         reload_delete_Listeners();  // 呼叫建立delete監聽
     }

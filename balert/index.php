@@ -2,32 +2,12 @@
     require_once("../pdo.php");
     require_once("../sso.php");
     require_once("../user_info.php");
-    // require_once("function.php");
     accessDenied($sys_id);
 
     // 複製本頁網址藥用
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
     $action  = (isset($_REQUEST["action"]))      ? $_REQUEST["action"]      : "create";   // 有action就帶action，沒有action就新開單
     
-    // // load 作業類別json
-    // $balert_file = "../balert/balert.json";
-    // if(file_exists($balert_file)){
-    //     $balert_json = file_get_contents($balert_file);    // 从 JSON 文件加载内容
-    //     $balert_arr = json_decode($balert_json, true);     // 解析 JSON 数据并将其存储在 $form_a_json 变量中 // 如果您想将JSON解析为关联数组，请传入 true，否则将解析为对象
-    // }else{
-    //     $balert_arr = [];
-    // }
-
-    // echo "<pre>";
-        // print_r($balert_json);
-        // echo "<br>";
-        // print_r($balert_arr);
-        // foreach ($balert_arr as $item) {
-        //     // 這裡將 _value 輸出到網頁
-        //     echo $item['_value']; // 這將保留 HTML 標籤
-        // }
-    // echo "</pre>";
-
     include("../template/header.php");
     include("../template/nav.php"); 
 ?>
@@ -84,7 +64,6 @@
                     </div>
                     <div class="col-6 col-md-6 py-0 text-end head_btn">
                         <button type="button" class="btn btn-primary" id="append_submit" >儲存 (Save)</button> 
-                        <!-- <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button> -->
                     </div>
                 </div>
                 <!-- Bootstrap Alarm -->
@@ -133,11 +112,9 @@
             </div>
         </div>
     </div>
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
-
 </body>
 
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
@@ -152,7 +129,6 @@
         'signCode' : '<?=$auth_sign_code?>',
     }
 </script>
-
-<script src="balert.js?v=<?=time()?>"></script>
+<script src="balert.js"></script>
 
 <?php include("../template/footer.php"); ?>
