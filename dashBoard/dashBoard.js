@@ -102,7 +102,6 @@
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function drawEchart1() {
-
         // // S.0 防止重複畫圖...
             const eChart1_div = document.querySelector('#eChart1');
             if(eChart1_div !== null) return;
@@ -212,7 +211,6 @@
 
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function drawEchart2() {
-
         // // S.0 防止重複畫圖...
         const eChart2_div = document.querySelector('#eChart2');
         if(eChart2_div !== null) return;
@@ -221,14 +219,13 @@
         const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
         const _method = await check3hourse(action);                                                 // _db/_json
         const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
-            console.log('[_type]',_type)
+            // console.log('[_type]',_type)
         // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
         const _shLocalDepts = await load_fun(_type, '_shLocalDepts, true', 'return');               // step.1 提取變更部門清單
         const currentYear = String(new Date().getFullYear());   // 取得當前年份
-            console.log('[currentYear]',currentYear)
-
+            // console.log('[currentYear]',currentYear)
         const result = await preProcess_staff(_shLocalDepts, currentYear, _type);                   // step.2 從step1整理出inCare在指定年份的名單 // 這裡要改成活的數值
-        console.log('_shLocalDepts...',_shLocalDepts);
+            // console.log('_shLocalDepts...',_shLocalDepts);
         // // S.4 定義圖表外框並貼上 
         const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart2"></div>';
         $('#p1chart_div').empty().append(temp_div);

@@ -37,10 +37,11 @@
                     $sql = "SELECT _sl.OSTEXT_30, _sl.OSHORT, _sl.OSTEXT, _sl.inCare, _sl.flag
                             FROM `_shlocaldept` _sl WHERE _sl.flag IS true ";
 
-                }else if($table == "_chang"){           // 取得_chang for chart2_變更作業建檢統計
-                    $parm_re = str_replace('"', "'", $parm_arr[2]);   // 類別 符號轉逗號
+                }else if($table == "_change"){           // 取得_chang for chart2_變更作業建檢統計
+                    $parm_re = str_replace(":", ",", $parm_arr[2]);   // 類別 符號轉逗號
+                    $parm_re2 = str_replace('"', "'", $parm_re);   // 類別 符號轉逗號
                     $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
-                            FROM _change _c WHERE _c.emp_id IN ({$parm_re}) ";
+                            FROM _change _c WHERE _c.emp_id IN ({$parm_re2}) ";
 
                 }else{  // 0= 沒有歸屬 then 當作錯誤處理+break
                     $result['error'] = 'Load '.$fun.' -- '.$table.' failed...(e)';
@@ -66,7 +67,7 @@
                         foreach($_db as $index => $shLocalDept){
                             $_db[$index]['inCare'] = json_decode($shLocalDept['inCare']);
                         }
-                    }else if($table == "_chang"){     // 取得_shLocalDepts for chart2變更作業建檢統計
+                    }else if($table == "_change"){     // 取得_shLocalDepts for chart2變更作業建檢統計
                         foreach($_db as $index => $shStaff){
                             $_db[$index]['_changeLogs'] = json_decode($_db[$index]['_changeLogs'], true);
                             $_db[$index]['_content']    = json_decode($_db[$index]['_content']);
@@ -81,11 +82,11 @@
                         'success'    => 'Load '.$fun.' success.'
                     ];
                     // 240711 寫入json 1= true/false 是否輸出更新json檔
-                        if($parm_arr[1]){
-                            $doJson = fopen($table.".json","w");         //開啟檔案
-                            fputs($doJson, json_encode($_db , JSON_UNESCAPED_UNICODE ));  //初始化sw+寫入
-                            fclose($doJson);                            //關閉檔案
-                        }
+                    if($parm_arr[1]){
+                        $doJson = fopen($table.".json","w");         //開啟檔案
+                        fputs($doJson, json_encode($_db , JSON_UNESCAPED_UNICODE ));  //初始化sw+寫入
+                        fclose($doJson);                            //關閉檔案
+                    }
 
                 }catch(PDOException $e){
                     echo $e->getMessage();

@@ -95,8 +95,10 @@
     // fun-2 檢查load_fun('load_change') 是否都有存在，不然就生成staff預設值 :: call from step.2.1
     async function preCheckStaffData(empIDKeys_str, mergedData, _type){
         if(empIDKeys_str == '') return(false);
-        console.log('[empIDKeys_str]',empIDKeys_str)
-            const load_change = await load_fun(_type, `_change, true, ${empIDKeys_str}`, 'return');     // step-1. 先從db撈現有的資料
+            const empIDKeys_parm = empIDKeys_str.replace(/,/g, ':')
+                // console.log('[empIDKeys_parm]',empIDKeys_parm)
+            const load_change = await load_fun(_type, `_change, true, ${empIDKeys_parm}`, 'return');        // step-1. 先從db撈現有的資料
+                // console.log('[load_change]',load_change)
             const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
             let defaultStaff_inf = [];
             defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重

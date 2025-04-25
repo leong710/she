@@ -44,21 +44,31 @@
     // eh_time：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
     // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
     function checkNoise(eh_time, avg_vol, avg_8hr) {
+        // 防呆1.強迫轉數字
+            avg_vol = Number(avg_vol);
+            avg_8hr = Number(avg_8hr);
+        // 防呆2.確認數值使否有效
+            avg_vol = (Number.isFinite(avg_vol) && avg_vol !== '') ? avg_vol : false;
+            avg_8hr = (Number.isFinite(avg_8hr) && avg_8hr !== '') ? avg_8hr : false;
+        // 定義預設值
         const result = {
             aSample : '不適用',
             bSample : avg_8hr !== false ? (avg_8hr >= 50 ? '符合' : '未達') : '不適用',
             cCheck  : '不適用',
         };
+        // 計算
         if (eh_time && avg_vol) {
             const TC = (8 / Math.pow(2, (avg_vol - 90) / 5)).toFixed(2);    // TC：T換算  // 計算 TC 並四捨五入
             const DOSE = ((eh_time / TC) * 100).toFixed(0);                 // 計算 DOSE 並四捨五入
             result.aSample = DOSE >= 50 ? '符合' : '未達';
         }
+        // 判定
         if (result.bSample === '符合' || (result.bSample === '不適用' && result.aSample === '符合')) {
             result.cCheck = '是';
         } else if (result.bSample === '未達' || result.aSample === '未達') {
             result.cCheck = '否';
         }
+
         return result;
     }
     // 240906 check fun-2 驗證[新進特殊]是否符合   // 241030--特檢資格串接3_newOne
@@ -256,6 +266,8 @@
 
                         // 2b3. 呼叫[fun]checkNoise 取得判斷結果
                             const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);     
+                            // console.log('checkNoise-parm',eh_time, avg_vol, avg_8hr);
+                            // console.log('noise_check',noise_check);
                             // const noise_check_str = `${br}${sh_key_up}:&nbsp;A-${noise_check.aSample}&nbsp;B-${noise_check.bSample}&nbsp;C-${noise_check.cCheck}`; // 停用顯示 aSample bSample
                             const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
                         document.getElementById(`NC,${select_empId},${currentYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷

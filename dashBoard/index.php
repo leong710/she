@@ -150,7 +150,7 @@
                 <div class="col-12 p-0">
                     <nav>
                         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">p1</button>
+                            <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">進行中作業統計</button>
                             <button type="button" class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false">各式統計</button>
                             <button type="button" class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false">各廠聯絡窗口</button>
                         </div>
