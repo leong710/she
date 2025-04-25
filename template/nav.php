@@ -1,55 +1,50 @@
 <?php
     require_once("../user_info.php");
-    require_once("function.php");
-
     $webroot = "..";
-    
-    // init
-
 ?>
-    <style>
-        .app-header {
-            position: relative;
-            -ms-flex-direction: row;
-            flex-direction: row;
-            height: 55px;
-            padding: 0;
-            margin: 0;
-            background-color: #fff;
-            border-bottom: 1px solid #c8ced3;
-        }
-        .app-header .nav-item {
-            position: relative;
-            min-width: 50px;
-            margin: 0;
-            text-align: center;
-            color: #7d7d7d;
-        }
-        .app-header .nav-item .nav-link {
-            padding-top: 1;
-            padding-bottom: 0;
-            background: 0;
-            border: 0;
-        }
-        .navbar-nav .nav-link {
-            padding-right: 0;
-            padding-left: 0;
-            color: #73818f;
-        }
-        .sysTitle {
-            font-weight: bold;
-            font-size: 20px;
-            margin-top: -5px;
-        }
-        .h6, h6 {
-            margin-bottom: .5rem;
-            font-family: inherit;
-            font-weight: 500;
-            line-height: 1.2;
-            color: inherit;
-            font-size: .875rem;
-        }
-    </style>
+<style>
+    .app-header {
+        position: relative;
+        -ms-flex-direction: row;
+        flex-direction: row;
+        height: 55px;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+        border-bottom: 1px solid #c8ced3;
+    }
+    .app-header .nav-item {
+        position: relative;
+        min-width: 50px;
+        margin: 0;
+        text-align: center;
+        color: #7d7d7d;
+    }
+    .app-header .nav-item .nav-link {
+        padding-top: 1;
+        padding-bottom: 0;
+        background: 0;
+        border: 0;
+    }
+    .navbar-nav .nav-link {
+        padding-right: 0;
+        padding-left: 0;
+        color: #73818f;
+    }
+    .sysTitle {
+        font-weight: bold;
+        font-size: 20px;
+        margin-top: -5px;
+    }
+    .h6, h6 {
+        margin-bottom: .5rem;
+        font-family: inherit;
+        font-weight: 500;
+        line-height: 1.2;
+        color: inherit;
+        font-size: .875rem;
+    }
+</style>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light app-header ">
     <div class="container-fluid">
@@ -84,14 +79,12 @@
                                     <i class="fa-solid fa-users"></i>&nbsp;職業病預防管理<span class="badge rounded-pill bg-danger"></span></a>
                                               
                                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        
                                     <?php if($sys_role <= 2.5 ){ ?>
                                         <li><a class="dropdown-item" href="<?php echo $webroot;?>/change/"><i class="fa-solid fa-people-arrows"></i>&nbsp;<b>變更作業健檢</b></a></li>
                                         <li><hr class="dropdown-divider"></li>
                                     <?php }?>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/staff/"><i class="fa-solid fa-list-check"></i>&nbsp;<b>定期特殊健檢</b></a></li>
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/review/"><i class="fa-solid fa-person-circle-check"></i>&nbsp;<b>特檢名單審核與彙整</b></a></li>
-               
                                 </ul>
                             </li>
 
@@ -122,7 +115,6 @@
             <ul class="navbar-nav ms-auto   my-2 my-lg-0 navbar-nav-scroll">
                 <?php if(!$sys_auth){
                     echo "<li class='nav-item mx-1'><a href='{$webroot}/auth/login.php' class=''><i class='fa fa-sign-in' aria-hidden='true'></i> 登入</a></li>";
-                    // echo "<li class='nav-item mx-1 disabled'><a href='{$webroot}/auth/register.php' class='btn btn-success'>註冊</a></li>";
                 } else { ?>
                     <!-- 下拉式選單 -->
                     <li class="nav-item dropdown">
