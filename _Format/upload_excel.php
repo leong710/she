@@ -20,7 +20,6 @@
                 // 其他按钮被点击时执行的操作
                 $submit = $_POST['excelUpload'];                // "上傳"按钮被点击时执行的操作
                 if ($submit === 'shLocal') {                    // 240807_特殊危害健康作業管理
-
                     // 將HE_CATE字串轉成陣列...
                         function parseString($inputStr) {
                             $result = [];
@@ -39,30 +38,28 @@
                     $keyCount = count($theadTitles);
                     echo '<div class="col-12 bg-light px-0 ">';
                     echo '<table><thead><tr>';
-                        // 繞出每一個"theadTitles"的值
-                        foreach ($theadTitles as $theadTitle){
-                            echo '<th>' . $theadTitle . '</th>';
-                        }
-                        echo '</tr></thead>';
+                    // 繞出每一個"theadTitles"的值
+                    foreach ($theadTitles as $theadTitle){
+                        echo '<th>' . $theadTitle . '</th>';
+                    }
+                    echo '</tr></thead>';
+
                     // 防止無資料送入的錯誤。
                     if(!isset($data[1])){
                         echo "<script>alert('請確認『上傳清冊』格式是否正確！');</script>";
                         return ;
         
                     }else{
-
                         echo '<tbody>';
                         // 設定一個"result"陣列
                         $result = array();
                         $stopUpload = 0;
                         $errLog = [];
-
                         // 繞出每一個Data的值
                         foreach ($data as $rowIndex => $row) {
                             // 跳過表頭
                             if ($rowIndex === 0) { continue; }
                             echo '<tr>';
-
                             // 避免有空白並處理部門代碼
                             foreach ($row as $index => $value) {
                                 if ($index > 5) break;
@@ -70,8 +67,6 @@
                             }
                             $row[1] = strtoupper(trim($row[1]));         // 部門代碼 轉大寫
                             $row[3] = str_replace('、', ',', $row[3]);   // 類別 全形符號轉逗號
-                            // $row[3] = parseString($row[3]);              // 類別 呼叫parseString進行加工--字串分拆成陣列再json_encode成中文字串
-
                             // 1. 檢查 OSHORT $row[1] 是否為空值
                                 $OSHORT_check = !empty($row[1]);
                             // 2. 檢查 HE_CATE $row[3] 是否包含 "噪音作業"，必須填 AVG_VAL 或 AVG_8HR
@@ -100,7 +95,6 @@
                                     // row 6 作業敘述需要特殊顯示word_bk處理
                                     echo (($index === 6) ? '<td class="word_bk">' : '<td>'). htmlspecialchars($value) .'</td>';             // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
-
                                 $process = [
                                     "OSTEXT_30"     => $row[0],
                                     "OSHORT"        => $row[1],
@@ -113,22 +107,20 @@
                                     "AVG_8HR"       => $row[8],
                                 ];
                                 $result[] = $process;
+
                             }else {
                                 handleInvalidRow($submit, $row_result, "");
                             }
                             echo '</tr>'; 
                         };
-
                         echo '</tbody></table>';
                         // 增加卡"SN有誤"不能上傳。
                         // 如果"有誤"的累計資料等於"0"。
                         if( $stopUpload === 0 ){
                             // 將資料打包成JSON
                             $jsonString = json_encode($result, JSON_UNESCAPED_UNICODE );
-
-                        // 鋪設前處理 
+                            // 鋪設前處理 
                             $cart_dec = (array) json_decode($jsonString);
-
                             // 以下是回傳給form使用。
                             echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
                             echo '</div>';
@@ -157,28 +149,23 @@
                         return ;
         
                     }else{
-
                         echo '<tbody>';
                         // 設定一個"result"陣列
                         $result = array();
                         $stopUpload = 0;
                         $errLog = [];
-
                         // 繞出每一個Data的值
                         foreach ($data as $rowIndex => $row) {
                             // 跳過表頭
                             if ($rowIndex === 0) { continue; }
                             echo '<tr>';
-
                             // 避免有空白並處理部門代碼
                             foreach ($row as $index => $value) {
                                 if ($index > 5) break;
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
-                            // $row[2] = trim($row[2]);                     // 工號 trim去空格
-                            // $row[4] = strtoupper(trim($row[4]));         // 部門代碼 trim去空格+strtoupper轉大寫
-                            $row[4] = strtoupper($row[4]);         // 部門代碼 trim去空格+strtoupper轉大寫
-                            $row[6] = str_replace('、', ',', $row[6]);   // 類別 str_replace符號轉逗號
+                            $row[4] = strtoupper($row[4]);              // 部門代碼 strtoupper轉大寫
+                            $row[6] = str_replace('、', ',', $row[6]);  // 類別 str_replace符號轉逗號
 
                             // 檢查部門代碼emp_id $row[2]是否空值
                                 $emp_id_check = (!empty($row[2]) && strlen($row[2]) == 8 ) ? true : false;
@@ -238,11 +225,9 @@
                             // 以下是回傳給form使用。
                             echo '<textarea name="" id="excel_json" class="form-control" style="display: none;">'.$jsonString.'</textarea>';
                             echo '</div>';
+
                         }else{
                             echo '<div name="" id="stopUpload" style="color: red; font-weight: bold;">'."有 ".$stopUpload." 個資料有誤，請確認後再上傳。".'</div>';
-                            // echo    '<div><pre>';
-                            //     print_r($errLog);
-                            // echo    '</pre></div>';
                             echo '</div>';
                         }
                     }
@@ -265,33 +250,28 @@
                         return ;
         
                     }else{
-
                         echo '<tbody>';
                         // 設定一個"result"陣列
                         $result = array();
                         $stopUpload = 0;
                         $errLog = [];
-
                         // 繞出每一個Data的值
                         foreach ($data as $rowIndex => $row) {
                             // 跳過表頭
                             if ($rowIndex === 0) { continue; }
                             echo '<tr>';
-
                             // 避免有空白並處理部門代碼
                             foreach ($row as $index => $value) {
                                 if ($index > 5) break;
                                 $row[$index] = trim(str_replace(' ', '', $value));
                             }
                             $row[4] = strtoupper(trim($row[4]));                // 部門代碼 strtoupper轉大寫
-
                             // 檢查工號emp_id $row[2]是否空值
                                 $emp_id_check = (!empty($row[2]) && strlen($row[2]) == 8 ) ? true : false;
                             // 檢查部門代碼OSHORT $row[4]是否空值
                                 $OSHORT_check = (!empty($row[4]) && strlen($row[4]) == 8 ) ? true : false;
                             // 檢查 檢查類別$row[6] 是否含有分號:
                                 // $HE_CATE_check = preg_match('/:/', $row[6]);
-
                                 $row_result = array_merge($row, [
                                     "emp_id_check"  => $emp_id_check,
                                     "OSHORT_check"  => $OSHORT_check,
@@ -302,7 +282,6 @@
                                     if ($index >= $keyCount) break;                          // 欄位數
                                     echo '<td>' . htmlspecialchars($value) . '</td>';       // htmlspecialchars 函數的功能是用來轉換 HTML 特殊符號為僅能顯示用的編碼
                                 }
-       
                                 $process = [
                                     "targetYear"    => $row[0],
                                     "OSTEXT_30"     => $row[1],
@@ -335,70 +314,8 @@
                             echo '</div>';
                         }
                     }
-
-                } else if ($submit === '其他按钮名称') {
-                    // 其他按钮被点击时执行的操作
-                    // ...
                 }
             }
-        }
-    }
-
-    // for整合確認：確認stock/SN、supp/comp_no、contact/cname是否已經建立
-    function check_something($submit, $query_item){
-        $pdo = pdo();
-        switch($submit){
-            case "shLocal":              
-                $sql_check = "SELECT * FROM _cata WHERE SN = ?";
-                break;
-
-            default:            // 預定失效 
-                // return; 
-                break;
-        }
-        $stmt_check = $pdo -> prepare($sql_check);
-        try {
-            $stmt_check -> execute([$query_item]);
-
-            if($stmt_check -> rowCount() > 0){     
-                // 確認query_item是否已經註冊
-                $result = $stmt_check->fetch();
-                // 如果有值，則返回找到的資料。
-                switch($submit){
-                    case "shLocal":
-                        $resultRecall = [
-                            "state"         => "OK",
-                            "query_item"    => $query_item,
-                            "query_row"     => "SN",
-                            "SN"            => $result["SN"],
-                            "pname"         => $result["pname"]
-                        ];    
-                        break;
-
-                    default:            // 預定失效 
-                        break;
-                }
-
-            }else{
-                // 返回"NA"值
-                switch($submit){
-                    case "shLocal":
-                        $resultRecall = [
-                            "state"         => "NA",
-                            "query_item"    => $query_item,
-                            "query_row"     => "SN",
-                            "SN"            => $query_item
-                        ];
-                        break;
-
-                    default:            // 預定失效 
-                        break;
-                }
-            }
-            return $resultRecall;
-
-        }catch(PDOException $e){
-            echo $e->getMessage();
         }
     }
 
