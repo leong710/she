@@ -34,7 +34,7 @@
             
         } else if(stopUpload) {
             // 沒有找到 <textarea> 元素
-            console.log('請確認資料是否正確');
+            console.error('請確認資料是否正確');
             warningText_1.style.display = "block";          // 警告文字--顯示
             warningText_2.style.display = "block";
             import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
@@ -75,11 +75,11 @@
             const staff = staff_inf.find(staff_i => staff_i.emp_id == i_empId);   // 從staff_inf找出符合 empId 的原始字串
 
             if(staff){
-                // 
-                const _cgLog = staff['_changeLogs'][i_targetMonth] ?? {};   // 獲取變更日誌
+                // 獲取變更日誌
+                const _cgLog = staff['_changeLogs'][i_targetMonth] ?? {};
                 // 處理主欄位
                 Object.entries(item_keys).forEach(([key, label]) => {
-                    switch (key) { // 使用 switch 判斷提升可讀性
+                    switch (key) {
                         case 'i_targetMonth':   sortedData[label] = i_targetMonth;          break;
                         case 'i_OSTEXT_30'  :   sortedData[label] = i_OSTEXT_30;            break;
                         case 'emp_id'       :   sortedData[label] = staff['emp_id'] ?? '';  break;
@@ -97,47 +97,6 @@
                             break;
                         default             :   sortedData[label] = _cgLog[key] ?? ''; // 其他欄位處理
                     }
-
-
-                    // if (key === 'i_targetMonth') {
-                    //     sortedData[label] = i_targetMonth ?? '';
-                    // } else if (key === 'i_OSTEXT_30') {
-                    //     sortedData[label] = i_OSTEXT_30 ?? '';
-                    // } else if (key === 'emp_id') {
-                    //     sortedData[label] = staff['emp_id'] ?? '';
-                    // } else if (key === 'cname') {
-                    //     sortedData[label] = staff['cname'] ?? '';
-                    // } else if (key === 'i_OSHORT') {
-                    //     sortedData[label] = i_OSHORT ?? '';
-                    // } else if (key === 'i_OSTEXT') {
-                    //     sortedData[label] = i_OSTEXT ?? '';
-                    // } else if (key === '_6shCheck') {
-                    //     if(_cgLog['_6shCheck'].length > 0){
-                    //         // 1.把體檢項目轉成字串
-                    //         let _6str = JSON.stringify(_cgLog['_6shCheck']).replace(/[\[{"}\]]/g, '').replace(/,/g, ';');
-                    //         sortedData[label] = _6str;
-                    //     }else{  // 預防_6shCheck是空值，仍必須把表頭寫入。
-                    //         sortedData[label] = '';
-                    //     }
-                    // } else if (key === '_7isCheck') {
-                    //     sortedData[label] = _cgLog['_7isCheck'] ? '是' : '否';
-                    // } else if (key === '_10content') {
-                    //     if(_cgLog['_6shCheck'].length > 0){
-                    //         // 2.預先處理欄位10的內容             
-                    //         let _10arr = [];
-                    //         _cgLog['_6shCheck'].forEach((caseItem) => {
-                    //             const caseItemArr = caseItem.split(':')
-                    //                 const i_name  = caseItemArr[1] ?? '';                                   
-                    //             _10arr.push(i_name);
-                    //         });
-                    //         let _10str = JSON.stringify(_10arr).replace(/[\[{"}\]]/g, '')
-                    //         sortedData[label] = `變更(${_10str})`;
-                    //     }else{  // 預防_6shCheck是空值，仍必須把表頭寫入。
-                    //         sortedData[label] = '';
-                    //     }
-                    // } else {
-                    //     sortedData[label] = _cgLog[key] ?? '';
-                    // }
                 });
             }
     

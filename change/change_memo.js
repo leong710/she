@@ -8,16 +8,12 @@
             postMemoMsg_btn.value = deptNo;
             // step.2 取得dept的memo，並轉成陣列
             const deptData = shLocalDept_inf.find(dept => dept.OSHORT === deptNo);
-                // const { remark } = deptData;
-                // const _memo = remark['memo'] !== undefined ? remark['memo'] : [];
             if(deptData.remark == null){
                 deptData.remark = {
                     'memo' : []
                 }
             }
             const _memo = deptData.remark['memo'] ?? [];
-                // console.log('deptData.remark...',deptData.remark)
-                // console.log('_memo...',_memo)
             // step.3 取得memoBody
             const memoBody = document.getElementById('memoBody');
             memoBody.innerHTML = '';
@@ -31,9 +27,7 @@
                 memoBody.insertAdjacentHTML('beforeend', memoCard);
                     scrollToBottom(); // 自動捲動到底部
             }
-            
             await reload_eraseMemoCarListeners();
-
         }
         // 生成單一memoCard
         function mk_memoMsg(_index, memo_i){
@@ -47,7 +41,7 @@
                                                 + (memo_i.emp_id !== userInfo.empId && userInfo.role > 1 ? 'disabled':'')+`><i class="fa-solid fa-delete-left"></i></button>
                                         </div>
                                         <div class="border rounded p-2 bg-white word_bk">${memo_i.msg}</div><p class="card-text"><small class="text-muted">${memo_i.timeStamp}</small></p></div></div></td></tr>`;
-                resolve(memoCard);      // 當所有設置完成後，resolve Promise
+                resolve(memoCard);
             });
         }
         // 241226 建立PostMemoMsg_btn監聽功能 for 編輯 = [個案備註]
@@ -92,13 +86,10 @@
                     memoBody.insertAdjacentHTML('beforeend', memoCard);
                         scrollToBottom(); // 自動捲動到底部
                     memoMsg_input.value = '';
-
                     await reload_eraseMemoCarListeners();
-
                 }
                 // 添加新的監聽器
                 postMemoMsg_btn.addEventListener('click', postMemoMsg_btnClickListener);      // 將每一個tdItem增加監聽, 當按下click
-
                 resolve();
             });
         }
@@ -132,21 +123,12 @@
                     const deptNo = postMemoMsg_btn.value;
                         // 取得個人今年的memo，並轉成陣列後進行splice移除...
                         const deptData = shLocalDept_inf.find(dept => dept.OSHORT === deptNo);
-
                         deptData.remark['memo'] = deptData.remark['memo'] ?? [];
                         if(deptData.remark['memo'].length > 0){
                             await deptData.remark['memo'].splice(this.value, 1);
-                                console.log('deptData =>', deptData);
-                            
-                            // *** 把畫面上的訊息移除...
-                                // var element = document.getElementById(`memo_i_${this.value}`);
-                                // if (element) {
-                                //     element.parentNode.removeChild(element);
-                                // }
                             // step.3 取得memoBody
                             const memoBody = document.getElementById('memoBody');
                             memoBody.innerHTML = '';
-                            
                             const _memo = deptData.remark['memo'] ?? [];
                             // step.4 有memo筆數
                             if(_memo.length !== 0){
@@ -156,18 +138,15 @@
                                 }
                                 // step.4.2 鋪設個人今年的memo
                                 memoBody.insertAdjacentHTML('beforeend', memoCard);
-                                    scrollToBottom(); // 自動捲動到底部
+                                scrollToBottom();   // 自動捲動到底部
                             }
                         }
                     await reload_eraseMemoCarListeners();
-                    // await memoModal(['',edit_empId])
                 }
-
                 // 添加新的監聽器
                 eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
                     eraseBtn.addEventListener('click', eraseMemoCarListener);      // 將每一個eraseBtn增加監聽, 當按下click
                 })
-
                 resolve();
             });
         }

@@ -1446,7 +1446,6 @@
     // [p2 函數-3] 設置事件監聽器for Excel上傳下載
     async function excel_eventListener() {
         return new Promise((resolve) => {
-
             // p2.[load_excel] 以下為上傳後"iframe"的部分
                 // p2-1. 監控modal按下[上傳]鍵後，載入Excel
                 excelUpload.addEventListener('click', ()=> {
@@ -1485,9 +1484,9 @@
                         inside_toast(`批次匯入Excel資料...Done&nbsp;!!`, 1000, 'info');
 
                     } else if(stopUpload) {
-                        console.log('請確認資料是否正確');
+                        console.error('請確認資料是否正確');
                     }else{
-                        console.log('找不到 ? 元素');
+                        console.error('找不到 ? 元素');
                     }
                     
                     $("body").mLoading("hide");
@@ -1505,7 +1504,6 @@
         await excel_eventListener();
 
         // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
         let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
         if(message) {
             // Balert( message, 'warning')
