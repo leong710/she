@@ -15,8 +15,6 @@
         header("refresh:0;url=../auth/");
         exit;
     }
-    // $sites = show_site();
-    // $depts = show_dept();
 
     $user = editUser($_REQUEST);
 
@@ -24,10 +22,10 @@
         header("location:../auth/");    // 用這個，因為跳太快
         exit;
     }
+    
+    include("../template/header.php");
+    include("../template/nav.php");
 ?>
-
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
 <head>
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
 </head>

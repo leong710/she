@@ -185,7 +185,6 @@
         
         var add_btn = '<input type="submit" name="submit_edit_'+to_module+'" class="btn btn-primary" value="儲存'+to_module+'">';
         $('#'+to_module+'_modal_button').append(add_btn);                       // 填上儲存鈕
-        // var del_btn = '<input type="submit" name="submit_delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
         var del_btn ='<button type="submit" name="submit_delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)"><i class="fa-solid fa-user-xmark"></i></button>';
         $('#'+to_module+'_modal_delect_btn').append(del_btn);                   // 填上刪除鈕
 
@@ -209,11 +208,7 @@
                         document.querySelector('#'+to_module+'_modal #'+item_key).value = row[item_key]; 
                     }
                 })
-                // 鋪上最後更新
-                // let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
-                // document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
-                // step3-3.開啟 彈出畫面模組 for user編輯
-                // edit_myTodo_btn.click();
+
                 return;
             }
         })

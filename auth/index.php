@@ -348,10 +348,8 @@
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
     var user_modal  = new bootstrap.Modal(document.getElementById('user_modal'), { keyboard: false });
     var searchUser_modal = new bootstrap.Modal(document.getElementById('searchUser'), { keyboard: false });
-    const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';        // nurse
-
+    const uuid = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';                                        // nurse
 </script>
-
-<script src="auth.js?v=<?=time()?>"></script>
+<script src="auth.js"></script>
 
 <?php include("../template/footer.php"); ?>
