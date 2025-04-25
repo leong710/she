@@ -48,10 +48,9 @@
         }
     // <!-- 20211215分頁工具 -->
 
+    include("../template/header.php");
+    include("../template/nav.php");
 ?>
-
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
@@ -393,14 +392,11 @@
 
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
-<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>           <!-- 彈出子畫面 -->
-
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
-
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     })
-
 </script>
 
 <?php include("../template/footer.php"); ?>

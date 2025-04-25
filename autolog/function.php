@@ -5,13 +5,10 @@
     function show_log_list($request){
         $pdo = pdo();
         extract($request);
-        $sql = "SELECT al.*
-                FROM `autolog` al ";
-
+        $sql = "SELECT al.* FROM `autolog` al ";
         // tidy query condition：初始查詢陣列
         $conditions = [];
         $stmt_arr   = [];    
-        
         // 中間-組合變數
         if(isset($_year) && $_year != 'All'){
             $conditions[] = "year(al.thisDay) = ?";
@@ -25,7 +22,6 @@
         if (!empty($conditions)) {
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
-
         // 後段-加入排序
         $sql .= " ORDER BY al.thisDay DESC ";
         // 決定是否採用 page_div 20230803
@@ -56,6 +52,7 @@
             $stmt->execute();
             $log_list_ym = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $log_list_ym;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -66,11 +63,9 @@
     function storeLog($request){
         $pdo = pdo();
         extract($request);
-        
         if(empty($t_stamp)){
             $t_stamp = date("Y-m-d\TH:i");
         }
-        
         // 先確認是否有舊資料
             $sql_check = "SELECT al.*
                           FROM autolog al
@@ -142,6 +137,7 @@
             $stmt->execute([$id]);
             $showLog = $stmt->fetch(PDO::FETCH_ASSOC);
             return $showLog;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -214,7 +210,6 @@
     // 整合+製作記錄JSON_Log檔 == 暫時用不到 = 參考用
     function toLog($request){
         extract($request);
-
         if(!isset($logs)){
             $logs = [];
             $logs_arr =[];
@@ -222,20 +217,19 @@
             $logs_dec = json_decode($logs);
             $logs_arr = (array) $logs_dec;
         }
-
         $app = [];                                  // 定義app陣列
         // 因為remark=textarea會包含換行符號，必須用str_replace置換/n標籤
         $log_remark = str_replace(array("\r\n","\r","\n"), "_rn_", $remark);
-        $app = array(   "step"      => $step,
-                        "cname"     => $cname,
-                        "datetime"  => date('Y-m-d H:i:s'), 
-                        "action"    => $action,
-                        "remark"    => $log_remark);
-
+        $app = array(   
+                    "step"      => $step,
+                    "cname"     => $cname,
+                    "datetime"  => date('Y-m-d H:i:s'), 
+                    "action"    => $action,
+                    "remark"    => $log_remark
+                );
         array_push($logs_arr, $app);
         $logs = json_encode($logs_arr);
 
         return $logs;        
-        
     }
         
