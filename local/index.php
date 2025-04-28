@@ -453,22 +453,17 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-
 <script>
-
     var site        = <?=json_encode($sites)?>;                                                 // 引入sites資料
     var fab         = <?=json_encode($fabs)?>;                                                  // 引入fabs資料
     var site_item   = ['id','site_title','site_remark','flag'];                                 // 交給其他功能帶入 delete_site_id
     var fab_item    = ['id','site_id','fab_title','fab_remark','osha_id','BTRTL','sign_code','pm_emp_id','flag']; // 交給其他功能帶入 delete_fab_id
     var sortFab_id  = '<?=$sortFab_id?>';
-
     var tags        = [];                                                                       // fun3-1：search Key_word
     var activeTab   = '<?=$activeTab?>';                                                        //设置要自动选中的选项卡的索引（从0开始）
     var sw_json     = '<?=$sw_json?>';
-
 </script>
-
-<script src="local.js?v=<?=time()?>"></script>
-<script src="service_window_maker.js?v=<?=time()?>"></script>
+<script src="local.js"></script>
+<script src="service_window_maker.js"></script>
 
 <?php include("../template/footer.php"); ?>

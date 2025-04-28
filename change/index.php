@@ -14,47 +14,7 @@
         // $get_year = load_workTarget("_year");
         $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
         $_years   = [ $_year, $_year-1, $_year-2, $_year-3];
-      
-    // // default fab_scope
-    //     $fab_scope   = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
-    //     $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
-    // // tidy sign_code scope 
-    //     $sfab_id_str = get_coverFab_lists("str");   // get signCode的管理轄區
-    //     $sfab_id_arr = explode(',', $sfab_id_str);  // 將管理轄區字串轉陣列
-    // // merge quesy array
-    //     $query_arr = array(
-    //         'fab_title' => $fab_title,
-    //         'sfab_id'   => $sfab_id_str,
-    //         'emp_id'    => "10008048",
-    //     );
-    // // get mainData = shLocal
-    //     // $shLocals       = show_shLocal($query_arr);     // get case清單
 
-    //     $shLocals       = [];     // get case清單
-    //     $per_total      = count($shLocals);             // 計算總筆數
-    // // for select item
-    //     $fab_lists      = show_fab_lists();             // get 廠區清單
-    //     $OSHORT_lists   = show_OSHORT();                // get 部門代號
-
-    //     // p1
-    //     $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
-    //     $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
-    //     $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
-
-        // p1
-        // $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
-        // $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        // $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
-
-        // $test = show_change($query_arr);
-
-        // $allShLocalStaff_arr = all_shLocalStaff();
-        // $_month = $_month ?? date('m');
-        // echo $_year.$_month;
-
-        // echo "<pre>";
-        // print_r($_years);
-        // echo "</pre>";
         $sys_role1 = ($sys_role <= 1) ? "" : "disabled unblock";
         $sys_role2 = ($sys_role <= 2) ? "" : "disabled unblock";
         $sys_role3 = ($sys_role <= 3) ? "" : "unblock";

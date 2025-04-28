@@ -1,5 +1,4 @@
 <?php
-
 // 變更作業健檢
     // // 250217 取得特作列管的部門代號 for index p1
     function load_shLocal_OSHORTs(){
@@ -73,10 +72,6 @@
         }
     }
 
-
-
-
-
     function show_change($request){
         $pdo = pdo();
         extract($request);
@@ -100,7 +95,6 @@
             $stmt = $pdo -> prepare(isset($start) && isset($per) ? $sql.' LIMIT '.$start.', '.$per : $sql);   // 讀取選取頁的資料=分頁 : 讀取全部=不分頁
 
         try {
-            // $stmt->execute((!empty($stmt_arr) ? $stmt_arr : ''));                          //處理 byUser & byYear
             if(!empty($stmt_arr)){
                 $stmt->execute($stmt_arr);                          //處理 byUser & byYear
             }else{
@@ -118,10 +112,6 @@
             echo $e->getMessage();
         }
     }
-
-
-
-
     // load 工作年度 workTarget.json
     function load_workTarget($parm) {
         $workTarget_file = "../staff/workTarget.json";
@@ -172,15 +162,6 @@ use Mockery\Undefined;
     // 取得已存檔的員工部門代號
     function load_staff_dept_nos(){
         $pdo = pdo();
-        // $sql = "SELECT
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
-            //             COUNT(*) AS _count
-            //         FROM _staff
-            //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
-        // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
         $year = $year ?? date('Y');
         $sql = "SELECT year_key, emp_sub_scope, dept_no, emp_dept, COUNT(*) AS _count,
                     SUM( CASE 
@@ -190,14 +171,12 @@ use Mockery\Undefined;
                             THEN 1 ELSE 0 
                         END
                     ) AS shCaseNotNull,
-                    -- concat( ROUND( SUM( CASE 
                     ROUND( SUM( CASE 
                                     WHEN JSON_EXTRACT(_logs, '$.{$year}.shCase') IS NOT NULL 
                                         AND JSON_TYPE(JSON_EXTRACT(_logs, '$.{$year}.shCase')) = 'ARRAY' 
                                         AND JSON_LENGTH(JSON_EXTRACT(_logs, '$.{$year}.shCase')) > 0 
                                     THEN 1 ELSE 0 
                                 END
-                    -- ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
                     ) * 100 / COUNT(*), 0 ) AS shCaseNotNull_pc
                 FROM (
                     SELECT '{$year}' AS year_key,
@@ -232,18 +211,10 @@ use Mockery\Undefined;
         $pdo = pdo();
         extract($request);
         $sql = "SELECT sh.* 
-                    -- _d.id, _d.uuid, _d.idty, _d.anis_no, _d.local_id, _d.case_title, _d.a_dept, _d.meeting_time, _d.meeting_local, _odd
-                    -- , _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
-                    -- , _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
-                FROM _shlocal sh
-                -- LEFT JOIN _local _l     ON _d.local_id = _l.id 
-                -- LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
-                -- LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no 
-                ";
+                FROM _shlocal sh ";
         // tidy query condition：
             $stmt_arr   = [];    // 初始查詢陣列
             $conditions = [];
-
             if(isset($OSHORT) && $OSHORT != "All"){                         // 處理過濾 OSHORT != All  
                 $conditions[] = "sh.OSHORT = ?";
                 $stmt_arr[] = $OSHORT;
@@ -252,7 +223,6 @@ use Mockery\Undefined;
                 $conditions[] = "sh.flag = ?";
                 $stmt_arr[] = $flag;
             }
-
             if(isset($fab_title) && $fab_title != "All"){                         // 處理 fab_title != All 進行二階   
                 if($fab_title == "allMy"){                                     // 處理 fab_title = allMy 我的轄區
                     $conditions[] = "sh.OSTEXT_30 IN ({$sfab_id})";
@@ -261,13 +231,11 @@ use Mockery\Undefined;
                     $stmt_arr[] = "%".$fab_title."%";
                 }
             }                                                               // 處理 fab_title = All 就不用套用，反之進行二階
-
             if (!empty($conditions)) {
                 $sql .= ' WHERE ' . implode(' AND ', $conditions);
             }
             // 後段-堆疊查詢語法：加入排序
             $sql .= " ORDER BY sh.created_at DESC ";     // ORDER BY sh.created_at DESC
-
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
@@ -362,6 +330,7 @@ use Mockery\Undefined;
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }

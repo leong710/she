@@ -1,6 +1,5 @@
 <?php
 // // // dept_CRUD group
-
     // 20231004-改用msSQL-hrDB -R
     function show_dept(){
         $pdo = pdo_hrdb();
@@ -21,7 +20,6 @@
     // 20231004-改用msSQL-hrDB 查詢部門主管
     function show_deptSir(){
         $pdo = pdo_hrdb();
-        // $sql = "SELECT DISTINCT * FROM tnesh_mb  WHERE idty > 1 AND role <> '' ORDER BY sign_code,id DESC ";
         $sql = "SELECT u.*
                 FROM [STAFF] u
                 LEFT JOIN [HCM_VW_DEPT08] d ON u.dept_no = d.OSHORT
@@ -35,7 +33,6 @@
             echo $e->getMessage();
         }
     }
-    
     // 查詢部門清單
     function load_dept($request){
         $pdo = pdo();

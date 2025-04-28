@@ -47,15 +47,12 @@
                         document.querySelector('#edit_'+to_module+' #edit_'+item_key).value = row[item_key]; 
                     }
                 })
-
                 // 鋪上最後更新
                 let to_module_info = '最後更新：'+row['updated_at']+' / by '+row['updated_user'];
                 document.querySelector('#edit_'+to_module+'_info').innerHTML = to_module_info;
-
                 // step3-3.開啟 彈出畫面模組 for user編輯
                 // edit_myTodo_btn.click();
                 var add_btn = '<input type="submit" name="edit_'+to_module+'_submit" class="btn btn-primary" value="儲存">';
-                // var del_btn = '<input type="submit" name="delete_'+to_module+'" value="刪除'+to_module+'" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)">';
                 var del_btn ='<button type="submit" name="delete_'+to_module+'" title="刪除" class="btn btn-sm btn-xs btn-danger" onclick="return confirm(`確認刪除？`)" onsubmit="this.site_id.required=false; this.sign_code.required=false; this.fab_title.required=false; this.fab_remark.required=false; this.osha_id.required=false; this.BTRTL.required=false;"><i class="fa-regular fa-trash-can"></i></button>';
                 $('#'+to_module+'_modal_action').append('編輯');          // model標題
                 $('#'+to_module+'_modal_delect_btn').append(del_btn);     // 刪除鈕
@@ -82,7 +79,6 @@
                 },
                 success: function(res){
                     let res_r = res["result"];
-                    // console.log(res_r);
                     let res_r_flag = res_r["flag"];
                     if(res_r_flag == 'Off'){
                         e.target.classList.remove('btn-success');
@@ -101,13 +97,11 @@
                 error: function(e){
                     swal_action = 'error';
                     swal_content += res_r_flag+' 套用失敗';
-                    console.log("cheng_flag error: ", e);
+                    console.error("cheng_flag error: ", e);
                 }
             });
-
             // swal('套用資料' ,swal_content ,swal_action, {buttons: false, timer:2000}).then(()=>{location.href = url;});     // deley3秒，then自動跳轉畫面
             swal('change_flag' ,swal_content ,swal_action, {buttons: false, timer:1000});
-
         }
     }
 
@@ -116,7 +110,6 @@
         mloading("show");                                               // 啟用mLoading
         const arr_role = fab_value.split(',').map(item => parseInt(item));
         let table_tr = document.querySelectorAll('#local_table > tbody > tr');
-        // console.log('fab_value:', fab_value);
         if(fab_value === '0'){
             table_tr.forEach(function(row){
                 row.classList.remove('unblock');
@@ -139,88 +132,88 @@
     }
 
     // // // 第三頁：searchUser function 
-    // // fun3-1：search Key_word       // 20240329 若要導入功能分離，可參考ert_em/auth/index
-    function search_fun(){
-        mloading("show");                       // 啟用mLoading
-        let search = $('.search > input').val().trim();
-        search = search.trim();
-        if(!search || (search.length < 8)){
-            alert("查詢工號字數最少 8 個字以上!!");
-            $("body").mLoading("hide");
-            return false;
-        } 
+        // // fun3-1：search Key_word       // 20240329 若要導入功能分離，可參考ert_em/auth/index
+        function search_fun(){
+            mloading("show");                       // 啟用mLoading
+            let search = $('.search > input').val().trim();
+            search = search.trim();
+            if(!search || (search.length < 8)){
+                alert("查詢工號字數最少 8 個字以上!!");
+                $("body").mLoading("hide");
+                return false;
+            } 
 
-        $.ajax({
-            // url:'http://tneship.cminl.oa/hrdb/api/index.php',        // 正式舊版
-            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
-            method:'post',
-            dataType:'json',
-            data:{
-                functionname: 'showStaff',                              // 操作功能
-                uuid: '752382f7-207b-11ee-a45f-2cfda183ef4f',           // ppe
-                emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
-            },
-            success: function(res){
-                var res_r = res["result"];
-                // 將結果進行渲染
-                if (res_r !== '') {
-                    var obj_val = res_r;                                         // 取Object物件0
-                    if(obj_val){     
-                        var com_val = obj_val.emp_id+','+obj_val.cname;
-                        tagsInput_me(com_val);
+            $.ajax({
+                url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
+                method:'post',
+                dataType:'json',
+                data:{
+                    functionname: 'showStaff',                              // 操作功能
+                    uuid: 'e65fccd1-79e7-11ee-92f1-1c697a98a75f',           // nurse
+                    emp_id: search                                          // 查詢對象key_word  // 使用開單人工號查詢
+                },
+                success: function(res){
+                    var res_r = res["result"];
+                    // 將結果進行渲染
+                    if (res_r !== '') {
+                        var obj_val = res_r;                                         // 取Object物件0
+                        if(obj_val){     
+                            var com_val = obj_val.emp_id+','+obj_val.cname;
+                            tagsInput_me(com_val);
 
-                    }else{
-                        alert('查無工號：'+ search +' !!');
+                        }else{
+                            alert('查無工號：'+ search +' !!');
+                        }
                     }
+                },
+                error (){
+                    console.error("search error");
                 }
-            },
-            error (){
-                console.log("search error");
-            }
-        })
-        document.querySelector('#key_word').value = '';
-        $("body").mLoading("hide");
-    }
-    // // fun3-2：移除單項模組
-    $('#selectUserItem').on('click', '.remove', function() {
-        var tagIndex = $(this).closest('.tag').index();
-        let tagg = tags[tagIndex];                       // 取得目標數值 emp_id,cname
-        let emp_id = tagg.substr(0, tagg.search(','));   // 指定 emp_id
-        let tag_user = document.getElementById(emp_id);
-        if(tag_user){
-            tag_user.value = tagg;
+            })
+            document.querySelector('#key_word').value = '';
+            $("body").mLoading("hide");
         }
-        tags.splice(tagIndex, 1);           // 自陣列中移除
-        $(this).closest('.tag').remove();   // 自畫面中移除
-        let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
-        if(edit_pm_emp_id){
-            edit_pm_emp_id.value = tags;
-        }
-    });
-    // // fun3-3：清除search keyWord
-    function resetMain(){
-        $("#result").removeClass("border rounded bg-white");
-        $('#result_table').empty();
-        document.querySelector('#key_word').value = '';
-    }
-    // // fun3-3：選染功能
-    function tagsInput_me(val) {
-        let emp_id = val.substr(0, val.search(','));    // 取第1位 指定emp_id
-        let cname = val.substr(val.search(',',)+1);     // 取第2位 指定cname
-        if (val !== '') {
-            tags.push(val);
-            $('#selectUserItem').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+        // // fun3-2：移除單項模組
+        $('#selectUserItem').on('click', '.remove', function() {
+            var tagIndex = $(this).closest('.tag').index();
+            let tagg = tags[tagIndex];                       // 取得目標數值 emp_id,cname
+            let emp_id = tagg.substr(0, tagg.search(','));   // 指定 emp_id
             let tag_user = document.getElementById(emp_id);
             if(tag_user){
-                tag_user.value = '';
+                tag_user.value = tagg;
             }
+            tags.splice(tagIndex, 1);           // 自陣列中移除
+            $(this).closest('.tag').remove();   // 自畫面中移除
             let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
             if(edit_pm_emp_id){
                 edit_pm_emp_id.value = tags;
             }
+        });
+        // // fun3-3：清除search keyWord
+        function resetMain(){
+            $("#result").removeClass("border rounded bg-white");
+            $('#result_table').empty();
+            document.querySelector('#key_word').value = '';
         }
-    }
+        // // fun3-3：選染功能
+        function tagsInput_me(val) {
+            let emp_id = val.substr(0, val.search(','));    // 取第1位 指定emp_id
+            let cname = val.substr(val.search(',',)+1);     // 取第2位 指定cname
+            if (val !== '') {
+                tags.push(val);
+                $('#selectUserItem').append('<div class="tag">' + cname + '<span class="remove">x</span></div>');
+                let tag_user = document.getElementById(emp_id);
+                if(tag_user){
+                    tag_user.value = '';
+                }
+                let edit_pm_emp_id = document.getElementById('edit_pm_emp_id');
+                if(edit_pm_emp_id){
+                    edit_pm_emp_id.value = tags;
+                }
+            }
+        }
     // // // 第三頁：searchUser function  
+
     $(document).ready(function(){
         // 在任何地方啟用工具提示框
         $('[data-toggle="tooltip"]').tooltip();
