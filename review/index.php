@@ -25,7 +25,6 @@
             'sfab_id'       => $sfab_id_str,
         );
     // get mainData = shLocal
-        // $shLocals       = show_shLocal($query_arr);     // get case清單
         $shLocals       = [];     // get case清單
         $per_total      = count($shLocals);             // 計算總筆數
     // for select item
@@ -37,18 +36,8 @@
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step3.去掉括號forMysql查詢
 
-        // p1
-        // $doc_deptNos = load_doc_deptNos();                                        // step1.取得存檔員工的部門代號
-        // $doc_deptNos_str = json_encode($doc_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        // $doc_deptNos_str = trim($doc_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
-
-        // echo "<pre>";
-        // print_r($doc_deptNos);
-        // echo "</pre>";
-
     include("../template/header.php"); 
     include("../template/nav.php"); 
-
 ?>
 
 <head>
@@ -261,11 +250,9 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
-                                    <div id="deptNo_opts_inside" class="row p-0">
-                                        <!-- 放checkbox按鈕的地方 -->
-                                    </div> 
-                                <!-- </div> -->
+                                <div id="deptNo_opts_inside" class="row p-0">
+                                    <!-- 放checkbox按鈕的地方 -->
+                                </div> 
                             </div>
 
                         </div>
@@ -440,14 +427,12 @@
                 </div>
                 <div class="modal-body px-4"></div>
                 <div class="modal-footer">
-                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
                     <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
             </div>
         </div>
     </div> 
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -457,12 +442,9 @@
 <script src="../../libs/aos/aos_init.js"></script>                  <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/openUrl/openUrl.js"></script>               <!-- 彈出子畫面 -->
-
 <script>
-
 // // // 開局導入設定檔
 // 以下為控制 iframe
-
     var download_excel_btn  = document.getElementById('download_excel_btn');    // 下載按鈕
     var bat_storeStaff_btn  = document.getElementById('bat_storeStaff_btn');    // 儲存按鈕
     var resetINF_btn        = document.getElementById('resetINF_btn');          // 清空按鈕
@@ -478,14 +460,11 @@
     var staff_inf       = [];
     var shLocal_inf     = [];
     var loadStaff_tmp   = [];
-
     var _docsIdty_inf   = '';
     var _docs_inf       = [];
     var _doc_inf        = [];
-    
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-
     const userInfo = {
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
@@ -496,13 +475,11 @@
     // const currentYear = String(new Date().getFullYear());    // 取得當前年份
     const currentYear    = '<?=$_year?>';                       // 取得當前年份
     const preYear        = String(currentYear - 1);             // 取得去年年份
-
 </script>
-<script src="../mvc/utility.js?v=<?=time()?>"></script>
-<script src="../mvc/excel.js?v=<?=time()?>"></script>
-<script src="../mvc/check.js?v=<?=time()?>"></script>
-<script src="../mvc/editModal.js?v=<?=time()?>"></script>
-
-<script src="review.js?v=<?=time()?>"></script>
+<script src="../mvc/utility.js"></script>
+<script src="../mvc/excel.js"></script>
+<script src="../mvc/check.js"></script>
+<script src="../mvc/editModal.js"></script>
+<script src="review.js"></script>
 
 <?php include("../template/footer.php"); ?>

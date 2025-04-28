@@ -7,7 +7,6 @@
             loadStaff_tmp = [];
             _doc_inf      = [];
             _doc_inf.idty = null;
-
             await release_dataTable();
             $('#form_btn_div').empty();
             $('#hrdb_table tbody').empty();
@@ -42,15 +41,12 @@
             resetINF_btn.disabled        = staff_inf.length === 0;  // 讓 清除 按鈕啟停
             // bat_storeStaff_btn.disabled  = staff_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 儲存 按鈕啟停
             // SubmitForReview_btn.disabled = staff_inf.length === 0 || (_doc_inf.idty >= 4);   // 讓 送審 按鈕啟停
-
             // loadExcel_btn.disabled       = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 新增 按鈕啟停
             // importStaff_btn.disabled     = (_doc_inf.idty >= 4) || (userInfo.role >= 2);     // 讓 上傳 按鈕啟停
-
             // if(_doc_inf.idty >= 4){
             //     bat_storeStaff_btn.disabled  = true;  // 讓 儲存 按鈕啟停
             //     SubmitForReview_btn.disabled = true;  // 讓 送審 按鈕啟停
             // }
-            
             document.querySelectorAll(`#hrdb_table input[id*="eh_time,"]`).forEach(input => input.disabled   = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));   // 讓所有eh_time 輸入欄位啟停 = 主要for已送審
             document.querySelectorAll(`#hrdb_table button[class*="eraseStaff"]`).forEach(btn => btn.disabled = (_doc_inf.idty >= 5 || _doc_inf.in_sign != userInfo.empId ));   // 讓所有eraseStaff btn啟停 = 主要for已送審
             postMemoMsg_btn.disabled     = (_doc_inf.idty >= 4);    // 讓 貼上備註 按鈕啟停
@@ -84,24 +80,21 @@
             _doc            : _doc_inf,
             _staff          : staff_inf
         }
-            console.log('submitValue =>', submitValue);
-
         submit_modal.hide();
     }
-
 
 // // phase 3 -- 渲染與鋪設
     // [p1 函數-6] 渲染hrdb
     async function post_hrdb(emp_arr){
         // 停止並銷毀 DataTable
-            release_dataTable();
-            // $('#hrdb_table tbody').empty();
+        release_dataTable();
 
         if(emp_arr.length === 0){
             const table = $('#hrdb_table').DataTable();                     // 獲取表格的 thead
             const columnCount = table.columns().count();                    // 獲取每行的欄位數量
             const tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 沒有資料 ~ </td><tr>`;
             $('#hrdb_table tbody').append(tr1);
+
         }else{
             const importItem_arr = ['yearHe', 'yearCurrent', 'yearPre'];
             await Object(emp_arr).forEach((emp_i)=>{        // 分解參數(陣列)，手工渲染，再掛載dataTable...
@@ -148,7 +141,6 @@
             })
         }
         // await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
-
         // 240905 [轉調]欄位增加[紀錄].btn：1.建立offcanvas_arr陣列。2.建立canva_btn監聽。3.執行fun，顯示於側邊浮動欄位offcanva。
             const offcanvas_arr = Array.from(document.querySelectorAll('button[aria-controls="aboutStaff"]'));
             offcanvas_arr.forEach(canva_btn => {
@@ -258,37 +250,18 @@
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
     // 240904 將loadStaff進行欄位篩選與合併到臨時陣列loadStaff_tmp    ；call from search_fun()
     async function rework_staff(loadStaff_arr){
-        // return new Promise((resolve) => {
-            for (const [index, staffValue] of Object.entries(loadStaff_arr)) {
-                const age = staffValue.year_key;    // 提取資料年分
-                // 將指定的欄位提取到最外圍...被取消的這些都是已經有了的
-                    // loadStaff_arr[index].dept_no       = staffValue._logs[age].dept_no
-                    // loadStaff_arr[index].emp_dept      = staffValue._logs[age].emp_dept
-                    // loadStaff_arr[index].emp_sub_scope = staffValue._logs[age].emp_sub_scope
-                    // loadStaff_arr[index].HIRED         = staffValue._logs[age].HIRED
-                    // loadStaff_arr[index].gesch         = staffValue._logs[age].gesch
-                    // loadStaff_arr[index].natiotxt      = staffValue._logs[age].natiotxt
-                    // loadStaff_arr[index].HIRED         = staffValue.HIRED
-                    // loadStaff_arr[index].gesch         = staffValue.gesch
-                    // loadStaff_arr[index].natiotxt      = staffValue.natiotxt
-                    loadStaff_arr[index].eh_time       = staffValue._logs[age].eh_time 
-
-                    staff_inf.push(loadStaff_arr[index]);      // 套取staff的表單
-            }
-            // staff_inf = loadStaff_arr;      // 套取staff的表單
-            // 套取staff的表單 = for 比對功能，來決定是否儲存
-                // loadStaff_tmp = loadStaff_arr;  
-                // loadStaff_tmp = Object.assign( [], loadStaff_arr ); // 淺拷貝
-            loadStaff_tmp = Object.assign( {}, staff_inf ); // 淺拷貝
-
-            // console.log('loadStaff_arr...',loadStaff_arr);
-            await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
-            await post_shCase(loadStaff_arr);     // 鋪設--特作資料
-
-            await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
-
-            // resolve();  // 當所有設置完成後，resolve Promise
-        // });
+        for (const [index, staffValue] of Object.entries(loadStaff_arr)) {
+            const age = staffValue.year_key;    // 提取資料年分
+            // 將指定的欄位提取到最外圍...被取消的這些都是已經有了的
+            loadStaff_arr[index].eh_time       = staffValue._logs[age].eh_time 
+            staff_inf.push(loadStaff_arr[index]);      // 套取staff的表單
+        }
+        // staff_inf = loadStaff_arr;      // 套取staff的表單
+        // 套取staff的表單 = for 比對功能，來決定是否儲存
+        loadStaff_tmp = Object.assign( {}, staff_inf ); // 淺拷貝
+        await post_hrdb(loadStaff_arr);       // 鋪設--人員資料
+        await post_shCase(loadStaff_arr);     // 鋪設--特作資料
+        await resetINF(false);    // 重新架構：停止並銷毀 DataTable、step-1.選染到畫面 hrdb_table、step-1-2.重新渲染 shCase&判斷、重新定義HE_CATE td、讓指定按鈕 依照staff_inf.length 啟停 
     }
 
     
@@ -297,14 +270,12 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             _docs_inf = docDeptNo;      // 套取docs
-            console.log('docDeptNo =>',docDeptNo);
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(docDeptNo.length > 0){     // 判斷使否有長度值
                 for (const _item of docDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
-                        // console.log(emp_sub_scope,oh_value)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -337,45 +308,36 @@
                     </div>`;
                 $('#deptNo_opts_inside').append(ostext_btns); // 將生成的按鈕貼在<deptNo_opts_inside>元素中
             }
-
             // step-2. 綁定deptNo_opts事件監聽器
             const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
             deptNo_btns.forEach(deptNo_btn => {
                 deptNo_btn.addEventListener('click', async function() {
                     // 工作一 清空暫存
                         await resetINF(true); // 清空
-
                     // 工作二 
                         let thisValue_arr   = this.value.split(',')       // 分割this.value成陣列
                         // const select_year  = thisValue_arr[0];           // 取出陣列0=年份
                         const select_deptNo   = thisValue_arr[1];           // 取出陣列1=部門代號
                         const select_subScope = thisValue_arr[2];           // 取出陣列1=人事子範圍
-
                         // // // ***** 250206 這裡已重寫....要重新抓db裡的_doc文件....避免抄寫衝突
                             // 使用 .find() 找到滿足條件的物件
                             // const result = await _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
                         const parm = { uuid : this.value };
                         const result = await load_fun('load_doc', JSON.stringify(parm), 'return');   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-
                         // 從 result 中取出對應的廠區/部門代號
                             // const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
                         const _doc = result ? result[select_subScope][select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
-                        
                         // 採用淺拷貝的方式來合併物件
                         // _doc_inf = Object.assign( {}, _doc_inf, _doc );
                         _doc_inf = _doc;
                         _doc_inf['subScope'] = select_subScope;
                         _doc_inf['deptNo']   = select_deptNo;
                         _docsIdty_inf = _doc ? (_doc.idty ?? null) : null;
-
                         // 工作三 依部門代號撈取員工資料 後 進行鋪設
                         let checkList = JSON.stringify(_doc['check_list']).replace(/[\/\[\]]/g, '');
                             checkList = checkList.replace(/\,/g, ';').replace(/\"/g, "'");
-
                         thisValue_arr.push(checkList)
                         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
-                        console.log('selectedValues_str =>',selectedValues_str);
-                        
                         // 增加判斷式，取_doc_inf.in_sign == userInfo.empId 來啟閉簽核按鈕
                         const reviewRole = (
                                 ((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty <= 5) ||
@@ -383,7 +345,6 @@
                             );
 
                         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-
                         await mk_form_btn(reviewRole);        // 建立簽核按鈕
                         await post_reviewInfo(_doc_inf);      // 鋪設表頭訊息及待簽人員
                         await post_logs(_doc_inf.logs);       // 鋪設文件歷程
@@ -420,7 +381,6 @@
             });
             // 初始化驗證監聽器
             rebindsubScopesOptsListeners();
-
             filtApprove(docDeptNo);
 
             resolve();      // 當所有設置完成後，resolve Promise
@@ -430,17 +390,13 @@
     async function filtApprove(_docs) {
         const reviewStep = await load_fun('reviewStep', 'return');     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
         const _step = reviewStep.step;
-
         for (const _doc of _docs) {
-                    // console.log('_doc =>',_doc);
             for (const [emp_sub_scope, dept_no_value] of Object.entries(_doc)) {
                 for (const [dept_no, value] of Object.entries(dept_no_value)) {
-                            // console.log(dept_no,' => value:',value);
                     const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"] sup[name="sup_${dept_no}[]"]`);
                     const innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
                     // 更新所有符合條件的節點的 innerHTML
                     deptNo_sups.forEach(node => { node.innerHTML = `(${value.idty}-${innerHTMLValue})`; });
-
                     // 決定開啟的權限
                     const doc_Role_bool = !( 
                             (userInfo.role <= 1) ||                  // 大PM.1 => 全開
@@ -450,7 +406,6 @@
                             (value.in_sign == userInfo.empId) ||     // 待簽人員 = 上層主管 /轉呈
                             (value.omager  == userInfo.empId)        // 部門主管 = 自己
                         );
-        
                     const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
                     deptNo_btns.forEach(deptNo_btn => {
                         // 如果 idty 大於 4，則更新按鈕樣式
@@ -470,12 +425,9 @@
                         // 點擊編輯權限
                         deptNo_btn.disabled = doc_Role_bool;
                     });
-
-                    const subScopes_opts_arr = Array.from(document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${emp_sub_scope},${dept_no}"]`));
                     // 點擊閱讀權限
+                    const subScopes_opts_arr = Array.from(document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${emp_sub_scope},${dept_no}"]`));
                     subScopes_opts_arr.forEach(subScope_opt => subScope_opt.disabled = doc_Role_bool );
-                    // deptNo_btns.forEach(deptNo_btn => {
-                    // })
                 }
             }
         }
@@ -487,11 +439,9 @@
     // [p1 函數-1] 設置事件監聽器和MutationObserver
     async function p1_init() {
         postBanner('reviewStep', 4, 6, 'pic-2-2.png');
-        // postBanner('reviewStep', 6, 10, 'safetyFirst.jfif');
-
         // p1-1. 取得_docs裡的所有部門代號，並生成btn
-            let parm = { _year : currentYear };
-            await load_fun('load_doc_deptNos', JSON.stringify(parm), mk_deptNos_btn);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
+        let parm = { _year : currentYear };
+        await load_fun('load_doc_deptNos', JSON.stringify(parm), mk_deptNos_btn);     // 呼叫通用函數load_fun+ p1 函數-2 生成btn
     }
     // [p1 函數-3] 設置事件監聽器和MutationObserver
     async function p1_eventListener() {
@@ -501,9 +451,7 @@
             // p1-3. 增加簽核[Agree]鈕的監聽動作...
                 reviewSubmit_btn.addEventListener('click', async function() {
                     // const buttonValue = this.getAttribute('value'); // 使用 getAttribute 獲取 value
-                    // console.log('EventListener -- submit! =>', buttonValue);
                     // processSubmit(buttonValue);
-                    
                     const action = this.getAttribute('value'); // 使用 getAttribute 獲取 value
                     const getInputValue = id => document.querySelector(`#submitModal #forwarded input[id="${id}"]`).value;
                     const getCommValue  = id => document.querySelector(`#submitModal textarea[id="${id}"]`).value;
@@ -520,15 +468,6 @@
                             _doc            : _doc_inf,
                             staff_inf       : staff_inf
                         })
-                        // console.log('submitValue =>', JSON.parse(submitValue)); 
-                        // console.log('staff_inf =>', staff_inf); 
-                        // const staff_inf_str = JSON.stringify(staff_inf); 
-                        // console.log('loadStaff_tmp =>', loadStaff_tmp); 
-                        // const loadStaff_tmp_str = JSON.stringify(loadStaff_tmp); 
-                        // if(staff_inf_str != loadStaff_tmp_str){   // for 比對功能，來決定是否儲存
-                        //     console.log('有異動');
-                        // }
-
                     const result = await load_fun('bat_storeStaff', submitValue, 'return');            // load_fun的變數傳遞要用字串
                     if(result.action === 'success') {
                         await load_fun('processReview',  submitValue, show_swal_fun);     // load_fun的變數傳遞要用字串
@@ -536,10 +475,8 @@
                         alert(result.content+' & 尚未提交 !!');
                         $("body").mLoading("hide");
                     }
-            
                     submit_modal.hide();
                     location.reload();
-
                 })
 
             resolve();      // 當所有設置完成後，resolve Promise
@@ -554,20 +491,16 @@
         const result = _docs_inf.map(doc => doc[select_subScope]).find(value => value !== undefined);
         // 從 result 中取出對應的廠區/部門代號
         const _doc = result ? result[select_deptNo] : undefined;  // 確保 result 存在 // 從_docs_inf中取出對應 廠區/部門代號 的表單
-
         // 採用淺拷貝的方式來合併物件
         // _doc_inf = Object.assign( {}, _doc_inf, _doc );
         _doc_inf = _doc;
         _doc_inf['subScope'] = select_subScope;
         _doc_inf['deptNo']   = select_deptNo;
-
         // 工作三 依部門代號撈取員工資料 後 進行鋪設
         let checkList = JSON.stringify(_doc['check_list']).replace(/[\/\[\]]/g, '');
             checkList = checkList.replace(/\,/g, ';').replace(/\"/g, "'");
-
         thisValue_arr.push(checkList)
         const selectedValues_str = JSON.stringify(thisValue_arr).replace(/[\[\]]/g, '');
-        
         await load_fun('load_staff_byCheckList', selectedValues_str, rework_staff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
     }
     // [p1 函數-4] 重新綁定事件監聽器給step2 #subScopes_opts內的checkbox
@@ -587,20 +520,14 @@
         const load_subScopes_btn = document.getElementById('load_subScopes_btn');
         load_subScopes_btn.addEventListener('click', async function() {
             const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-            // const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
             // 工作一 清空暫存
             await resetINF(true); // 清空
             // 工作二 
             await release_dataTable();
-                // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                 for (const [index, selectedValue] of Object.entries(selectedValues)) {
                     await load_staff_byCheckList(selectedValue);
                 }
             await reload_dataTable();               // 倒參數(陣列)，直接由dataTable渲染
-
-            // $('logsInfo').empty();
-            console.log('staff_inf...', staff_inf);
-
             $('#nav-p2-tab').tab('show');
         })
 
@@ -613,37 +540,23 @@
             const btn_s = `<button type="button" class="btn `;
             const btn_m = ` add_btn" data-bs-toggle="modal" data-bs-target="#submitModal" value="`;
             const btn_e = `" onclick="mk_submitItem(this.value, this.innerHTML);" disable>`;
-        
             const btn_0  = btn_s +"btn-outline-danger"  + btn_m +"0" + btn_e +"作廢 (Abort)</button>";
             const btn_4  = btn_s +"btn-outline-warning" + btn_m +"4" + btn_e +"退回 (Reject)</button>";
             const btn_5  = btn_s +"btn-outline-info"    + btn_m +"5" + btn_e +"轉呈 (Forwarded)</button>";
             const btn_6  = btn_s +"btn-outline-success" + btn_m +"6" + btn_e +"同意 (Approve)</button>";
             const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"結案 (Close)</button>";
             // const btn_10 = btn_s +"btn-outline-primary" + btn_m +"10"+ btn_e +"主管同意 (Approve)</button>";
-            
             if((userInfo.role <= 2 || _doc_inf.in_sign == userInfo.empId) && _doc_inf.idty <= 5) formBtnDiv.insertAdjacentHTML('beforeend', btn_6);
             if(userInfo.role <= 1 && _doc_inf.idty == 6) formBtnDiv.insertAdjacentHTML('beforeend', '&nbsp;'+ btn_10);
             formBtnDiv.insertAdjacentHTML('beforeend', '&nbsp;'+ btn_5 +'&nbsp;'+ btn_4 );
         }
     }
 
-
 // [default fun]
     $(async function() {
         // [步驟-1] 初始化設置
         await p1_init();                              // 呼叫p1 函數-1 生成部門按鈕
         await p1_eventListener();                     // 呼叫p1 函數-3 預設工作+建立監聽
-        
-        // p2_eventListener();                     // 呼叫函數-3 建立監聽
 
-        // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        // let message  = '*** 本系統螢幕解析度建議：1920 x 1080 dpi，低於此解析度將會影響操作體驗&nbsp;~';
-        // let message  = `<b>STEP 1.名單建立(匯入Excel、建立名單)：</b>總窗護理師  <b>2.工作維護(勾選特危、填暴露時數)：</b>課副理,護理師,ESH工安  <b>3.名單送審(100%的名單按下送審)：</b>課副理,護理師</br><b>4.簽核審查(簽核主管可微調暴露時數)：</b>上層主管,課副理,護理師  <b>5.收單review(檢查名單及特檢資料是否完備)：</b>ESH工安,護理師  <b>6.名單總匯整(輸出健檢名單)：</b>總窗護理師`;
-        let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
-        if(message) {
-            // Balert( message, 'warning')
-            document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目
-        }
         $("body").mLoading("hide");
-
     });

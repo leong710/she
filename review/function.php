@@ -12,6 +12,7 @@
             $stmt->execute();
             $shLocal_OSTEXT_30s = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $shLocal_OSTEXT_30s;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -30,55 +31,38 @@
             $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $shLocal_OSHORTs_arr = [];
             foreach($shLocal_OSHORTs as $OSHORT_i){
-                // array_push($shLocal_OSHORTs_arr, $OSHORT_i["OSHORT"]);
                 $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]] = $OSHORT_i["OSTEXT"];
             }
             return $shLocal_OSHORTs_arr;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-    
     // 取得已存檔的員工部門代號
     function load_doc_deptNos(){
         $pdo = pdo();
         $year = $year ?? date('Y');
-        $sql = "SELECT * FROM `_document`
-                ";
+        $sql = "SELECT * FROM `_document` ";
         $stmt = $pdo->prepare($sql);                                // 讀取全部=不分頁
         try {
             $stmt->execute();
             $doc_deptNos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            // $doc_deptNos_arr = [];
-            // foreach($doc_deptNos as $deptNo_i){
-            //     $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["deptNo"]]["OSTEXT"] = $deptNo_i["emp_dept"];
-            //     $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["deptNo"]]["_count"] = $deptNo_i["_count"];
-            //     $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["deptNo"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
-            //     $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["deptNo"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
-            // }
             return $doc_deptNos;
+            
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-
 // 在index表頭顯示清單：
     function show_shLocal($request){
         $pdo = pdo();
         extract($request);
         $sql = "SELECT sh.* 
-                    -- _d.id, _d.uuid, _d.idty, _d.anis_no, _d.local_id, _d.case_title, _d.a_dept, _d.meeting_time, _d.meeting_local, _odd
-                    -- , _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
-                    -- , _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
-                FROM _shlocal sh
-                -- LEFT JOIN _local _l     ON _d.local_id = _l.id 
-                -- LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
-                -- LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no 
-                ";
+                FROM _shlocal sh ";
         // tidy query condition：
             $stmt_arr   = [];    // 初始查詢陣列
             $conditions = [];
-
             if(isset($OSHORT) && $OSHORT != "All"){                         // 處理過濾 OSHORT != All  
                 $conditions[] = "sh.OSHORT = ?";
                 $stmt_arr[] = $OSHORT;
@@ -87,7 +71,6 @@
                 $conditions[] = "sh.flag = ?";
                 $stmt_arr[] = $flag;
             }
-
             if(isset($fab_title) && $fab_title != "All"){                         // 處理 fab_title != All 進行二階   
                 if($fab_title == "allMy"){                                     // 處理 fab_title = allMy 我的轄區
                     $conditions[] = "sh.OSTEXT_30 IN ({$sfab_id})";
@@ -96,13 +79,11 @@
                     $stmt_arr[] = "%".$fab_title."%";
                 }
             }                                                               // 處理 fab_title = All 就不用套用，反之進行二階
-
             if (!empty($conditions)) {
                 $sql .= ' WHERE ' . implode(' AND ', $conditions);
             }
             // 後段-堆疊查詢語法：加入排序
             $sql .= " ORDER BY sh.created_at DESC ";     // ORDER BY sh.created_at DESC
-
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
@@ -134,6 +115,7 @@
             $stmt->execute();
             $site = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $site;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -151,11 +133,11 @@
             $stmt->execute();
             $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-
     // 20240125 4.組合我的sign_code所涵蓋的廠區
     function get_coverFab_lists($type){
         $sfab_id = [];
@@ -180,7 +162,6 @@
         // 1-1c sfab_id是陣列，要轉成字串
         return $result;
     }
-
     // 20231026 在index表頭顯示my_coverFab區域 = 使用signCode去搜尋
     function show_coverFab_lists($request){
         $pdo = pdo();
@@ -197,11 +178,11 @@
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-
     // 取出年份清單 => 供面篩選
     function show_GB_year(){
         $pdo = pdo();
@@ -214,11 +195,11 @@
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-
     // 取出年份清單 => 供面篩選
     function show_OSHORT(){
         $pdo = pdo();
@@ -231,6 +212,7 @@
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -240,7 +222,6 @@
     function load_workTarget($parm) {
         $workTarget_file = "../staff/workTarget.json";
         $workTarget_arr = [];
-
         if(file_exists($workTarget_file)){
             $workTarget_json = file_get_contents($workTarget_file); // 从JSON文件加载内容
             // 嘗試解碼 JSON，並檢查是否成功
