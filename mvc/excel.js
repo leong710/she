@@ -109,7 +109,6 @@
     // fun.2-2a：search Key_word
     async function search_fun(fun, searchkeyWord){
         return new Promise((resolve) => {
-            // mloading("show");                                               // 啟用mLoading
             // 製作查詢包裝：
             var request = {
                 uuid         : 'e65fccd1-79e7-11ee-92f1-1c697a98a75f',      // nurse
@@ -196,7 +195,6 @@
                         });                           
 
                     }else if(fun=='rework_loadStaff'){
-                        // rework_staff(res["result"]);
                         rework_staff(res["result"]).then(() => {
                             resolve();  // 等待 rework_staff 完成後再解析 Promise
                         });
@@ -221,7 +219,7 @@
                     }
                 },
                 error (err){
-                    console.log("search error:", err);
+                    console.error("search error:", err);
                     $("body").mLoading("hide");
                     alert("查詢錯誤!!");
                     resolve();      // 當所有設置完成後，resolve Promise
@@ -296,8 +294,8 @@
     });
     $('#assignOmagerBadge').on('click', '.remove', function() {
         $(this).closest('.tag').remove();                         // 自畫面中移除
-        document.getElementById('assignOmager').value = '';            // 將欄位cname清除
-        document.getElementById('assignOmagerName').value = '';        // 將欄位assignOmagerName清除
+        document.getElementById('assignOmager').value = '';       // 將欄位cname清除
+        document.getElementById('assignOmagerName').value = '';   // 將欄位assignOmagerName清除
         $('#assignOmagerBadge').empty();
     });
 

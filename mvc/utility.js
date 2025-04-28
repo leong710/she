@@ -23,18 +23,14 @@
                 newToast.setAttribute('aria-atomic', 'true');
                 newToast.setAttribute('autohide', 'true');
                 newToast.setAttribute('delay', delayTime);
-    
                 // 設置 toast 的內部 HTML
                 newToast.innerHTML = `<div class="d-flex"><div class="toast-body ${(type == 'success' ? 'text-white':'')}">${sinn}</div>
                         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
-    
             // 將新 toast 添加到容器中
             document.getElementById('toastContainer').appendChild(newToast);
-    
             // 初始化並顯示 toast
             var toast = new bootstrap.Toast(newToast);
             toast.show();
-    
             // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
             newToast.addEventListener('hidden.bs.toast', function () {
                 newToast.remove();
@@ -67,7 +63,6 @@
                     var swal_title = '通知訊息';
                     var swal_content = '';
                     var swal_action = 'info'; // 預設為info
-
                         function getResultContent(result, type) {
                             if (result.error == 0 && result.success != 0) {
                                 return `${type}成功：${result.success}`;
@@ -77,17 +72,14 @@
                                 return `${type}成功：${result.success}、錯誤：${result.error}`;
                             }
                         }
-
                     // 處理 email 部分
                     swal_content += getResultContent(swal_value.email, '寄送');
                     swal_action = (swal_value.email.error != 0 || swal_value.mapp.error != 0) ? 'warning' : 'success';
-
                     // 處理 mapp 部分
                     swal_content += ' 、 ' + getResultContent(swal_value.mapp, '推送');
                     if (swal_value.mapp.error != 0) {
                         swal_action = 'warning'; // 如果有錯誤，設定為 warning
                     }
-
                     $("body").mLoading("hide");                                                       // 關閉mLoading圖示
                     swal(swal_title ,swal_content ,swal_action, {timer:5000}).then(()=>{resolve();});                        // popOut swal + 自動關閉
 
@@ -113,7 +105,6 @@
     }
     // fun.0-4a: dataTable
     function reload_dataTable(_table){
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         return new Promise((resolve) => {
             _table = _table ?? 'hrdb_table';
             let table = $(`#${_table}`).DataTable();
@@ -126,13 +117,6 @@
                 "autoWidth": false,                                              // 自動寬度
                 "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 2, "asc" ]] ,            // 排序
                 "pageLength": 25,                                               // 顯示長度
-                    // "paging": false,                                             // 分頁
-                    // "searching": false,                                          // 搜尋
-                    // "data": hrdb_data,
-                // "columnDefs": [
-                        // { "width": "60px", "targets": [0, 1, 2] },               // 設定第1~3欄的寬度為50px
-                        // { "width": "40px", "targets": [6, 7, 8, 9] },
-                    // ]
             });
 
             resolve();      // 當所有設置完成後，resolve Promise
@@ -169,7 +153,7 @@
                 throw error;                                    // 載入失敗，reject
             }
         }else{
-            console.log('error: parm lost...');
+            console.error('error: parm lost...');
             alert('error: parm lost...');
             $("body").mLoading("hide");
         }
@@ -179,6 +163,7 @@
         return new Promise((resolve) => {  
             $("body").mLoading("hide");
             console.log("console_log: ", debug_value);
+
             resolve(); // 異常情況下也需要resolve
         });
     }
@@ -229,7 +214,6 @@
 
         let tr1 = `<tr><td class="text-center" colspan="${columnCount}"> ~ 無 ${preYear} 儲存紀錄 ~ </td><tr>`;
         if(empData._logs != undefined && (empData._logs[preYear] != undefined)){
-            console.log('show_preYearShCase...empData...', empData._logs);
             // 鋪設t-body
             const tdClass = `<td><div class="bottom-half"`;
             const empId_preYear = `,${select_empId},${preYear}"></div></div></td>`;
@@ -240,12 +224,10 @@
                 tr1 += tdClass + ` id="HE_CATE`       + empId_preYear;
                 tr1 += tdClass + ` id="MONIT_LOCAL`   + empId_preYear;
                 tr1 += tdClass + ` id="WORK_DESC`     + empId_preYear;
-
                 tr1 += tdClass + ` id="AVG_VOL`       + empId_preYear;
                 tr1 += tdClass + ` id="AVG_8HR`       + empId_preYear;
                 tr1 += tdClass + `><snap id="eh_time,${select_empId},${preYear}"></snap></div></td>`;
                 tr1 += tdClass + ` id="NC`            + empId_preYear;
-
                 tr1 += tdClass + ` id="shCondition`   + empId_preYear;
                 tr1 += tdClass + ` id="change,${select_empId},${currentYear}"></div></td>`;
                 tr1 += tdClass + ` id="yearHe`        + empId_preYear;
@@ -265,7 +247,6 @@
                 document.getElementById(`emp_sub_scope,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', `<b>${preYear}：</b><br>${emp_sub_scope}`); 
                 document.getElementById(`emp_dept,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', `${dept_no}<br>${emp_dept}`);              
                 document.getElementById(`eh_time,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', `${eh_time}`);
-
                 // step.2 更新shCase欄位4,5,6,7,8,9,10
                 if (shCase) {
                     // step.2 欲更新的欄位陣列 - 對應欄位4,5,6,7,8,9
@@ -307,7 +288,6 @@
                                         }
                                     })();
                                 }
-
                                 // step.2b 噪音驗證 對應欄位9,10
                                 if (sh_item === 'HE_CATE' && empData_shCase_Noise && (sh_value['AVG_VOL'] || sh_value['AVG_8HR'])) {
                                     // 2b1. 檢查元素是否存在+是否有值
@@ -318,12 +298,10 @@
                                         const eh_time = preYear_logs['eh_time'] ? Number(preYear_logs['eh_time']) : false;
                                         const avg_vol = sh_value['AVG_VOL']     ? Number(sh_value['AVG_VOL'])     : false;
                                         const avg_8hr = sh_value['AVG_8HR']     ? Number(sh_value['AVG_8HR'])     : false;
-
                                     // 2b3. 呼叫[fun]checkNoise 取得判斷結果
                                         const noise_check = checkNoise(eh_time, avg_vol, avg_8hr);    
                                         const noise_check_str = `${br}${noise_check.cCheck}`;   // 這裡只顯示cCheck判斷結果
                                         document.getElementById(`NC,${select_empId},${preYear}`).insertAdjacentHTML('beforeend', noise_check_str);     // 渲染噪音判斷
-            
                                     // 2b4. 紀錄個人(噪音)特檢資格shCondition['Noise']...是=true；未達、不適用=false
                                         // empData['shCondition']['noise'] = (noise_check['cCheck'] == '是') ? true : false;   // 照理說應該不需要...因為是直接抓舊紀錄鋪設，不需要任何判斷
                                 }
@@ -337,7 +315,6 @@
                 if(shCondition) {
                     await updateShCondition(shCondition, select_empId, preYear);    // 帶入參數：資格認證, 對象empId, 對應年份
                 }
-
                 // step.3a 250407 連動變更作業項目 主要for渲染preYear去年特危項目 (3部分: 1.staff.js>mgInto_staff_inf、2.utility.js>show_preYearShCase、3.excel.js>downloadExcel)
                 const changeYear = String(Number(year_key) - 2 );       // 這裡要定義作業年度的去前年，所以是-2
                 let _6shCheck_str = '';
@@ -354,7 +331,6 @@
                     _6shCheck_str = JSON.stringify(_6shCheck_arr).replace(/[\[\]{"}]/g, '').replace(/,/g, ';'); // 4.轉換字串
                     _6shCheck_str = _6shCheck_str !== '' ? `變更(${_6shCheck_str})` : _6shCheck_str;
                 }
-
                 // step.4 更新項目類別代號、檢查項目、去年檢查項目 - 對應欄位13,14,15
                 const _content_import = _content[`${preYear}`] != undefined ? (_content[`${preYear}`].import ?? {}) : {};
                 if(_content_import){
@@ -368,44 +344,22 @@
                         document.getElementById(`${importItem},${select_empId},${preYear}`).insertAdjacentHTML('beforeend', importItem_value);     // 渲染各項目
                     })
                 }
-
-
             }
         }else{
             $('#shCase_table tbody').empty().append(tr1);       // ~ 無儲存紀錄 ~
         }
     }
-        // // 渲染 今年目前特危項目 for p-2特作欄位(arr_All)
-            // async function post_shCase(emp_arr){
-            //     for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
-            //         const { emp_id: select_empId, shCase, shCondition} = emp_i;
-
-            //         // doCheck(select_empId);          // 更新驗證項目(1by1)
-            //         await clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
-            //         if (shCase) {
-            //             Object.entries(shCase).forEach(([sh_key, sh_value], index) => {
-            //                 await updateDOM(sh_value, select_empId, index);
-            //             });             
-            //         }
-            //         // 更新資格驗證(1by1)
-            //         if (shCondition) {
-            //             await updateShCondition(shCondition, select_empId, currentYear);
-            //         }
-            //     };
-            // }
 
     // 渲染 今年目前特危項目 for p-2特作欄位(arr_All)
     async function post_shCase(emp_arr){
         const emp_arr_length = emp_arr.length;                                              // 百分比#1
         let loading_pre = 0;                                                                // 百分比#2
-        // for (const emp_i of emp_arr) {      // 使用 for...of 替代 forEach 因為 forEach 不會等待 await 的執行
         for (const [emp_key, emp_i] of emp_arr.entries() ) {        // 分解參數(陣列)，手工渲染，再掛載dataTable...
             const loading = Math.round(((Number(emp_key) + 1) / emp_arr_length) * 100);     // 百分比#3
             if(loading !== loading_pre){                                                    // 百分比#4
                 loading_pre = loading;
                 Adj_mLoading('post_shCase', loading); // 呼叫：土法煉鋼法--修改mLoading提示訊息...str1=訊息文字, str2=百分比%
             }
-
             const { emp_id: select_empId, shCase ,shCondition, _changeLogs } = emp_i;
             // doCheck(select_empId);          // 更新驗證項目(1by1)
             await clearDOM(select_empId);         // 你需要根據 select_empId 來清空對應的 DOM
@@ -462,18 +416,8 @@
         // step-1 將每日暴露時數eh_time存到指定staff_inf
             const empData = staff_inf.find(emp => emp.emp_id === select_empId);
             if (empData) {
-                    // [改用] empData.shCase = empData.shCase || [];
-                        // // 然後將暴露時數eh_time值 進行更新對應的empId下shCase含'噪音'的項目中。
-                        // empData.shCase.forEach((sh_v, sh_i) => {
-                        //     if((sh_v['HE_CATE'] != undefined ) && Object.values(sh_v['HE_CATE']).includes('噪音')){
-                        //         empData.shCase[sh_i]['eh_time'] = Number(this_value);
-                        //     }
-                        // });
-                // empData.shCase[shCase_index]['eh_time'] = Number(this_value);
                 empData['eh_time'] = Number(this_value);
             }
-            // console.log('change_eh_time--staff_inf..', empData);
-
         // step-2 更新噪音資格 // 取自 post_shCase(empData); 其中一段
             const { shCase, shCondition } = empData;
             // 更新驗證項目(1by1)

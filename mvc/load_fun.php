@@ -25,9 +25,7 @@
     if(isset($_REQUEST['fun'])) {
         require_once("../pdo.php");
         extract($_REQUEST);
-
         $result = [];
-
         if (!isset($parm) || empty($parm)) {
             sendErrorResponse('Load '.$fun.' failed...(no parm)', 400);
         }
@@ -57,7 +55,6 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'load_dept':                   // 由hrdb撈取HCM_VW_DEPT08部門資料，帶入查詢條件OSHORT
@@ -67,8 +64,6 @@
                         FROM HCM_VW_DEPT08 _D 
                         LEFT JOIN STAFF _S ON _D.OMAGER = _S.emp_id
                         WHERE _D.OSHORT IN ({$parm_re}) ";
-                // 後段-堆疊查詢語法：加入排序
-                // $sql .= " ORDER BY _S.dept_no ASC, _S.emp_id ASC ";
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();                                   //處理 byAll
@@ -83,19 +78,11 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'load_shLocal':                // _shLocal撈取唯一清單，帶入查詢條件OSHORT
                 $pdo = pdo();
                 $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                // $sql = "SELECT _S.OSTEXT_30,_S.OSHORT,_S.OSTEXT
-                //             , GROUP_CONCAT(DISTINCT _S.AVG_VOL ORDER BY _S.AVG_VOL SEPARATOR ',') AS gb_AVG_VOL 
-                //             , GROUP_CONCAT(DISTINCT _S.AVG_8HR ORDER BY _S.AVG_8HR SEPARATOR ',') AS gb_AVG_8HR 
-                //             , GROUP_CONCAT(DISTINCT _S.HE_CATE ORDER BY _S.HE_CATE SEPARATOR ',') AS gb_HE_CATE 
-                //         FROM `_shlocal` _S
-                //         WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re})
-                //         GROUP BY _S.OSHORT ";
                 $sql = "SELECT _S.id, _S.OSTEXT_30, _S.OSHORT, _S.OSTEXT, _S.HE_CATE, _S.AVG_VOL, _S.AVG_8HR, _S.MONIT_NO, _S.MONIT_LOCAL, _S.WORK_DESC
                         FROM `_shlocal` _S
                         WHERE _S.flag = 'On' AND _S.OSHORT IN ({$parm_re}) ";
@@ -116,7 +103,6 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-
                 break;
 
             case 'load_sample':                 // 帶入查詢條件
@@ -154,14 +140,12 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-
                 break;
 
             case 'load_staff_byDeptNo':
                 $pdo = pdo();
                 $parm = str_replace('"', '', $parm);
                 // 分拆參數
-                // $year = $year ?? date('Y');
                 $year           = explode(',', $parm)[0];
                 $emp_sub_scope  = explode(',', $parm)[1];
                 $deptNo         = explode(',', $parm)[2];
@@ -171,9 +155,6 @@
                         LEFT JOIN _change _c ON _s.emp_id = _c.emp_id
                         WHERE JSON_UNQUOTE(JSON_EXTRACT(_s._logs, CONCAT('$.{$year}.dept_no'))) IN ('{$deptNo}')
                           AND JSON_UNQUOTE(JSON_EXTRACT(_s._logs, CONCAT('$.{$year}.emp_sub_scope'))) IN ('{$emp_sub_scope}')
-                            -- WHERE JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[0].OSHORT'))) IN ({$parm})
-                            --    OR JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[1].OSHORT'))) IN ({$parm})
-                            --    OR JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.{$year}.shCase[2].OSHORT'))) IN ({$parm});
                         ";
                 // 後段-堆疊查詢語法：加入排序
                 $sql .= " ORDER BY emp_id ASC ";
@@ -181,7 +162,6 @@
                 try {
                     $stmt->execute();
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     foreach($shStaffs as $index => $shStaff){
                         $shStaffs[$index]['_logs']       = json_decode($shStaffs[$index]['_logs'], true);
                         $shStaffs[$index]['shCase']      = $shStaffs[$index]['_logs'][$year]['shCase'];
@@ -203,7 +183,6 @@
                         'error'      => 'Load '.$fun.' failed...(e or no parm)'
                     ];
                 }
-
                 break;
 
             case 'load_staff_byCheckList':      // 主要參考_doc中的checkList名單，不會亂抓!
@@ -215,7 +194,6 @@
                 $emp_sub_scope = explode(',', $parm)[2];
                 $checkList     = explode(',', $parm)[3];
                     $checkList = str_replace(';', ',', $checkList);
-
                 // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
                 $sql = "SELECT '{$year}' AS year_key, emp_id, cname, gesch, natiotxt, HIRED, _logs, _content
                         FROM _staff
@@ -229,21 +207,18 @@
                 try {
                     $stmt->execute();
                     $shStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     foreach($shStaffs as $index => $shStaff){
                         $shStaffs[$index]['_logs']       = json_decode($shStaffs[$index]['_logs'], true);
                         $shStaffs[$index]['shCase']      = $shStaffs[$index]['_logs'][$year]['shCase'];
                         $shStaffs[$index]['shCondition'] = $shStaffs[$index]['_logs'][$year]['shCondition'];
                         $shStaffs[$index]['_content']    = json_decode($shStaffs[$index]['_content']);
                     }
-
                 // 製作返回文件
                     $result = [
                         'result_obj' => $shStaffs,
                         'fun'        => $sql,
                         'success'    => 'Load '.$fun.' success.'
                     ];
-
                 } catch (PDOException $e) {
                     echo $e->getMessage();
                     $result = [
@@ -261,7 +236,6 @@
                     "fun"       => "bat_storeStaff",
                     "content"   => "批次儲存名單--"
                 );
-                
                 define('SQL_SELECT_DOC', "SELECT _logs, _content FROM _staff WHERE emp_id = ? ");
                 define('SQL_INSERT_DOC', "INSERT INTO _staff ( emp_id, cname, gesch, natiotxt, HIRED, _logs, _content, created_cname, updated_cname,  created_at, updated_at ) VALUES ");
                 // ON DUPLICATE KEY UPDATE：在插入操作導致唯一鍵或主鍵衝突時，執行更新操作。
@@ -277,24 +251,19 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
-
                 // step.3a 檢查並維護現有資料中的 key
                 $staff_inf    = $parm_array['staff_inf']   ?? [];
                 $current_year = $parm_array['currentYear'] ?? date('Y');
-
                 foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; // #2.這裡也要由物件轉成陣列
                     extract($parm_i_arr);
-
                     // step.1 提取現有資料
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
-
                     // step.2 解析現有資料為陣列
                     $row_logs       = isset($row_data['_logs'])     ? json_decode($row_data['_logs']    , true) : [];
                     $row_content    = isset($row_data['_content'])  ? json_decode($row_data['_content'] , true) : [];
-
                     // step.3b 更新或新增該年份的資料
                     $row_logs[$current_year] = [
                         "cstext"        => $cstext        ?? ( $row_logs[$current_year]["cstext"]        ?? null ),     // 職稱
@@ -317,32 +286,16 @@
                         // 確保 $row_content[$current_year] 是陣列的存在
                         $row_content[$current_year] = $row_content[$current_year] ?? [];                        
                         $new_content = $_content[$current_year];
-                        // // 檢查 $new_content 是否非空，才進行後續操作
-                        // if (!empty($new_content)) {
-                        //     foreach ($new_content as $new_content_key => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
-                        //         // 初始化當前年份的 row_content
-                        //         $row_content[$current_year][$new_content_key] = $row_content[$current_year][$new_content_key] ?? [];
-                        //         // 針對每一筆分別帶入
-                        //         foreach ($new_content_value as $newMainKey => $newMainValue) {      // forEach目的：避免蓋掉其他項目 。$newMainKey這裡指到yearHe...
-                        //             // 如果 newMainValue 不為空，則使用它，否則保留舊值
-                        //             $row_content[$current_year][$new_content_key][$newMainKey] = $newMainValue ?? null;
-                        //                 // !empty($newMainValue) ? $newMainValue : ($row_content[$current_year][$new_content_key][$newMainKey] ?? null);    // 這裡會無法更新新的空值
-                        //         }
-                        //     }
-                        // }
                         // 更新現有的內容，將其刪除
                         $row_content[$current_year] = array_merge($row_content[$current_year], $_content[$current_year]); // 合併新的項目
                     }
-                
                     // step.4 將更新後的資料編碼為 JSON 字串
                     $_logs_str      = json_encode($row_logs,    JSON_UNESCAPED_UNICODE);
                     $_content_str   = json_encode($row_content, JSON_UNESCAPED_UNICODE);
-                
                     // 防呆
                     $gesch    = $gesch    ?? "";    // 性別
                     $natiotxt = $natiotxt ?? "";    // 國別
                     $HIRED    = $HIRED    ?? "";    // 到職日
-
                     // step.5 準備 SQL 和參數
                     $values[] = "(?, ?, ?, ?, ?,   ?, ?,  ?, ?, now(), now())";
                     $params = array_merge($params, [
@@ -351,10 +304,8 @@
                         $auth_cname, $auth_cname
                     ]);
                 }
-                
                 $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
                 $stmt = $pdo->prepare($sql);
-                
                 if (executeQuery($stmt, $params)) {
                     // 製作返回文件
                     $swal_json["action"] = "success";
@@ -427,7 +378,6 @@
                         'success'    => 'Load '.$fun.' success.'
                     ];
                 }else{
-                    // echo "<script>alert('參數sw_json_data異常，請重新確認~')</script>";
                     $swal_json["action"]   = "error";
                     $swal_json["content"] .= '儲存失敗';
                     $result = [
@@ -458,34 +408,25 @@
                     ];
                 }
                 break;
-
             // 241223 取得審核文件年度清單
             case 'load_doc_deptNos':            // 帶入查詢條件
                 $pdo = pdo();
                 $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
-
                 $parm = isset($parm) ? json_decode($parm, true) : [];
                 $_year = $parm['_year'] ?? date('Y');
-
                 // 初始查詢陣列
                     $conditions = [];
                     $stmt_arr   = [];    
-
                     $conditions[] = "idty in (4, 5, 6, 10)";
-
                 if (!empty($_year)) {
                     $conditions[] = "age = ?";
                     $stmt_arr[]   = $_year;
                     // $stmt_arr[] = $parm;
                     // $stmt_arr[] = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                 }
-                
                 if (!empty($conditions)) {
                     $sql .= ' WHERE ' . implode(' AND ', $conditions);
                 }
-                // 後段-堆疊查詢語法：加入排序
-                // $sql .= " ORDER BY s.dept_no ASC, s.emp_id ASC ";
-
                 $stmt = $pdo->prepare($sql);
                 try {
                     if(!empty($stmt_arr)){
@@ -511,25 +452,21 @@
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = json_decode($deptNo_i["_content"], true);
                         $doc_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }
-
                     foreach($doc_deptNos_obj as $key => $value){
                         $i = [];
                         $i[$key] = $value;
                         array_push($doc_deptNos_arr, $i);
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $doc_deptNos_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.',
                     ];
-
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-
                 break;
 
             case 'update_workTarget':
@@ -541,8 +478,8 @@
                 $workTarget_json = isset($_REQUEST['parm']) ? $_REQUEST['parm'] : null;
                 if(!empty($workTarget_json)){
                     $fop = fopen($workTargetFile,"w");  //開啟檔案
-                    fputs($fop, $workTarget_json);     //初始化sw+寫入
-                    fclose($fop);                   //關閉檔案
+                    fputs($fop, $workTarget_json);      //初始化sw+寫入
+                    fclose($fop);                       //關閉檔案
                     // 製作返回文件
                     $swal_json["action"]   = "success";
                     $swal_json["content"] .= '儲存成功';
@@ -552,7 +489,6 @@
                         'success'    => 'Load '.$fun.' success.'
                     ];
                 }else{
-                    // echo "<script>alert('參數sw_json_data異常，請重新確認~')</script>";
                     $swal_json["action"]   = "error";
                     $swal_json["content"] .= '儲存失敗';
                     $result = [
@@ -565,18 +501,8 @@
             
             case 'load_staff_dept_nos':         // 取得已存檔的員工部門代號...for 定期特殊健檢使用
                 $pdo = pdo();
-                // $sql = "SELECT
-                    //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,
-                    //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-                    //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
-                    //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
-                    //             COUNT(*) AS _count
-                    //         FROM _staff
-                    //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
-                // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
                 $parm = isset($parm) ? json_decode($parm, true) : [];
                 $year = $parm['_year'] ?? date('Y');
-                                
                 $sql = "SELECT year_key, emp_sub_scope, BTRTL, dept_no, emp_dept, omager, COUNT(*) AS _count,
                             SUM( CASE 
                                     WHEN JSON_EXTRACT(_logs, '$.{$year}.shCase') IS NOT NULL 
@@ -618,25 +544,21 @@
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull"]    = $deptNo_i["shCaseNotNull"];
                         $staff_deptNos_obj[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
                     }
-
                     foreach($staff_deptNos_obj as $key => $value){
                         $i = [];
                         $i[$key] = $value;
                         array_push($staff_deptNos_arr, $i);
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $staff_deptNos_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
-
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-
                 break;
             // 241211 提出--送嬸
             case 'storeForReview':  
@@ -647,7 +569,6 @@
                     "fun" => "storeForReview",
                     "content" => "批次送審名單--"
                 ];
-
                 define('SQL_SELECT_FAB', "SELECT _f.pm_emp_id AS pm_empId, _f.osha_id FROM `_fab` _f WHERE _f.BTRTL = ? AND _f.fab_title LIKE ? "); // 找出廠區護理師窗口
                 define('SQL_SELECT_PM', "SELECT GROUP_CONCAT(CONCAT(_u.emp_id, ',', _u.cname) SEPARATOR ',') AS pm_empId FROM _users _u WHERE _u.role = 1 AND _u.emp_id < 90000000 LIMIT 3;");  // 找出大PM
                 define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE age = ? AND dept_no = ? AND sub_scope = ? AND BTRTL = ? ");
@@ -666,14 +587,11 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm); // 使用新的函數解析JSON
-                
                 $staff_inf           = $parm_array['staff_inf']   ?? [];
                 $age = $current_year = $parm_array['currentYear'] ?? date('Y');
-
                 $new_check_list_in  = [];
                 $new_check_list_out = [];
                 $new_form           = [];
-
                 // 簽核步驟
                 $reviewStep_arr = reviewStep();                         // 取得reviewStep
                 $action         = $action ?? "3";                       // 3 = 送出
@@ -682,7 +600,6 @@
                     $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
                 // 250214 取出staff_inf內的主管
                 $omager         = ''; // 用來儲存找到的值
-                
                 foreach ($staff_inf as $parm_i) {
                     $parm_i_arr = (array) $parm_i; 
                     $dept_no   = $parm_i_arr['_logs'][$current_year]["dept_no"] ?? "";
@@ -692,7 +609,6 @@
                     $omager    = empty($omager) ? $parm_i_arr['_logs'][$current_year]["omager"] : $omager; // 250214 取出staff_inf內的主管 -- 取得值
                     $new_check_list_in[$dept_no]  = $new_check_list_in[$dept_no]  ?? [];
                     $new_check_list_out[$dept_no] = $new_check_list_out[$dept_no] ?? [];
-            
                     if (!empty($parm_i_arr["shCase"])) {
                         array_push($new_check_list_in[$dept_no], $parm_i_arr["emp_id"]);
                     } else {
@@ -718,7 +634,6 @@
                                 $rowStep = "3";
                             }
                         }
-        
                         // 簽核欄位數據整理：by $rowStep = 目前狀態
                         $rowStep_arr = $reviewStep_arr['step'][$rowStep];   // getStep arr 取得目前狀態節點
                             // $rowStep_arr['idty'];              // 表單狀態
@@ -728,7 +643,6 @@
                             // $rowStep_arr['edit'];              // 節點-編輯
                             // $rowStep_arr['returnTo'];          // 節點-返回
                             // $rowStep_arr['approveTo'];         // 節點-進步
-
                         // 製作log紀錄前處理：塞進去製作元素
                         $logs_request = array (
                             "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
@@ -739,7 +653,6 @@
                         ); 
                         // 呼叫toLog製作log檔
                             $logs_enc = toLog($logs_request);
-        
                         switch ($action) {
                             case "0":       // 作廢
                                 $idty = "0";
@@ -782,16 +695,13 @@
                             default:
                                 $idty = 4;  // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
                         }
-
                         // 簽核欄位數據整理：by $idty = 下一步狀態
                         $nextStep_arr = $reviewStep_arr['step'][$idty];   // getStep arr 取得下一步狀態節點
-
                         $flow        = $nextStep_arr['approvalStep'] ?? "簽核審查";
                         $flow_remark = [
                             "group"  => $nextStep_arr['group']  ?? "上層主管,單位窗口,護理師",  
                             "remark" => $nextStep_arr['remark'] ?? "簽核主管可維調暴露時數"
                         ];
-
                         $result = queryHrdb("showSignCode", $new_check_deptNo);                                     // 查詢signCode部門主管
                         $new_form[$new_check_deptNo]["omager"] = $result["OMAGER"] ?? ($row_data["omager"] ?? $omager);
                         // 250214 取出staff_inf內的主管 -- 取得值
@@ -799,7 +709,6 @@
                         if(empty($result["OMAGER"]) || !isset($result["OMAGER"])){
                             $showStaffOmager = queryHrdb("showStaff", $omager);                                     // 查詢員工資訊for部門消滅
                         }
-                        
                         if($action == 3 && $idty == 5){     // *** 這裡是 3名單送審人===4簽核審查人 then 自動跳下一階
                             $stmt_select_fab = $pdo->prepare(SQL_SELECT_FAB);   // 送審人==簽核人=自動轉下一關
                             $like_sub_scope = "%".$sub_scope."%";
@@ -830,21 +739,17 @@
                             $in_signName = $result["cname"]  ?? ( $showStaffOmager["cname"]  ?? "");        // 5-> 帶入部門主管
                             $DEPUTY = queryHrdb("showDelegation", $new_form[$new_check_deptNo]["omager"]);  // 查詢---部門主管 簽核代理人
                         }
-
                         if(isset($DEPUTY["SINGFLAG"])){
                             $in_sign     = ($DEPUTY["DEPUTYEMPID"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYEMPID"] : $in_sign;     // Y=啟動代理簽核
                             $in_signName = ($DEPUTY["DEPUTYCNAME"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYCNAME"] : $in_signName; // Y=啟動代理簽核
                         }
-                        
                         // 防呆，使用預設值
                         $uuid        = $age.",".$new_check_deptNo.",".$sub_scope;
                         $_content    = $_content    ?? [];  
-
                         // 重點打包
                         $flow_remark_str = json_encode($flow_remark, JSON_UNESCAPED_UNICODE);
                         $check_list_str  = json_encode($new_form[$new_check_deptNo]["check_list"], JSON_UNESCAPED_UNICODE);
                         $_content_str    = json_encode($_content, JSON_UNESCAPED_UNICODE);
-
                         // 準備 SQL 和參數
                         $values[] = "(?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?, ?, ?, ?,   ?, ?, ?, ?,   now(), now())";
                         $params = array_merge($params, [
@@ -854,9 +759,7 @@
                         ]);
                     }
                 }
-
                 if (empty($new_check_deptNo) || empty($sub_scope) || (count($new_form[$new_check_deptNo]["check_list"]) == 0 ) || empty($in_sign) ) {
-
                     $swal_json["action"] = "error";
                     $swal_json["content"] .= '送審失敗...表單內容有誤';
                     $result = [
@@ -869,10 +772,8 @@
                     ];
 
                 } else {
-
                     $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
                     $stmt = $pdo->prepare($sql);
-    
                     if (executeQuery($stmt, $params)) {
                         // 製作返回文件
                         $swal_json["action"] = "success";
@@ -892,7 +793,6 @@
                         ];
                     }
                 }
-                
                 break;
             // 241211 送嬸--簽核
             case 'processReview':  
@@ -903,8 +803,6 @@
                     "fun" => "processReview",
                     "content" => "批次送審名單--"
                 ];
-
-                // define('SQL_SELECT_DOC', "SELECT * FROM `_document` WHERE uuid = ? ");
                 define('SQL_SELECT_PM', "SELECT GROUP_CONCAT(CONCAT(_u.emp_id, ',', _u.cname) SEPARATOR ',') AS pm_empId FROM _users _u WHERE _u.role = 1 AND _u.emp_id < 90000000 LIMIT 3;");
                 define('SQL_SELECT_DOC', "SELECT _d.*, _f.pm_emp_id AS pm_empId, _f.osha_id FROM `_document` _d LEFT JOIN `_fab` _f ON REPLACE(_f.fab_title, '棟', '') = _d.sub_scope AND _f.BTRTL = _d.BTRTL WHERE uuid = ? ");
                 define('SQL_UPDATE_DOC', "UPDATE _document SET in_sign = ?, in_signName = ?, idty = ?, flow = ?, flow_remark = ?, _content = ?, updated_cname = ?, logs = ?, updated_at = now() WHERE uuid = ? " );
@@ -918,21 +816,18 @@
                 $deptNo       = $doc_inf["deptNo"];
                 $uuid         = $doc_inf["uuid"];
                 $_content     = $doc_inf["_content"]       ?? [];  
-
                 // 簽核步驟
                 $reviewStep_arr = reviewStep();                         // 取得reviewStep
                 $action         = $parm_array["action"] ?? "3";         // 3 = 送出
                 // 簽核欄位數據整理：by $action
                 $action_arr     = $reviewStep_arr['action'];            // getAction arr
                     $status     = $action_arr[$action] ?? "99";         // 錯誤 (Error)
-
                 $stmt_select = $pdo->prepare(SQL_SELECT_DOC);           // 預先動作：找是否已經有送件
                 if (executeQuery($stmt_select, [$uuid])) {
                     $row_data = $stmt_select->fetch(PDO::FETCH_ASSOC);
                     // 如果資料存在則更新，$rowStep = 目前的進度 = idty // 若不存在，可以考慮直接進行插入3
                     $rowStep = ($row_data) ? ($row_data["idty"] ?? "4") : "3";  
                 }
-
                 // 簽核欄位數據整理：by $rowStep = 目前狀態
                 $rowStep_arr = $reviewStep_arr['step'][$rowStep];   // getStep arr 取得目前狀態節點
                     // $rowStep_arr['idty'];              // 表單狀態
@@ -942,7 +837,6 @@
                     // $rowStep_arr['edit'];              // 節點-編輯
                     // $rowStep_arr['returnTo'];          // 節點-返回
                     // $rowStep_arr['approveTo'];         // 節點-進步
-
                 switch ($action) {
                     case "0":       // 作廢
                         $idty = "0";
@@ -969,7 +863,6 @@
                     default:
                         $idty = 4;  // 4 = 各站點審核 ** 在staff模組中只需要強制給step4
                 }
-
                 // 製作log紀錄前處理：塞進去製作元素
                     $logs_request = array (
                         "step"   => $rowStep_arr['approvalStep'] ?? '名單送審',                  // 節點
@@ -980,22 +873,18 @@
                     ); 
                 // 呼叫toLog製作log檔
                     $logs_enc = toLog($logs_request);
-
                 // 簽核欄位數據整理：by $idty = 下一步狀態
                 $nextStep_arr = $reviewStep_arr['step'][$idty];   // getStep arr 取得下一步狀態節點
-
                 $flow        = $nextStep_arr['approvalStep'] ?? "簽核審查";
                 $flow_remark = [
                     "group"  => $nextStep_arr['group']  ?? "上層主管,單位窗口,護理師",  
                     "remark" => $nextStep_arr['remark'] ?? "簽核主管可維調暴露時數"
                 ];
-
                 if($action === "3"){
                     $result = queryHrdb("showSignCode",   $deptNo);                        // 查詢signCode部門主管
                     $DEPUTY = queryHrdb("showDelegation", $result["OMAGER"]);              // 查詢部門主管簽核代理人
                     $in_sign     = $in_sign     ?? (($DEPUTY["DEPUTYEMPID"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYEMPID"] : $result["OMAGER"] ?? "");  
                     $in_signName = $in_signName ?? (($DEPUTY["DEPUTYCNAME"] && $DEPUTY["SINGFLAG"] === 'Y') ? $DEPUTY["DEPUTYCNAME"] : $result["cname"]  ?? "");  
-                    
                 // } else if($action === "5"){
                 //     $in_sign     = $forwarded["in_sign"]     ?? ($row_data["in_sign"]     ?? "");  
                 //     $in_signName = $forwarded["in_signName"] ?? ($row_data["in_signName"] ?? "");  
@@ -1022,25 +911,22 @@
                         $pm_empId_arr = explode(",", $pm_data["pm_empId"]);    // 資料表是字串，要炸成陣列
                         $in_sign      = $pm_empId_arr[0] ?? NULL;               // 由 4->5時，即業務窗口簽核，未到主管
                         $in_signName  = $pm_empId_arr[1] ?? NULL;               // 由 存換成 NULL
+
                     }else{
                         $in_sign     = ($action === "5") ? $forwarded["in_sign"]     : ($row_data["in_sign"]     ?? NULL);  
                         $in_signName = ($action === "5") ? $forwarded["in_signName"] : ($row_data["in_signName"] ?? NULL);  
                     }
                 }
-                
                 // 重點打包
                 $flow_remark_str = json_encode($flow_remark, JSON_UNESCAPED_UNICODE);
                 $_content_str    = json_encode($_content,    JSON_UNESCAPED_UNICODE);
-
                 // 準備 SQL 和參數
                 $params = array_merge($params, [
                         $in_sign, $in_signName, $idty, $flow, $flow_remark_str, $_content_str,
                         $parm_array["updated_cname"], $logs_enc, $uuid
                     ]);
-
                 $sql = SQL_UPDATE_DOC;
                 $stmt = $pdo->prepare($sql);
-
                 if (executeQuery($stmt, $params)) {
                     // 製作返回文件
                     $swal_json["action"] = "success";
@@ -1065,9 +951,7 @@
                 $pdo = pdo();
                 $parm = isset($parm) ? json_decode($parm, true) : [];
                 $year = $parm['_year'] ?? date('Y');
-
                 $sql = "SELECT id, uuid, age as year_key, sub_scope as emp_sub_scope, dept_no, emp_dept, BTRTL, check_list, idty FROM `_document` WHERE age = '{$year}' ";
-
                 $stmt = $pdo->prepare($sql);
                 if (executeQuery($stmt, '')) {
                     $_documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1089,31 +973,23 @@
             case 'load_doc':                    // 帶入查詢條件
                 $pdo = pdo();
                 $sql = "SELECT *, age as year_key, sub_scope as emp_sub_scope FROM `_document`";
-                
                 // 初始查詢陣列
                     $conditions = [];
                     $stmt_arr   = [];    
-
                 $parm = isset($parm) ? json_decode($parm, true) : [];
-
                 $_year = $parm['_year'] ?? null;
                 if (!empty($_year)) {
                     $conditions[] = "age = ?";
                     $stmt_arr[]   = $_year;
                 }
-
                 $uuid = $parm['uuid'] ?? null;
                 if (!empty($uuid)) {
                     $conditions[] = "uuid = ?";
                     $stmt_arr[]   = $uuid;
                 }
-                
                 if (!empty($conditions)) {
                     $sql .= ' WHERE ' . implode(' AND ', $conditions);
                 }
-                // 後段-堆疊查詢語法：加入排序
-                // $sql .= " ORDER BY dept_no ASC ";
-
                 $stmt = $pdo->prepare($sql);
                 try {
                     if(!empty($stmt_arr)){
@@ -1122,7 +998,6 @@
                         $stmt->execute();                                   //處理 byAll
                     }
                     $docs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
                     $doc_deptNos_arr = [];
                     foreach($docs as $deptNo_i){
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["id"]          = $deptNo_i["id"];
@@ -1139,19 +1014,16 @@
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["_content"]    = json_decode($deptNo_i["_content"], true);
                         $doc_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["logs"]        = json_decode($deptNo_i["logs"], true);
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $doc_deptNos_arr,
                         'fun'        => $fun,
                         'success'    => 'Load '.$fun.' success.'
                     ];
-
                 }catch(PDOException $e){
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-
                 break;
 
             case 'reviewStep':
@@ -1208,19 +1080,6 @@
             // _change使用
             case 'load_shLocal_OSHORTs':        // 250217 取得特作列管的部門代號 for index p1
                 $pdo = pdo();
-                // $sql = "SELECT _sh.OSTEXT_30, _sh.OSTEXT, _sh.OSHORT
-                //         FROM `_shlocal` _sh
-                //         WHERE _sh.flag = 'On'
-                //         GROUP BY _sh.OSHORT
-                //         ORDER BY _sh.OSHORT ";
-                // $sql = "SELECT  COALESCE(_sh.OSTEXT_30, _sl.OSTEXT_30) AS OSTEXT_30,
-                //                 COALESCE(_sh.OSTEXT, _sl.OSTEXT) AS OSTEXT,
-                //                 COALESCE(_sh.OSHORT, _sl.OSHORT) AS OSHORT
-                //         FROM `_shlocal` _sh
-                //         RIGHT JOIN `_shlocaldept` _sl ON _sh.OSHORT = _sl.OSHORT
-                //         -- WHERE _sh.flag = 'On' OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
-                //         GROUP BY COALESCE(_sh.OSHORT, _sl.OSHORT)
-                //         ORDER BY OSTEXT_30, OSHORT; ";
                 $sql = "SELECT  _sl.OSTEXT_30, _sl.OSTEXT, _sl.OSHORT, _sl.flag
                         FROM `_shlocaldept` _sl
                         -- WHERE _sl.flag = true OR _sh.flag IS NULL  -- 確保右表的記錄也能被選到
@@ -1274,7 +1133,6 @@
                         $shLocalDepts[$index]['inCare'] = json_decode($shLocalDept['inCare']);
                         $shLocalDepts[$index]['remark'] = json_decode($shLocalDept['remark']);
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $shLocalDepts,
@@ -1286,7 +1144,6 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'bat_storeDept':               // 批次儲存部門變更作業P2
@@ -1388,7 +1245,6 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'all_shLocalStaff':            // 250217 從危害地圖中，取得所有特作部門代號，並從hrdb中撈出所有符合部門待號的員工(base=未排除)
@@ -1403,8 +1259,8 @@
                     $stmt->execute();                                   //處理 byAll
                     $all_shLocalStaff = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    $allShLocalStaff_arr = [];      // 預設起始空陣列
-                    foreach($all_shLocalStaff as $Staff_i){     // 進行彙整
+                    $allShLocalStaff_arr = [];                          // 預設起始空陣列
+                    foreach($all_shLocalStaff as $Staff_i){             // 進行彙整
                         if(!isset($allShLocalStaff_arr[$Staff_i["OSHORT"]])){
                             $allShLocalStaff_arr[$Staff_i["OSHORT"]] = [];                                                          // 第一層：部門代號
                         }
@@ -1423,7 +1279,6 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'load_deptStaff_formHrdb':     // 250218 從hrdb中撈出所有符合部門代號的員工(base=未排除)
@@ -1438,18 +1293,6 @@
                 try {
                     $stmt->execute([$parm]);                                   //處理 byAll
                     $load_deptStaff = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                    // $load_deptStaff_arr = [];      // 預設起始空陣列
-                    // foreach($load_deptStaff as $Staff_i){     // 進行彙整
-                    //     if(!isset($allShLocalStaff_arr[$Staff_i["dept_no"]])){
-                    //         $allShLocalStaff_arr[$Staff_i["dept_no"]] = [];                                                          // 第一層：部門代號
-                    //     }
-                    //     if(!isset($allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]])){
-                    //         $allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]] = [];                           // 第二層：年月
-                    //     }
-                    //     array_push($allShLocalStaff_arr[$Staff_i["dept_no"]][$Staff_i["yy"].$Staff_i["mm"]], $Staff_i["emp_id"]);    // 帶進去emp_id
-                    // }
-                    
                     // 製作返回文件
                     $result = [
                         'result_obj' => $load_deptStaff,
@@ -1460,40 +1303,37 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-    
                 break;
 
             case 'load_change':                 // 由hrdb撈取人員資料，帶入查詢條件OSHORT
-                    $pdo = pdo();
-                    $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-                    $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
-                            FROM _change _c
-                            -- LEFT JOIN _staff _s ON _c.emp_id = _s.emp_id
-                            WHERE _c.emp_id IN ({$parm_re}) ";
-                    // 後段-堆疊查詢語法：加入排序
-                    $sql .= " ORDER BY _c.emp_id ASC ";
-                    $stmt = $pdo->prepare($sql);
-                    try {
-                        $stmt->execute();                                   //處理 byAll
-                        $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $pdo = pdo();
+                $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
+                $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
+                        FROM _change _c
+                        -- LEFT JOIN _staff _s ON _c.emp_id = _s.emp_id
+                        WHERE _c.emp_id IN ({$parm_re}) ";
+                // 後段-堆疊查詢語法：加入排序
+                $sql .= " ORDER BY _c.emp_id ASC ";
+                $stmt = $pdo->prepare($sql);
+                try {
+                    $stmt->execute();                                   //處理 byAll
+                    $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                        foreach($chStaffs as $index => $shStaff){
-                            $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
-                            $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
-                            $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
-                        }
-
-                        // 製作返回文件
-                        $result = [
-                            'result_obj' => $chStaffs,
-                            'fun'        => $fun,
-                            'success'    => 'Load '.$fun.' success.',
-                        ];
-                    }catch(PDOException $e){
-                        echo $e->getMessage();
-                        $result['error'] = 'Load '.$fun.' failed...(e)';
+                    foreach($chStaffs as $index => $shStaff){
+                        $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
+                        $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
+                        $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
                     }
-        
+                    // 製作返回文件
+                    $result = [
+                        'result_obj' => $chStaffs,
+                        'fun'        => $fun,
+                        'success'    => 'Load '.$fun.' success.',
+                    ];
+                }catch(PDOException $e){
+                    echo $e->getMessage();
+                    $result['error'] = 'Load '.$fun.' failed...(e)';
+                }
                 break;
 
             case 'bat_storeChangeStaff':        // 250310 變更作業健檢--儲存人員P3
@@ -1516,15 +1356,12 @@
                 $values = [];
                 $params = [];
                 $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
-
                 // step.3a 檢查並維護現有資料中的 key
                 $staff_inf   = $parm_array['staff_inf']   ?? [];
                 // $targetMonth = $parm_array['targetMonth'] ?? date('Y');      // => 這裡沒有指定作業年月
-
                 foreach ($staff_inf as $staff_i) {
                     $staff_i_arr = (array) $staff_i; // #2.這裡也要由物件轉成陣列
                     extract($staff_i_arr);
-
                     // step.2a 提取現有資料
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
@@ -1533,7 +1370,6 @@
                     $row_changeLogs = isset($row_data['_changeLogs']) ? json_decode($row_data['_changeLogs'] , true) : [];
                     $row_content    = isset($row_data['_content'])    ? json_decode($row_data['_content']    , true) : [];
                     // $row_todo       = isset($row_data['_todo'])       ? json_decode($row_data['_todo']       , true) : [];
-
                     // step.3a 更新或新增該年份的資料
                     foreach ($_changeLogs as $targetMonth => $new_log_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
                         // 前後驗證                        
@@ -1545,7 +1381,6 @@
                             $row_changeLogs[$targetMonth] = $new_log_value; 
                         }
                     };
-
                     // step.3b 檢查並串接新的 _content
                     foreach ($_content as $targetMonth => $new_content_value) {      // forEach目的：避免蓋掉其他項目 。$new_content_key這裡指到import      
                         // 前後驗證                        
@@ -1555,24 +1390,20 @@
                         if($row_content_value_str !== $new_content_value_str){
                             // 確保 $row_content[$targetMonth 是陣列的存在
                             $row_content[$targetMonth] = $new_content_value; 
-                           }
+                        }
                     };
-               
                     // step.4 將更新後的資料編碼為 JSON 字串
                     $_changeLogs_str = json_encode($row_changeLogs, JSON_UNESCAPED_UNICODE);
                     $_content_str    = json_encode($row_content,    JSON_UNESCAPED_UNICODE);
                     $_todo_str       = json_encode($_todo,          JSON_UNESCAPED_UNICODE);
-                
                     // step.5 準備 SQL 和參數
                     $values[] = "(?, ?, ?, ?, ?,   ?, ?,  now(), now())";
                     $params = array_merge($params, [
                         $emp_id, $cname, $_changeLogs_str, $_content_str, $_todo_str,  $auth_cname, $auth_cname
                     ]);
                 }
-                
                 $sql = SQL_INSERT_DOC . implode(", ", $values) . " " . SQL_UPDATE_DOC;
                 $stmt = $pdo->prepare($sql);
-                
                 if (executeQuery($stmt, $params)) {
                     // 製作返回文件
                     $swal_json["action"] = "success";
@@ -1599,12 +1430,10 @@
                 $sql = "SELECT id ,emp_id ,cname , _changeLogs ,_content ,_todo  -- ,JSON_UNQUOTE(JSON_KEYS(_todo)) AS ikey
                         FROM `_change` 
                         WHERE _todo <> '[]' AND _todo <> '' ";
-
                 if(isset($parm) && $parm != 'load_changeTodo' ){               // 這裡定義的$parm是員工代號
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
                     $sql .= " AND emp_id IN ({$parm_re})"; 
                 }
-
                 $stmt = $pdo->prepare($sql);
                 try {
                     $stmt->execute();                                   //處理 byAll
@@ -1637,7 +1466,6 @@
                     'fun'        => $fun,
                     'success'    => 'Load '.$fun.' success.',
                 ];
-
                 break;
 
             case 'bat_updateStaffNotify':       // 250325 變更作業健檢--更新人員_content通知訊息P3
@@ -1647,7 +1475,6 @@
                     "fun"       => "bat_updateStaffNotify",
                     "content"   => "批次更新人員_content通知訊息--"
                 );
-                
                 function fetchEmployeeData($pdo, $emp_id) {
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$emp_id]);
@@ -1657,25 +1484,20 @@
                     $stmt_update = $pdo->prepare(SQL_UPDATE_DOC);
                     return executeQuery($stmt_update, [$_content_data, $auth_cname, $emp_id]);
                 }
-
                 define('SQL_SELECT_DOC', "SELECT emp_id, _content, updated_at FROM _change WHERE emp_id = ? ");
                 define('SQL_UPDATE_DOC', "UPDATE _change SET _content = ?, updated_cname = ?, updated_at = now() WHERE emp_id = ?" );
-
                 $params = [];
                 $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
                 // step.3a 檢查並維護現有資料中的 key
                 $staff_inf = $parm_array['staff_inf'] ?? [];
-
                 foreach ($staff_inf as $staff_i) {
                     $staff_i_arr = (array) $staff_i; // #2.這裡也要由物件轉成陣列
                     extract($staff_i_arr);
-
                     // step.2a 提取現有資料
                     $row_data = fetchEmployeeData($pdo, $emp_id);
                     if ($row_data){
                         // step.2b 解析現有資料為陣列
                         $row_content = isset($row_data['_content']) ? json_decode($row_data['_content'], true) : [];
-    
                         // step.3 更新或新增個人該變更日期的資料
                         $row_content[$changeTime] = $row_content[$changeTime] ?? ['notify' => []];
                         $row_content[$changeTime]['notify'][] = [
@@ -1686,10 +1508,8 @@
                             "dateTime"   => $dateTime,      // 通知時間
                             "result"     => $result,        // 通知結果
                         ];
-    
                         // step.4 將更新後的資料編碼為 JSON 字串
                         $_content_str = json_encode($row_content, JSON_UNESCAPED_UNICODE);
-                    
                         // step.5 執行更新
                         if (!updateEmployeeData($pdo, $_content_str, $auth_cname, $emp_id)) {
                             $swal_json["action"] = "error";
@@ -1701,10 +1521,8 @@
                         $swal_json["content"] .= '無法取得員工資料';
                     }
                 }
-
                 $swal_json["action"] = $swal_json["action"] ?? "success";
                 $swal_json["content"] .= ($swal_json["action"] === "success") ? '儲存成功' : '';
-                
                 $result = [
                     'result_obj' => $swal_json,
                     'fun'        => $fun,
@@ -1720,7 +1538,6 @@
                     "fun"       => "bat_updateDocumentNotify",
                     "content"   => "批次更新doc_content通知訊息--"
                 );
-                
                 function fetchDocumentData($pdo, $uuid) {
                     $stmt_select = $pdo->prepare(SQL_SELECT_DOC);
                     executeQuery($stmt_select, [$uuid]);
@@ -1730,25 +1547,20 @@
                     $stmt_update = $pdo->prepare(SQL_UPDATE_DOC);
                     return executeQuery($stmt_update, [$_content_data, $auth_cname, $uuid]);
                 }
-
                 define('SQL_SELECT_DOC', "SELECT _content, updated_at FROM _document WHERE uuid = ? ");
                 define('SQL_UPDATE_DOC', "UPDATE _document SET _content = ?, updated_cname = ?, updated_at = now() WHERE uuid = ?" );
-
                 $params = [];
                 $parm_array = parseJsonParams($parm);   // 使用新的函數解析JSON
                 // step.3a 檢查並維護現有資料中的 key
                 $doc_inf = $parm_array['doc_inf'] ?? [];
-
                 foreach ($doc_inf as $doc_i) {
                     $doc_i_arr = (array) $doc_i; // #2.這裡也要由物件轉成陣列
                     extract($doc_i_arr);
-
                     // step.2a 提取現有資料
                     $row_data = fetchDocumentData($pdo, $uuid);
                     if ($row_data){
                         // step.2b 解析現有資料為陣列
                         $row_content = isset($row_data['_content']) ? json_decode($row_data['_content'], true) : [];
-    
                         // step.3 更新或新增個人該變更日期的資料
                         $row_content[$age] = $row_content[$age] ?? ['notify' => []];
                         $row_content[$age]['notify'][] = [
@@ -1759,10 +1571,8 @@
                             "dateTime"   => $dateTime,      // 通知時間
                             "result"     => $result,        // 通知結果
                         ];
-    
                         // step.4 將更新後的資料編碼為 JSON 字串
                         $_content_str = json_encode($row_content, JSON_UNESCAPED_UNICODE);
-                    
                         // step.5 執行更新
                         if (!updateDocumentData($pdo, $_content_str, $auth_cname, $uuid)) {
                             $swal_json["action"] = "error";
@@ -1774,10 +1584,8 @@
                         $swal_json["content"] .= '無法取得_document資料';
                     }
                 }
-
                 $swal_json["action"] = $swal_json["action"] ?? "success";
                 $swal_json["content"] .= ($swal_json["action"] === "success") ? '儲存成功' : '';
-                
                 $result = [
                     'result_obj' => $swal_json,
                     'fun'        => $fun,
@@ -1789,7 +1597,6 @@
             default:
                 sendErrorResponse('Invalid function', 400);
         };
-
         // 正常返回
         http_response_code(200);
         echo json_encode($result);

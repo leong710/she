@@ -63,13 +63,10 @@
                 const shCondition_key = {
                     'newOne'  : { 'item' : '新人', 'type' : 'checkbox' },
                     'noise'   : { 'item' : '噪音', 'type' : 'checkbox' },
-                    // 'regular' : { 'item' : '定期', 'type' : 'text' },
-                    // 'change'  : { 'item' : '變更', 'type' : 'text' },
                 };
                 // step.2-2 逐條逐項 組合TR/TD並渲染到身段
                 for (const [sh_key, sh_Vitem] of Object.entries(shCondition_key)) {
                     let sh_value = shCondition[sh_key] !== undefined ? shCondition[sh_key] : '';
-
                     let tr = `<tr><td class="text-end">${sh_key}</td><td class="text-center">${sh_Vitem['item']}</td><td>`;
                     switch (sh_Vitem['type']) {
                         case 'checkbox':        // for newOne、noise
@@ -80,9 +77,7 @@
 
                         case 'text':
                             let sh_value_arr = sh_value ? sh_value.split(';').filter(e => e !== "") : [];   // 去除空格
-                            // console.log('sh_value_arr...',sh_value_arr)
                                 // 生成 檢查類別代號+項目類別代號
-                                // console.log('he_cate_obj...',he_cate_obj)
                                 for (const [he_cate_i, he_cate_v] of Object.entries(he_cate_obj)) {
                                     tr += `<div class="form-check form-check-inline">`;
                                     tr += `<input name="${sh_key}[]" id="${sh_key},${he_cate_i},${he_cate_v}" value="${he_cate_v}" type="checkbox" class="form-check-input" `; 
@@ -106,18 +101,17 @@
                 // step.3 顯示互動視窗
                 edit_modal.show();                               // 顯示互動視窗
             }
-
             // 添加新的監聽器
             shCondition.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
                 tdItem.addEventListener('click', shConditionClickListener);      // 將每一個tdItem增加監聽, 當按下click
             })
+
             resolve();
         });
     }
     // 241108 改變ShCondition calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeShConditionMode(){
         const isShCondition_bool = userInfo.role <= 3 && _docsIdty_inf <= 4;
-        // const targetCate = document.querySelectorAll(isShCondition_bool ? '.xshCondition' : '.shCondition');  
         const targetCate = document.querySelectorAll(`#hrdb_table td[id*=",shCondition`);  
         targetCate.forEach(tdItem => {
             tdItem.classList.toggle(isShCondition_bool ? 'shCondition'  : 'xshCondition');
@@ -145,16 +139,13 @@
                 const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
                 const edit_fun    = 'yearHe';                      // 指定功能
                 $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
-                
                 // step.2.0 取得 post_yearHe / 順便渲染到modal
                 await load_fun('load_heCate','load_heCate', post_heCate);
-                
                 // step.2.1 取得個人今年的_yearHe，並轉成陣列
                 const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
                 const { shCase, shCondition, _content } = empData;
                 const _yearHe = _content[`${currentYear}`]['import']['yearHe'] !== undefined ? _content[`${currentYear}`]['import']['yearHe'] : '';
                 const _yearHe_arr = _yearHe.includes(',') ? _yearHe.split(',') : [_yearHe];
-                console.log('_yearHe_arr...', _yearHe_arr);
                 // step.2.2 讓存在既有名單的清單打勾
                 const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]'));
                 heCate_arr.forEach(heCate_checkbox => {
@@ -164,18 +155,17 @@
                 edit_modal.show();                               // 顯示互動視窗
                 $("body").mLoading("hide");
             }
-
             // 添加新的監聽器
             yearHe.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
                 tdItem.addEventListener('click', yearHeClickListener);      // 將每一個tdItem增加監聽, 當按下click
             })
+
             resolve();
         });
     }
     // 241108 改變yearHe calss吃css的狀態；主要是主管以上不需要底色編輯提示
     function changeYearHeMode(){
         const isYearHe_bool = userInfo.role <= 3 && _docsIdty_inf < 4 ;
-        // const targetCate = document.querySelectorAll(isYearHe_bool ? '.xyearHe' : '.yearHe');  
         const targetCate = document.querySelectorAll(`#hrdb_table td[id*=",yearHe`);  
         targetCate.forEach(tdItem => {
             tdItem.classList.toggle(isYearHe_bool ? 'yearHe'  : 'xyearHe');
@@ -202,25 +192,21 @@
                 const edit_empId  = this_id_arr[1];                     // 取出陣列1=emp_id
                 const edit_fun    = 'yearPre';                      // 指定功能
                 $('#edit_modal #edit_modal_empId').empty().append(`${edit_fun}, ${edit_cname}, ${edit_empId}`); // 清空+填上工號
-                
                 // step.2 取得個人匯入3的_yearPre，// 並轉成陣列--有待評估
                 const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
                 const { _content } = empData;
                 const _yearPre = _content[`${currentYear}`]['import']['yearPre'] !== undefined ? _content[`${currentYear}`]['import']['yearPre'] : '';
-                // const _yearPre_arr = _yearPre.includes(',') ? _yearPre.split(',') : [];  // 轉成陣列--有待評估
-
                 // step.3 渲染內容
                 post_yearPre(_yearPre)
-
                 // step.4 顯示互動視窗
                 edit_modal.show();                               // 顯示互動視窗
                 $("body").mLoading("hide");
             }
-
             // 添加新的監聽器
             yearPre.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
                 tdItem.addEventListener('click', yearPreClickListener);      // 將每一個tdItem增加監聽, 當按下click
             })
+
             resolve();
         });
     }
@@ -251,9 +237,6 @@
             });
         }
 
-        // <input type="text" name="yearPre" id="yearPre" class="form-control" value="${yearPre_str}" >
-        // <label for="yearPre" class="form-label">yearPre/去年檢查項目：<sup class="text-danger"> *</sup></label>
-
         function post_yearPre(yearPre_str) {
             return new Promise((resolve) => {
                 let tr = `<div class="col-12 text-start p-1">`;
@@ -278,7 +261,6 @@
         const edit_fun    = this_id_arr[0].trim();                     // 取出陣列0=fun
         // const edit_cname  = this_id_arr[1].trim();                     // 取出陣列1=cname
         const edit_empId  = this_id_arr[2].trim();                    // 取出陣列2=emp_id
-        // console.log('switch' , edit_fun , edit_empId);
         switch (edit_fun) {
             case 'shCondition':
                 await edit_shCondition_submit(edit_empId);
@@ -290,10 +272,6 @@
                 await edit_yearPre_submit(edit_empId);
                 break;
             default:
-                // input_value = cell.value.trim(); // 第 2 個儲存格的值
-                // if (!isNaN(input_value) && input_value !== '') {
-                //     input_value = String(input_value); // 轉換為字串
-                // }
         }
         edit_modal.hide();
     })
@@ -307,12 +285,8 @@
                     let cells = row.querySelectorAll('td');             // 取得該列的所有儲存格
                     if (cells.length === 3) {                           // 確保有兩個儲存格（item 和 value）
                         let key = cells[0].textContent.trim();          // 第 0 個儲存格的值
-                        // let item = cells[1].textContent.trim();         // 第 1 個儲存格的值
-                        // let cell  = cells[2].querySelector('input');    // 第 2 個儲存格的type
                         let cell;    // 第 2 個儲存格的type
-                        // let input_value = cells[1].querySelector('input').value.trim(); // 第 2 個儲存格的值
                         let input_value; // 第 2 個儲存格的值
-        
                         if(key == 'newOne' || key == 'noise') {
                             cell = cells[2].querySelector('input');    // 第 2 個儲存格的type
                             input_value = cell.checked;
@@ -321,25 +295,19 @@
                             cell = Array.from(cells[2].querySelectorAll('input'));    // 第 2 個儲存格的type
                             for (const cell_i of cell) {
                                 let br = input_value != '' ? ';' : '';
-                                // if (cell_i.id.includes(`other`) && cell_i.checked) {
-                                //     input_value += cell_i.checked ? br + cell_i.value : '';
-                                //     // 這裡需要修正.....
-                                // } else {
-                                    input_value += cell_i.checked ? br + cell_i.value : '';
-                                // }
+                                input_value += cell_i.checked ? br + cell_i.value : '';
                             }
-                            console.log('input_value...',input_value);
                             if(input_value !== undefined){
                                 input_value = input_value.replace(/undefined;?/g, "");        // 去除undefined,
                             }
                         }
                         result[key] = input_value; // 存入結果物件
+
                     }else{
                         return;
                     }
                 });
                 // 進行強迫排序
-                // let sort_item = ['newOne', 'noise', 'regular', 'change'];
                 let sort_item = ['newOne', 'noise'];
                 let sorted_result = {};
                 for (const sortKey of sort_item) {
@@ -351,7 +319,6 @@
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
                 empData.shCondition = sorted_result;                   // 把資料帶入
-                console.log('sorted_result:',sorted_result);
                 // 清除指定的shCondition欄位
                 document.getElementById(`shCondition,${empId},${currentYear}`).innerHTML = '';
                 // 更新資格驗證(1by1)
@@ -362,24 +329,18 @@
         }
         function edit_yearHe_submit(empId) {
             return new Promise((resolve) => {
-                let result = {};        // 初始化結果物件
                 const heCate_arr = Array.from(document.querySelectorAll('#edit_modal .modal-body input[name="heCate[]"]')); // 定義table範圍
                 const selectedValues = heCate_arr.filter(cb => cb.checked).map(cb => cb.value);
                 const ObjectValues = JSON.stringify(selectedValues).replace(/[\[{"}\]]/g, '');
-
                 // 回存empData
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
-                // empData._content[`${currentYear}`]['import'] = {
-                //     'yearHe' : ObjectValues           
-                // }
                 // 採用淺拷貝的方式來合併物件
                 empData._content[`${currentYear}`]['import'] = Object.assign(
                     {}, empData._content[`${currentYear}`]['import'], {
                         'yearHe': ObjectValues      // 把資料帶入Object{物件}
                     }
                 );
-        
                 // 清除指定的yearHe欄位並更新
                 const importItem_value = (ObjectValues != undefined ? ObjectValues :'').replace(/,/g, '<br>');
                 const targetDiv = document.getElementById(`${empData.cname},${empId},yearHe`);
@@ -391,10 +352,8 @@
         }
         function edit_yearPre_submit(empId) {
             return new Promise((resolve) => {
-                let result = {};        // 初始化結果物件
                 const yearPre_textArea = document.querySelector('#edit_modal .modal-body textarea[name="yearPre"]'); // 定義textarea範圍
                 const yearPre_value    = yearPre_textArea.value; // 定義textarea value
-
                 // 回存empData
                 // step.1 取得工號&個人資料
                 const empData = staff_inf.find(emp => emp.emp_id === empId);   // 取得個人資料
@@ -404,12 +363,9 @@
                         'yearPre': yearPre_value      // 把資料帶入Object{物件}
                     }
                 );
-        
                 // 清除指定的yearHe欄位並更新
-                // const importItem_value = (yearPre_value != undefined ? yearPre_value :'').replace(/,/g, '<br>');
                 const targetDiv = document.getElementById(`${empData.cname},${empId},yearPre`);
                 targetDiv.innerHTML = '';
-                // targetDiv.insertAdjacentHTML('beforeend', importItem_value);
                 targetDiv.insertAdjacentHTML('beforeend', yearPre_value);
 
                 resolve();
