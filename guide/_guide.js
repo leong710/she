@@ -17,6 +17,7 @@
             };
             xhr.send(formData);
         }
+        
         function unlinkFile(key) {
             let formData = new FormData();
             let unlinkFile = document.getElementById('_guide_'+key).value;                      // 取dcc_no file.name
@@ -88,10 +89,7 @@
         })
     }
 
-
-
     $(document).ready(function(){
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         $('#guide_list').DataTable({
             "autoWidth": false,
             // 排序

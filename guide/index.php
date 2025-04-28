@@ -4,7 +4,6 @@
     require_once("function.php");
     require_once("../user_info.php");
     accessDenied($sys_id);
-    // accessDeniedAdmin($sys_id);
 
     $_guides = show_guide();
 
@@ -125,8 +124,6 @@
     
                                 <div class="input-group">
                                     <input type="file" name="upload_file" id="_file" class="form-control mb-0" accept=".pdf" placeholder="上傳檔案">
-                                    <!-- <button type="button" class="btn btn-outline-success" onclick="uploadFile('_file')">Upload</button> -->
-                                    <!-- <button type="button" class="btn btn-outline-danger" onclick="unlinkFile('_file')">Delete</button> -->
                                 </div>
                             </div>
                         </div>
@@ -186,13 +183,10 @@
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-
 <script>
-
     var _guide        = <?=json_encode($_guides)?>;                                  // 引入_guide資料
     var _guide_item   = ['id', '_file', '_title', '_remark', 'flag'];                // 交給其他功能帶入 delete_cate_id
-
 </script>
-<script src="_guide.js?v=<?=time()?>"></script>
+<script src="_guide.js"></script>
 
 <?php include("../template/footer.php"); ?>

@@ -22,7 +22,6 @@
         }else{
             $flag = "Off";
         }
-
         $sql = "INSERT INTO _guide(_file, _title, _remark, flag, updated_user,  created_at, updated_at)VALUES(?,?,?,?,?,  now(), now())";
         $stmt = $pdo->prepare($sql);
         try {
@@ -80,7 +79,6 @@
             // 處理上傳檔案
             $_file = uploadFile($_FILES["upload_file"]);
         }
-
         $sql = "UPDATE _guide SET _file=?, _title=?, _remark=?, flag=?, updated_user=?, updated_at=now() WHERE id=?";
         $stmt = $pdo->prepare($sql);
         try {
@@ -126,37 +124,6 @@
         }
         return $swal_json;
     }
-
-            // guide 隱藏或開啟
-            // function changeguide_flag($request){
-            //     $pdo = pdo();
-            //     extract($request);
-
-            //     $sql_check = "SELECT _guide.* FROM _guide WHERE id=?";
-            //     $stmt_check = $pdo -> prepare($sql_check);
-            //     $stmt_check -> execute([$id]);
-            //     $row = $stmt_check -> fetch();
-
-            //     if($row['flag'] == "Off" || $row['flag'] == ""){
-            //         $flag = "On";
-            //     }else{
-            //         $flag = "Off";
-            //     }
-
-            //     $sql = "UPDATE _guide SET flag=? WHERE id=?";
-            //     $stmt = $pdo->prepare($sql);
-            //     try {
-            //         $stmt->execute([$flag, $id]);
-            //         $Result = array(
-            //             'id'   => $id,
-            //             'flag' => $flag
-            //         );
-            //         return $Result;
-            //     }catch(PDOException $e){
-            //         echo $e->getMessage();
-            //     }
-            // }
-
     // 在index表頭顯示清單：
     function show_guide(){
         $pdo = pdo();
@@ -170,23 +137,13 @@
             echo $e->getMessage();
         }
     }
-
     // 20240417
     function uploadFile($files){
         extract($files);
-
         $uploadDir = './doc/';                              // 過度路徑，submit後再搬移到正是路徑
             if(!is_dir($uploadDir)){ mkdir($uploadDir); }   // 检查資料夾是否存在
         $row_file = basename($name);                    // 取得檔案名稱
         $uploadFile = $uploadDir.$row_file;             // 合成上船路境+檔名
-        // // 假如已經有了....
-            // if(is_file($uploadFile)){
-            //     $rename_time = date('Ymd-His');
-            //     $row_file = str_ireplace(".pdf", "", $row_file);     // 把副檔名移除
-            //     $row_file .= "_".$rename_time.".pdf";
-            //     $uploadFile = $uploadDir.$row_file;         // 合成上船路境+檔名
-            // }
-
         // 将文件移动到指定目录
         if(move_uploaded_file($tmp_name, $uploadFile)) {
             $success_file = str_ireplace(".pdf", "", $row_file);     // 把副檔名移除
@@ -199,10 +156,8 @@
     function unlinkFile($unlinkFile){
         $file_from = "./doc/";                // submit後正是路徑
         $file_to   = "./doc/offLine/";        // submit後再搬移到垃圾路徑
-
         $rename_time = date('Ymd-His');
         $ext_name = ".pdf";
-
         // 確認檔案在目錄下
         if(is_file($file_from .$unlinkFile .$ext_name)) {
             // // 移除檔案 unlink($unlinkFile); 
