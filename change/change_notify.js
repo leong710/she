@@ -150,8 +150,8 @@
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
                 // formData.append('to', to_email);            // 1.傳送對象
-                // formData.append('to', 'leong.chen;');       // 2.傳送開發對象
-                formData.append('to', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ${to_email}`);     // 3.傳送測試對象
+                formData.append('to', 'leong.chen;');       // 2.傳送開發對象
+                // formData.append('to', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ${to_email}`);     // 3.傳送測試對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 

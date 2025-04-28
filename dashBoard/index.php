@@ -12,9 +12,7 @@
         accessDenied_sys($sys_id);
     }
 
-    // 複製本頁網址藥用
-    // $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
-
+    $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
     $reloadTime = (file_exists("reloadTime.txt")) ? file_get_contents("reloadTime.txt") : "";       // 從文件加载reloadTime内容
 
     include("../template/header.php");
@@ -138,7 +136,6 @@
     </style>
     <link rel="stylesheet" href="wave.css">
 </head>
-
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
@@ -192,7 +189,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- p2 -->
                     <div id="nav-p2_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p2-tab">
                         <div class="col-12 bg-white">
@@ -214,7 +210,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- p3 -->
                     <div id="nav-p3_table" class="tab-pane fade" role="tabpanel" aria-labelledby="nav-p3-tab">
                         <div class="col-12 bg-white text-center">
@@ -266,45 +261,44 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- 說明欄 -->
-                <!-- 下：測試 -->
+                <?php if(!empty($fun) && $fun === "debug"){ ?>
+                    <!-- 下：測試 -->
                     <div class="col-12 bg-light border rounded p-3 my-2 bs-b text-center">
-                    <div class="row">
-                        <div class="col-9 col-md-9">
-                            <!-- 測試圖1 -->
-                            <div class="text-center">
-                                <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
+                        <div class="row">
+                            <div class="col-9 col-md-9">
+                                <!-- 測試圖1 -->
+                                <div class="text-center">
+                                    <img src="../image/banner-1.png" alt="tnESH Logo" class="banner" onerror="this.onerror=null; this.src='../image/lvl.png';">
+                                </div>
+                            </div>
+                            <div class="col-3 col-md-3 seed text-center">
+                                <!-- 測試圖2 -->
+                                <img src="../image/safetyFirst.jfif" alt="tnESH Logo" class="img-thumbnail">
+                                <!-- 測試權限 -->
+                                <form action="sys_role.php" method="get">
+                                    <div class="input-group">
+                                        <span class="input-group-text">測試</span>
+                                        <select name="role" id="role" class="form-select" onchange="submit()">
+                                            <option for="role" hidden selected>-- 調整role權限 --</option>
+                                            <option for="role" value="0" >0 管理員</option>
+                                            <option for="role" value="1" >1 大PM/總窗護理師</option>
+                                            <option for="role" value="2" >2 廠-護理師</option>
+                                            <option for="role" value="2.2" >2.2 廠-工安</option>
+                                            <option for="role" value="2.5" >2.5 ESH工安</option>
+                                            <option for="role" value="3" >3 現場窗口</option>
+                                            <option for="role" value="3.5" >3.5 unknow</option>
+                                        </select>
+                                        <input type="hidden" name="sys_id" value="she">
+                                    </div>
+                                </form>  
                             </div>
                         </div>
-                        <div class="col-3 col-md-3 seed text-center">
-                            <!-- 測試圖2 -->
-                            <img src="../image/safetyFirst.jfif" alt="tnESH Logo" class="img-thumbnail">
-                            <!-- 測試權限 -->
-                            <form action="sys_role.php" method="get">
-                                <div class="input-group">
-                                    <span class="input-group-text">測試</span>
-                                    <select name="role" id="role" class="form-select" onchange="submit()">
-                                        <option for="role" hidden selected>-- 調整role權限 --</option>
-                                        <option for="role" value="0" >0 管理員</option>
-                                        <option for="role" value="1" >1 大PM/總窗護理師</option>
-                                        <option for="role" value="2" >2 廠-護理師</option>
-                                        <option for="role" value="2.2" >2.2 廠-工安</option>
-                                        <option for="role" value="2.5" >2.5 ESH工安</option>
-                                        <option for="role" value="3" >3 現場窗口</option>
-                                        <option for="role" value="3.5" >3.5 unknow</option>
-                                    </select>
-                                    <input type="hidden" name="sys_id" value="she">
-                                </div>
-                            </form>  
-                        </div>
                     </div>
-                </div>
-
+                <?php } ?>
             </div>
         </div>
     </div>
-
     <!-- toast -->
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
@@ -320,7 +314,6 @@
 </body>
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
-<!-- <script src="../../libs/openUrl/openUrl.js"></script>       彈出子畫面 -->
 <script src="_change.js"></script>
 <script src="dashboard.js"></script>
 

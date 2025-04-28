@@ -817,7 +817,6 @@
                         // checkbox.dispatchEvent(new Event('change'));
                     });
                 }
-    
                 // 添加新的監聽器
                 selectDeptStaff_btn.addEventListener('click', selectDeptStaffClickListener);      // 將每一個tdItem增加監聽, 當按下click
         }
@@ -874,7 +873,6 @@
                     return newArr;
                 }
 
-
             // 定義新的監聽器函數
             baseInCareClickListener = async function () {
                 // step.1 標題列顯示姓名工號
@@ -891,24 +889,19 @@
                 const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
                 if(deptData){
                     const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(deptData, thisMonth);  // 取得部門全部員工 + 取得特檢員工
-
                     const dec_baseAll_arr = decode_Obj(baseAll_arr);                            // 將部門全部員工obj轉換成正常的arr
                     const getInEmpID_arr = getEmpId_Arr(getIn_arr);                             // 單獨取出轉入員工的empId
                     await postResultTo_maintainDeptTable(dec_baseAll_arr, getInEmpID_arr);      // 將正常arr的部門全部員工清單交給postResultTo_maintainDeptTable進行鋪設
-                    
                     const get_inCareEmpID_arr = getEmpId_Arr(inCare_arr);                       // 單獨取出特檢員工的empId
                     toCheckedOpt(get_inCareEmpID_arr , targetMonth);                            // 將table裡的特檢員工選上[打勾]
-
                 }else{
                     console.log('無deptData...套用新[]')
                 }
-
                 // // step.3 顯示互動視窗
                 maintainDept_modal.show()
                 // edit_modal.show();                               // 顯示互動視窗
                 // $("body").mLoading("hide");
             }
-
             // 添加新的監聽器
             baseInCare.forEach(tdItem => {                                      // 遍歷範圍內容給tdItem
                 tdItem.addEventListener('click', baseInCareClickListener);      // 將每一個tdItem增加監聽, 當按下click
@@ -988,7 +981,6 @@
 
             }
             post_hrdb(shLocalDept_inf, thisMonth); // 鋪設
-
                     // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
                     // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
                     // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
@@ -997,7 +989,6 @@
                     //     // 手動觸發 change 事件
                     //     // checkbox.dispatchEvent(new Event('change'));
                     // });
-
             resetMaintainDept();        // 清除
             maintainDept_modal.hide();  // 關閉modal
             $("body").mLoading("hide");
@@ -1017,7 +1008,6 @@
                 const thisArr = thisValue.split(',').filter(item => {
                     return item.length === 8 && /^\d+$/.test(item);
                 });
-
                 if(thisArr.length > 0){
                     let thisInfo = `帶入套用：${thisArr.length} 人`;
                     toCheckedOpt(thisArr ,thisInfo )
@@ -1119,7 +1109,6 @@
                             const innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
                             // 更新所有符合條件的節點的 innerHTML
                             deptNo_sups.forEach(node => { node.innerHTML = `(${value.idty}-${innerHTMLValue})`; });
-        
                             // 決定開啟的權限
                             const doc_Role_bool = !( 
                                     (userInfo.role <= 1) ||                  // 大PM.1 => 全開
@@ -1129,7 +1118,6 @@
                                     (value.in_sign == userInfo.empId) ||     // 待簽人員 = 上層主管 /轉呈
                                     (value.omager  == userInfo.empId)        // 部門主管 = 自己
                                 );
-                
                             const deptNo_btns = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"]`);
                             deptNo_btns.forEach(deptNo_btn => {
                                 // 如果 idty 大於 4，則更新按鈕樣式

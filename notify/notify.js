@@ -435,7 +435,6 @@
         // 2025/03/24 p2notify_process()整理訊息、發送、顯示發送結果。
             // async function p2notify_process(msgArr){ }
             // async function p2_init(action){ }
-
             // 返回最新的一筆通報數據  (原本在post_staff裡面)
             function getLatestNotification(notifyArray) {
                 if (!Array.isArray(notifyArray) || notifyArray.length === 0) {

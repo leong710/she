@@ -12,12 +12,10 @@
                 show_activeTab(this.id);          // 呼叫fun竄改activeTab按鈕+數值
             })
         })
-
         // 監聽表單內 input 變更事件
         $('#emp_id, #cname, #user').change(function() {
             $(this).removeClass('autoinput');   // 當有變更時，對該input加上指定的class
         });
-
         // 20230817 禁用Enter鍵表單自動提交 
         document.onkeydown = function(event) { 
             var target, code, tag; 
@@ -49,7 +47,6 @@
     // 第一-階段：search Key_word
     function search_fun(fun){
         mloading("show");                                               // 啟用mLoading
-
         if(fun=='search'){
             var search = $('#user').val().trim();                       // search keyword取自user欄位
             if(!search || (search.length < 2)){
@@ -144,7 +141,6 @@
         $("body").mLoading("hide");                                 // 關閉mLoading
         user_modal.hide();
         searchUser_modal.show();                                    // 切到searchUser頁面
-
     }
     // 第二階段：點選、渲染模組
     function tagsInput_me(val) {
@@ -280,5 +276,4 @@
         document.querySelector("#"+activeTab).classList.add('active');                              // 激活选项卡
         $("#"+activeTab).click();                                                                   // 點選選項卡以便套用groupBy_role(...)
         show_activeTab(activeTab);                                                                  // 呼叫fun竄改user_modal activeTab按鈕+數值
-
     });
