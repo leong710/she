@@ -12,18 +12,13 @@
                     // 初始查詢陣列
                         $conditions = [];
                         $stmt_arr   = [];    
-
                     if (!empty($parm)) {
                         $conditions[] = "_sh.id = ?";
                         $stmt_arr[] = $parm;
                     }
-                    
                     if (!empty($conditions)) {
                         $sql .= ' WHERE ' . implode(' AND ', $conditions);
                     }
-                    // 後段-堆疊查詢語法：加入排序
-                    // $sql .= " ORDER BY _sh.OSHORT, _sh.created_at DESC ";
-
                     $stmt = $pdo->prepare($sql);
                     try {
                         if(!empty($stmt_arr)){
@@ -33,9 +28,7 @@
                         }
                         $shLocal = $stmt->fetch(PDO::FETCH_ASSOC);
                         // 把特定json轉物件
-                        // $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
                         $shLocal["HE_CATE"] = json_decode($shLocal["HE_CATE"]);
-
                         // 製作返回文件
                         $result = [
                             'result_obj' => $shLocal,
@@ -46,7 +39,6 @@
                         echo $e->getMessage();
                         $result['error'] = 'Load '.$fun.' failed...(e)';
                     }
-
                 }else{
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
@@ -57,16 +49,13 @@
                     "fun"       => "truncate_shLocal",
                     "content"   => "特危作業--"
                 );
-                
                 if(isset($parm)){
                     $pdo = pdo();
-                    // $sql = "TRUNCATE TABLE `_shlocal` ";
                     $sql = "DELETE FROM `_shlocal`;
                             ALTER TABLE `_shlocal` AUTO_INCREMENT = 1";
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
-
                         $swal_json["action"]   = "success";
                         $swal_json["content"] .= '清除成功';
                         // 製作返回文件
@@ -78,7 +67,6 @@
 
                     }catch(PDOException $e){
                         echo $e->getMessage();
-
                         $swal_json["action"]   = "error";
                         $swal_json["content"] .= '清除失敗';
                         // 製作返回文件
@@ -88,7 +76,6 @@
                             'error'      => 'Load '.$fun.' failed...(e)'
                         ];
                     }
-
                 }else{
                     $result = [
                         'result_obj' => $swal_json,
@@ -103,17 +90,13 @@
                     "fun"       => "deleteSelected_shLocal",
                     "content"   => "刪除特危作業--"
                 );
-                
                 if(isset($parm)){
                     $pdo = pdo();
                     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-
-                    // $sql = "TRUNCATE TABLE `_shlocal` ";
                     $sql = "DELETE FROM _shlocal WHERE OSHORT IN ({$parm_re}) ";
                     $stmt = $pdo->prepare($sql);
                     try {
                         $stmt->execute();
-
                         $swal_json["action"]   = "success";
                         $swal_json["content"] .= '成功';
                         // 製作返回文件
@@ -122,10 +105,8 @@
                             'fun'        => $fun,
                             'success'    => 'Load '.$fun.' success.'
                         ];
-
                     }catch(PDOException $e){
                         echo $e->getMessage();
-
                         $swal_json["action"]   = "error";
                         $swal_json["content"] .= '失敗';
                         // 製作返回文件
@@ -135,7 +116,6 @@
                             'error'      => 'Load '.$fun.' failed...(e)'
                         ];
                     }
-
                 }else{
                     $result = [
                         'result_obj' => $swal_json,
@@ -165,7 +145,6 @@
                         'success'    => 'Load '.$fun.' success.'
                     ];
                 }else{
-                    // echo "<script>alert('參數sw_json_data異常，請重新確認~')</script>";
                     $swal_json["action"]   = "error";
                     $swal_json["content"] .= '儲存失敗';
                     $result = [
@@ -206,5 +185,4 @@
         http_response_code(500);
         echo json_encode(['error' => 'fun is lost.']);
     }
-
 ?>

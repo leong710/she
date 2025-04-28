@@ -7,7 +7,6 @@
 
     // for return
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
-
     // default fab_scope
         $fab_scope = ($sys_role <= 1 ) ? "All" : "All";               // All :allMy
     // tidy query condition：
@@ -31,9 +30,6 @@
         $fab_lists      = show_fab_lists();             // get 廠區清單
         $OSHORT_lists   = show_OSHORT();                // get 部門代號
 
-            $icon_s = '<i class="';
-            $icon_e = ' fa-2x"></i>&nbsp&nbsp';
-
     $shLocal_OSHORTs = load_shLocal_OSHORTs();                                      // step1.取得特危健康場所部門代號
     if(count($shLocal_OSHORTs) >0 ){
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
@@ -42,14 +38,9 @@
         $shLocal_OSHORTs_str = "";
     }
 
-    // echo "<pre>";
-    // print_r($shLocals);
-    // echo "</pre>";
-            
     include("../template/header.php");
     include("../template/nav.php"); 
 ?>
-
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
@@ -156,7 +147,6 @@
                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                                 <button type="button" class="nav-link active" id="nav-p1-tab" data-bs-toggle="tab" data-bs-target="#nav-p1_table" role="tab" aria-controls="nav-p1" aria-selected="false">特危作業管理</button>
                                 <button type="button" class="nav-link"        id="nav-p2-tab" data-bs-toggle="tab" data-bs-target="#nav-p2_table" role="tab" aria-controls="nav-p2" aria-selected="false">特危作業清單</button>
-                                <!-- <button type="button" class="nav-link"        id="nav-p3-tab" data-bs-toggle="tab" data-bs-target="#nav-p3_table" role="tab" aria-controls="nav-p3" aria-selected="false">p3</button> -->
                                 <button type="button" class="nav-link <?php echo ($sys_role <= 1) ? "":"disabled unblock";?>" value="he_cate.php?action=edit" onclick="openUrl(this.value)"><i class="fa-solid fa-arrow-up-right-from-square"></i>&nbsp;危害類別管理</button>
                             </div>
                         </nav>
@@ -319,19 +309,15 @@
             </div>
         </div>
     </div> 
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-
 <script src="../../libs/aos/aos.js"></script>                       <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>                  <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/openUrl/openUrl.js"></script>               <!-- 彈出子畫面 -->
-
 <script>
-
 // // // 開局導入設定檔
 // 以下為控制 iframe
     var realName         = document.getElementById('realName');           // 上傳後，JSON存放處(給表單儲存使用)
@@ -342,13 +328,10 @@
     var excelFile        = document.getElementById('excelFile');          // 上傳檔案名稱
     var excelUpload      = document.getElementById('excelUpload');        // 上傳按鈕
     var import_excel_btn = document.getElementById('import_excel_btn');   // 載入按鈕
-
     const shLocals       = <?=json_encode($shLocals)?>;    // 引入shLocal資料
-
     const OSHORTsTXT = (document.getElementById('row_OSTEXT_30').innerText).trim();
     const OSHORTsObj = OSHORTsTXT ? JSON.parse(OSHORTsTXT) : OSHORTsTXT; // 將row_OSTEXT_30的字串轉換為物件
-
 </script>
-<script src="sh_local.js?v=<?=time()?>"></script>
+<script src="sh_local.js"></script>
 
 <?php include("../template/footer.php"); ?>

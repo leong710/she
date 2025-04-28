@@ -32,14 +32,9 @@
         $he_cate_json = [];
     }
 
-    // 
-    // $let_btn_s = '<button type="button" class="btn ';
-    // $let_btn_m = '" data-bs-toggle="modal" data-bs-target="#saveSubmit" value="';
-    // $let_btn_e = '" onclick="saveSubmit_modal(this.value, this.innerHTML);">';
+    include("../template/header.php"); 
+    // include("../template/nav.php");
 ?>
-
-<?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
@@ -317,14 +312,12 @@
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
-
 <script>
     // init
     const action = '<?=$action?>';
     const id     = '<?=$id?>';
     const searchModal = new bootstrap.Modal(document.getElementById('searchModal'), { keyboard: false });
     const uuid   = 'e65fccd1-79e7-11ee-92f1-1c697a98a75f';   // nurse
-
     const userInfo = {
             'role'     : '<?=$sys_role?>',
             'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
@@ -332,8 +325,7 @@
             'cname'    : '<?=$auth_cname?>',
             'signCode' : '<?=$auth_sign_code?>'
         };
-
 </script>
-<script src="form.js?v=<?=time()?>"></script>
+<script src="form.js"></script>
 
 <?php include("../template/footer.php"); ?>

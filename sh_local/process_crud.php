@@ -5,7 +5,6 @@
 
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
     $swal_json = array();
-    // $swal_json["notify"] = isset($_REQUEST["notify"]) ? true : false;
 
     function do_check($request){
         extract($request);
@@ -52,10 +51,8 @@
 </body>
 
 <script>    
-    
     const swal_json = <?=json_encode($swal_json)?>;                 // 引入swal_json值
     const url       = 'index.php';
-
     // 20240314 配合await將swal外移
     function show_swal_fun(swal_value){
         return new Promise((resolve) => {  
@@ -79,8 +76,6 @@
             }
         });
     }
-
-// // 主技能--alert使用await
     async function notify_process(){
         mloading("show");             // 啟用mLoading
         if(swal_json.length != 0){
@@ -97,5 +92,4 @@
     $(document).ready(function () {
         notify_process();
     })
-
 </script>

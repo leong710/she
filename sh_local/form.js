@@ -46,8 +46,6 @@
                 selectedItems[key] = value;
             }
         });
-        console.log(selectedItems);
-        
         if (Object.keys(selectedItems).length > 0) { // 有選
             heCateContainer.classList.remove('is-invalid');
             heCateContainer.classList.add('is-valid');
@@ -64,8 +62,6 @@
             });
         }
     }
-
-
     // 20240506 saveSubmit modal添加save功能
     function saveSubmit_modal(idty_title){
         $('#modal_action').empty().append(idty_title);              // 清除model標題 和 炫染model標題
@@ -85,7 +81,6 @@
     // fun_1.search Key_word
     function search_fun(fun){
         mloading("show");                                           // 啟用mLoading
-
         if(fun=='search'){
             var search = $('#user').val().trim();                       // search keyword取自user欄位
             if(!search || (search.length < 2)){
@@ -115,7 +110,6 @@
         }else{
             return false;
         }
-
         $.ajax({
             url: 'http://tneship.cminl.oa/api/hrdb/index.php',      // 正式2024新版
             method: 'post',
@@ -126,7 +120,7 @@
                 postList(res_r);                                    // 將結果轉給postList進行渲染
             },
             error (err){
-                console.log("search error:", err);
+                console.error("search error:", err);
                 alert("查詢錯誤!!");
             }
         })
@@ -231,7 +225,6 @@
                 heCates.forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const selectedValues = heCates.filter(cb => cb.checked).map(cb => cb.value);
-                        // console.log('he_cate...', this.value, this.checked);
                         if (selectedValues.length > 0) { // 有選
                             heCateContainer.classList.remove('is-invalid');
                             heCateContainer.classList.add('is-valid');
@@ -386,10 +379,9 @@
 // 20240502 -- (document).ready(()=> await 依序執行step 1 2 3
     async function loadData() {
         try {
-                mloading(); 
-                await eventListener();                      // step_1-2 eventListener();
+            mloading(); 
+            await eventListener();                      // step_1-2 eventListener();
             if(action == "edit" || action == "review" ){
-                await load_fun('edit_shLocal', id, console.log);   // step_2 load_shLocal(id);
                 await load_fun('edit_shLocal', id, edit_show);   // step_2 load_shLocal(id);
             }
         } catch (error) {
@@ -402,7 +394,6 @@
     function checkPopup() {
         const urlParams = new URLSearchParams(window.location.search);
         if ((urlParams.has('popup') && urlParams.get('popup') === 'true') || (window.opener)) {
-            // console.log('这是 弹窗');
             let rtn_btns = document.querySelectorAll('.rtn_btn');   // 獲取所有帶有 'rtn_btn' class 的按鈕
             rtn_btns.forEach(function(btn) {                        // 遍歷這些按鈕，並設置 onclick 事件
                 btn.onclick = function() {

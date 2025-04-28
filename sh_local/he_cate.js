@@ -11,14 +11,11 @@
     // 240814 監聽 HE_CATE_json 是否異動
         const heCateJson = document.getElementById('HE_CATE_json').innerText;   // 取得row_json
         const heCateObj  = JSON.parse(heCateJson);                              // row_json轉row_obj
-        // console.log('heCateObj...', heCateObj);
     // 240814 監聽 HE_CATE_json 是否異動
 
     // 240814 new append 呼叫 delete
         function append_delete(this_name, this_value){
-            // console.log('append_delete...', this_name, this_value);
             delete heCateObj[this_value];                   // 刪除陣列的某值
-            // console.log('heCateObj...', heCateObj);
             $('#HE_CATE_json').empty().append(JSON.stringify(heCateObj)); // 更新畫面中json
             $('#'+this_name).remove();                      // 畫面中清除某值
             let sinn = '**&nbsp;移除危害類別[ '+this_value+' ]&nbsp;!!';
@@ -51,15 +48,12 @@
                 } 
             } 
         };
-
         // 240813 監聽 delete 是否有點擊
             const heCateContainer = document.getElementById('HE_CATE');
             const heCates_delete = Array.from(heCateContainer.querySelectorAll('button[type="delete"]'));
             heCates_delete.forEach(heCates_del => {
                 heCates_del.addEventListener('click', function() {
-                    // console.log('delete...', this.name);
                     delete heCateObj[this.value];                   // 刪除陣列的某值
-                    // console.log('heCateObj...', heCateObj);
                     $('#HE_CATE_json').empty().append(JSON.stringify(heCateObj)); // 更新畫面中json
                     $('#'+this.name).remove();                      // 畫面中清除某值
                     let sinn = '**&nbsp;移除危害類別[ '+this.value+' ]&nbsp;!!';
@@ -67,7 +61,6 @@
                 });
             });
         // 240813 監聽 delete 是否有點擊
-
         // 240814 監聽 append 是否有點擊
             const heCateAppend = document.getElementById('HE_CATE_append');
             const heCates_append = Array.from(heCateAppend.querySelectorAll('button[type="append"]'));
@@ -75,22 +68,17 @@
                 heCates_app.addEventListener('click', function() {
                     const app_key = $("#"+this.value+"_key").val();             // 取得內為內容
                     const app_value = $("#"+this.value+"_value").val();         
-
                     const missingValues = [];                                   // 建立確認陣列
                     if (!app_key) missingValues.push('代碼 沒有填值');          // 確認app_key
                     if (!app_value) missingValues.push('類別 沒有填值');        // 確認app_value
-            
                     if (missingValues.length > 0) {
                         alert(missingValues.join('、'));                        // 警示
                     } else {
-                        // console.log('append...', this.value, app_key, app_value);
                         if(app_key in heCateObj){
                             alert('代碼[ '+app_key+' ]已存在，請重新確認!!\r\n\n本次添加無效!!');
                         }else{
                             heCateObj[app_key] = app_value;                     // 添加陣列的某值
-                            // console.log('heCateObj...', heCateObj);
                             $('#HE_CATE_json').empty().append(JSON.stringify(heCateObj)); // 更新畫面中json
-
                             const append_item = '<div class="input-group p-1" id="HE_CATE_'+app_key+'" >'
                                     + '<span class="form-control autoinput mb-0 text-center" >'+app_key+'</span>'
                                     + '<span class="form-control autoinput mb-0 w50" >'+app_value+'</span>'
@@ -105,16 +93,13 @@
                 });
             });
         // 240814 監聽 append 是否有點擊
-        
         // 240814 監聽 append_submit 是否有點擊
             const append_submit = document.getElementById('append_submit');
             append_submit.addEventListener('click', () => {
-                // console.log('append_submit...',heCateObj);
                 const heCateStr = JSON.stringify(heCateObj);
                 load_fun('update_heCate', heCateStr, show_swal_fun);   // step_2 load_shLocal(id);
             })
         // 240814 監聽 append_submit 是否有點擊
-
     }
     // 20240314 配合await將swal外移
     function show_swal_fun(swal_value){

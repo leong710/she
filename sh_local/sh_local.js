@@ -73,16 +73,14 @@
             warningText_1.style.display = "none";           // 警告文字--隱藏
             warningText_2.style.display = "none";
             import_excel_btn.style.display = "block";       // 載入按鈕--顯示
-            
         } else if(stopUpload) {
             // 沒有找到 <textarea> 元素
             console.log('請確認資料是否正確');
             warningText_1.style.display = "block";          // 警告文字--顯示
             warningText_2.style.display = "block";
             import_excel_btn.style.display = "none";        // 載入按鈕--隱藏
-
         }else{
-            // console.log('找不到 < ? > 元素');
+            console.error('找不到 < ? > 元素');
         }
     };
     // 20231128_下載Excel
@@ -105,10 +103,8 @@
             "updated_cname" : "最後編輯",
         };
         let sort_listData = [];                         // 建立整理陣列
-
         const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
         const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-        console.log('selectedValues...', selectedValues);
         // *** 這裡要加過濾空值，防止刪除錯誤 -- 待處理
         if(selectedValues.length > 0){
             for (let i = 0; i < shLocals.length; i++) {
@@ -132,30 +128,12 @@
                 sort_listData.push(sortedItem); // 將所有物件加入陣列
             }    
         }            
-        console.log('aaa...sort_listData...', sort_listData);
-
-        // 240813-直接擷取畫面上的table內數值~省去引入資料的大筆訊息~
-            // const table = document.getElementById(to_module);
-            // const headers = Array.from(table.querySelectorAll('thead th')).map(header => header.textContent.trim());
-            // const rows = Array.from(table.querySelectorAll('tbody tr'));
-        
-            // const sort_listData = rows.map(row => {
-            //     const cells = Array.from(row.querySelectorAll('td'));
-            //     let rowData = {};
-            //     cells.forEach((cell, index) => {
-            //         rowData[headers[index]] = cell.textContent.trim();
-            //     });
-            //     return rowData;
-            // });
-            // console.log(sort_listData);
-
         let htmlTableValue = JSON.stringify(sort_listData);
         document.getElementById(to_module+'_htmlTable').value = htmlTableValue;
     }
 // function
     // [p1 函數-1-1] 動態生成步驟2的所有按鈕，並重新綁定事件監聽器
     function mk_OSHORTs_btn(selectedOSHORTs) {
-        console.log('selectedOSHORTs...',selectedOSHORTs);
         $('#OSHORTs_opts_inside').empty();
         if(Object.entries(selectedOSHORTs).length > 0){     // 判斷使否有長度值
             Object.entries(selectedOSHORTs).forEach(([ohtext_30, oh_value]) => {
@@ -165,7 +143,6 @@
                             <div class="card-header"><button type="button" name="scope[]" value="${ohtext_30}" class="add_btn">${ohtext_30}</button></div>
                             <div class="card-body p-2">
                                 ${Object.entries(oh_value).map(([o_key, o_value]) =>
-                                    // <label for="${ohtext_30},${o_key}" class="form-check-label">${o_key} (${o_value.OSTEXT}) ${o_value._count}件</label>
                                     `<div class="form-check pl-5">
                                         <input type="checkbox" name="OSHORTs[]" id="${ohtext_30},${o_key}" value="${o_key}" class="form-check-input" data-toggle="tooltip" data-placement="bottom" title="勾選for刪除用">
                                         <button type="button" name="OSHORTs[]" value="${o_key}" class="btn btn-outline-success add_btn my-1" style="width: 100%; text-align: start;" >${o_key} ${o_value.OSTEXT} ${o_value._count}件</button>
@@ -194,7 +171,6 @@
         return new Promise((resolve) => { 
             // 在任何地方啟用工具提示框
                 $('[data-toggle="tooltip"]').tooltip();
-            // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
                 $('#shLocal').DataTable({
                     "autoWidth": true,
                     // 排序
@@ -221,28 +197,25 @@
                     var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
                     var excel_json = iframeDocument.getElementById('excel_json');
                     var stopUpload = iframeDocument.getElementById('stopUpload');
-
                     if (excel_json) {
                         document.getElementById('excelTable').value = excel_json.value;
                     } else if(stopUpload) {
                         console.log('請確認資料是否正確');
                     }else{
-                        console.log('找不到 ? 元素');
+                        console.error('找不到 ? 元素');
                     }
                 });
                 // 監控按下[清空]鍵後----呼叫清除Table
                 truncate_shLocal_btn.addEventListener('click', ()=> {
                     const OSHORTs_opts_arr = Array.from(document.querySelectorAll('#OSHORTs_opts_inside input[name="OSHORTs[]"]'));
                     const selectedValues = OSHORTs_opts_arr.filter(cb => cb.checked).map(cb => cb.value);
-                    // console.log('selectedValues...', selectedValues);
                     // *** 這裡要加過濾空值，防止刪除錯誤 -- 待處理
                     if(selectedValues.length > 0){
                         const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');
-                        // console.log('selectedValues_str...', selectedValues_str);
                         if(confirm(`確認要刪除以下部門特危作業？\n`+selectedValues_str)){
                             // load_fun('truncate_shLocal','truncate_shLocal',show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
                             // load_fun('load_staff_byDeptNo', selectedValues_str, rework_loadStaff);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
-                            load_fun('deleteSelected_shLocal',selectedValues_str,show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
+                            load_fun('deleteSelected_shLocal', selectedValues_str, show_swal_fun);   // 241018 舊[清空]按鈕功能暫停
                         }
                     }else{
                         alert('請勾選要刪除的部門代號!');
@@ -253,7 +226,6 @@
                 const OSHORTs_btns = document.querySelectorAll('#OSHORTs_opts_inside button[name="OSHORTs[]"]');
                 OSHORTs_btns.forEach(btn => {
                     btn.addEventListener('click', function() {
-                        // console.log(this.value)
                         shLocal_table.search(this.value).draw();     // 在特危作業清單的search帶入部門代號，他會過濾出符合的清單
                         $('#nav-p2-tab').tab('show');                // 挑轉頁面到[特危作業清單]
                     })
@@ -279,7 +251,6 @@
     }
     // 0-0.多功能擷取fun 新版改用fetch
     async function load_fun(fun, parm, myCallback) {        // parm = 參數
-        mloading(); 
         try {
             let formData = new FormData();
                 formData.append('fun', fun);
@@ -334,11 +305,9 @@
 
     // 生成dashBoard統計數據1
     function _dashB1(_OSHORTsObj){
-
         const countFabItem = {
             'total' : 0
         };
-
         for (const i_fab in _OSHORTsObj) {
             let totalCount = 0;
             for (const i_oshort in _OSHORTsObj[i_fab]) {
@@ -347,19 +316,14 @@
             countFabItem[i_fab] = totalCount;
             countFabItem['total'] += totalCount;
         }
-        console.log(countFabItem);
     }
 
     async function loadData() {
         try {
             mloading(); 
-            
-            mk_OSHORTs_btn(OSHORTsObj);                 // 呼叫函數-P-1
-
-            await eventListener();                      // step_1-2 eventListener();
-
-            _dashB1(OSHORTsObj);      // 生成dashBoard統計數據1
-
+            mk_OSHORTs_btn(OSHORTsObj);     // 呼叫函數-P-1
+            await eventListener();          // step_1-2 eventListener();
+            _dashB1(OSHORTsObj);            // 生成dashBoard統計數據1
         } catch (error) {
             console.error(error);
         }
@@ -368,12 +332,6 @@
     }
 
     $(function(){
-
         postBanner('shLocalStep', 0, 4, 'ct_map3.png');
-
         loadData();
-
-        // let message2  = '<h4>*** <b>請注意&nbsp;特作點位上傳：<u>step.1：先完成作業環境測定。 step.2：上傳職安署。 step.3：上傳到此系統前請主管完成Review清單!</u></b></h4>';
-        // Balert( message2, 'danger');
-
     })
