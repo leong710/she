@@ -7,18 +7,13 @@
         toast_body.innerHTML = sinn;
         toast.show();
     }
-
     // 240814 監聽 workTarget_json 是否異動
         const workTargetJson = document.getElementById('workTarget_json').innerText;   // 取得row_json
         const workTargetObj  = JSON.parse(workTargetJson);                              // row_json轉row_obj
-        // console.log('workTargetObj...', workTargetObj);
     // 240814 監聽 workTarget_json 是否異動
-
     // 240814 new append 呼叫 delete
         function append_delete(this_name, this_value){
-            // console.log('append_delete...', this_name, this_value);
             delete workTargetObj[this_value];                   // 刪除陣列的某值
-            // console.log('workTargetObj...', workTargetObj);
             $('#workTarget_json').empty().append(JSON.stringify(workTargetObj)); // 更新畫面中json
             $('#'+this_name).remove();                      // 畫面中清除某值
             let sinn = '**&nbsp;移除危害年度[ '+this_value+' ]&nbsp;!!';
@@ -51,15 +46,12 @@
                 } 
             } 
         };
-
         // 240813 監聽 delete 是否有點擊
             const workTargetContainer = document.getElementById('workTarget');
             const workTargets_delete = Array.from(workTargetContainer.querySelectorAll('button[type="delete"]'));
             workTargets_delete.forEach(workTargets_del => {
                 workTargets_del.addEventListener('click', function() {
-                    // console.log('delete...', this.name);
                     delete workTargetObj[this.value];                   // 刪除陣列的某值
-                    // console.log('workTargetObj...', workTargetObj);
                     $('#workTarget_json').empty().append(JSON.stringify(workTargetObj)); // 更新畫面中json
                     $('#'+this.name).remove();                      // 畫面中清除某值
                     let sinn = '**&nbsp;移除危害年度[ '+this.value+' ]&nbsp;!!';
@@ -75,22 +67,17 @@
                 workTargets_app.addEventListener('click', function() {
                     const app_key = $("#"+this.value+"_key").val();             // 取得內為內容
                     const app_value = $("#"+this.value+"_value").val();         
-
                     const missingValues = {};                                  // 建立確認陣列
                     if (!app_key) missingValues.push('key 沒有填值');           // 確認app_key
                     if (!app_value) missingValues.push('年度 沒有填值');        // 確認app_value
-            
                     if (missingValues.length > 0) {
                         alert(missingValues.join('、'));                        // 警示
                     } else {
-                        // console.log('append...', this.value, app_key, app_value);
                         if(app_key in workTargetObj){
                             alert('key[ '+app_key+' ]已存在，請重新確認!!\r\n\n本次添加無效!!');
                         }else{
                             workTargetObj[app_key] = app_value;                     // 添加陣列的某值
-                            // console.log('workTargetObj...', workTargetObj);
                             $('#workTarget_json').empty().append(JSON.stringify(workTargetObj)); // 更新畫面中json
-
                             const append_item = '<div class="input-group p-1" id="workTarget_'+app_key+'" >'
                                     + '<span class="form-control autoinput mb-0 text-center" >'+app_key+'</span>'
                                     + '<span class="form-control autoinput mb-0 w50" >'+app_value+'</span>'
@@ -111,8 +98,6 @@
             append_submit.addEventListener('click', () => {
                 if(Object.entries(workTargetObj).length){
                     const workTargetStr = JSON.stringify(workTargetObj);
-                    // console.log('append_submit-workTargetObj...',workTargetObj);
-                    // console.log('append_submit-workTargetStr...',workTargetStr);
                     load_fun('update_workTarget', workTargetStr, show_swal_fun);   // step_2 load_shLocal(id);
                 }else{
                     alert('沒有設定值...請確認!!!');
@@ -140,6 +125,7 @@
             }else{
                 console.error("Invalid swal_value:", swal_value);
                 location.href = url;
+
                 resolve(); // 異常情況下也需要resolve
             }
         });

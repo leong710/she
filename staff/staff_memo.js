@@ -23,9 +23,7 @@
                 memoBody.insertAdjacentHTML('beforeend', memoCard);
                     scrollToBottom(); // 自動捲動到底部
             }
-            
             await reload_eraseMemoCarListeners();
-
         }
         // 生成單一memoCard
         function mk_memoMsg(_index, memo_i){
@@ -64,14 +62,12 @@
                         'msg'       : (memoMsg_input.value).trim(),
                         'timeStamp' : getTimeStamp()
                     }
-
                     // *** 這裡要補上把訊息塞進去個人資料內...
                     const edit_empId = postMemoMsg_btn.value;
                     // 取得個人今年的memo，並轉成陣列
                         const empData = staff_inf.find(emp => emp.emp_id === edit_empId);
                         empData._content[`${currentYear}`]['memo'] = empData._content[`${currentYear}`]['memo'] ?? [];
                         empData._content[`${currentYear}`]['memo'].push(memoObj);
-                        console.log('staff_inf =>', staff_inf);
                     // 生成完整memo
                     const memoCard_index = empData._content[`${currentYear}`]['memo'].length - 1;
                     const memoCard = await mk_memoMsg(memoCard_index, memoObj)
@@ -80,9 +76,7 @@
                     memoBody.insertAdjacentHTML('beforeend', memoCard);
                         scrollToBottom(); // 自動捲動到底部
                     memoMsg_input.value = '';
-
                     await reload_eraseMemoCarListeners();
-
                 }
                 // 添加新的監聽器
                 postMemoMsg_btn.addEventListener('click', postMemoMsg_btnClickListener);      // 將每一個tdItem增加監聽, 當按下click
@@ -123,17 +117,9 @@
                         empData._content[`${currentYear}`]['memo'] = empData._content[`${currentYear}`]['memo'] ?? [];
                         if(empData._content[`${currentYear}`]['memo'].length > 0){
                             await empData._content[`${currentYear}`]['memo'].splice(this.value, 1);
-                            console.log('staff_inf =>', staff_inf);  
-                            
-                            // *** 把畫面上的訊息移除...
-                                // var element = document.getElementById(`memo_i_${this.value}`);
-                                // if (element) {
-                                //     element.parentNode.removeChild(element);
-                                // }
                             // step.3 取得memoBody
                             const memoBody = document.getElementById('memoBody');
                             memoBody.innerHTML = '';
-                        
                             const _memo = empData._content[`${currentYear}`]['memo'] ?? [];
                             // step.4 有memo筆數
                             if(_memo.length !== 0){
@@ -143,13 +129,11 @@
                                 }
                                 // step.4.2 鋪設個人今年的memo
                                 memoBody.insertAdjacentHTML('beforeend', memoCard);
-                                    scrollToBottom(); // 自動捲動到底部
+                                scrollToBottom(); // 自動捲動到底部
                             }
                         }
                     await reload_eraseMemoCarListeners();
-                    // await memoModal(['',edit_empId])
                 }
-
                 // 添加新的監聽器
                 eraseMemoCarBtns.forEach(eraseBtn => {                                      // 遍歷範圍內容給eraseBtn
                     eraseBtn.addEventListener('click', eraseMemoCarListener);      // 將每一個eraseBtn增加監聽, 當按下click

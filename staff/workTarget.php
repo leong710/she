@@ -8,14 +8,12 @@
     // 複製本頁網址藥用
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : "http://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
     $action  = (isset($_REQUEST["action"]))      ? $_REQUEST["action"]      : "create";   // 有action就帶action，沒有action就新開單
-    
     // load 作業類別json
     $workTarget_arr = load_workTarget('');
 
+    include("../template/header.php");
+    // include("../template/nav.php"); 
 ?>
-
-<?php include("../template/header.php"); ?>
-<!-- <php include("../template/nav.php"); ?> -->
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
@@ -57,7 +55,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="col-12">
         <div class="row justify-content-center">
@@ -72,7 +69,6 @@
                         <button type="button" class="btn btn-secondary" onclick="return confirm('確認返回？') && closeWindow()"><i class="fa fa-external-link" aria-hidden="true"></i>&nbsp回上頁</button>
                     </div>
                 </div>
-    
                 <!-- container -->
                 <div class="row">
                     <!-- 編輯新年度 -->
@@ -87,7 +83,6 @@
                                     echo "</div>";
                                 } ?>
                         </div>
-
                     </div>
                     <!-- 舊年度參考 -->
                     <div class="col-6 col-md-6 p-3 ">
@@ -116,7 +111,6 @@
                             <button type="append" class="btn btn-outline-secondary" value="append" data-toggle="tooltip" data-placement="bottom" title="添加">&nbsp;<i class="fa-solid fa-plus"></i>&nbsp;</button>
                         </div>
                     </div>
-
                 </div>
                 <!-- 結尾敘述 -->
                 <div class="row" style="font-size: 12px;">
@@ -139,21 +133,13 @@
             </div>
         </div>
     </div>
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
-
 </body>
-
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/openUrl/openUrl.js"></script>       <!-- 彈出子畫面 -->
-
-<script>
-    // init
-                
-</script>
-<script src="workTarget.js?v=<?=time()?>"></script>
+<script src="workTarget.js"></script>
 
 <?php include("../template/footer.php"); ?>

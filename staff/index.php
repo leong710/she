@@ -7,12 +7,10 @@
 
     // for return
     $up_href = (isset($_SERVER["HTTP_REFERER"])) ? $_SERVER["HTTP_REFERER"] : 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];   // 回上頁 // 回本頁
-
     // tidy query condition：
         $get_year = load_workTarget("_year");
         $_year    = $_REQUEST["_year"] ?? (!empty($get_year) ? $get_year : date('Y'));    // 開起年份
         $_years   = [ $_year+1, $_year, $_year-1, $_year-2];
-      
     // default fab_scope
         $fab_scope = ($sys_role <= 1 ) ? "All" : "allMy";                                           // 權限fab範圍：All / allMy
         $fab_title   = $_REQUEST["fab_title"] ?? $fab_scope;   // 權限fab範圍
@@ -25,34 +23,20 @@
             'sfab_id'       => $sfab_id_str,
         );
     // get mainData = shLocal
-        // $shLocals       = show_shLocal($query_arr);     // get case清單
-
         $shLocals       = [];     // get case清單
         $per_total      = count($shLocals);             // 計算總筆數
     // for select item
         $fab_lists      = show_fab_lists();             // get 廠區清單
         $OSHORT_lists   = show_OSHORT();                // get 部門代號
-
         // p1
         $shLocal_OSHORTs     = load_shLocal_OSHORTs();                                  // step1.取得特危健康場所部門代號
         $shLocal_OSHORTs_str = json_encode($shLocal_OSHORTs, JSON_UNESCAPED_UNICODE);   // step2.陣列轉字串
         $shLocal_OSHORTs_str = trim($shLocal_OSHORTs_str, '[]');                        // step1.去掉括號forMysql查詢
 
-        // p1
-        // $staff_deptNos = load_staff_dept_nos();                                        // step1.取得存檔員工的部門代號
-        // $staff_deptNos_str = json_encode($staff_deptNos, JSON_UNESCAPED_UNICODE);     // step2.陣列轉字串
-        // $staff_deptNos_str = trim($staff_deptNos_str, '[]');                          // step3.去掉括號forMysql查詢
-
-        // echo "<pre>";
-        // print_r($staff_deptNos);
-        // echo "</pre>";
-
         $faSquareCheck = '<i class="fa-regular fa-square-check"></i>&nbsp;';
-
 
     include("../template/header.php");
     include("../template/nav.php"); 
-
 ?>
 
 <head>
@@ -255,13 +239,10 @@
                                         </form>
                                     </div>
                                 </div>
-                                <!-- <div id="deptNo_opts" class="col-12 px-2 py-1 form-control"> -->
-                                    <div id="deptNo_opts_inside" class="row p-0">
-                                        <!-- 放checkbox按鈕的地方 -->
-                                    </div> 
-                                <!-- </div> -->
+                                <div id="deptNo_opts_inside" class="row p-0">
+                                    <!-- 放checkbox按鈕的地方 -->
+                                </div> 
                             </div>
-
                         </div>
                     </div>
 
@@ -294,7 +275,6 @@
                                 <div class="col-md-4 py-0 text-end">
                                     <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
                                         value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
-                                        <!-- value="" onclick="storeForReview()" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button> -->
                                 </div>
                             </div>
                             <hr>
@@ -338,7 +318,6 @@
                     <h5 class="modal-title">上傳Excel檔：</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body px-4">
                     <form name="excelInput" action="../_Format/upload_excel.php" method="POST" enctype="multipart/form-data" target="api" onsubmit="return loadExcelForm()">
                         <div class="row">
@@ -385,18 +364,15 @@
                             <th title="OSTEXT_30">廠區</th>
                             <th data-toggle="tooltip" data-placement="bottom" title="OSHORT">部門代碼</th>
                             <th title="OSTEXT">部門名稱</th>
-
                             <th title="HE_CATE">檢查類別代號</th>
                             <th title="MONIT_NO">監測編號</th>
                             <th title="MONIT_LOCAL">監測處所</th>
                             <th title="WORK_DESC">作業描述</th>
-                            
                             <th title="AVG_VOL">A權音壓級<br><sup>(dBA)</sup></th>
                             <th title="AVG_8HR/工作日8小時平均音壓值">日時量平均<br><sup>(dBA)</sup></th>
                             <th title="">選擇</th>
                         </thead>
                         <tbody>
-
                         </tbody>
                     </table>
                     <snap class="text-center text-danger"><h4>只能選一個選項！</h4></snap>
@@ -521,7 +497,6 @@
                     <h5 class="modal-title">Do you submit this：<span id="idty_title"></span>&nbsp?</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                
                 <div class="modal-body px-4 pt-1">
                     <!-- 第二排的功能 : 搜尋功能 -->
                     <div class="row unblock" id="forwarded">
@@ -556,7 +531,6 @@
                 </div>
                 <div class="modal-body px-4"></div>
                 <div class="modal-footer">
-                    <!-- <button type="submit" class="btn btn-success"   data-bs-dismiss="modal" id="edit_modal_btn" >更新</button> -->
                     <button type="submit" class="btn btn-success"   id="edit_modal_btn" >更新</button>
                     <button type="reset"  class="btn btn-secondary" data-bs-dismiss="modal">返回</button>
                 </div>
@@ -593,19 +567,15 @@
             </div>
         </div>
     </div>
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
 </body>
-
 <script src="../../libs/aos/aos.js"></script>                       <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>                  <!-- goTop滾動畫面script.js 4/4-->
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>     <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
 <script src="../../libs/openUrl/openUrl.js"></script>               <!-- 彈出子畫面 -->
-
 <script>
-
 // // // 開局導入設定檔
 // 以下為控制 iframe
     var realName            = document.getElementById('realName');              // 上傳後，JSON存放處(給表單儲存使用)
@@ -645,9 +615,6 @@
     
     // [p1 步驟-0] 取得重要資訊
     const OSHORTsObj = <?=json_encode($shLocal_OSHORTs_str)?>;
-    // const ept_noTXT = (document.getElementById('row_emp_sub_scope').innerText).trim();
-    // const deptNosObj = ept_noTXT ? JSON.parse(ept_noTXT) : ept_noTXT;       // 將row_OSTEXT_30的字串轉換為物件
-
     const userInfo = {
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
@@ -658,16 +625,14 @@
     // const currentYear = String(new Date().getFullYear());   // 取得當前年份
     const currentYear    = '<?=$_year?>';                      // 取得當前年份
     const preYear        = String(currentYear - 1);            // 取得去年年份
-
 </script>
-<script src="../mvc/utility.js?v=<?=time()?>"></script>
-<script src="../mvc/excel.js?v=<?=time()?>"></script>
-<script src="../mvc/check.js?v=<?=time()?>"></script>
-<script src="../mvc/editModal.js?v=<?=time()?>"></script>
-
-<script src="staff.js?v=<?=time()?>"></script>
-<script src="staff_excel.js?v=<?=time()?>"></script>
-<script src="staff_editModal.js?v=<?=time()?>"></script>
-<script src="staff_memo.js?v=<?=time()?>"></script>
+<script src="../mvc/utility.js"></script>
+<script src="../mvc/excel.js"></script>
+<script src="../mvc/check.js"></script>
+<script src="../mvc/editModal.js"></script>
+<script src="staff.js"></script>
+<script src="staff_excel.js"></script>
+<script src="staff_editModal.js"></script>
+<script src="staff_memo.js"></script>
 
 <?php include("../template/footer.php"); ?>

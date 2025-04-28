@@ -1,6 +1,5 @@
 <?php
     // 取得特作列管的棟別清單
-
 use Mockery\Undefined;
 
     function load_shLocal_OSTEXT30s(){
@@ -15,6 +14,7 @@ use Mockery\Undefined;
             $stmt->execute();
             $shLocal_OSTEXT_30s = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $shLocal_OSTEXT_30s;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -33,27 +33,17 @@ use Mockery\Undefined;
             $shLocal_OSHORTs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $shLocal_OSHORTs_arr = [];
             foreach($shLocal_OSHORTs as $OSHORT_i){
-                // array_push($shLocal_OSHORTs_arr, $OSHORT_i["OSHORT"]);
                 $shLocal_OSHORTs_arr[$OSHORT_i["OSTEXT_30"]][$OSHORT_i["OSHORT"]] = $OSHORT_i["OSTEXT"];
             }
             return $shLocal_OSHORTs_arr;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
     }
-    
     // 取得已存檔的員工部門代號
     function load_staff_dept_nos(){
         $pdo = pdo();
-        // $sql = "SELECT
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]')) AS year_key,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_sub_scope')) AS emp_sub_scope,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.dept_no'))       AS dept_no,
-            //             JSON_UNQUOTE(JSON_EXTRACT(JSON_UNQUOTE(JSON_EXTRACT(_logs, CONCAT('$.', JSON_UNQUOTE(JSON_EXTRACT(JSON_KEYS(_logs), '$[0]'))))), '$.emp_dept'))      AS emp_dept,
-            //             COUNT(*) AS _count
-            //         FROM _staff
-            //         GROUP BY year_key, emp_sub_scope, dept_no, emp_dept ";
-        // 241025--owner想把特作內的部門代號都掏出來...由各自的窗口進行維護... // 241104 UNION ALL之後的項目暫時不需要給先前單位撈取了，故於以暫停
         $year = $year ?? date('Y');
         $sql = "SELECT year_key, emp_sub_scope, dept_no, emp_dept, COUNT(*) AS _count,
                     SUM( CASE 
@@ -63,14 +53,12 @@ use Mockery\Undefined;
                             THEN 1 ELSE 0 
                         END
                     ) AS shCaseNotNull,
-                    -- concat( ROUND( SUM( CASE 
                     ROUND( SUM( CASE 
                                     WHEN JSON_EXTRACT(_logs, '$.{$year}.shCase') IS NOT NULL 
                                         AND JSON_TYPE(JSON_EXTRACT(_logs, '$.{$year}.shCase')) = 'ARRAY' 
                                         AND JSON_LENGTH(JSON_EXTRACT(_logs, '$.{$year}.shCase')) > 0 
                                     THEN 1 ELSE 0 
                                 END
-                    -- ) * 100 / COUNT(*), 0 ),'%') AS shCaseNotNull_pc
                     ) * 100 / COUNT(*), 0 ) AS shCaseNotNull_pc
                 FROM (
                     SELECT '{$year}' AS year_key,
@@ -95,6 +83,7 @@ use Mockery\Undefined;
                 $staff_deptNos_arr[$deptNo_i["emp_sub_scope"]][$deptNo_i["dept_no"]]["shCaseNotNull_pc"] = $deptNo_i["shCaseNotNull_pc"];
             }
             return $staff_deptNos_arr;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -105,18 +94,10 @@ use Mockery\Undefined;
         $pdo = pdo();
         extract($request);
         $sql = "SELECT sh.* 
-                    -- _d.id, _d.uuid, _d.idty, _d.anis_no, _d.local_id, _d.case_title, _d.a_dept, _d.meeting_time, _d.meeting_local, _odd
-                    -- , _d.created_emp_id, _d.created_cname, _d.created_at, _d.updated_cname, _d.updated_at, year(_d.created_at) AS case_year , _d.confirm_sign
-                    -- , _l.local_title, _l.local_remark , _f.fab_title, _f.fab_remark, _f.sign_code AS fab_signCode, _f.pm_emp_id, _fc.short_name, _fc._icon
-                FROM _shlocal sh
-                -- LEFT JOIN _local _l     ON _d.local_id = _l.id 
-                -- LEFT JOIN _fab _f       ON _l.fab_id   = _f.id 
-                -- LEFT JOIN _formcase _fc ON _d.dcc_no   = _fc.dcc_no 
-                ";
+                FROM _shlocal sh ";
         // tidy query condition：
             $stmt_arr   = [];    // 初始查詢陣列
             $conditions = [];
-
             if(isset($OSHORT) && $OSHORT != "All"){                         // 處理過濾 OSHORT != All  
                 $conditions[] = "sh.OSHORT = ?";
                 $stmt_arr[] = $OSHORT;
@@ -125,7 +106,6 @@ use Mockery\Undefined;
                 $conditions[] = "sh.flag = ?";
                 $stmt_arr[] = $flag;
             }
-
             if(isset($fab_title) && $fab_title != "All"){                         // 處理 fab_title != All 進行二階   
                 if($fab_title == "allMy"){                                     // 處理 fab_title = allMy 我的轄區
                     $conditions[] = "sh.OSTEXT_30 IN ({$sfab_id})";
@@ -134,13 +114,11 @@ use Mockery\Undefined;
                     $stmt_arr[] = "%".$fab_title."%";
                 }
             }                                                               // 處理 fab_title = All 就不用套用，反之進行二階
-
             if (!empty($conditions)) {
                 $sql .= ' WHERE ' . implode(' AND ', $conditions);
             }
             // 後段-堆疊查詢語法：加入排序
             $sql .= " ORDER BY sh.created_at DESC ";     // ORDER BY sh.created_at DESC
-
         // 決定是否採用 page_div 20230803
             if(isset($start) && isset($per)){
                 $stmt = $pdo -> prepare($sql.' LIMIT '.$start.', '.$per);   // 讀取選取頁的資料=分頁
@@ -172,6 +150,7 @@ use Mockery\Undefined;
             $stmt->execute();
             $site = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $site;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -189,6 +168,7 @@ use Mockery\Undefined;
             $stmt->execute();
             $fabs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $fabs;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -235,6 +215,7 @@ use Mockery\Undefined;
             $stmt->execute([$sign_code]);
             $coverFab_lists = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $coverFab_lists;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -252,6 +233,7 @@ use Mockery\Undefined;
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -269,6 +251,7 @@ use Mockery\Undefined;
             $stmt->execute();
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return $result;
+
         }catch(PDOException $e){
             echo $e->getMessage();
         }
@@ -278,7 +261,6 @@ use Mockery\Undefined;
     function load_workTarget($parm) {
         $workTarget_file = "../staff/workTarget.json";
         $workTarget_arr = "{}";
-
         if(file_exists($workTarget_file)){
             $workTarget_json = file_get_contents($workTarget_file); // 从JSON文件加载内容
             // 嘗試解碼 JSON，並檢查是否成功
@@ -297,191 +279,3 @@ use Mockery\Undefined;
 
         return $workTarget_arr;
     }
-
-// // shLocal
-//     // shLocal項目--新增 230703
-//     function store_shLocal($request){
-//         $pdo = pdo();
-//         extract($request);
-        
-//         $swal_json = array(                                 // for swal_json
-//             "fun"       => "store_shLocal",
-//             "content"   => "新增案例--"
-//         );
-        
-//         $OSHORT = trim($OSHORT);
-//         $HE_CATE_str = implode(",", $HE_CATE);
-
-//         $sql = "INSERT INTO _shlocal( OSHORT, OSTEXT_30, OSTEXT, HE_CATE, AVG_VOL,   AVG_8HR, MONIT_NO, MONIT_LOCAL, WORK_DESC, flag,   updated_cname, updated_at, created_at )
-//                 VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,now(),now())";
-//         $stmt = $pdo->prepare($sql);
-//         try {
-//             $stmt->execute([$OSHORT, $OSTEXT_30, $OSTEXT, $HE_CATE_str, $AVG_VOL,   $AVG_8HR, $MONIT_NO, $MONIT_LOCAL, $WORK_DESC, $flag,   $updated_cname ]);
-//             $swal_json["action"]   = "success";
-//             $swal_json["content"] .= '送出成功';
-//         }catch(PDOException $e){
-//             echo $e->getMessage();
-//             $swal_json["action"]   = "error";
-//             $swal_json["content"] .= '送出失敗';
-//         }
-//         return $swal_json;
-//     }
-//     // from edit_shLocal.php 依ID找出要修改的shLocal內容
-//     function edit_shLocal($request){
-//         $pdo = pdo();
-//         extract($request);
-//         $sql = "SELECT _sh.*
-//                 FROM _shlocal _sh WHERE _sh.id = ?";
-//         $stmt = $pdo->prepare($sql);
-//         try {
-//             $stmt->execute([$id]);
-//             $shLocal = $stmt->fetch();
-//             // 把特定json轉物件
-//             $shLocal["HE_CATE"] = explode(',', $shLocal["HE_CATE"]);
-//             return $shLocal;
-//         }catch(PDOException $e){
-//             echo $e->getMessage();
-//         }
-//     }
-//     //from edit_shLocal.php call update_shLocal 修改完成的edit_shLocal 進行Update
-//     function update_shLocal($request){
-//         $pdo = pdo();
-//         extract($request);
-        
-//         $swal_json = array(                                 // for swal_json
-//             "fun"       => "update_shLocal",
-//             "content"   => "更新案例--"
-//         );
-        
-//         $OSHORT = trim($OSHORT);
-//         $HE_CATE_str = implode(",", $HE_CATE);
-
-//         $sql = "UPDATE _shlocal
-//                 SET OSHORT=?, OSTEXT_30=?, OSTEXT=?, HE_CATE=?, AVG_VOL=?,   AVG_8HR=?, MONIT_NO=?, MONIT_LOCAL=?, WORK_DESC=?, flag=?,   updated_cname=?, updated_at=now()
-//                 WHERE id=? ";
-//         $stmt = $pdo->prepare($sql);
-//         try {
-//             $stmt->execute([$OSHORT, $OSTEXT_30, $OSTEXT, $HE_CATE_str, $AVG_VOL,   $AVG_8HR, $MONIT_NO, $MONIT_LOCAL, $WORK_DESC, $flag,   $updated_cname, $id]);
-//             $swal_json["action"]   = "success";
-//             $swal_json["content"] .= '送出成功';
-//         }catch(PDOException $e){
-//             echo $e->getMessage();
-//             $swal_json["action"]   = "error";
-//             $swal_json["content"] .= '送出失敗';
-//         }
-//         return $swal_json;
-//     }
-
-//     function delete_shLocal($request){
-//         $pdo = pdo();
-//         extract($request);
-
-//         $swal_json = array(                                 // for swal_json
-//             "fun"       => "delete_shLocal",
-//             "content"   => "刪除案例--"
-//         );
-
-//         $sql = "DELETE FROM _shlocal WHERE id = ?";
-//         $stmt = $pdo->prepare($sql);
-//         try {
-//             $stmt->execute([$id]);
-//             $swal_json["action"]   = "success";
-//             $swal_json["content"] .= '刪除成功';
-//         }catch(PDOException $e){
-//             echo $e->getMessage();
-//             $swal_json["action"]   = "error";
-//             $swal_json["content"] .= '刪除失敗';
-//         }
-//         return $swal_json;
-//     }
-
-//     function warningCRUD($request){
-//         extract($request);
-//         $swal_json = array(                                 // for swal_json
-//             "fun"       => $action,
-//             "content"   => "處理--異常",
-//             "action"    => "warning"
-//         );
-//         return $swal_json;
-//     }
-
-//     function check_HE_CATE($request){
-//         $pdo = pdo();
-//         extract($request);
-
-//         $OSHORT      = isset($OSHORT)       ? $OSHORT       : "";
-//         $HE_CATE_str = isset($HE_CATE_str)  ? $HE_CATE_str  : "";
-//         $LIKE_OSHORT = "%".$OSHORT."%";
-//         $HE_CATE_arr = explode(",", $HE_CATE_str);
-
-//         // 檢查OSHORT部門代號是否已經有註冊
-//         $sql_check = "SELECT _sh.id, _sh.OSHORT, _sh.HE_CATE FROM _shlocal _sh WHERE _sh.OSHORT LIKE ?";
-//         $stmt_check = $pdo -> prepare($sql_check);
-//         $stmt_check -> execute([$LIKE_OSHORT]);
-
-//         // 初始化找到的項目集合
-//         $found_items = [];
-//         $loss_item = [];
-//         if($stmt_check -> rowCount() >0){     
-//             $row = $stmt_check->fetchAll(PDO::FETCH_ASSOC);         // no index
-//             foreach($row as $r){                                    // 第一層迴圈：資料庫
-//                 $r_HE_CATE_arr = explode(",", $r['HE_CATE']);       // 炸開成array
-//                 foreach($HE_CATE_arr as $key_i){                    // 第二層迴圈：來源比對key_word
-//                     if(in_array($key_i, $r_HE_CATE_arr)) {          // 注意：大小寫、字數需完全一致
-//                         $found_items[] = $key_i;
-//                         echo "<br>Find... ".$key_i;
-//                     }
-//                 }
-//             }
-//         }
-        
-//         // 計算未找到的項目
-//         $loss_item = array_diff($HE_CATE_arr, $found_items);
-//         if(!empty($loss_item)){
-//             $loss_item_str = implode('、', $loss_item);
-//             // echo "<script>alert('請確認 {$OSHORT} 其[ {$loss_item_str} ]是否已完成環測 !!')</script>";
-//             // echo "<script>swal('請確認 {$OSHORT}' ,'其[ {$loss_item_str} ]是否已完成環測 !!' ,'warning').then(()=>{history.back()});     // 手動回上頁</script>";
-//             $swal_json = array(                                 // for swal_json
-//                 "fun"       => "請確認 {$OSHORT}",
-//                 "content"   => "其[ {$loss_item_str} ]是否已完成環測 !!",
-//                 "action"    => "warning"
-//             );
-//         }else{
-//             $swal_json = [];
-//         }
-//         return $swal_json;
-//     }
-
-//     // API隱藏或開啟
-//     function changeShLocal_flag($request){
-//         $pdo = pdo();
-//         extract($request);
-
-//         $sql_check = "SELECT sh.id, sh.flag FROM _shLocal sh WHERE id=?";
-//         $stmt_check = $pdo -> prepare($sql_check);
-//         $stmt_check -> execute([$id]);
-//         $row = $stmt_check -> fetch();
-
-//         if($row['flag'] == "Off" || $row['flag'] == "chk"){
-//             $flag = "On";
-//         }else{
-//             $flag = "Off";
-//         }
-
-//         $sql = "UPDATE _shlocal SET flag=? WHERE id=?";
-//         $stmt = $pdo->prepare($sql);
-//         try {
-//             $stmt->execute([$flag, $id]);
-//             $Result = array(
-//                 'table' => $table, 
-//                 'id'    => $id,
-//                 'flag'  => $flag
-//             );
-//             return $Result;
-//         }catch(PDOException $e){
-//             echo $e->getMessage();
-//         }
-//     }
-
-// // shLocal
-
