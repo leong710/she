@@ -97,7 +97,7 @@
                 }
             })
         }
-        await reload_dataTable('staff_table');                   // 倒參數(陣列)，直接由dataTable渲染
+        await reload_dataTable('staff_table');                  // 倒參數(陣列)，直接由dataTable渲染
         await reload_staffP3ShCheckOnchange_Listeners();        // 6
         await reload_staffP3IsCheckOnchange_Listeners();        // 8
         if(userInfo.role <= 2 ) {
@@ -296,7 +296,7 @@
 
             // 定義新的監聽器函數
             edit2ClickListener = async function () {
-                const thisId_arr = this.id.split(',')                   // 分割this.id成陣列
+                const thisId_arr = this.id.split(',');              // 分割this.id成陣列
                 const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
                 const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
                 const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
@@ -332,9 +332,9 @@
                                             <textarea name="${i_targetTD}" id="${this.id},edit2" class="form-control " style="height: 100px" placeholder="${i_targetTD}">${thisValue}</textarea>
                                         </div>`;
     
-                        }else if(i_targetTD.includes('_content')){      // 通知紀錄
-                            staffData['_content'][i_targetMonth] = staffData['_content'][i_targetMonth] ?? {};    // 防呆
-                            const thisNotifys = staffData['_content']?.[i_targetMonth]?.['notify'] ?? [];         // 賦予內容值
+                        }else if(i_targetTD.includes('_content')){                                                  // 通知紀錄
+                            staffData['_content'][i_targetMonth] = staffData['_content'][i_targetMonth] ?? {};      // 防呆
+                            const thisNotifys = staffData['_content']?.[i_targetMonth]?.['notify'] ?? [];           // 賦予內容值
                             if(userInfo.role <= 1){
                                 thisTD +=  `<div class="row">
                                                 <div class="col-2 col-md-2 p-1 mcc">
@@ -444,23 +444,23 @@
     // 250227 定義edit2_modal[更新]鈕功能~~；from edit2_modal裡[更新]鈕的呼叫...
     let submitEdit2ClickListener;
     async function reload_submitEdit2_Listeners() {
-        const submitEdit2_btn = document.querySelector('#edit2_modal #edit2_modal_btn');      //  定義出範圍
+        const submitEdit2_btn = document.querySelector('#edit2_modal #edit2_modal_btn');// 定義範圍
         // 檢查並移除已經存在的監聽器
         if (submitEdit2ClickListener) {
-            submitEdit2_btn.removeEventListener('click', submitEdit2ClickListener);   // 將每一個tdItem移除監聽, 當按下click
+            submitEdit2_btn.removeEventListener('click', submitEdit2ClickListener);     // 將每一個tdItem移除監聽, 當按下click
         }   
         // 定義新的監聽器函數
         submitEdit2ClickListener = async function () {
             mloading(); 
-            const thisId_arr    = this.value.split(',');        // 分割this.id成陣列
-            const i_OSHORT      = thisId_arr[0] ?? '';          // 取出陣列 0 = 部門代號
-            const i_targetMonth = thisId_arr[1] ?? '';          // 取出陣列 1 = 目標年月
-            const i_empId       = thisId_arr[2] ?? '';          // 取出陣列 2 = 工號
-            const i_targetTD    = thisId_arr[3] ?? '';          // 取出陣列 3 = 目標TD
+            const thisId_arr    = this.value.split(',');                                // 分割this.id成陣列
+            const i_OSHORT      = thisId_arr[0] ?? '';                                  // 取出陣列 0 = 部門代號
+            const i_targetMonth = thisId_arr[1] ?? '';                                  // 取出陣列 1 = 目標年月
+            const i_empId       = thisId_arr[2] ?? '';                                  // 取出陣列 2 = 工號
+            const i_targetTD    = thisId_arr[3] ?? '';                                  // 取出陣列 3 = 目標TD
             // // 撈出該staff資料
-            const staffData = staff_inf.find(staff => staff.emp_id === i_empId);    // 翻出staff來
+            const staffData = staff_inf.find(staff => staff.emp_id === i_empId);        // 翻出staff來
             if(staffData){
-                if(i_targetTD.includes('_content')){    // for notify的刪除
+                if(i_targetTD.includes('_content')){                                    // for notify的刪除
                     // notify過濾小工具...
                     function filterNotifyByIndexes(target_arr, indexes) {
                         return target_arr.filter((item, index) => indexes.includes(index.toString()));
@@ -468,13 +468,13 @@
                     // 定義notify cb的範圍
                     const target_notify_cbs = Array.from(document.querySelectorAll(`#edit2_modal input[id*="notify,"]`));
                     // 取得每一個checkbox的value=index
-                    const selectedValues = target_notify_cbs.map(cb => cb.value);  // 取得所選的NotifyItem(多選)
+                    const selectedValues = target_notify_cbs.map(cb => cb.value);       // 取得所選的NotifyItem(多選)
                     // 取得員工紀錄裡(年月)的notify紀錄陣列
                     const i_notify = staffData['_content'][i_targetMonth]['notify'] ?? [];
                     // 1.將取得的紀錄送去過濾 2.返回帶入原來位置。
                     staffData['_content'][i_targetMonth]['notify'] = filterNotifyByIndexes(i_notify, selectedValues);
 
-                    post_staff(staff_inf, mergedData_inf, shItemArr_inf);    // 更新畫面=重新鋪設Page3
+                    post_staff(staff_inf, mergedData_inf, shItemArr_inf);               // 更新畫面=重新鋪設Page3
 
                 }else{
                     staffData['_changeLogs'][i_targetMonth]             = staffData['_changeLogs'][i_targetMonth] ?? {};                // 防呆
@@ -484,18 +484,18 @@
                     // 繞出欄位上的值並更新deptData
                     item_opts_arr.forEach(i_td => {
                         // 準備更新個人satff內容數值
-                            const tdId_arr       = i_td.id.split(',')           // 分割this.id成陣列
-                            const ii_OSHORT      = tdId_arr[0] ?? '';           // 取出陣列 0 = 部門代號
-                            const ii_targetMonth = tdId_arr[1] ?? '';           // 取出陣列 1 = 目標年月
-                            const ii_empId       = tdId_arr[2] ?? '';           // 取出陣列 2 = 工號
-                            const ii_targetTD    = tdId_arr[3] ?? '';           // 取出陣列 3 = 目標TD
+                            const tdId_arr       = i_td.id.split(',')                   // 分割this.id成陣列
+                            const ii_OSHORT      = tdId_arr[0] ?? '';                   // 取出陣列 0 = 部門代號
+                            const ii_targetMonth = tdId_arr[1] ?? '';                   // 取出陣列 1 = 目標年月
+                            const ii_empId       = tdId_arr[2] ?? '';                   // 取出陣列 2 = 工號
+                            const ii_targetTD    = tdId_arr[3] ?? '';                   // 取出陣列 3 = 目標TD
                             staffData['_changeLogs'][ii_targetMonth][ii_targetTD] = i_td.value;     // 把更新值回填到stafData
                         // 準備更新畫面上數值
-                            const renewItem = i_td.value;                       // 更新目標TD欄位內容
+                            const renewItem = i_td.value;                               // 更新目標TD欄位內容
                             const renewItemID = `${ii_OSHORT},${ii_targetMonth},${ii_empId},${ii_targetTD}`;   // 更新目標TD欄位ID
-                            const renewItemTD = document.getElementById(renewItemID);           // 指引TD欄位目標
+                            const renewItemTD = document.getElementById(renewItemID);   // 指引TD欄位目標
                             if(renewItemTD){
-                                renewItemTD.innerHTML = renewItem;                              // 更新TD欄位內容
+                                renewItemTD.innerHTML = renewItem;                      // 更新TD欄位內容
                             } 
                     });
                 }
@@ -510,7 +510,7 @@
 
         }
         // 添加新的監聽器
-        submitEdit2_btn.addEventListener('click', submitEdit2ClickListener);      // 將每一個tdItem增加監聽, 當按下click
+        submitEdit2_btn.addEventListener('click', submitEdit2ClickListener);            // 將每一個tdItem增加監聽, 當按下click
     }
     // *** 需要建立即時監聽更新的有三個~6、8、11
         // 使用合併的函式
@@ -536,7 +536,7 @@
                     if (staffData) {
                         staffData['_changeLogs'][i_targetMonth] = staffData['_changeLogs'][i_targetMonth] ?? {}; // 防呆
                         // 如果是 checkbox，則獲取所有被選中的值
-                        if (type === 'checkbox') {                  // 250310 在p3table上建立_6ShCheck監聽功能 for ._6ShCheck = array
+                        if (type === 'checkbox') {                          // 250310 在p3table上建立_6ShCheck監聽功能 for ._6ShCheck = array
                             const selectedOptsValues = Array.from(document.querySelectorAll(`#staff_table input[type="checkbox"]:checked[id*="${i_OSHORT},${i_targetMonth},${i_empId},${i_targetTD},"]`))
                                 .map(cb => cb.value);
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = selectedOptsValues;
@@ -548,7 +548,7 @@
                                 label.textContent = (selectedOptsValues.length > 0) ? "是" : "否";
                                 staffData['_changeLogs'][i_targetMonth]['_7isCheck'] = (selectedOptsValues.length > 0); // 更新暫存
                             } 
-                        } else if (type === 'checkbox-boolean') {   // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
+                        } else if (type === 'checkbox-boolean') {           // 250310 在p3table上建立_8isCheck監聽功能 for ._8isCheck = true/false
                             staffData['_changeLogs'][i_targetMonth][i_targetTD] = this.checked;
                             let label = this.nextElementSibling;            //  250322 switch true=是/false=否
                             label.textContent = this.checked ? "是" : "否";
@@ -578,7 +578,7 @@
     async function bat_storeChangeStaff(){
         // 250317 儲存前確認是否有沒有結案的項目...
         for(const [index, staff] of Object.entries(staff_inf)){
-            let { _todo } = staff;                                                  // 確保 _todo 存在
+            let { _todo } = staff;                                          // 確保 _todo 存在
             if(_todo.length == 0){
                 _todo = {};
             }
@@ -600,6 +600,6 @@
         inside_toast(result.content, 3000, result.action);
 
         if(result.action === 'success'){
-            post_staff(staff_inf, mergedData_inf, shItemArr_inf);    // 更新畫面=重新鋪設Page3
+            post_staff(staff_inf, mergedData_inf, shItemArr_inf);           // 更新畫面=重新鋪設Page3
         }
     }

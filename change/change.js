@@ -50,7 +50,6 @@
     function btn_disabled(){
         return new Promise((resolve) => {
             
-            // console.log('shLocalDept_inf.length =>', shLocalDept_inf.length)
             const shLocalDept_inf_length0 = shLocalDept_inf.length === 0;
                 resetINF_btn.disabled         = shLocalDept_inf_length0;  // 讓 p2清除 按鈕啟停
                 bat_storeDept_btn.disabled    = shLocalDept_inf_length0;  // 讓 p2儲存 按鈕啟停
@@ -155,7 +154,6 @@
         const bat_storeDept_value = JSON.stringify({
                 shLocalDept_inf : shLocalDept_inf
             });
-            // console.log('bat_storeDept_value',bat_storeDept_value);
         await load_fun('bat_storeDept', bat_storeDept_value, show_swal_fun);   // load_fun的變數傳遞要用字串
         location.reload();
     }
@@ -182,20 +180,16 @@
 
             // 將 Map 轉換回陣列
             shLocalDept_inf = Array.from(uniqueDeptMap.values());
-
             let table = $('#hrdb_table').DataTable();
             if(table) { await release_dataTable(); }                            // 銷毀dataTable
-
             var row = removeDept.parentNode.parentNode.parentNode.parentNode;   // 找到按鈕所在的行...需要手動確認按鈕所在位置在第幾層
             row.parentNode.removeChild(row);                                    // 刪除該行
-
             inside_toast(`刪除單筆資料${removeDept.value}...Done&nbsp;!!`, 1000, 'info');
             await reload_dataTable();                                           // 重新載入dataTable   
         }
     }
     // 250226 從Excel匯入時要進行的處理工作
     async function processImportExcel(excelJsonArr){
-            // console.log('excelJsonArr...', excelJsonArr)
         // step-1.將人員資料進行初步的整理，和_shlocaldept內容相似
             let processStaffs = {};     // 處理人員資料
             let processDeptInf = [];    // 處理部門資訊
@@ -219,21 +213,13 @@
                     emptyDeptInf.push(emp.OSHORT);
                 }
             })
-                // console.log('1.emptyDeptInf...', emptyDeptInf)
 
         // 將沒有部門資訊的清單進行查詢
             const uniqueEmptyDeptArr = [...new Set(emptyDeptInf)];   // 使用 Set 來移除emptyDeptInf重複值
             const uniqueEmptyDeptStr = JSON.stringify(uniqueEmptyDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
-                // console.log('1a.uniqueEmptyDeptArr...', uniqueEmptyDeptArr)
-                // console.log('1b.uniqueEmptyDeptStr...', uniqueEmptyDeptStr)
             const EmptyDeptInf = uniqueEmptyDeptStr ? await load_fun('load_dept', uniqueEmptyDeptStr, 'return') : [];
-                // console.log('1c.EmptyDeptInf...', EmptyDeptInf)
 
-            // console.log('2.processStaffs...', processStaffs)
-            // console.log('2.processDeptInf...', processDeptInf)
         let uniqueDeptArr = [...new Set(processDeptInf)];     // 使用 Set 來移除dept_inf重複值
-            // console.log('3.uniqueDeptArr...', uniqueDeptArr)
-            
         // 將沒有部門資訊的清單進行套用
             for(const [index, dept] of Object.entries(uniqueDeptArr)){
                 const deptArr = (dept) ? dept.split(',') : [];          // 分割dept成陣列
@@ -243,11 +229,9 @@
                 if(dept_OSTEXT == undefined || dept_OSTEXT == null || dept_OSTEXT == ''){
                     const deptInf = EmptyDeptInf.find(item => item.OSHORT === dept_OSHORT);     // 從_dept_inf找出符合 empId 的原始字串
                     const deptInf_OSTEXT = (deptInf) ? deptInf.OSTEXT : '(請注意--無資訊)';
-                    // console.log(dept_OSHORT , ' == ',deptInf_OSTEXT)
                     uniqueDeptArr[index] = `${dept_OSTEXT_30},${dept_OSHORT},${deptInf_OSTEXT ?? ''}`;
                 }
             }
-            // console.log('3.uniqueDeptArr...', uniqueDeptArr)
 
         const excelDeptArr = [...new Set(excelJsonArr.map(empt => empt.OSHORT))];   // step-2. 提取load_shLocalDepts中所有的OSHORT值，並使用 Set 來移除OSHORT重複值
         const excelDeptStr = JSON.stringify(excelDeptArr).replace(/[\[\]]/g, '');   // step-3. 把不在的部門代號進行加工(多選)，去除外框
@@ -263,16 +247,11 @@
                     if (typeof value === 'object' && !Array.isArray(value)) {
                         Object.entries(value).forEach(([innerKey, innerValue]) => {
                             // 將值合併到 array2 的對應鍵中
-                                // console.log("0.index_OSHORT:", index_OSHORT);
-                                // console.log("  1.key:", key);               // base/inCare
-                                // console.log("  2.innerKey:", innerKey);     // 年月
                             // // // 這裡要區分inCare和base
                             if(key === 'base'){
                                 // 防呆與確保--年
                                 deptData[key][innerKey] = deptData[key][innerKey] ?? {};
                                 Object.entries(innerValue).forEach(([innerInnerKey, innerInnerValue]) => {
-                                        // console.log("  3.innerInnerKey:", innerInnerKey);       // inCare/base
-                                        // console.log("  4.innerInnerValue:", innerInnerValue);
                                     // 防呆與確保--分類
                                     deptData[key][innerKey][innerInnerKey] = deptData[key][innerKey][innerInnerKey] ?? [];
                                     
@@ -296,9 +275,6 @@
                             }else if(key === 'inCare'){
                                 // 防呆與確保--年
                                 deptData[key][innerKey] = deptData[key][innerKey] ?? [];
-                                // console.log("  4.innerKey:", innerKey);
-                                // console.log("  4.innerValue:", innerValue);
-                                // console.log("  4.deptData[key][innerKey]:", deptData[key][innerKey]);
                                 deptData[key][innerKey] = deptData[key][innerKey].concat(innerValue);
                                 // 去重!
                                 deptData[key][innerKey] = deptData[key][innerKey].reduce((acc, current) => {
@@ -309,7 +285,6 @@
                                                                 }
                                                                 return acc;
                                                             }, []);  
-
                                 // deptData[key][innerKey] = innerValue;
                                 // if (Array.isArray(innerValue)) {
                                 //     // 合併陣列
@@ -332,7 +307,6 @@
         }
         // 工作一 清空暫存
         await resetINF(true);       // 清空 -- 不清空會導致數據疊加翻倍
-        // console.log('bomNewDeptArr...2', bomNewDeptArr);
         post_hrdb(bomNewDeptArr);                                                                 // step-8. 送出進行渲染
     }
 
@@ -344,8 +318,6 @@
             release_dataTable();
             $('#hrdb_table tbody').empty();
             shLocalDept_inf = (post_arr != '') ? post_arr : shLocalDept_inf;
-            console.log("post_arr =>", post_arr);
-            // console.log("shLocalDept_inf =>", shLocalDept_inf);
             // await goTest(post_arr);
 
         if(shLocalDept_inf.length === 0){
@@ -438,7 +410,6 @@
                         throw new Error("日期格式必須為 'YYYYMM'");
                     }
                     appointYearMonth = dateString;
-                    // console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
                 }
                 const { currentYearMonth, lastYearMonth, lastTwoYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
                 const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? (lastTwoYearMonth ?? dateString)));  // 取得base的年月key
@@ -470,7 +441,6 @@
                                     throw new Error("日期格式必須為 'YYYYMM'");
                                 }
                                 appointYearMonth = dateString;
-                                console.log('1.reworkBase...appointYearMonth:', appointYearMonth)
                             }
             
                         const { currentYearMonth, lastYearMonth } = getCurrentAndLastMonth(appointYearMonth); // 執行函式--取得年月
@@ -484,7 +454,6 @@
                         }
                         const getIn_arr   = (base_arr != null) ? base_arr['getIn']  : [];
                         const getOut_arr  = (base_arr != null) ? base_arr['getOut'] : [];
-                        console.log('1.reworkBase =>',{ getTargetBase, baseAll_arr, getOut_arr, getIn_arr })
 
                     return { getTargetBase, baseAll_arr, getOut_arr, getIn_arr };  // getTargetBase = 確認抓取的月份, baseAll_arr = 所有在職員工
                 }
@@ -498,14 +467,13 @@
                                     throw new Error("日期格式必須為 'YYYYMM'");
                                 }
                                 appointYearMonth = dateString;
-                                // console.log('2.reworkInCare...appointYearMonth:', appointYearMonth)
                             }
                             const { currentYearMonth, lastYearMonth, lastTwoYearMonth } = getCurrentAndLastMonth(appointYearMonth);       // 執行函式--取得年月
                             const targetMonth = appointYearMonth ?? (currentYearMonth ?? (lastYearMonth ?? (lastTwoYearMonth ?? dateString)));  // 取得base的年月key
                         //
                             const getInCare  = post_i["inCare"]       ?? [];
                             const inCare_arr = getInCare[targetMonth] ?? [] ;  // 取得 本月名單 或 上月名單
-                            // console.log('2.reworkInCare =>', { targetMonth, inCare_arr })
+
                     return { targetMonth, inCare_arr };
                 }
         // fun-1.函式：找出全部鍵，並計算差異 (arr1=本月名單, arr2=上月名單)
@@ -528,10 +496,6 @@
                                                 // return !keys1.has(key) && !differenceOutKeys.includes(key);
                                                 return !differenceInKeys.includes(key) && !differenceOutKeys.includes(key);
                                             });
- 
-                    // console.log('轉出 differenceOut =>', differenceOut);
-                    // console.log('轉入 differenceIn =>', differenceIn, );
-                    // console.log('未動 differenceKeepGoing =>', differenceKeepGoing);
             // step-4.返回resilt變數
             return { differenceOut, differenceIn, differenceKeepGoing };
         }
@@ -650,7 +614,6 @@
 
             // 定義新的監聽器函數
             edit1ClickListener = async function () {
-                // console.log("click this =>", this.id);
                 // step.1 標題列顯示姓名工號
                 const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
                 const thisTD     = thisId_arr[0];                     // 取出陣列0=target
@@ -679,8 +642,8 @@
                 }
 
                 reload_submitEdit1_Listeners();
-                // step.3 顯示互動視窗
-                edit_modal.show();
+                
+                edit_modal.show();                  // step.3 顯示互動視窗
                 // $("body").mLoading("hide");
             }
 
@@ -694,14 +657,9 @@
     }
     // 250416 改變edit1 class吃css的狀態；主要是主管以上不需要底色編輯提示
     function changEdit1TDmode(){
-        console.log('changEdit1TDmode...')
-        // const isEdit1 = userInfo.role <= 2;
-        // const targetTD = document.querySelectorAll(isEdit1 ? '.edit1' : '.xedit1');  
         const targetTD = document.querySelectorAll('.edit1');  
         targetTD.forEach(tdItem => {
             tdItem.classList.toggle('edit1');
-            // tdItem.classList.toggle(isEdit1 ? 'edit1'  : 'xedit1');
-            // tdItem.classList.toggle(isEdit1 ? 'xedit1' : 'edit1');
         });
     }
     // 250227 定義edit_modal[更新]鈕功能~~；from edit_modal裡[更新]鈕的呼叫...
@@ -737,8 +695,6 @@
             if(renewItemTD){
                 renewItemTD.innerHTML = renewItem;                              // 更新TD欄位內容
             } 
-
-            // console.log('shLocalDept_inf 2',shLocalDept_inf);
             // 手動觸發 change 事件
             // checkbox.dispatchEvent(new Event('change'));
 
@@ -757,7 +713,6 @@
             mloading(); 
             const from = document.getElementById(fromId);       // 定義來源id
             const searchkeyWord = (from.value).trim();          // search keyword取自from欄位
-            console.log('searchkeyWord =>', searchkeyWord);
             await load_fun(fun, searchkeyWord, postResultTo_maintainDeptTable);
         }
 
@@ -766,7 +721,6 @@
             return new Promise((resolve) => {
                 mloading(); 
                 inArr = inArr ?? [];
-                // console.log('res_r...', res_r);
                 // release_dataTable('maintainDept_table');
                 // daptStaff_length.insertAdjacentHTML('beforeend', `取得 ${res_r.length} 人`);
                 daptStaffLength.innerHTML = `取得人數：${res_r.length} 人`;
@@ -775,17 +729,17 @@
                 const div_result_table = document.getElementById('maintainDept_table');
                     // 鋪設表格thead
                     const Rinner = `<thead>
-                                    <tr>
-                                        <th>廠區</th>
-                                        <th>工號</th>
-                                        <th>姓名</th>
-                                        <th>職稱</th>
-                                        <th>部門代號</th>
-                                        <th>部門名稱</th>
-                                        <th class"import" id="select_deptStaff"><i class="fa-regular fa-square-check"></i>&nbsp;select</th>
-                                    </tr>
-                                </thead>
-                                <tbody id='result_tbody'></tbody>`;
+                                        <tr>
+                                            <th>廠區</th>
+                                            <th>工號</th>
+                                            <th>姓名</th>
+                                            <th>職稱</th>
+                                            <th>部門代號</th>
+                                            <th>部門名稱</th>
+                                            <th class"import" id="select_deptStaff"><i class="fa-regular fa-square-check"></i>&nbsp;select</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id='result_tbody'></tbody>`;
                     div_result_table.innerHTML = Rinner;
                 // 定義表格中段tbody
                 const div_result_tbody = document.getElementById('result_tbody');
@@ -828,24 +782,21 @@
                     submitDeptStaff_btn.classList.toggle('unblock', res_r.length == 0 || userInfo.role > 2);
                     
                 // reload_dataTable('maintainDept_table');
-
-                $("body").mLoading("hide");                                 // 關閉mLoading
+                $("body").mLoading("hide");
                 // 當所有設置完成後，resolve Promise
                 resolve();
             });
         }
         // 清除MaintainDept；from maintainDept_modal裡[清除]鈕的呼叫
         function resetMaintainDept(){
-            // let fromInput = document.querySelector('#maintainDept #searchkeyWord');          // 定義輸入來源id
-                // fromInput.value = '';
-            const resultInfo = document.querySelector('#maintainDept #result_info');       // 定義modal表頭info id
-                resultInfo.innerHTML = '';
-            const div_result_table = document.querySelector('#maintainDept #maintainDept_table'); // 定義table
-                div_result_table.innerHTML = '';
+            const resultInfo = document.querySelector('#maintainDept #result_info');                    // 定義modal表頭info id
+                  resultInfo.innerHTML = '';
+            const div_result_table = document.querySelector('#maintainDept #maintainDept_table');       // 定義table
+                  div_result_table.innerHTML = '';
 
-            const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');      //  定義出[代入]範圍
-                submitDeptStaff_btn.disabled = true;
-                submitDeptStaff_btn.classList.toggle('unblock', true);
+            const submitDeptStaff_btn = document.querySelector('#maintainDept #submitDeptStaff');       //  定義出[代入]範圍
+                  submitDeptStaff_btn.disabled = true;
+                  submitDeptStaff_btn.classList.toggle('unblock', true);
         }
         // (MaintainDept非主要功能)綁定select_deptStaff_btns事件監聽器 => head上的select全選btn
         let selectDeptStaffClickListener;
@@ -890,10 +841,6 @@
                             const this_arr = emp_i.split(',')       // 分割this.id成陣列
                             const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
                             const this_cname  = this_arr[1];        // 取出陣列 1 = cname
-                                // rework_arr.push({                // 傳統陣列...
-                                //         'cname'     : this_cname,
-                                //         'emp_id'    : this_emp_id
-                                //     })
                             let obj = {};                           // 陣列包物件
                             obj[this_emp_id] = this_cname;
                             rework_arr.push(obj);
@@ -914,7 +861,6 @@
                             })
                         }
                     })
-                    // console.log('newArr', newArr);
                     return newArr;
                 }
                 // 單獨取出特檢員工的empId
@@ -925,14 +871,12 @@
                             newArr.push(emp_id)
                         }
                     })
-                    // console.log('newArr', newArr);
                     return newArr;
                 }
 
 
             // 定義新的監聽器函數
             baseInCareClickListener = async function () {
-                // console.log("click this =>", this.id);
                 // step.1 標題列顯示姓名工號
                 const thisId_arr = this.id.split(',')                 // 分割this.id成陣列
                 const thisTD     = thisId_arr[0];                     // 取出陣列0=target
@@ -943,10 +887,8 @@
                 fromInput.value = thisDeptNO;                                           // 賦予內容值
                 let submitDeptStaff_btn = document.getElementById('submitDeptStaff');   // 定義出submitDeptStaff_btn範圍
                 submitDeptStaff_btn.value = `${thisDeptNO},${thisMonth}`;               // 賦予內容值
-
                 // 撈出該部門資料
                 const deptData = shLocalDept_inf.find(dept => dept.OSHORT === thisDeptNO);
-
                 if(deptData){
                     const { targetMonth, baseAll_arr, getOut_arr, getIn_arr, inCare_arr } = reworkBaseInCare(deptData, thisMonth);  // 取得部門全部員工 + 取得特檢員工
 
@@ -961,9 +903,8 @@
                     console.log('無deptData...套用新[]')
                 }
 
-                maintainDept_modal.show()
-
                 // // step.3 顯示互動視窗
+                maintainDept_modal.show()
                 // edit_modal.show();                               // 顯示互動視窗
                 // $("body").mLoading("hide");
             }
@@ -978,14 +919,9 @@
     }
     // 250416 改變BaseInCare class吃css的狀態；主要是主管以上不需要底色編輯提示
     function changBaseInCareTDmode(){
-        console.log('changBaseInCareTDmode...')
-        // const isBaseInCare = userInfo.role <= 2;
-        // const targetTD = document.querySelectorAll(isBaseInCare ? '.import' : '.ximport');  
         const targetTD = document.querySelectorAll('.import');  
         targetTD.forEach(tdItem => {
             tdItem.classList.toggle('import');
-            // tdItem.classList.toggle(isimport ? 'import'  : 'ximport');
-            // tdItem.classList.toggle(isimport ? 'ximport' : 'import');
         });
     }
     // 定義[代入]鈕功能~~；from maintainDept_modal裡[代入]鈕的呼叫...
@@ -1004,17 +940,11 @@
                         const this_arr = emp_i.split(',')       // 分割this.id成陣列
                         const this_emp_id = this_arr[0];        // 取出陣列 0 = emp_id
                         const this_cname  = this_arr[1];        // 取出陣列 1 = cname
-                            // rework_arr.push({                // 傳統陣列...
-                            //         'cname'     : this_cname,
-                            //         'emp_id'    : this_emp_id
-                            //     })
                         let obj = {};                           // 陣列包物件
                         obj[this_emp_id] = this_cname;
                         rework_arr.push(obj);
                     })
-                    // const rework_str = JSON.stringify(rework_arr).replace(/[\[\]]/g, '');       // 部門代號加工+去除[]符號
-                    // console.log(rework_arr);
-                    // resolve(rework_str);
+
                     resolve(rework_arr);
                 });
             }
@@ -1028,7 +958,6 @@
             // 把取得的數據送去reworkArr整理...
             const reworkTableBaseAll_arr = await reworkArr(table_baseAll_arr);     // 將table上bassAll整理成我要的格式
             const reworkTableInCare_arr  = await reworkArr(table_inCare_arr);      // 將table上inCare整理成我要的格式
-                // console.log('reworkTableBaseAll_arr...',reworkTableBaseAll_arr);
 
             // const { currentYearMonth } = getCurrentAndLastMonth();                          // 執行函式--取得年月
             // const fromInput = document.querySelector('#maintainDept #searchkeyWord');       // 定義來源id
@@ -1039,7 +968,6 @@
             const { lastYearMonth } = getCurrentAndLastMonth(thisMonth) // 取得上個月的年月...
 
             let deptData = shLocalDept_inf.find(dept => dept.OSHORT === targetDeptNo);          // 自shLocalDept_inf找出對應的部門
-                // console.log('shLocalDept_inf 1',shLocalDept_inf);
             if(deptData){
                 deptData.base = deptData.base ?? [];
                 const { baseAll_arr }  = reworkBaseInCare(deptData, lastYearMonth);                 // 取得上個月dept部門在紀錄裡的全部員工
@@ -1055,22 +983,20 @@
                 deptData.inCare[thisMonth] = reworkTableInCare_arr;
 
             } else {
-                
                 const bomNewDeptArr = await bomNewDept(targetDeptNo, _dept_inf);                // step-6. 生成dept預設值
                 shLocalDept_inf = [...shLocalDept_inf, ...bomNewDeptArr];                       // step-6. 合併bomNewDeptArr
 
             }
-            // console.log('shLocalDept_inf 2',shLocalDept_inf);
             post_hrdb(shLocalDept_inf, thisMonth); // 鋪設
 
-            // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
-            // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
-            // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
-            // target_staff_cbs.forEach(checkbox => {
-            //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
-            //     // 手動觸發 change 事件
-            //     // checkbox.dispatchEvent(new Event('change'));
-            // });
+                    // const target_staff_cbs = document.querySelectorAll(`#maintainDept #result_tbody input[name="deptStaff[]"]`);
+                    // // 檢查第一個 checkbox 是否被選中，然後根據它的狀態全選或全部取消
+                    // let allChecked = Array.from(target_staff_cbs).every(checkbox => checkbox.checked);
+                    // target_staff_cbs.forEach(checkbox => {
+                    //     checkbox.checked = !allChecked; // 如果 allChecked 為 true，則取消選擇，否則全選
+                    //     // 手動觸發 change 事件
+                    //     // checkbox.dispatchEvent(new Event('change'));
+                    // });
 
             resetMaintainDept();        // 清除
             maintainDept_modal.hide();  // 關閉modal
@@ -1088,15 +1014,12 @@
             if(request){
                 const loadInCare = document.getElementById('loadInCare');
                 let thisValue = loadInCare.value.replace(/\n/g, ',');
-                // const thisArr = thisValue.split(',').filter(item => item !== "");           // 分割this.id成陣列
                 const thisArr = thisValue.split(',').filter(item => {
                     return item.length === 8 && /^\d+$/.test(item);
                 });
-                console.log('thisValue...',thisArr)
 
                 if(thisArr.length > 0){
                     let thisInfo = `帶入套用：${thisArr.length} 人`;
-                    console.log('thisInfo...', thisInfo);
                     toCheckedOpt(thisArr ,thisInfo )
                 }
             }
@@ -1123,14 +1046,12 @@
     function mk_deptNos_btn(docDeptNo) {
         return new Promise((resolve) => {
             _docs_inf = docDeptNo;      // 套取docs
-            console.log('docDeptNo =>',docDeptNo);
             // init
             $('#deptNo_opts_inside').empty();
             // step-1. 鋪設按鈕
             if(docDeptNo.length > 0){     // 判斷使否有長度值
                 for (const _item of docDeptNo) {
                     Object.entries(_item).forEach(([emp_sub_scope, oh_value]) => {
-                        // console.log(emp_sub_scope,oh_value)
                         let ostext_btns = `
                             <div class="col-lm-3 p-1">
                                 <div class="card">
@@ -1184,9 +1105,6 @@
                 _yearMonthSelt.insertAdjacentHTML('beforeend', selectOpt);
             }
         }
-        // if(dateString != undefined){
-        //     SubmitForReview_btn.value = dateString;     // 把[帶入維護]鈕 給上 年月字串值
-        // }
     }
 
             // [p1 函數-2] 241213 將送審的百分比改成送審中
@@ -1195,10 +1113,8 @@
                 const _step = reviewStep.step;
         
                 for (const _doc of _docs) {
-                            // console.log('_doc =>',_doc);
                     for (const [emp_sub_scope, dept_no_value] of Object.entries(_doc)) {
                         for (const [dept_no, value] of Object.entries(dept_no_value)) {
-                                    // console.log(dept_no,' => value:',value);
                             const deptNo_sups = document.querySelectorAll(`#deptNo_opts_inside button[id="${emp_sub_scope},${dept_no}"] sup[name="sup_${dept_no}[]"]`);
                             const innerHTMLValue = (value.idty == 2) ? "退回編輯" : _step[value.idty].approvalStep;
                             // 更新所有符合條件的節點的 innerHTML
@@ -1237,8 +1153,6 @@
                             const subScopes_opts_arr = Array.from(document.querySelectorAll(`#deptNo_opts_inside input[id*="cb,${emp_sub_scope},${dept_no}"]`));
                             // 點擊閱讀權限
                             subScopes_opts_arr.forEach(subScope_opt => subScope_opt.disabled = doc_Role_bool );
-                            // deptNo_btns.forEach(deptNo_btn => {
-                            // })
                         }
                     }
                 }
@@ -1262,23 +1176,18 @@
                 const deptNo_btns = document.querySelectorAll('#deptNo_opts_inside button[name="deptNo[]"]');
                 deptNo_btns.forEach(deptNo_btn => {
                     deptNo_btn.addEventListener('click', async function() {
-                        const thisValue   = '"'+this.value+'"';       // 取得部門代號並加工(單選)
-                                // console.log('單選 thisValue =>', thisValue)
-                                // console.log('單選 thisID =>', this.id)
-                                
-                            daptStaffLength.innerHTML = '';                 // 清除取得人數提示
-                            if(this.id){
-                                deptInfo.innerHTML = this.id;               // 標題鋪設id值
-                            }
-                            let fromInput = document.querySelector('#maintainDept #searchkeyWord');     // 定義maintainDept搜尋input欄
-                            fromInput.value = this.value;                                           // 賦予內容值
+                        const thisValue   = '"'+this.value+'"';                                 // 取得部門代號並加工(單選)
+                        daptStaffLength.innerHTML = '';                                         // 清除取得人數提示
+                        if(this.id){
+                            deptInfo.innerHTML = this.id;                                       // 標題鋪設id值
+                        }
+                        let fromInput = document.querySelector('#maintainDept #searchkeyWord'); // 定義maintainDept搜尋input欄
+                        fromInput.value = this.value;                                           // 賦予內容值
 
                         // 工作一 清空暫存
                             await resetINF(true); // 清空
-
                         // 工作二 把this.id推進去部門資訊arr 
                             _dept_inf.push(this.id);                        // 推入部門資訊arr     
-                                console.log('單選_dept_inf...',_dept_inf)
                         // 工作三 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                             // await load_fun('load_shLocalDepts', thisValue, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                             const defaultDept_inf = await preCheckDeptData(thisValue, _dept_inf);
@@ -1300,22 +1209,16 @@
                     const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
                     const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
-                            console.log('多選 selectedValues_str =>', selectedValues_str)
-                            console.log('多選 selectedIDs =>', selectedIDs)
-
                     // 工作一 清空暫存
-                        await resetINF(true);               // 清空
+                    await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
-                        _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            console.log('多選_dept_inf...',_dept_inf)
+                    _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
-                        // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
+                    // await load_fun('load_shLocalDepts', selectedValues_str, post_hrdb);   // 呼叫fun load_fun 進行撈取員工資料   // 呼叫[fun] rework_loadStaff
                     const defaultDept_inf = await preCheckDeptData(selectedValues_str, _dept_inf);
                     post_hrdb(defaultDept_inf);                                                                 // step-8. 送出進行渲染
-
                     // await reload_dataTable();
                     // $('logsInfo').empty();
-                    // console.log('staff_inf...', staff_inf);
 
                     $('#nav-p2-tab').tab('show');
                 })
@@ -1369,23 +1272,16 @@
                     const selectedValues = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.value); // 取得所選的部門代號(多選)
                     const selectedValues_str = JSON.stringify(selectedValues).replace(/[\[\]]/g, '');       // 部門代號加工(多選)
                     const selectedIDs = subScopes_opts_arr.filter(cb => cb.checked).map(cb => cb.id).map(value => value.replace(/cb,/g, '')); // 取得所選的部門代號(多選) ** 特別要去除cb,
-
                     // 工作一 清空暫存
                     await resetINF(true);               // 清空
                     // 工作二 把this.id合併進去部門資訊arr 
-                        _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                        // console.log('P1-3-1.多選selectedValues_str...',selectedValues_str)
-                        // console.log('P1-3-2.多選_dept_inf...',_dept_inf)
-
+                    _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
                     // 取得P1的年份篩選
                     const _yearDiv = document.getElementById('_year');
                     const _year = _yearDiv.value;
-                            // console.log('P1-3-3.多選_year...',_year)
-                    
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
-                            console.log('defaultDept_in ==',defaultDept_in)
-                    preProcess_staff(defaultDept_in, _year)
+                    preProcess_staff(defaultDept_in, _year);
 
                     $('#nav-p3-tab').tab('show');
                 })
@@ -1394,24 +1290,15 @@
                 P2SubmitForReview_btn.addEventListener('click', async function() {
                     // // 工作一 清空暫存
                     // await resetINF(true);               // 清空
-
                     const _dept_i_arr = _dept_inf[0].split(',')
                     const thisValue = _dept_i_arr[1];
                     const selectedValues_str = JSON.stringify(thisValue).replace(/[\[\]]/g, '');       // 部門代號加工(單選)
-                            // console.log('P2-3-1.selectedValues_str...', selectedValues_str)
-                    // 工作二 把this.id合併進去部門資訊arr 
-                        // _dept_inf = [..._dept_inf, ...selectedIDs];                        // 合併入部門資訊arr    
-                            // console.log('P2-3-2.單選_dept_inf...',_dept_inf)
-                            
                     // 取得p2年月篩選
                     const _yearMonth = document.getElementById("_yearMonth");
                     const _yearMonthValue = _yearMonth.value;
-                            // console.log('P2-3-3.單選_yearMonth...',_yearMonthValue)
-
                     // 工作二 從 thisValue(加工後的部門代號)中取出對應的廠區/部門代號資料
                     const defaultDept_in = await preCheckDeptData(selectedValues_str, _dept_inf);
-                            console.log('defaultDept_in ==',defaultDept_in)
-                    preProcess_staff(defaultDept_in, _yearMonthValue)
+                    preProcess_staff(defaultDept_in, _yearMonthValue);
 
                     $('#nav-p3-tab').tab('show');
                 })
@@ -1468,17 +1355,14 @@
                     if (excel_json) {
                         document.getElementById('excelTable').value = excel_json.value;
                         const excelJsonValueArr = JSON.parse(excel_json.value);
-                        // console.log('excel_json.value...', excel_json.value)
-
                         // 250203 在匯入的時候就直接補上對應欄位資料
-                        // await rework_omager(excelJsonValueArr);
+                            // await rework_omager(excelJsonValueArr);
                         // 250210 匯入時補上建物編號...
-                        // await rework_BTRTL(excelJsonValueArr);
-                        
-                        // rework_loadStaff(excelJsonValueArr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
-                        // await mgInto_staff_inf(excelJsonValueArr)         // 呼叫[fun] 
+                            // await rework_BTRTL(excelJsonValueArr);
+                            // rework_loadStaff(excelJsonValueArr)      // 呼叫[fun] rework_loadStaff() 這個會呼叫hrdb更新資料
+                            // await mgInto_staff_inf(excelJsonValueArr)         // 呼叫[fun] 
                         // *** 240911 這裡要套入function searchWorkCase( OSHORT, HE_CATE_str ) 從Excel匯入時，自動篩選合適對應的特作項目，並崁入...doing
-                        // searchWorkCaseAll(excelJsonValueArr);
+                            // searchWorkCaseAll(excelJsonValueArr);
                         processImportExcel(excelJsonValueArr);
 
                         inside_toast(`批次匯入Excel資料...Done&nbsp;!!`, 1000, 'info');
@@ -1499,19 +1383,12 @@
 
 // [default fun]
     $(async function() {
+        // p1. [通用]在任何地方啟用工具提示框
+        $('[data-toggle="tooltip"]').tooltip();
+        
         await p1_init();
         await p1_eventListener();                     // 呼叫函數-3 建立監聽
         await excel_eventListener();
-
-        // let message  = '*** 判斷依據1或2，二擇一符合條件：(1). 平均音壓 ≧ 85、 (2). 0.5(劑量, D)≧暴露時間(t)(P欄位)/法令規定時間(T)，法令規定時間(T)=8/2^((均能音量-90)/5)．&nbsp;~&nbsp;';
-        let message  = `userInfo.signCode：${userInfo.signCode}、.role：${userInfo.role}、.BTRTL：${userInfo.BTRTL}`;
-        if(message) {
-            // Balert( message, 'warning')
-            document.getElementById(`debug`).insertAdjacentHTML('beforeend', message);     // 渲染各項目 到 footer
-        }
-
-        // p1. [通用]在任何地方啟用工具提示框
-        $('[data-toggle="tooltip"]').tooltip();
     
         $("body").mLoading("hide");
 

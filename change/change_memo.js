@@ -77,7 +77,6 @@
                             }
                         }
                         deptData.remark['memo'].push(memoObj);
-                            console.log('deptData.remark =>', deptData);
                     // 生成完整memo
                     const memoCard_index = deptData.remark['memo'].length - 1;
                     const memoCard = await mk_memoMsg(memoCard_index, memoObj)

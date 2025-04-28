@@ -39,7 +39,7 @@
                     resolve(true);                                          // 成功時解析為 true 
                 },
                 error: function(res){
-                    console.log("toLog -- error：", res);
+                    console.error("toLog -- error：", res);
                     reject(false);                                          // 失敗時拒絕 Promise
                 }
             });
@@ -133,7 +133,7 @@
                     resolve(true);                                          // 成功時解析為 true 
                 },
                 error: function(res){
-                    console.log("push_mapp -- error：",res);
+                    console.error("push_mapp -- error：",res);
                     reject(false);                                          // 失敗時拒絕 Promise
                 }
             });
@@ -163,7 +163,6 @@
 
             $.ajax({
                 url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
-                // url:'http://tneship.cminl.oa/apiTest/sendmail/index.php',    // 測式 202503可夾檔+html內文
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
@@ -187,12 +186,12 @@
             // ch.match(/[\^>V<]/);
             var load_changeTodo;
             if(staff_inf === false){
-                load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');  // load_fun查詢大PM bpm，並用step1找出email
+                load_changeTodo = await load_fun('load_changeTodo', 'load_changeTodo', 'return');   // load_fun查詢大PM bpm，並用step1找出email
 
             }else{
                 const emp_id_lists = staff_inf.map(staff => staff.emp_id);
-                const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, ''); // 過濾重複部門代號 + 轉字串
-                load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');  // load_fun查詢大PM bpm，並用step1找出email
+                const emp_id_lists_str = JSON.stringify(emp_id_lists).replace(/[\[\]]/g, '');       // 過濾重複部門代號 + 轉字串
+                load_changeTodo = await load_fun('load_changeTodo', emp_id_lists_str, 'return');    // load_fun查詢大PM bpm，並用step1找出email
             }
 
             return(load_changeTodo); // 返回取得的資料
@@ -299,7 +298,6 @@
                             _todoDIV[6] += `<snap class=""          id="result,${emp_id},${targetMonth},${omagerDIV.emp_id}"></snap>`;
                             _todoDIV['omager'] = omagerDIV.emp_id;
 
-                            // &nbsp;&nbsp;${omagerDIV.email}
                             // 製作員工異動+特作項目訊息
                             const staff_obj = {
                                 'cname'      : staff_i.cname,
@@ -355,7 +353,7 @@
         async function mailFac( mailArr ) {
             let mailFab_Arr = [];    
             if(mailArr.length !==0){
-                const dueDay = await getAddDay() +'前';   // 取得指定天數(14)後的日期(dueDay)
+                const dueDay = await getAddDay() +'前';     // 取得指定天數(14)後的日期(dueDay)
                 let sample_mail = await load_jsonFile('../notify/p2sample_mail.json');    // 取得mail範本
                 // 替換%YMDW% 加上dueDay
                     sample_mail[0] = sample_mail[0].replace(/\%YMDW\%/g, dueDay);
