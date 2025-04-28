@@ -1,12 +1,9 @@
     // from dashBoard fun drawEchart2()-step.2 從step1整理出inCare在指定年份的名單::
     // step.2.1 預先處理員工資料
     async function preProcess_staff(shLocalDept_in, _yearValue, _type){
-        // console.log('2.1a.shLocalDept_in...' ,shLocalDept_in)
         // s.2.1.0 陣列初始化
         let empIDKeys         = [];                         // 收集所有指定年度的inCare工號
         let mergedData        = [];                         // 存放員工合併訊息，for preCheckStaffData時參考套用訊息
-        
-
         // s.2.1.1 把變更部門清單繞出來，取得員工ID清單empIDKeys
         for(const[index, dept_i] of Object.entries(shLocalDept_in)){
             const inCare = dept_i["inCare"] ?? [];
@@ -26,15 +23,9 @@
         }
         empIDKeys  = [...new Set(empIDKeys)]; 
         mergedData = [...new Set(mergedData)]; 
-        
         // s.2.1.2 把員工ID清單empIDKeys進行處理，撈出IN empIDKeys的所有員工資料
         const empIDKeys_str = JSON.stringify(empIDKeys).replace(/[\[\]]/g, '');                 // 工號加工
         const staffData_result = await preCheckStaffData(empIDKeys_str, mergedData, _type);     // 呼叫 fun-2 preCheckStaffData 檢查staff是否都有存在，不然就生成staff預設值
-                // console.log('2.1.empIDKeys =>',  empIDKeys)
-                // console.log('2.3.empIDKeys_str =>', empIDKeys_str)
-                // console.log('2.2.mergedData =>', mergedData)
-                // console.log('2.4.staffData_result =>', staffData_result)
-
         // s.2.1.3 陣列初始化 countData:統計用
         let countData = [];
         // s.2.1.4 將mergedData逐筆繞出來
@@ -69,8 +60,6 @@
                 countData[empI_OSTEXT_30]['primary']++;
             }
         })
-        console.log('countData',countData)
-        
         // s.2.1.5 陣列初始化 result: 畫圖用
         const result = {
             'fab_title' : [],
@@ -86,7 +75,6 @@
                 result[`${item_key}`].push(item_value);
             }
         }
-        // console.log('2.5.result =>', result)
         
         return(result);
     }
@@ -96,16 +84,12 @@
     async function preCheckStaffData(empIDKeys_str, mergedData, _type){
         if(empIDKeys_str == '') return(false);
             const empIDKeys_parm = empIDKeys_str.replace(/,/g, ':')
-                // console.log('[empIDKeys_parm]',empIDKeys_parm)
             const load_change = await load_fun(_type, `_change, true, ${empIDKeys_parm}`, 'return');        // step-1. 先從db撈現有的資料
-                // console.log('[load_change]',load_change)
             const existingStaffStrs = load_change.map(staff => staff.emp_id);                               // step-2. 提取load_change中所有的emp_id值
             let defaultStaff_inf = [];
             defaultStaff_inf = [...new Set([...defaultStaff_inf, ...load_change])];                         // step-2. 合併load_change+去重
-
             const selectStaffArr = empIDKeys_str.replace(/"/g, '').split(',')                               // step-3. 去除前後"符號..分割staffStr成陣列
             const notExistingStaffs = selectStaffArr.filter(emp_id => !existingStaffStrs.includes(emp_id)); // step-4. 找出不存在於load_shLocalDepts中的部門代號
-
             if(notExistingStaffs.length > 0) {
                 const notExistingStaffs_str = JSON.stringify(notExistingStaffs).replace(/[\[\]]/g, '');     // step-5. 把不在的部門代號進行加工(多選)，去除外框
                 const bomNewDeptArr = await bomNewStaff(notExistingStaffs_str, mergedData);                 // step-6. 呼叫fun-3 bomNewStaff 生成staff預設值
@@ -113,7 +97,6 @@
             }
 
         return(defaultStaff_inf);
-        // post_hrdb(defaultStaff_inf);                                                                     // step-8. 送出進行渲染
     };
     // fun-3 當staff_inf沒有符合的員工時時...給他一個新的 :: call from fun-2
     function bomNewStaff(notExistingStaffs_str, mergedData){
@@ -146,6 +129,7 @@
                     })
                 }
             }
+            
             resolve(bomNewStaffArr);
         });
     }

@@ -23,7 +23,6 @@
 <head>
     <link href="../../libs/aos/aos.css" rel="stylesheet">                                           <!-- goTop滾動畫面aos.css 1/4-->
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>            <!-- Jquery -->
-
     <script src="../../libs/sweetalert/sweetalert.min.js"></script>                                 <!-- 引入 SweetAlert 的 JS 套件 參考資料 https://w3c.hexschool.com/blog/13ef5369 -->
     <script src="../../libs/jquery/jquery.mloading.js"></script>                                    <!-- mloading JS 1/3 -->
     <link rel="stylesheet" href="../../libs/jquery/jquery.mloading.css">                            <!-- mloading CSS 2/3 -->
@@ -315,7 +314,6 @@
             </div>
         </div>
     </div>
-
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -323,9 +321,7 @@
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <!-- <script src="../../libs/openUrl/openUrl.js"></script>       彈出子畫面 -->
-
-<!-- <script src="../mvc/utility.js?v=<?=time()?>"></script> -->
-<script src="_change.js?v=<?=time()?>"></script>
-<script src="dashboard.js?v=<?=time()?>"></script>
+<script src="_change.js"></script>
+<script src="dashboard.js"></script>
 
 <?php include("../template/footer.php"); ?>

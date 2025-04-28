@@ -8,7 +8,6 @@
         }
 
         switch ($fun){
-
             case '_json':       // 現撈json檔案 -- by parm
                 $parm_arr = explode(",", $parm);    // 將參數parm炸成陣列：0= 要抓的對象； 1= true/false 是否輸出更新json檔
                 $filename = $parm_arr[0].".json";
@@ -52,7 +51,6 @@
                 try {
                     $stmt->execute();
                     $_db = $stmt->fetchAll(PDO::FETCH_ASSOC);        // no index
-
                     // 資料整理
                     if($table == "_shLocal"){               // 取得_shLocal for chart1特殊危害健康作業場所統計繪圖
                         $shLocal_OSHORTs_arr = [];
@@ -74,7 +72,6 @@
                             $_db[$index]['_todo']       = json_decode($_db[$index]['_todo'], true);
                         }
                     }
-
                     // 製作返回文件
                     $result = [
                         'result_obj' => $_db,
@@ -92,20 +89,17 @@
                     echo $e->getMessage();
                     $result['error'] = 'Load '.$fun.' failed...(e)';
                 }
-       
                 break;
 
             case 'urt':       // 2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
                 $parm_arr = explode(",", $parm);    // 將參數parm炸成陣列：0= 要抓的對象； 1= true/false 是否輸出更新json檔
                 $rightNow = $parm_arr[0];
-                
                 if($parm_arr[1]){                   // 判斷是否更新
                     $filename = "reloadTime.txt";
                     $rt = fopen($filename,"w");     // 寫入新的資料
                     fputs($rt, $rightNow);
                     fclose($rt);
                 }    
-
                 $result = [                         // 製作返回文件
                     'result_obj' => $rightNow,
                     'fun'        => $fun,
@@ -124,33 +118,6 @@
                     'success'    => 'Load '.$fun.' success.'
                 ];
                 break;
-
-            // case 'load_change':                 // 撈取變更人員資料，帶入查詢條件emp_id
-            //     $pdo = pdo();
-            //     $parm_re = str_replace('"', "'", $parm);   // 類別 符號轉逗號
-            //     $sql = "SELECT _c.emp_id ,_c.cname ,_c._changeLogs ,_c._content ,_c._todo
-            //             FROM _change _c
-            //             WHERE _c.emp_id IN ({$parm_re}) ";
-            //     $stmt = $pdo->prepare($sql);
-            //     try {
-            //         $stmt->execute();                                   //處理 byAll
-            //         $chStaffs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            //         foreach($chStaffs as $index => $shStaff){
-            //             $chStaffs[$index]['_changeLogs'] = json_decode($chStaffs[$index]['_changeLogs'], true);
-            //             $chStaffs[$index]['_content']    = json_decode($chStaffs[$index]['_content']);
-            //             $chStaffs[$index]['_todo']       = json_decode($chStaffs[$index]['_todo'], true);
-            //         }
-            //         // 製作返回文件
-            //         $result = [
-            //             'result_obj' => $chStaffs,
-            //             'fun'        => $fun,
-            //             'success'    => 'Load '.$fun.' success.',
-            //         ];
-            //     }catch(PDOException $e){
-            //         echo $e->getMessage();
-            //         $result['error'] = 'Load '.$fun.' failed...(e)';
-            //     }
-            //     break;
 
             default:
                 sendErrorResponse('Invalid function', 400);

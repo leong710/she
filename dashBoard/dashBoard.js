@@ -16,7 +16,6 @@
     }
     // 0-0.多功能擷取fun 新版改用fetch
     async function load_fun(fun, parm, myCallback) { // parm = 參數
-        // mloading(); 
         try {
             let formData = new FormData();
             formData.append('fun', fun);
@@ -99,13 +98,11 @@
             resolve(countFabItem);
         });
     }
-
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function drawEchart1() {
         // // S.0 防止重複畫圖...
             const eChart1_div = document.querySelector('#eChart1');
             if(eChart1_div !== null) return;
-
         // // S.1 取得資料
             const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
             const _method = await check3hourse(action);                                                 // _db/_json
@@ -113,11 +110,9 @@
             // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
             const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
             const _OSHORTsObj = await process_p2dB1(_shLocal);                                          // step.1a 統計_shLocal內容
-
         // // S.2 定義一個數據陣列for繪圖用 {role: 'annotation'} == 資料標籤
             var i_title = [];
             var i_value = [];
-
         // // S.3 整理資料：把_OSHORTsObj統計數據倒進來繞，組合成指定格式=> [廠區, 數據, 文字標籤]
             for (const [i_fab, i_count] of Object.entries(_OSHORTsObj)) {
                 if(i_fab !== 'total' ){        // 跳過total
@@ -125,15 +120,12 @@
                     i_value.push(i_count);
                 }
             }
-
             // 計算數據的最大值
             const maxDataValue = Math.max(...i_value);
             const yMaxValue = Math.round(maxDataValue * 1.2);   // 設定Y軸最大值1.2倍 + 四捨五入取整數
-
         // // S.4 定義圖表外框並貼上 
             const temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="eChart1"></div>';
             $('#p2chart_div').empty().append(temp_div);
-
         // 指定图表的配置项和数据
         var option = {
             title: {
@@ -193,44 +185,34 @@
                         position: 'inside'
                     },
                     // 以下放欄位-數據
-                    // data: [120, 200, 150, 80, 70, 110, 130]
                     data: i_value
                 }
             ]
         };
-
         // 基于准备好的dom，初始化echarts实例
         var eChart1 = echarts.init(document.getElementById('eChart1'));
         // 使用刚指定的配置项和数据显示图表。
         eChart1.setOption(option);
-
         // // 監聽窗口大小改變事件，調整圖表的大小
         charts.push(eChart1);
         addResizeListener(); // 添加監聽器
     }
-
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
     async function drawEchart2() {
         // // S.0 防止重複畫圖...
         const eChart2_div = document.querySelector('#eChart2');
         if(eChart2_div !== null) return;
-
         // // S.1 取得資料
         const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
         const _method = await check3hourse(action);                                                 // _db/_json
         const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
-            // console.log('[_type]',_type)
         // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
         const _shLocalDepts = await load_fun(_type, '_shLocalDepts, true', 'return');               // step.1 提取變更部門清單
         const currentYear = String(new Date().getFullYear());   // 取得當前年份
-            // console.log('[currentYear]',currentYear)
         const result = await preProcess_staff(_shLocalDepts, currentYear, _type);                   // step.2 從step1整理出inCare在指定年份的名單 // 這裡要改成活的數值
-            // console.log('_shLocalDepts...',_shLocalDepts);
         // // S.4 定義圖表外框並貼上 
         const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart2"></div>';
         $('#p1chart_div').empty().append(temp_div);
-
-        
         // 指定图表的配置项和数据
         var option = {
             title: {
@@ -258,7 +240,6 @@
             },
             xAxis: {
               type: 'category',
-            //   data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
               data: result['fab_title']
             },
             series: [
@@ -272,7 +253,6 @@
                 emphasis: {
                   focus: 'series'
                 },
-                // data: [320, 302, 301, 334, 390, 330, 320]
                 data: result['primary']
               },
               {
@@ -285,7 +265,6 @@
                 emphasis: {
                   focus: 'series'
                 },
-                // data: [120, 132, 101, 134, 90, 230, 210]
                 data: result['success']
               },
               {
@@ -298,7 +277,6 @@
                 emphasis: {
                   focus: 'series'
                 },
-                // data: [220, 182, 191, 234, 290, 330, 310]
                 data: result['warning']
               },
               {
@@ -311,22 +289,18 @@
                 emphasis: {
                   focus: 'series'
                 },
-                // data: [150, 212, 201, 154, 190, 330, 410]
                 data: result['danger']
               }
             ]
         };
-        
         // 基于准备好的dom，初始化echarts实例
         var eChart2 = echarts.init(document.getElementById('eChart2'));
         // 使用刚指定的配置项和数据显示图表。
         eChart2.setOption(option);
-
         // // 監聽窗口大小改變事件，調整圖表的大小
         charts.push(eChart2);
         addResizeListener(); // 添加監聽器
     }
-
     // 250422 定義監聽窗口大小改變事件，調整所有圖表的大小
     let charts = [];        // 存儲所有圖表實例
     function addResizeListener() {
@@ -347,32 +321,19 @@
             if (navP2tabClickListener) {
                 navP2tab_btn.removeEventListener('click', navP2tabClickListener);   // 移除監聽p2_btn
             }   
-    
         // 定義新的監聽器函數p2_btn
         navP2tabClickListener = async function () {
             mloading(); 
-                console.log('p2_btn click...')
-            // p2_init(false);
-            // p2chart_init(false);
-
             try {
                 await drawEchart1();
-                
-                // await drawEchart2();
-
             } catch (error) {
                 console.error(error);
             }
-            
             $("body").mLoading("hide");
         }
-
         // 添加新的監聽器
-        // if(userInfo.role <= 1){
-            navP2tab_btn.addEventListener('click', navP2tabClickListener);  // 增加監聽p2_btn
-        // }
+        navP2tab_btn.addEventListener('click', navP2tabClickListener);  // 增加監聽p2_btn
     }
-
     // 250414 製造橫幅
     async function make_balert(){
         const balert_arr = await load_fun('load_balert','load_balert','return');
@@ -380,12 +341,8 @@
             balert_arr.forEach(item => {
                 Balert( item._value, item._type);                
             });
-        } else {
-            // let message  = '*** <b>請注意&nbsp<u>網頁改版測試中</u>!!</b>&nbsp;~&nbsp;';
-            // Balert( message, 'success');
         }       
     }
-
 
     $(async function () {         // $(document).ready()
         // ready.1 在任何地方啟用工具提示框
@@ -393,8 +350,6 @@
         // ready.2 產生警告橫幅
             make_balert();
             await drawEchart2();
-
         // ready.3 定義nav-tab [nav-p2-tab]鈕功能，並建立監聽
             reload_navTab_Listeners();
-
     })
