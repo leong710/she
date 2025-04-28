@@ -169,6 +169,7 @@
                     $result['error'] = 'Load '.$fun.' failed...(no parm)';
                 }
                 break;
+                
             case 'showP3Notify_list':
                 require_once("function.php");
                 try {

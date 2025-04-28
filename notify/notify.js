@@ -23,18 +23,14 @@
                 newToast.setAttribute('aria-atomic', 'true');
                 newToast.setAttribute('autohide', 'true');
                 newToast.setAttribute('delay', delayTime);
-    
                 // 設置 toast 的內部 HTML
                 newToast.innerHTML = `<div class="d-flex"><div class="toast-body ${(type == 'success' ? 'text-white':'')}">${sinn}</div>
                         <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
-    
             // 將新 toast 添加到容器中
             document.getElementById('toastContainer').appendChild(newToast);
-    
             // 初始化並顯示 toast
             var toast = new bootstrap.Toast(newToast);
             toast.show();
-    
             // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
             newToast.addEventListener('hidden.bs.toast', function () {
                 newToast.remove();
@@ -52,10 +48,8 @@
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{closeWindow(true); resolve();});  // 2秒自動關閉畫面; 載入成功，resolve
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{location.reload(); resolve();});  // 2秒自動 刷新页面;載入成功，resolve
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action'], {buttons: false, timer:2000}).then(()=>{resolve();});  // 2秒自動 載入成功，resolve
-                
                 } else if(swal_value['action'] == 'warning' || swal_value['action'] == 'info'){   // warning、info
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 載入成功，resolve
-
                 } else {                                        // error
                     // swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{history.back();resolve();}); // 手動回上頁; 載入成功，resolve
                     swal(swal_value['fun'] ,swal_value['content'] ,swal_value['action']).then(()=>{resolve();}); // 手動保留在本業; 載入成功，resolve
@@ -81,7 +75,6 @@
     }
     // fun.0-4a: dataTable
     function reload_dataTable(_table){
-        // dataTable 2 https://ithelp.ithome.com.tw/articles/10272439
         return new Promise((resolve) => {
             _table = _table ?? 'hrdb_table';
             let table = $(`#${_table}`).DataTable();
@@ -94,13 +87,6 @@
                 "autoWidth": false,                                              // 自動寬度
                 "order": _table == 'hrdb_table' ? [[ 2, "asc" ], [ 1, "asc" ], [ 0, "asc" ]] : [[ 4, "asc" ], [ 0, "asc" ]] ,            // 排序
                 "pageLength": 25,                                               // 顯示長度
-                    // "paging": false,                                             // 分頁
-                    // "searching": false,                                          // 搜尋
-                    // "data": hrdb_data,
-                // "columnDefs": [
-                        // { "width": "60px", "targets": [0, 1, 2] },               // 設定第1~3欄的寬度為50px
-                        // { "width": "40px", "targets": [6, 7, 8, 9] },
-                    // ]
             });
 
             resolve();      // 當所有設置完成後，resolve Promise
@@ -108,7 +94,6 @@
     }
     // fun.0-5 多功能擷取fun 新版改用fetch
     async function load_fun(fun, parm, myCallback) {        // parm = 參數
-        // mloading(); 
         if(parm){
             try {
                 let formData = new FormData();
@@ -137,14 +122,13 @@
                 throw error;                                    // 載入失敗，reject
             }
         }else{
-            console.log('error: parm lost...');
+            console.error('error: parm lost...');
             alert('error: parm lost...');
             $("body").mLoading("hide");
         }
     }
     // fun.0-5a 多功能擷取fun 新版改用fetch for local dir
     async function local_load_fun(fun, parm, myCallback) {        // parm = 參數
-        // mloading(); 
         if(parm){
             try {
                 let formData = new FormData();
@@ -173,7 +157,7 @@
                 throw error;                                    // 載入失敗，reject
             }
         }else{
-            console.log('error: parm lost...');
+            console.error('error: parm lost...');
             alert('error: parm lost...');
             $("body").mLoading("hide");
         }
@@ -224,13 +208,12 @@
     }
     // fun.0-9 多功能API新版改用fetch
     async function load_API(fun, parm, myCallback) {        // parm = 參數
-        // mloading(); 
         if(parm){
             try {
                 let formData = new FormData();
                     formData.append('functionname', fun);
-                    formData.append('uuid', uuid);    // nurse
-                    formData.append('parm', parm);              // 後端依照fun進行parm參數的採用
+                    formData.append('uuid', uuid);          // nurse
+                    formData.append('parm', parm);          // 後端依照fun進行parm參數的採用
 
                 let response = await fetch('http://tneship.cminl.oa/api/hrdb/', {
                     method : 'POST',
@@ -254,7 +237,7 @@
                 throw error;                                    // 載入失敗，reject
             }
         }else{
-            console.log('error: parm lost...');
+            console.error('error: parm lost...');
             alert('error: parm lost...');
             $("body").mLoading("hide");
         }
@@ -267,16 +250,6 @@
         const timeStamp = thisToday+' '+thisTime;
         return timeStamp;
     }
-    // // 提取URL參數...呼叫getUrlParm
-    // function getUrlParm(name) {
-    //     name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-    //     const regex = new RegExp('[\\?&]' + name + '=([^&#]*)', 'i');
-    //     const results = regex.exec(window.location.href);
-    //     const urlParm = results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-
-    //     return(urlParm); // 異常情況下也需要resolve
-    // }
-    // const fun = getUrlParm('fun');    // 解析url指定參數值
 
 // // 子功能--A
     // fun_1 tab_table的顯示關閉功能
@@ -498,8 +471,6 @@
                 return { dayDiff, bgClass };
             }
 
-
-
     // 250331 定義nav-tab [nav-p2-tab]+[nav-p3-tab]鈕功能~~
     let navP2tabClickListener;
     let navP3tabClickListener;
@@ -513,18 +484,14 @@
             if (navP3tabClickListener) {
                 navP3tab_btn.removeEventListener('click', navP3tabClickListener);   // 移除監聽p3_btn
             }   
-    
         // 定義新的監聽器函數p2_btn
         navP2tabClickListener = async function () {
-                console.log('p2_btn click...')
             await p2_init(false);
         }
         // 定義新的監聽器函數p3_btn
         navP3tabClickListener = async function () {
-                console.log('p3_btn click...')
             await p3_init();
         }
-
         // 添加新的監聽器
         if(userInfo.role <= 1){
             navP2tab_btn.addEventListener('click', navP2tabClickListener);  // 增加監聽p2_btn
@@ -536,15 +503,8 @@
         const _method = check3hourse(action);
         const _type = action ?  "_db" : _method;            // action來決定 false=自動判斷check3hourse 或 true=強制_db
         try {
-            mloading("show");                               // 啟用mLoading
-
+            mloading("show");
             await reload_notify2_Listeners();                     // 250331 定義nav-tab [nav-p2-tab]+[nav-p3-tab]鈕功能~~
-
-            // await load_fun(_type, 'bpm, true',     step1);  // load_fun查詢大PM bpm，並用step1找出email
-            // await load_fun(_type, 'notify, true' , step2);  // load_fun先抓json，沒有then抓db(true/false 輸出json檔)，取得highlight內容後用step2把所有名單上的人頭代上emai
-            // await step3(doc_lists, step4);                  // step3資料清洗，後用step4鋪設內容
-
-            // op_tab('user_lists');                        // 關閉清單
             $('#notifyResult').append('等待發報 :</br>');
 
             const check_ipp = true;
@@ -581,5 +541,4 @@
         $('[data-toggle="tooltip"]').tooltip();             // 在任何地方啟用工具提示框
         // checkPopup();                                       // 確認自己是否為彈出視窗 
         load_init(false);
-        // p2_init(true);
     })

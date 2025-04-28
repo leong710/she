@@ -12,14 +12,10 @@
         $uri      .= $_SERVER['HTTP_HOST'];                                                                // 組合成http_host
         $pc        = $_REQUEST["ip"] = $_SERVER['REMOTE_ADDR'];                                            // 取得user IP
         $check_ip  = check_ip($_REQUEST);                                                                  // 驗證IP權限 // 確認電腦IP是否受認證
-        $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : "";      // 取出$_session引用
-
+        $sys_role = (isset($_SESSION[$sys_id]["role"])) ? $_SESSION[$sys_id]["role"] : "";                 // 取出$_session引用
         $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
         // $notify_lists    = notify_list();                                                                  // 載入所有待簽名單
-
         $reloadTime = (file_exists("reloadTime.txt")) ? file_get_contents("reloadTime.txt") : "";       // 從文件加载reloadTime内容
-
-
 
     // 編輯功能
     if(isset($_POST["deleteLog"])){ deleteLog($_REQUEST); }                     // 刪除整大串
@@ -56,14 +52,8 @@
         }
     // <!-- 20211215分頁工具 -->
 
-    // echo "<pre>";
-        // print_r($row_lists_div);
-    // echo "</pre>";
-
-
     include("../template/header.php"); 
     include("../template/nav.php"); 
-
 ?>
 
 <head>
@@ -462,7 +452,7 @@
                 <div class="col-12 bg-white border rounded py-2 my-0" id="notifyResult"></div>
                 <div class="row">
                     <div class="col-6 col-md-4">
-                        <?php echo ($sys_role == 0) ? "* [管理者]" : "* [路人]";
+                        <?php echo ($sys_role == 0) ? "* [Administrator]" : "* [Anonymous]";
                                 echo ($check_ip ? " V ":" X ")." ".$pc; ?>
                     </div>
                     <div class="col-6 col-md-4 text-center">
@@ -493,19 +483,15 @@
 <script src="../../libs/aos/aos.js"></script>
 <script src="../../libs/aos/aos_init.js"></script>
 <script src="../../libs/sweetalert/sweetalert.min.js"></script>
-<script src="../../libs/openUrl/openUrl.js?v=<?=time();?>"></script>           <!-- 彈出子畫面 -->
+<script src="../../libs/openUrl/openUrl.js"></script>           <!-- 彈出子畫面 -->
 <script>
     // init
     const uri       = '<?=$uri?>';
-    // const fun       = '<=$fun?>';                                  // 是否自動啟動寄送信件給人員 // 改用getUrlParm()取得
     const check_ip  = '<?=$check_ip?>';
-
     const reload_time = document.getElementById('reload_time');
-
     var bpm         = {};
     var doc_lists   = {};
     var notifyLists = {};
-
     const userInfo = {
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
@@ -513,11 +499,9 @@
         'cname'    : '<?=$auth_cname?>',
         'signCode' : '<?=$auth_sign_code?>',
     }
-
 </script>
-<!-- change 要新載入 -->
-<script src="../change/change_notify.js?v=<?=time()?>"></script>
-<script src="notify.js?v=<?=time()?>"></script>
-<script src="notify_p3.js?v=<?=time()?>"></script>
+<script src="../change/change_notify.js"></script>
+<script src="notify.js"></script>
+<script src="notify_p3.js"></script>
 
 <?php include("../template/footer.php"); ?>
