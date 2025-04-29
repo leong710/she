@@ -13,7 +13,8 @@
     }
 
     $fun       = (!empty($_REQUEST['fun'])) ? $_REQUEST['fun'] : false ;                               // 先抓操作功能'notify_insign'= MAPP待簽發報 // 確認有帶數值才執行
-    $reloadTime = (file_exists("reloadTime.txt")) ? file_get_contents("reloadTime.txt") : "";       // 從文件加载reloadTime内容
+    $p1reloadTime = (file_exists("p1reloadTime.txt")) ? file_get_contents("p1reloadTime.txt") : "";       // 從文件加载p1reloadTime内容
+    $p2reloadTime = (file_exists("p2reloadTime.txt")) ? file_get_contents("p2reloadTime.txt") : "";       // 從文件加载p2reloadTime内容
 
     include("../template/header.php");
     include("../template/nav.php"); 
@@ -159,33 +160,31 @@
                         <div class="col-12 bg-white">
                             <!-- eChart圖表元素 2/3 -->
                             <div class="row px-3 py-1" id="p1chart_div">
-                                <!-- p1-head -->
-                                <span class="badge bg-c-blue w-100 title">--&nbsp;P1&nbsp;--</span>
-                                <!-- p1-body -->
                                 <div class="col-12 px-0 py-1" id="p1Body">
                                     <!-- 廠區燈號欄 append p1map here -->
-                                        <!-- 測試曲線圖1 -->
-                                        <div class="rounded wave_div">
-                                            <div class="waveform">
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                                <div class="bar"></div>
-                                            </div>
+                                    <!-- 測試曲線圖1 -->
+                                    <div class="rounded wave_div">
+                                        <div class="waveform">
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
                                         </div>
+                                    </div>
                                 </div>
                             </div>
-
                             <hr>
                             <!-- 20231108-資料更新時間 -->
                             <div class="col-12 p-0 text-end inb">
-                                <span><button type="button" class="btn btn-outline-success add_btn" onclick="dashboard_init(true)" data-toggle="tooltip" data-placement="bottom" title="強制更新" 
-                                        <?php echo ($sys_role <= 1 && isset($sys_role)) ? "":"disabled";?> > <i class="fa-solid fa-rotate"></i></button>&nbsp;Last reload time：</span>
-                                <span id="reload_time" title="" ><?php echo $reloadTime;?> </span>
+                                <?php if ($sys_role <= 1 && isset($sys_role)){ ?>
+                                    <span><button type="button" class="btn btn-outline-success btn-sm add_btn" onclick="drawEchart1(true)" 
+                                        data-toggle="tooltip" data-placement="bottom" title="強制更新" > <i class="fa-solid fa-rotate"></i></button>&nbsp;</span>
+                                <?php };?>
+                                <span>Last reload time：</span><span id="p1reloadTime" title="" ><?php echo $p1reloadTime;?></span>
                             </div>
                         </div>
                     </div>
@@ -207,6 +206,15 @@
                                         <div class="bar"></div>
                                     </div>
                                 </div>
+                            </div>
+                            <hr>
+                            <!-- 20231108-資料更新時間 -->
+                            <div class="col-12 p-0 text-end inb">
+                                <?php if ($sys_role <= 1 && isset($sys_role)){ ?>
+                                    <span><button type="button" class="btn btn-outline-success btn-sm add_btn" onclick="drawEchart2(true)" 
+                                        data-toggle="tooltip" data-placement="bottom" title="強制更新" > <i class="fa-solid fa-rotate"></i></button>&nbsp;</span>
+                                <?php };?>
+                                <span>Last reload time：</span><span id="p2reloadTime" title="" ><?php echo $p2reloadTime;?></span>
                             </div>
                         </div>
                     </div>
@@ -300,14 +308,7 @@
         </div>
     </div>
     <!-- toast -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="liveToast" class="toast align-items-center bg-warning" role="alert" aria-live="assertive" aria-atomic="true" autohide="true" delay="1000">
-            <div class="d-flex">
-                <div class="toast-body" id="toast-body"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
+    <div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
     <div id="gotop">
         <i class="fas fa-angle-up fa-2x"></i>
     </div>
@@ -315,6 +316,6 @@
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
 <script src="_change.js"></script>
-<script src="dashboard.js"></script>
+<script src="dashboard.js?V=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>

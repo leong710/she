@@ -93,9 +93,11 @@
 
             case 'urt':       // 2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
                 $parm_arr = explode(",", $parm);    // 將參數parm炸成陣列：0= 要抓的對象； 1= true/false 是否輸出更新json檔
-                $rightNow = $parm_arr[0];
-                if($parm_arr[1]){                   // 判斷是否更新
-                    $filename = "reloadTime.txt";
+                $targetTimeId = $parm_arr[0];
+                $rightNow     = $parm_arr[1];
+                $action       = $parm_arr[2];
+                if($action){                   // 判斷是否更新
+                    $filename = "{$targetTimeId}.txt";
                     $rt = fopen($filename,"w");     // 寫入新的資料
                     fputs($rt, $rightNow);
                     fclose($rt);

@@ -7,12 +7,31 @@
         alertPlaceholder.append(wrapper)
     }
     // Bootstrap 吐司顯示字條
-    function inside_toast(sinn){
-        var toastLiveExample = document.getElementById('liveToast');
-        var toast = new bootstrap.Toast(toastLiveExample);
-        var toast_body = document.getElementById('toast-body');
-        toast_body.innerHTML = sinn;
-        toast.show();
+    function inside_toast(sinn, delayTime, type){
+        if(sinn){
+            delayTime = delayTime ?? 3000;
+            type      = type ?? 'warning';
+            // 創建一個新的 toast 元素
+            var newToast = document.createElement('div');
+                newToast.className = 'toast align-items-center bg-'+type;
+                newToast.setAttribute('role', 'alert');
+                newToast.setAttribute('aria-live', 'assertive');
+                newToast.setAttribute('aria-atomic', 'true');
+                newToast.setAttribute('autohide', 'true');
+                newToast.setAttribute('delay', delayTime);
+                // 設置 toast 的內部 HTML
+                newToast.innerHTML = `<div class="d-flex"><div class="toast-body ${(type == 'success' ? 'text-white':'')}">${sinn}</div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+            // 將新 toast 添加到容器中
+            document.getElementById('toastContainer').appendChild(newToast);
+            // 初始化並顯示 toast
+            var toast = new bootstrap.Toast(newToast);
+            toast.show();
+            // 選擇性地，在 toast 隱藏後將其從 DOM 中移除
+            newToast.addEventListener('hidden.bs.toast', function () {
+                newToast.remove();
+            });
+        }
     }
     // 0-0.多功能擷取fun 新版改用fetch
     async function load_fun(fun, parm, myCallback) { // parm = 參數
@@ -44,37 +63,45 @@
         }
     }
     // 0-1.確認是否超過3小時；true=_db/更新時間；false=_json          // 呼叫來源：p2chart_init
-    function check3hourse(action){
+    function check3hourse(targetTimeId, action){
         return new Promise((resolve) => { 
+            const targetTimeDiv = document.getElementById(targetTimeId);
+            const targetTime_innerText = targetTimeDiv.innerText;
+            if(targetTime_innerText == undefined) resolve('_db');
+
             let currentDate = new Date();                               // 取得今天日期時間
-            let reloadTime  = new Date(reload_time.innerText);          // 取得reloadTime時間
+            let reloadTime  = new Date(targetTime_innerText);           // 取得reloadTime時間
     
             let timeDifference = currentDate - reloadTime;              // 計算兩個時間之間的毫秒差異
             let hoursDifference = timeDifference / (1000 * 60 * 60);    // 將毫秒差異轉換為小時數
             let result = hoursDifference >= 3 ;                         // 判斷相差時間是否大於3小時，並顯示結果
             let _method = result ? '_db' : '_json';
             if(result || action){
-                recordTime();       // 1.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
+                recordTime(targetTimeId);       // 1.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間
+                inside_toast(`--- ${targetTimeId}時間更新 ~`)
             }
             const _title = ('時間差：'+ Number(hoursDifference.toFixed(2)) +'（小時）>= 3小時：'+ result +' => '+ _method);
-            document.getElementById('reload_time').title = _title;
+            targetTimeDiv.title = _title;
 
             // 文件載入成功，resolve
             resolve(_method);
         });
     }
     // 0-2.取得目前時間，並格式化；2.更新reloadTime.txt時間；完成後=>3.更新畫面上reload_time時間          // 呼叫來源：check3hourse
-    async function recordTime(){
+    async function recordTime(targetTimeId){
         let rightNow = new Date().toLocaleString('zh-TW', { hour12: false });                     // 取得今天日期時間
         try {
-            await load_fun('urt' , rightNow+', true' , update_reloadTime);      
+            const updateTime = await load_fun('urt' , `${targetTimeId}, ${rightNow}, true` , 'return');
+            update_reloadTime(targetTimeId, updateTime);
+            
         } catch (error) {
             console.error(error);
         }
     }
     // 0-3.更新畫面上reload_time時間                  // 呼叫來源：recordTime
-    function update_reloadTime(rightNow){
-        reload_time.innerText = rightNow;       // 更新畫面上reload_time時間
+    function update_reloadTime(targetTimeId, updateTime){
+        const targetTimeDiv = document.getElementById(targetTimeId);
+        targetTimeDiv.innerText = updateTime;       // 更新畫面上reload_time時間
     }
 
 // // // 
@@ -99,13 +126,13 @@
         });
     }
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-    async function drawEchart1() {
+    async function drawEchart2(action) {
         // // S.0 防止重複畫圖...
-            const eChart1_div = document.querySelector('#eChart1');
-            if(eChart1_div !== null) return;
+            if (!action && document.querySelector('#eChart2') !== null) return;
         // // S.1 取得資料
-            const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
-            const _method = await check3hourse(action);                                                 // _db/_json
+            // const action = false;                                                                    // 模擬更新狀態：false=被動/true=強迫
+            action = action ?? false;
+            const _method = await check3hourse('p2reloadTime', action);                                 // _db/_json
             const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
             // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
             const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
@@ -124,7 +151,7 @@
             const maxDataValue = Math.max(...i_value);
             const yMaxValue = Math.round(maxDataValue * 1.2);   // 設定Y軸最大值1.2倍 + 四捨五入取整數
         // // S.4 定義圖表外框並貼上 
-            const temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="eChart1"></div>';
+            const temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="eChart2"></div>';
             $('#p2chart_div').empty().append(temp_div);
         // 指定图表的配置项和数据
         var option = {
@@ -190,28 +217,28 @@
             ]
         };
         // 基于准备好的dom，初始化echarts实例
-        var eChart1 = echarts.init(document.getElementById('eChart1'));
+        var eChart2 = echarts.init(document.getElementById('eChart2'));
         // 使用刚指定的配置项和数据显示图表。
-        eChart1.setOption(option);
+        eChart2.setOption(option);
         // // 監聽窗口大小改變事件，調整圖表的大小
-        charts.push(eChart1);
+        charts.push(eChart2);
         addResizeListener(); // 添加監聽器
     }
     // <!-- 在JavaScript中繪製堆疊圖 3/3-->
-    async function drawEchart2() {
+    async function drawEchart1(action) {
         // // S.0 防止重複畫圖...
-        const eChart2_div = document.querySelector('#eChart2');
-        if(eChart2_div !== null) return;
+        if (!action && document.querySelector('#eChart1') !== null) return;
         // // S.1 取得資料
-        const action = false;                                                                       // 模擬更新狀態：false=被動/true=強迫
-        const _method = await check3hourse(action);                                                 // _db/_json
+        // const action = false;                                                                    // 模擬更新狀態：false=被動/true=強迫
+        action = action ?? false;
+        const _method = await check3hourse('p1reloadTime', action);                                 // _db/_json
         const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
         // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
         const _shLocalDepts = await load_fun(_type, '_shLocalDepts, true', 'return');               // step.1 提取變更部門清單
         const currentYear = String(new Date().getFullYear());   // 取得當前年份
         const result = await preProcess_staff(_shLocalDepts, currentYear, _type);                   // step.2 從step1整理出inCare在指定年份的名單 // 這裡要改成活的數值
         // // S.4 定義圖表外框並貼上 
-        const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart2"></div>';
+        const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart1"></div>';
         $('#p1chart_div').empty().append(temp_div);
         // 指定图表的配置项和数据
         var option = {
@@ -294,11 +321,11 @@
             ]
         };
         // 基于准备好的dom，初始化echarts实例
-        var eChart2 = echarts.init(document.getElementById('eChart2'));
+        var eChart1 = echarts.init(document.getElementById('eChart1'));
         // 使用刚指定的配置项和数据显示图表。
-        eChart2.setOption(option);
+        eChart1.setOption(option);
         // // 監聽窗口大小改變事件，調整圖表的大小
-        charts.push(eChart2);
+        charts.push(eChart1);
         addResizeListener(); // 添加監聽器
     }
     // 250422 定義監聽窗口大小改變事件，調整所有圖表的大小
@@ -325,7 +352,7 @@
         navP2tabClickListener = async function () {
             mloading(); 
             try {
-                await drawEchart1();
+                await drawEchart2();
             } catch (error) {
                 console.error(error);
             }
@@ -349,7 +376,7 @@
             $('[data-toggle="tooltip"]').tooltip();
         // ready.2 產生警告橫幅
             make_balert();
-            await drawEchart2();
+            await drawEchart1();
         // ready.3 定義nav-tab [nav-p2-tab]鈕功能，並建立監聽
             reload_navTab_Listeners();
     })
