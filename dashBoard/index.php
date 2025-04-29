@@ -180,7 +180,7 @@
                             <hr>
                             <!-- 20231108-資料更新時間 -->
                             <div class="col-12 p-0 text-end inb">
-                                <?php if ($sys_role <= 1 && isset($sys_role)){ ?>
+                                <?php if(isset($sys_role) && $sys_role <= 1 && $sys_role > -1 ){ ?>
                                     <span><button type="button" class="btn btn-outline-success btn-sm add_btn" onclick="drawEchart1(true)" 
                                         data-toggle="tooltip" data-placement="bottom" title="強制更新" > <i class="fa-solid fa-rotate"></i></button>&nbsp;</span>
                                 <?php };?>
@@ -210,7 +210,7 @@
                             <hr>
                             <!-- 20231108-資料更新時間 -->
                             <div class="col-12 p-0 text-end inb">
-                                <?php if ($sys_role <= 1 && isset($sys_role)){ ?>
+                                <?php if(isset($sys_role) && $sys_role <= 1 && $sys_role > -1 ){ ?>
                                     <span><button type="button" class="btn btn-outline-success btn-sm add_btn" onclick="drawEchart2(true)" 
                                         data-toggle="tooltip" data-placement="bottom" title="強制更新" > <i class="fa-solid fa-rotate"></i></button>&nbsp;</span>
                                 <?php };?>
