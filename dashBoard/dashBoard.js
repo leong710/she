@@ -238,7 +238,7 @@
         const currentYear = String(new Date().getFullYear());   // 取得當前年份
         const result = await preProcess_staff(_shLocalDepts, currentYear, _type);                   // step.2 從step1整理出inCare在指定年份的名單 // 這裡要改成活的數值
         // // S.4 定義圖表外框並貼上 
-        const temp_div = '<div class="col-12 border rounded bg-white p-1 my-2" style="height: 300px;" id="eChart1"></div>';
+        const temp_div = '<div class="col-12 border rounded bg-white p-1" style="height: 300px;" id="eChart1"></div>';
         $('#p1chart_div').empty().append(temp_div);
         // 指定图表的配置项和数据
         var option = {
