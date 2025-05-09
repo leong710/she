@@ -2,49 +2,9 @@
     require_once("../user_info.php");
     $webroot = "..";
 ?>
-<style>
-    .app-header {
-        position: relative;
-        -ms-flex-direction: row;
-        flex-direction: row;
-        height: 55px;
-        padding: 0;
-        margin: 0;
-        background-color: #fff;
-        border-bottom: 1px solid #c8ced3;
-    }
-    .app-header .nav-item {
-        position: relative;
-        min-width: 50px;
-        margin: 0;
-        text-align: center;
-        color: #7d7d7d;
-    }
-    .app-header .nav-item .nav-link {
-        padding-top: 1;
-        padding-bottom: 0;
-        background: 0;
-        border: 0;
-    }
-    .navbar-nav .nav-link {
-        padding-right: 0;
-        padding-left: 0;
-        color: #73818f;
-    }
-    .sysTitle {
-        font-weight: bold;
-        font-size: 20px;
-        margin-top: -5px;
-    }
-    .h6, h6 {
-        margin-bottom: .5rem;
-        font-family: inherit;
-        font-weight: 500;
-        line-height: 1.2;
-        color: inherit;
-        font-size: .875rem;
-    }
-</style>
+<head>
+    <link href="../template/nav.css" rel="stylesheet">
+</head>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light app-header ">
     <div class="container-fluid">
@@ -100,10 +60,6 @@
                                     <li><a class="dropdown-item" href="<?php echo $webroot;?>/local/"><i class="fa-solid fa-location-dot"></i>&nbsp;廠區清單管理</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item " href="<?php echo $webroot;?>/balert/"><i class="fa-solid fa-bell"></i>&nbsp;橫幅警語管理</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/notify/"><i class="fa-solid fa-comment-sms"></i>&nbsp;發報記錄管理</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item disabled" href="<?php echo $webroot;?>/pickup/"><i class="fa-brands fa-stack-overflow"></i>&nbsp;<b>名單總匯整</b></a></li>
                                 </ul>
                             </li>
                         <?php }

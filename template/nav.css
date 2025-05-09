@@ -1,0 +1,41 @@
+.app-header {
+    position: relative;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    height: 55px;
+    padding: 0;
+    margin: 0;
+    background-color: #fff;
+    border-bottom: 1px solid #c8ced3;
+}
+.app-header .nav-item {
+    position: relative;
+    min-width: 50px;
+    margin: 0;
+    text-align: center;
+    color: #7d7d7d;
+}
+.app-header .nav-item .nav-link {
+    padding-top: 1;
+    padding-bottom: 0;
+    background: 0;
+    border: 0;
+}
+.navbar-nav .nav-link {
+    padding-right: 0;
+    padding-left: 0;
+    color: #73818f;
+}
+.sysTitle {
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: -5px;
+}
+.h6, h6 {
+    margin-bottom: .5rem;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.2;
+    color: inherit;
+    font-size: .875rem;
+}

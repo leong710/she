@@ -96,7 +96,7 @@
                 $targetTimeId = $parm_arr[0];
                 $rightNow     = $parm_arr[1];
                 $action       = $parm_arr[2];
-                if($action){                   // 判斷是否更新
+                if($action){                        // 判斷是否更新
                     $filename = "{$targetTimeId}.txt";
                     $rt = fopen($filename,"w");     // 寫入新的資料
                     fputs($rt, $rightNow);

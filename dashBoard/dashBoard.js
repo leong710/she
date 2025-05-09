@@ -156,8 +156,8 @@
         // 指定图表的配置项和数据
         var option = {
             title: {
-                text: `特殊危害健康作業場所統計${_method}`,  // 1.主標題
-                subtext: '件數統計'                         // 2.Y軸標題
+                text: `特殊危害健康作業場所統計`,           // 1.主標題
+                subtext: '件數統計'                        // 2.Y軸標題
             },
             tooltip: {
                 trigger: 'axis',
@@ -243,7 +243,7 @@
         // 指定图表的配置项和数据
         var option = {
             title: {
-                text: `變更作業健檢統計${_method}`,  // 1.主標題
+                text: `變更作業健檢統計`,                   // 1.主標題
                 subtext: '統計件數'                         // 2.Y軸標題
             },
             tooltip: {

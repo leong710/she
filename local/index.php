@@ -36,10 +36,9 @@
     if(isset($_GET["make_server_window"])){ make_server_window($fabs); }
     $sw_arr = (array) json_decode($sw_json);                // service window 物件轉陣列
 
+    include("../template/header.php");
+    include("../template/nav.php"); 
 ?>
-<?php include("../template/header.php"); ?>
-<?php include("../template/nav.php"); ?>
-
 <head>
     <script src="../../libs/jquery/jquery.min.js" referrerpolicy="no-referrer"></script>
     <link href="../../libs/aos/aos.css" rel="stylesheet">
@@ -182,7 +181,7 @@
                                         <?php foreach($fabs as $fab){ ?>
                                             <tr>
                                                 <td style="font-size: 12px;"><?php echo $fab['id']; ?></td>
-                                                <td class="text-start"><?php echo $fab['site_id']."_".$fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
+                                                <td class="text-start"><?php echo $fab['site_title']." (".$fab['site_remark'].")"; if($fab["site_flag"] == "Off"){ ?><sup class="text-danger">-已關閉</sup><?php }  ?></td>
                                                 <td class="text-start"><?php echo $fab['fab_title']." (".$fab['fab_remark'].")"; ?></td>
                                                 <td class="text-center"><?php echo $fab['BTRTL']; ?></td>
                                                 <td class="text-center"><?php echo $fab['osha_id']; ?></td>
@@ -328,7 +327,7 @@
                                         <?php foreach($sites as $site){ 
                                             echo "<option value='".$site["id"]."' ";
                                             echo ($site["flag"] == "Off") ? "hidden":"";
-                                            echo " >".$site["id"]."_".$site["site_title"]."(".$site["site_remark"].")"; 
+                                            echo " >".$site["site_title"]."(".$site["site_remark"].")"; 
                                             echo ($site["flag"] == "Off") ? ' -- 已關閉':'';
                                             echo '</option>';
                                         } ?>
@@ -394,7 +393,7 @@
                                             <span class="form-label">flag/顯示開關：</span>
                                         </td>
                                         <td style="text-align: left;">
-                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" >&nbsp;
+                                            <input type="radio" name="flag" value="On" id="edit_fab_On" class="form-check-input" checked >&nbsp;
                                             <label for="edit_fab_On" class="form-check-label">On</label>
                                         </td>
                                         <td style="text-align: left;">
