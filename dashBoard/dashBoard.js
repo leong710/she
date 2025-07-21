@@ -136,7 +136,9 @@
             const _type = action ?  "_db" : _method;                                                    // action來決定 false=自動判斷check3hourse 或 true=強制_db
             // load_fun 先抓json，沒有then抓db(true/false 輸出json檔)
             const _shLocal = await load_fun(_type, '_shLocal, true' , 'return');                        // step.1 取得_shLocal(load_shLocal_OSHORTs)內容
+            console.log('_shLocal =>',_shLocal)
             const _OSHORTsObj = await process_p2dB1(_shLocal);                                          // step.1a 統計_shLocal內容
+            console.log('_OSHORTsObj =>',_OSHORTsObj)
         // // S.2 定義一個數據陣列for繪圖用 {role: 'annotation'} == 資料標籤
             var i_title = [];
             var i_value = [];

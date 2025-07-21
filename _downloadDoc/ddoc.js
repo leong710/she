@@ -140,11 +140,13 @@
     document.addEventListener('DOMContentLoaded', async function() {
         mloading(); 
         
-        const parm = await step1();                     // step1.提取URL參數
+        const parm         = await step1();             // step1.提取URL參數
         const _changeStaff = await step2(parm);         // step2.取得員工資料、提取指定月份資料、撈取部門資料、合併整理、返回精簡值
-        const result = await step3(_changeStaff);       // step3.渲染數值
+        const result       = await step3(_changeStaff); // step3.渲染數值
+        
         if(result){
             document.title += `_${_changeStaff.cname}`; // 訂製檔案名稱加上cname
+            alert("提醒您：請務必將列印選項中勾選[背景圖形]。");
             window.print();                             // 列印畫面...記得打開!!
         }
         
