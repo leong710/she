@@ -105,7 +105,18 @@
     }
 
 // // // 
-
+    // 計算視窗寬度，返回bar的寬度
+    function calculateBarWidth(containerWidth) {
+        if (containerWidth < 600) {
+            return '10%'; // 較小螢幕用較小比例
+        } else if (containerWidth < 900) {
+            return '20%'; // 中等螢幕用中比例
+        } else if (containerWidth < 1080) {
+            return '40%'; // 中等螢幕用中比例
+        } else {
+            return '50px'; // 大螢幕用固定值
+        }
+    }
     // step.1a 統計_shLocal內容，生成dashBoard統計數據1
     function process_p2dB1(_OSHORTsObj){
         return new Promise((resolve) => { 
@@ -193,6 +204,7 @@
                     name: 'Placeholder',
                     type: 'bar',
                     stack: 'Total',
+                    barWidth: calculateBarWidth(window.innerWidth),
                     itemStyle: {
                         borderColor: 'transparent',
                         color: 'transparent'
@@ -209,6 +221,7 @@
                     name: '特作件數',
                     type: 'bar',
                     stack: 'Total',
+                    barWidth: calculateBarWidth(window.innerWidth),
                     label: {
                         show: true,
                         position: 'inside'
@@ -276,6 +289,7 @@
                 name: '已完成',
                 type: 'bar',
                 stack: 'total',
+                barWidth: calculateBarWidth(window.innerWidth),
                 label: {
                   show: true
                 },
@@ -288,6 +302,7 @@
                 name: '等待中-7天內',
                 type: 'bar',
                 stack: 'total',
+                barWidth: calculateBarWidth(window.innerWidth),
                 label: {
                   show: true
                 },
@@ -300,6 +315,7 @@
                 name: '等待中-7天以上',
                 type: 'bar',
                 stack: 'total',
+                barWidth: calculateBarWidth(window.innerWidth),
                 label: {
                   show: true
                 },
@@ -312,6 +328,7 @@
                 name: '等待中-12天以上',
                 type: 'bar',
                 stack: 'total',
+                barWidth: calculateBarWidth(window.innerWidth),
                 label: {
                   show: true
                 },

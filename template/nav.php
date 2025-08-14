@@ -20,7 +20,7 @@
         <ul class="navbar-nav me-auto sysTitle">
             <li class="nav-item px-1">
                 <a class="nav-link" href="<?php echo $webroot;?>/" class="p-0">特殊健檢系統(SHE)</a>
-                <h6 id="hFullName">Special Health Examination</h6>
+                <h6 id="hFullName" class="d-none d-lg-block">Special Health Examination</h6>      <!-- 僅在大螢幕上顯示 -->
             </li>
         </ul>
 

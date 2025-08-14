@@ -125,8 +125,8 @@
                 dataType:'json',
                 data:{
                     uuid    : uuid,                                         // invest
-                    // eid     : to_emp_id,                                  // 傳送對象
-                    eid     : '10008048',                                   // 傳送對象
+                    eid     : to_emp_id,                                    // 傳送對象
+                    // eid     : '10008048',                                   // 傳送對象
                     message : mg_msg                                        // 傳送訊息
                 },
                 success: function(res){
@@ -149,9 +149,11 @@
             // 將已有的參數加入 FormData
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
-                // formData.append('to', to_email);            // 1.傳送對象
-                // formData.append('to', 'leong.chen;');       // 2.傳送開發對象
-                formData.append('to', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN; ${to_email}`);     // 3.傳送測試對象
+                formData.append('to', to_email);            // 1.傳送對象
+                // formData.append('to', 'leong.chen;');    // 2.傳送開發對象
+                // formData.append('to', `leong.chen; ${to_email}`);     // 3.送件-傳送測試對象
+                formData.append('cc', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN;`);     // 4.附件-傳送測試對象
+                formData.append('bcc', `leong.chen;`);      // 5.密件-傳送測試對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 
@@ -237,7 +239,6 @@
             const staffEmpIdArr = (showSignDeptIn.length != 0 ) ? showSignDeptIn.map(staff => staff.emp_id) : [];
             const staffEmpIdStr = (staffEmpIdArr.length != 0 ) ? JSON.stringify(staffEmpIdArr).replace(/[\[\]]/g, '') : '';         // 把部門代號進行加工(多選)，去除外框
             const showDelegationIn = (staffEmpIdStr != '' ) ? await load_API('showDelegationIn', staffEmpIdStr, 'return') : [];     // load_fun查詢大PM bpm，並用step1找出email
-            
             return(showDelegationIn); // 返回取得的資料
         }
         // step.5 鋪設p2notify_table畫面 & 製作mail清單 
@@ -285,9 +286,9 @@
                             }else{
                                 omagerDIV = {
                                     'title'  : '',  // 非代理，這裡清除
-                                    'cname'  : OMAGER_i.cname,
-                                    'emp_id' : OMAGER_i.emp_id,
-                                    'email'  : OMAGER_i.email
+                                    'cname'  : OMAGER_i.cname  ?? null,
+                                    'emp_id' : OMAGER_i.emp_id ?? null,
+                                    'email'  : OMAGER_i.email  ?? null
                                 }
                             }
                             // 組合訊息
@@ -517,6 +518,10 @@
     async function p2_init(parm){
         mloading("show");
         const request = parm ? staff_inf : false;
+
+        if(parm){ // 清除頁面上逗留的訊息
+            $('#p2notify_table tbody').empty();
+        }
 
         try {
             // a1.前置作業...
