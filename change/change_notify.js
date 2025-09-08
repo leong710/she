@@ -152,7 +152,7 @@
                 formData.append('to', to_email);            // 1.傳送對象
                 // formData.append('to', 'leong.chen;');    // 2.傳送開發對象
                 // formData.append('to', `leong.chen; ${to_email}`);     // 3.送件-傳送測試對象
-                formData.append('cc', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN;`);     // 4.附件-傳送測試對象
+                // formData.append('cc', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN;`);     // 4.附件-傳送測試對象
                 formData.append('bcc', `leong.chen;`);      // 5.密件-傳送測試對象
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容

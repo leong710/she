@@ -28,7 +28,7 @@
                                 FROM `_users` u
                                 LEFT JOIN `_fab` f ON FIND_IN_SET(u.emp_id, f.pm_emp_id) > 0 AND f.flag = 'On'
                                 WHERE u.user = ? 
-                                GROUP BY u.emp_id;";
+                                GROUP BY u.emp_id ";
                         $stmt = $pdo -> prepare($sql);
                         $stmt -> execute([$user]);
                     $sys_local_row = $stmt -> fetch(PDO::FETCH_ASSOC);
