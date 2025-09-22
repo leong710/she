@@ -679,6 +679,7 @@
         'role'     : '<?=$sys_role?>',
         'BTRTL'    : ('<?=$sys_BTRTL?>').split(','),     // 人事子範圍-建物代號
         'empId'    : '<?=$auth_emp_id?>',
+        'user'     : '<?=$auth_user?>',
         'cname'    : '<?=$auth_cname?>',
         'signCode' : '<?=$auth_sign_code?>',
     }

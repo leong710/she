@@ -150,10 +150,14 @@
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
                 formData.append('to', to_email);            // 1.傳送對象
-                // formData.append('to', 'leong.chen;');    // 2.傳送開發對象
                 // formData.append('to', `leong.chen; ${to_email}`);     // 3.送件-傳送測試對象
                 // formData.append('cc', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN;`);     // 4.附件-傳送測試對象
-                formData.append('bcc', `leong.chen;`);      // 5.密件-傳送測試對象
+                if(userInfo.user !== undefined) {
+                    formData.append('cc', `${userInfo.user};`); // 4.副件-傳送寄件人(操作人)
+                    formData.append('bcc', `leong.chen;`);      // 5.密件-傳送-管理員
+                }else{
+                    formData.append('cc', `leong.chen;`);       // 4.副件-傳送-管理員
+                }
                 formData.append('subject', int_msg1_title); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 
