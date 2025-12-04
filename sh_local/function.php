@@ -196,6 +196,8 @@
         );
         $OSHORT = trim($OSHORT);
         $HE_CATE_str = json_encode($HE_CATE, JSON_UNESCAPED_UNICODE);  // 中文不編碼
+        $AVG_VOL = (in_array($AVG_VOL, ["","NA","na","null"])) ? null : $AVG_VOL;   // 強迫轉型
+        $AVG_8HR = (in_array($AVG_8HR, ["","NA","na","null"])) ? null : $AVG_8HR;   // 強迫轉型
         $sql = "INSERT INTO _shlocal( OSHORT, OSTEXT_30, OSTEXT, HE_CATE, AVG_VOL,   AVG_8HR, MONIT_NO, MONIT_LOCAL, WORK_DESC, flag,   updated_cname, updated_at, created_at )
                 VALUES(?,?,?,?,?,  ?,?,?,?,?,  ?,now(),now())";
         $stmt = $pdo->prepare($sql);
@@ -239,6 +241,8 @@
         );
         $OSHORT = trim($OSHORT);
         $HE_CATE_str = json_encode($HE_CATE, JSON_UNESCAPED_UNICODE);
+        $AVG_VOL = (in_array($AVG_VOL, ["","NA","na","null"])) ? null : $AVG_VOL;   // 強迫轉型
+        $AVG_8HR = (in_array($AVG_8HR, ["","NA","na","null"])) ? null : $AVG_8HR;   // 強迫轉型
         $sql = "UPDATE _shlocal
                 SET OSHORT=?, OSTEXT_30=?, OSTEXT=?, HE_CATE=?, AVG_VOL=?,   AVG_8HR=?, MONIT_NO=?, MONIT_LOCAL=?, WORK_DESC=?, flag=?,   updated_cname=?, updated_at=now()
                 WHERE id=? ";

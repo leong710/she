@@ -35,7 +35,7 @@
                 "idty"          : "2",
                 "approvalStep"  : "工作維護",
                 "remark"        : "勾選特危、填暴露時數",
-                "group"         : "課副理,ESH工安",
+                "group"         : "ESH工安,製造廠",
                 "edit"          : true,
                 "returnTo"      : false,
                 "approveTo"     : false
@@ -43,8 +43,8 @@
         "3" : {
                 "idty"          : "3",
                 "approvalStep"  : "名單送審",
-                "remark"        : "100%的名單按下送審，將鎖定不可編輯",
-                "group"         : "課副理,護理師",
+                "remark"        : "製造廠課副理可編輯時數，100%的名單按下送審後將鎖定不可編輯",
+                "group"         : " 製造廠主管,ESH",
                 "edit"          : false,
                 "returnTo"      : "2",
                 "approveTo"     : "4"

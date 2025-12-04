@@ -44,9 +44,12 @@
     // eh_time：每日暴露時數(t)、 avg_vol：均能音量(dBA)、 avg_8hr：工作日八小時平均音值(dBA)
     // 樣本編號（A）換算Dose≧50% ； 樣本編號（B）八小時平均音值(dBA)≧50
     function checkNoise(eh_time, avg_vol, avg_8hr) {
-        // 防呆1.確認數值使否有效+強迫轉數字
-            avg_vol = (Number.isFinite(Number(avg_vol)) && (avg_vol !== '' && avg_vol !== false)) ? Number(avg_vol) : false;
-            avg_8hr = (Number.isFinite(Number(avg_8hr)) && (avg_8hr !== '' && avg_8hr !== false)) ? Number(avg_8hr) : false;
+        // 防呆1.強迫轉數字
+            avg_vol = Number(avg_vol);
+            avg_8hr = Number(avg_8hr);
+        // 防呆2.確認數值使否有效
+            avg_vol = (Number.isFinite(avg_vol) && avg_vol !== '') ? avg_vol : false;
+            avg_8hr = (Number.isFinite(avg_8hr) && avg_8hr !== '') ? avg_8hr : false;
         // 定義預設值
         const result = {
             aSample : '不適用',
@@ -66,7 +69,6 @@
             result.cCheck = '否';
         }
 
-        console.log('checkNoise_result',result)
         return result;
     }
     // 240906 check fun-2 驗證[新進特殊]是否符合   // 241030--特檢資格串接3_newOne

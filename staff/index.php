@@ -274,7 +274,7 @@
                                 <!-- 右側function -->
                                 <div class="col-md-4 py-0 text-end">
                                     <button type="button" class="btn btn-outline-primary add_btn" id="SubmitForReview_btn" data-bs-toggle="modal" data-bs-target="#submitModal" 
-                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交 (Submit)</button>
+                                        value="3" onclick="mk_submitItem(this.value, this.innerHTML);" disabled ><i class="fa-solid fa-paper-plane"></i> 提交名單送審 (Submit)</button>
                                 </div>
                             </div>
                             <hr>
@@ -628,7 +628,7 @@
 </script>
 <script src="../mvc/utility.js"></script>
 <script src="../mvc/excel.js"></script>
-<script src="../mvc/check.js"></script>
+<script src="../mvc/check.js?v=<?=time()?>"></script>
 <script src="../mvc/editModal.js"></script>
 <script src="staff.js"></script>
 <script src="staff_excel.js"></script>

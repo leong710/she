@@ -500,8 +500,8 @@
         'signCode' : '<?=$auth_sign_code?>',
     }
 </script>
-<script src="../change/change_notify.js"></script>
-<script src="notify.js"></script>
-<script src="notify_p3.js"></script>
+<script src="../change/change_notify.js?v=<?=time()?>"></script>
+<script src="notify.js?v=<?=time()?>"></script>
+<script src="notify_p3.js?v=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
