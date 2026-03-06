@@ -215,7 +215,7 @@
                     formData.append('uuid', uuid);          // nurse
                     formData.append('parm', parm);          // 後端依照fun進行parm參數的採用
 
-                let response = await fetch('http://tneship.cminl.oa/api/hrdb/', {
+                let response = await fetch('https://tneship.cminl.oa/api/hrdb/', {
                     method : 'POST',
                     body   : formData
                 });
@@ -395,7 +395,7 @@
         } 
 
         $.ajax({
-            url:'http://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
+            url:'https://tneship.cminl.oa/api/hrdb/index.php',           // 正式2024新版
             method   :'post',
             async    : false,                                           // ajax取得數據包後，可以return的重要參數
             dataType :'json',

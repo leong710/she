@@ -279,7 +279,8 @@
                 });
             });
         // 取emp_i_omager及其他判斷式，來啟閉SubmitForReview_btn
-        SubmitForReview_btn.disabled = !(userInfo.role <= 2.2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停
+        SubmitForReview_btn.disabled = !(userInfo.role <= 2.2 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停...只限2.2siteESH
+        // SubmitForReview_btn.disabled = !(userInfo.role <= 2.5 || emp_i_omager) || (emp_arr.length === 0 || _docsIdty_inf >= 4 );  // 讓 送審 按鈕啟停...只要是2.5ESH
     }
 
 // // phase 2 -- 數據操作函數 (Data Manipulation Functions)
@@ -655,7 +656,8 @@
                     if (uInfo.role <= 1) {
                         return "";
                     } 
-                    if ((uInfo.role == 2 || uInfo.role == 2.2) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {
+                    if ((uInfo.role == 2 || uInfo.role == 2.2) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {       // 只限2.2siteESH
+                    // if ((uInfo.role == 2 || uInfo.role == 2.5) && (uInfo.BTRTL.includes(oValue.BTRTL) || uInfo.BTRTL.includes(iBTRTL))) {    // 只要是2.5ESH
                         return "";
                     } else if ((uInfo.role == 2.5) && (oKey == uInfo.signCode)) {
                         return "";

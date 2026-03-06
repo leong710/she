@@ -630,7 +630,7 @@
 <script src="../mvc/excel.js"></script>
 <script src="../mvc/check.js?v=<?=time()?>"></script>
 <script src="../mvc/editModal.js"></script>
-<script src="staff.js"></script>
+<script src="staff.js?v=<?=time()?>"></script>
 <script src="staff_excel.js"></script>
 <script src="staff_editModal.js"></script>
 <script src="staff_memo.js"></script>

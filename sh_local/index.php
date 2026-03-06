@@ -176,8 +176,8 @@
                                                 <button type="submit" name="submit" class="btn btn-outline-success add_btn" value="shLocal" onclick="downloadExcel(this.value)" ><i class="fa fa-download" aria-hidden="true"></i> 下載</button>
                                             </form>
                                         </div>
-                                        <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
-                                        <button type="button" class="btn btn-primary <?php echo ($sys_role <= 1) ? '':'disabled unblock';?>" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
+                                        <button type="button" id="load_excel_btn"  class="btn btn-outline-primary add_btn <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" data-bs-toggle="modal" data-bs-target="#load_excel"><i class="fa fa-upload" aria-hidden="true"></i> 上傳</button>
+                                        <button type="button" class="btn btn-primary <?php echo ($sys_role <= 2) ? '':'disabled unblock';?>" value="form.php?action=create" onclick="openUrl(this.value)" ><i class="fa fa-plus"></i> 新增</button>
                                     </div>
                                 </div>
                                 <div class="col-12 px-0 py-1">

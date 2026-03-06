@@ -54,7 +54,7 @@
                     formData.append('uuid', uuid);          // nurse
                     formData.append('parm', parm);          // 後端依照fun進行parm參數的採用
 
-                let response = await fetch('http://tneship.cminl.oa/api/hrdb/', {
+                let response = await fetch('https://tneship.cminl.oa/api/hrdb/', {
                     method : 'POST',
                     body   : formData
                 });
@@ -119,14 +119,14 @@
         }
         return new Promise((resolve, reject) => {
             $.ajax({
-                url:'http://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
+                url:'https://tneship.cminl.oa/api/pushmapp/index.php',       // 正式2024新版
                 method:'post',
                 async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data:{
                     uuid    : uuid,                                         // invest
-                    eid     : to_emp_id,                                    // 傳送對象
-                    // eid     : '10008048',                                   // 傳送對象
+                    // eid     : to_emp_id,                                    // 傳送對象
+                    eid     : '10008048',                                   // 傳送對象
                     message : mg_msg                                        // 傳送訊息
                 },
                 success: function(res){
@@ -142,24 +142,25 @@
     // 20240314 將訊息郵件發送給對的人~
     function sendmail(to_email, int_msg1_title, mg_msg){
         if(fun == 'debug'){
-            console.log('debug mode:',to_email, int_msg1_title, mg_msg);
-            return true;
+            console.log('debug mode:');
+            console.log(to_email);
+            console.log(int_msg1_title);
+            console.log( mg_msg);
+            return Promise.resolve(true); // 在 debug 模式也回傳 Promise，保持一致性
         }
         return new Promise((resolve, reject) => {
             var formData = new FormData();  // 創建 FormData 物件
             // 將已有的參數加入 FormData
                 formData.append('uuid', uuid);              // nurse
                 formData.append('sysName', 'SHE');          // 貫名
-                formData.append('to', to_email);            // 1.傳送對象
-                // formData.append('to', `leong.chen`);     // 3.送件-傳送測試對象
-                // formData.append('cc', `leong.chen; vivi.lee; HUIHSU.HSIAO; PINK.TSA; ISHU.LIN;`);     // 4.附件-傳送測試對象
+                // formData.append('to', to_email);            // 1.傳送對象
+                formData.append('to', 'leong.chen');            // 1.傳送對象
                 if(userInfo.user !== undefined) {
-                // formData.append('cc', `${userInfo.user};`);  // 4.副件-傳送寄件人(操作人)
                     formData.append('bcc', `leong.chen;`);      // 5.密件-傳送-管理員
                 }else{
                     formData.append('cc', `leong.chen;`);       // 4.副件-傳送-管理員
                 }
-                console.log(int_msg1_title); 
+                console.log("Subject being sent:", int_msg1_title); // Log 這裡的值
                 formData.append('subject', `${int_msg1_title}`); // 信件標題
                 formData.append('body', mg_msg);            // 訊息內容
 
@@ -170,9 +171,9 @@
                 }
 
             $.ajax({
-                url:'http://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
+                url:'https://tneship.cminl.oa/api/sendmail/index.php',       // 正式 202503可夾檔+html內文
                 method:'post',
-                async: false,                                               // ajax取得數據包後，可以return的重要參數
+                // async: false,                                               // ajax取得數據包後，可以return的重要參數
                 dataType:'json',
                 data: formData,
                 processData: false,                                         // 不處理資料
