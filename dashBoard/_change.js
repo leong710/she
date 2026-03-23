@@ -47,6 +47,9 @@
             // 計算條件 ((_7isCheck === true) && (_9checkDate === '' || _9checkDate === undefined) && (Object.entries(_todo).length !== 0))
             if((_7isCheck === true) && (_9checkDate === '' || _9checkDate === undefined) && (Object.entries(_todo).length !== 0)){
                 // 有資格 & 未完成檢查 & todo進行中 ==> success || warning || danger
+                if(_cNotify.length === 0 ) {
+                    return; // 使用 return 來跳過當前迭代
+                }
                 const { dayDiff, bgClass } = getFirstNotification(_cNotify);      // 取得最早的第一筆通報時間至今的日期差 & 背景色
                 if(bgClass.includes('warning')){
                     countData[empI_OSTEXT_30]['warning']++;
@@ -133,8 +136,8 @@
             resolve(bomNewStaffArr);
         });
     }
-    // 返回最早的第一筆通報數據  (原本在post_staff裡面)
-    function getFirstNotification(notifyArray) {
+    // 返回最早的第一筆通報數據  (原本在post_staff裡面) // 260323 改用下一個新版
+    function getFirstNotification_v0(notifyArray) {
         if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
             return null; // 如果不是陣列或陣列為空，返回 null
         }
@@ -153,6 +156,64 @@
         // 將毫秒轉換為天數，1天 = 24小時 * 60分鐘 * 60秒 * 1000毫秒
         const dayDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
         // 判斷背景樣式  // 超過12天，使用 bg-danger// 超過7天，使用 bg-warning   alert_it
+        const bgClass = dayDiff >= 12 ? 'table-danger' : (dayDiff >= 7 ? 'table-warning' : '');
+
+        return { dayDiff, bgClass };
+    }
+
+    /**
+     * 取得最早的通知，並計算其與今天的天數差，返回天數和對應的 CSS class
+     * @param {Array<Object>} notifyArray - 包含通知物件的陣列，每個物件應有 dateTime 屬性
+     * @returns {Object|null} - 返回 { dayDiff, bgClass } 物件，或在無效輸入時返回 null
+     */
+    function getFirstNotification(notifyArray) {
+        // 防禦性檢查：確保傳入的是一個非空陣列
+        if (!Array.isArray(notifyArray) || notifyArray.length === 0) {
+            // 如果輸入無效，直接返回 null，讓呼叫方去處理
+            return { dayDiff: 0, bgClass: '' }; // 或返回一個預設值，避免後續解構賦值出錯
+        }
+
+        // 【修正 1: 避免副作用】
+        // 使用展開運算子 (...) 或 .slice() 來建立一個新的陣列副本，然後對副本進行排序。
+        // 這樣就不會修改到原始的 notifyArray。
+        const sortedArray = [...notifyArray].sort((a, b) => new Date(a.dateTime) - new Date(b.dateTime));
+
+        // 【增加穩健性】
+        // 檢查排序後的第一個元素及其 dateTime 屬性是否存在
+        const firstNotification = sortedArray[0];
+        if (!firstNotification || !firstNotification.dateTime) {
+            return { dayDiff: 0, bgClass: '' }; // 如果資料格式不對，也返回預設值
+        }
+        
+        const firstNotifyDateStr = firstNotification.dateTime;
+
+        // 【修正 2: 日期處理一致且清晰】
+        // 1. 建立今天的 Date 物件
+        const today = new Date();
+        // 2. 將今天的時間部分設為 0 (當天的開始)
+        today.setHours(0, 0, 0, 0);
+
+        // 3. 建立最早通知的 Date 物件
+        const firstDay = new Date(firstNotifyDateStr);
+        // 4. 同樣將它的時間部分設為 0，這樣才能公平地比較「天數」
+        firstDay.setHours(0, 0, 0, 0);
+
+        // 現在兩個都是 Date 物件，且時間都已正規化，相減會得到毫秒差
+        const timeDiff = today.getTime() - firstDay.getTime();
+
+        // 常數化魔法數字，讓程式碼更易讀
+        const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+
+        // 將毫秒轉換為天數。
+        // 這裡用 Math.floor 比較直觀，表示「已經完整經過了幾天」。
+        // 例如，今天減昨天，是 1 天。
+        // 如果你的業務邏輯是「只要跨天就算一天」，那用 Math.ceil 也是可以的。
+        const dayDiff = Math.floor(timeDiff / MILLISECONDS_PER_DAY);
+
+        // 判斷背景樣式 (這部分邏輯是正確的)
+        // 你的邏輯：第7天開始就是 warning，第12天開始就是 danger
+        // dayDiff >= 12  => 差異為 12, 13, 14... 天
+        // dayDiff >= 7   => 差異為 7, 8, 9, 10, 11 天
         const bgClass = dayDiff >= 12 ? 'table-danger' : (dayDiff >= 7 ? 'table-warning' : '');
 
         return { dayDiff, bgClass };

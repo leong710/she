@@ -315,7 +315,7 @@
 </body>
 <script src="../../libs/aos/aos.js"></script>               <!-- goTop滾動畫面jquery.min.js+aos.js 3/4-->
 <script src="../../libs/aos/aos_init.js"></script>          <!-- goTop滾動畫面script.js 4/4-->
-<script src="_change.js"></script>
+<script src="_change.js?V=<?=time()?>"></script>
 <script src="dashboard.js?V=<?=time()?>"></script>
 
 <?php include("../template/footer.php"); ?>
