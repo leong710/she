@@ -553,6 +553,7 @@
                             let label = this.nextElementSibling;            //  250322 switch true=是/false=否
                             label.textContent = this.checked ? "是" : "否";
                         }
+                        staffData['_changeLogs'][i_targetMonth]['OSHORT'] = staffData['_changeLogs'][i_targetMonth]['OSHORT'] ?? i_OSHORT; // 260324 修正同部門的特殊作業異動
                     } else {
                         console.error(`staff empID：${i_empId} is undefined!!`);
                     }
@@ -584,8 +585,9 @@
             }
             for(const[targetYear, logs] of Object.entries(staff._changeLogs)){
                 if((logs._9checkDate === '' || logs._9checkDate === undefined ) && logs._7isCheck === true && logs._6shCheck.length !== 0){     // 沒有結案...建立--未結案的年月:異動後部門代號
-                    _todo[targetYear] = _todo[targetYear] ?? {
-                            'OSHORT' : logs.OSHORT                          // 新增未結案的年月
+                    // _todo[targetYear] = _todo[targetYear] ?? {           // 新增未結案的年月
+                    _todo[targetYear] =  {                                  // 260324 強迫新增未結案的年月+部門代碼
+                            'OSHORT' : logs.OSHORT                          
                         }
                 }else{                                                      // 已經結案...找到對應的位置於以刪除
                     delete _todo[targetYear];                               // 刪除對應的項目...這裡要注意~~~~~~~~~~~~~~~~~!!!!!!!!!
